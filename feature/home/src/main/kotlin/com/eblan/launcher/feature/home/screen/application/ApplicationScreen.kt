@@ -602,7 +602,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         eblanApplicationInfo.componentName.replace("/", "-"),
     )
 
-    val icon = if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
+    val icon = if (iconPackInfoPackageName.isNotEmpty()) {
         iconFile.absolutePath
     } else {
         eblanApplicationInfo.icon

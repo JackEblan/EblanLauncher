@@ -423,7 +423,7 @@ private fun SharedTransitionScope.FolderGridItem(
                             )
 
                             val icon =
-                                if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
+                                if (iconPackInfoPackageName.isNotEmpty()) {
                                     iconPackFile.absolutePath
                                 } else {
                                     currentData.icon

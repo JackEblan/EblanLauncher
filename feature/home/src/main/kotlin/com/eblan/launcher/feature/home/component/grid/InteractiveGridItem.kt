@@ -291,7 +291,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         data.componentName.replace("/", "-"),
     )
 
-    val icon = if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
+    val icon = if (iconPackInfoPackageName.isNotEmpty()) {
         iconPackFile.absolutePath
     } else {
         data.icon
@@ -1026,7 +1026,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                                 )
 
                                 val icon =
-                                    if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
+                                    if (iconPackInfoPackageName.isNotEmpty()) {
                                         iconPackFile.absolutePath
                                     } else {
                                         currentData.icon

@@ -68,7 +68,6 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest.Builder
 import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -84,7 +83,6 @@ import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalSettings
 import kotlinx.coroutines.launch
-import java.io.File
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -95,9 +93,9 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
     textColor: TextColor,
     hasShortcutHostPermission: Boolean,
     drag: Drag,
-    iconPackInfoPackageName: String,
     statusBarNotifications: Map<String, Int>,
     isScrollInProgress: Boolean,
+    iconPackFilePaths: List<String>,
     onTapApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -143,8 +141,8 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     gridItem = gridItem,
                     data = data,
                     drag = drag,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
                     isScrollInProgress = isScrollInProgress,
+                    iconPackFilePaths = iconPackFilePaths,
                     onTap = {
                         onTapApplicationInfo(
                             data.serialNumber,
@@ -208,8 +206,8 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     gridItem = gridItem,
                     data = data,
                     drag = drag,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
                     isScrollInProgress = isScrollInProgress,
+                    iconPackFilePaths = iconPackFilePaths,
                     onTap = onTapFolderGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
@@ -251,9 +249,9 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
     drag: Drag,
-    iconPackInfoPackageName: String,
     statusBarNotifications: Map<String, Int>,
     isScrollInProgress: Boolean,
+    iconPackFilePaths: List<String>,
     onTap: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -282,26 +280,14 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
-    val icon = remember {
-        val iconPacksDirectory = File(
-            context.filesDir, FileManager.ICON_PACKS_DIR
+    val icon = iconPackFilePaths.find { iconPackFilePath ->
+        iconPackFilePath.contains(
+            data.componentName.replace(
+                "/",
+                "-",
+            ),
         )
-
-        val iconPackDirectory = File(
-            iconPacksDirectory, iconPackInfoPackageName
-        )
-
-        val iconPackFile = File(
-            iconPackDirectory,
-            data.componentName.replace("/", "-"),
-        )
-
-        if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
-            iconPackFile.absolutePath
-        } else {
-            data.icon
-        }
-    }
+    } ?: data.icon
 
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -839,8 +825,8 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     gridItem: GridItem,
     data: GridItemData.Folder,
     drag: Drag,
-    iconPackInfoPackageName: String,
     isScrollInProgress: Boolean,
+    iconPackFilePaths: List<String>,
     onTap: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -1010,28 +996,14 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
                         when (val currentData = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
-                                val icon = remember {
-                                    val iconPacksDirectory = File(
-                                        context.filesDir,
-                                        FileManager.ICON_PACKS_DIR,
+                                val icon = iconPackFilePaths.find { iconPackFilePath ->
+                                    iconPackFilePath.contains(
+                                        currentData.componentName.replace(
+                                            "/",
+                                            "-",
+                                        ),
                                     )
-
-                                    val iconPackDirectory = File(
-                                        iconPacksDirectory,
-                                        iconPackInfoPackageName,
-                                    )
-
-                                    val iconPackFile = File(
-                                        iconPackDirectory,
-                                        currentData.componentName.replace("/", "-"),
-                                    )
-
-                                    if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
-                                        iconPackFile.absolutePath
-                                    } else {
-                                        currentData.icon
-                                    }
-                                }
+                                } ?: data.icon
 
                                 AsyncImage(
                                     model = Builder(context).data(icon)

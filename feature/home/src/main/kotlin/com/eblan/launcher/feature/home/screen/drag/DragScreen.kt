@@ -89,11 +89,11 @@ internal fun SharedTransitionScope.DragScreen(
     textColor: TextColor,
     moveGridItemResult: MoveGridItemResult?,
     homeSettings: HomeSettings,
-    iconPackInfoPackageName: String,
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
+    iconPackFilePaths: List<String>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -393,11 +393,11 @@ internal fun SharedTransitionScope.DragScreen(
                         gridItem = gridItem,
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
-                        iconPackInfoPackageName = iconPackInfoPackageName,
                         isDragging = isDragging,
                         statusBarNotifications = statusBarNotifications,
                         hasShortcutHostPermission = hasShortcutHostPermission,
                         drag = drag,
+                        iconPackFilePaths = iconPackFilePaths,
                     )
                 },
             )
@@ -450,11 +450,11 @@ internal fun SharedTransitionScope.DragScreen(
                     gridItem = gridItem,
                     textColor = textColor,
                     gridItemSettings = gridItemSettings,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = isDragging,
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     drag = drag,
+                    iconPackFilePaths = iconPackFilePaths,
                 )
             },
         )

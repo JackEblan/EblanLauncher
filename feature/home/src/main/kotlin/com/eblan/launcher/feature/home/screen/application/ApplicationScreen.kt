@@ -103,7 +103,6 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
@@ -127,7 +126,6 @@ import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import kotlinx.coroutines.launch
-import java.io.File
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -145,11 +143,11 @@ internal fun SharedTransitionScope.ApplicationScreen(
     appDrawerSettings: AppDrawerSettings,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     gridItemSource: GridItemSource?,
-    iconPackInfoPackageName: String,
     screenHeight: Int,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     hasShortcutHostPermission: Boolean,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    iconPackFilePaths: List<String>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -206,12 +204,12 @@ internal fun SharedTransitionScope.ApplicationScreen(
                     appDrawerSettings = appDrawerSettings,
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     gridItemSource = gridItemSource,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
                     eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
                     eblanShortcutInfos = eblanShortcutInfos,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     screenHeight = screenHeight,
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                    iconPackFilePaths = iconPackFilePaths,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -238,12 +236,12 @@ private fun SharedTransitionScope.Success(
     appDrawerSettings: AppDrawerSettings,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     gridItemSource: GridItemSource?,
-    iconPackInfoPackageName: String,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     hasShortcutHostPermission: Boolean,
     screenHeight: Int,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    iconPackFilePaths: List<String>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -317,7 +315,7 @@ private fun SharedTransitionScope.Success(
             eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
             drag = drag,
             appDrawerSettings = appDrawerSettings,
-            iconPackInfoPackageName = iconPackInfoPackageName,
+            iconPackFilePaths = iconPackFilePaths,
             paddingValues = paddingValues,
             onUpdateGridItemOffset = { intOffset, intSize ->
                 onUpdateGridItemOffset(intOffset, intSize)
@@ -354,8 +352,8 @@ private fun SharedTransitionScope.Success(
                     paddingValues = paddingValues,
                     drag = drag,
                     appDrawerSettings = appDrawerSettings,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
                     eblanApplicationInfos = eblanApplicationInfos,
+                    iconPackFilePaths = iconPackFilePaths,
                     onLongPressGridItem = onLongPressGridItem,
                     onResetOverlay = onResetOverlay,
                     onUpdateGridItemOffset = { intOffset, intSize ->
@@ -381,8 +379,8 @@ private fun SharedTransitionScope.Success(
                 paddingValues = paddingValues,
                 drag = drag,
                 appDrawerSettings = appDrawerSettings,
-                iconPackInfoPackageName = iconPackInfoPackageName,
                 eblanApplicationInfos = eblanApplicationInfos,
+                iconPackFilePaths = iconPackFilePaths,
                 onLongPressGridItem = onLongPressGridItem,
                 onResetOverlay = onResetOverlay,
                 onUpdateGridItemOffset = { intOffset, intSize ->
@@ -482,8 +480,8 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
     appDrawerSettings: AppDrawerSettings,
     onQueryChange: (String) -> Unit,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
-    iconPackInfoPackageName: String,
     paddingValues: PaddingValues,
+    iconPackFilePaths: List<String>,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -534,8 +532,8 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
                     drag = drag,
                     eblanApplicationInfo = eblanApplicationInfo,
                     appDrawerSettings = appDrawerSettings,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
                     paddingValues = paddingValues,
+                    iconPackFilePaths = iconPackFilePaths,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdatePopupMenu = onUpdatePopupMenu,
@@ -556,8 +554,8 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     drag: Drag,
     eblanApplicationInfo: EblanApplicationInfo,
     appDrawerSettings: AppDrawerSettings,
-    iconPackInfoPackageName: String,
     paddingValues: PaddingValues,
+    iconPackFilePaths: List<String>,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -593,22 +591,14 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     val maxLines = if (appDrawerSettings.gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
-    val icon = remember {
-        val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
-
-        val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
-
-        val iconPackFile = File(
-            iconPackDirectory,
-            eblanApplicationInfo.componentName.replace("/", "-"),
+    val icon = iconPackFilePaths.find { iconPackFilePath ->
+        iconPackFilePath.contains(
+            eblanApplicationInfo.componentName.replace(
+                "/",
+                "-",
+            ),
         )
-
-        if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
-            iconPackFile.absolutePath
-        } else {
-            eblanApplicationInfo.icon
-        }
-    }
+    } ?: eblanApplicationInfo.icon
 
     val horizontalAlignment = when (appDrawerSettings.gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -629,10 +619,6 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     val topPadding = with(density) {
         paddingValues.calculateTopPadding().roundToPx()
     }
-
-    val customIcon = eblanApplicationInfo.customIcon ?: icon
-
-    val customLabel = eblanApplicationInfo.customLabel ?: eblanApplicationInfo.label
 
     var isLongPress by remember { mutableStateOf(false) }
 
@@ -781,7 +767,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                 AsyncImage(
                     model = ImageRequest
                         .Builder(context)
-                        .data(customIcon)
+                        .data(eblanApplicationInfo.customIcon ?: icon)
                         .addLastModifiedToFileCacheKey(true)
                         .build(),
                     contentDescription = null,
@@ -829,7 +815,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = customLabel,
+                    text = eblanApplicationInfo.customLabel ?: eblanApplicationInfo.label,
                     color = textColor,
                     textAlign = TextAlign.Center,
                     maxLines = maxLines,
@@ -850,8 +836,8 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     paddingValues: PaddingValues,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
-    iconPackInfoPackageName: String,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
+    iconPackFilePaths: List<String>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -932,8 +918,8 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                     drag = drag,
                     eblanApplicationInfo = eblanApplicationInfo,
                     appDrawerSettings = appDrawerSettings,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
                     paddingValues = paddingValues,
+                    iconPackFilePaths = iconPackFilePaths,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdatePopupMenu = onUpdatePopupMenu,

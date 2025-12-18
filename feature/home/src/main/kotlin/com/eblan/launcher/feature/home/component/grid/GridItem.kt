@@ -36,7 +36,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -52,7 +51,6 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest.Builder
 import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -64,7 +62,6 @@ import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalSettings
-import java.io.File
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -73,11 +70,11 @@ internal fun SharedTransitionScope.GridItemContent(
     gridItem: GridItem,
     textColor: Color,
     gridItemSettings: GridItemSettings,
-    iconPackInfoPackageName: String,
     isDragging: Boolean,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
     drag: Drag = Drag.End,
+    iconPackFilePaths: List<String>,
 ) {
     key(gridItem.id) {
         if (isDragging) {
@@ -99,9 +96,9 @@ internal fun SharedTransitionScope.GridItemContent(
                         data = data,
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
-                        iconPackInfoPackageName = iconPackInfoPackageName,
                         statusBarNotifications = statusBarNotifications,
                         drag = drag,
+                        iconPackFilePaths = iconPackFilePaths,
                     )
                 }
 
@@ -133,8 +130,8 @@ internal fun SharedTransitionScope.GridItemContent(
                         data = data,
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
-                        iconPackInfoPackageName = iconPackInfoPackageName,
                         drag = drag,
+                        iconPackFilePaths = iconPackFilePaths,
                     )
                 }
 
@@ -161,9 +158,9 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
     data: GridItemData.ApplicationInfo,
     textColor: Color,
     gridItemSettings: GridItemSettings,
-    iconPackInfoPackageName: String,
     statusBarNotifications: Map<String, Int>,
     drag: Drag,
+    iconPackFilePaths: List<String>,
 ) {
     val context = LocalContext.current
 
@@ -171,26 +168,14 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
-    val icon = remember {
-        val iconPacksDirectory = File(
-            context.filesDir, FileManager.ICON_PACKS_DIR
+    val icon = iconPackFilePaths.find { iconPackFilePath ->
+        iconPackFilePath.contains(
+            data.componentName.replace(
+                "/",
+                "-",
+            ),
         )
-
-        val iconPackDirectory = File(
-            iconPacksDirectory, iconPackInfoPackageName
-        )
-
-        val iconPackFile = File(
-            iconPackDirectory,
-            data.componentName.replace("/", "-"),
-        )
-
-        if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
-            iconPackFile.absolutePath
-        } else {
-            data.icon
-        }
-    }
+    } ?: data.icon
 
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -356,8 +341,8 @@ private fun SharedTransitionScope.FolderGridItem(
     data: GridItemData.Folder,
     textColor: Color,
     gridItemSettings: GridItemSettings,
-    iconPackInfoPackageName: String,
     drag: Drag,
+    iconPackFilePaths: List<String>,
 ) {
     val context = LocalContext.current
 
@@ -408,31 +393,17 @@ private fun SharedTransitionScope.FolderGridItem(
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
-                            val icon = remember {
-                                val iconPacksDirectory = File(
-                                    context.filesDir,
-                                    FileManager.ICON_PACKS_DIR,
+                            val icon = iconPackFilePaths.find { iconPackFilePath ->
+                                iconPackFilePath.contains(
+                                    currentData.componentName.replace(
+                                        "/",
+                                        "-",
+                                    ),
                                 )
-
-                                val iconPackDirectory = File(
-                                    iconPacksDirectory,
-                                    iconPackInfoPackageName,
-                                )
-
-                                val iconPackFile = File(
-                                    iconPackDirectory,
-                                    currentData.componentName.replace("/", "-"),
-                                )
-
-                                if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
-                                    iconPackFile.absolutePath
-                                } else {
-                                    currentData.icon
-                                }
-                            }
+                            } ?: data.icon
 
                             AsyncImage(
-                                model = Builder(context).data(icon)
+                                model = Builder(context).data(currentData.customIcon ?: icon)
                                     .addLastModifiedToFileCacheKey(true).build(),
                                 contentDescription = null,
                                 modifier = gridItemModifier,

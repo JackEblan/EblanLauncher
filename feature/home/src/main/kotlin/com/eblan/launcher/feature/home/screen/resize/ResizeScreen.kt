@@ -58,9 +58,9 @@ internal fun SharedTransitionScope.ResizeScreen(
     textColor: TextColor,
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
-    iconPackInfoPackageName: String,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
+    iconPackFilePaths: List<String>,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
@@ -143,10 +143,10 @@ internal fun SharedTransitionScope.ResizeScreen(
                     gridItem = gridItem,
                     textColor = textColor,
                     gridItemSettings = gridItemSettings,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = false,
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = hasShortcutHostPermission,
+                    iconPackFilePaths = iconPackFilePaths,
                 )
             },
         )
@@ -188,10 +188,10 @@ internal fun SharedTransitionScope.ResizeScreen(
                     gridItem = gridItem,
                     textColor = textColor,
                     gridItemSettings = gridItemSettings,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = false,
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = hasShortcutHostPermission,
+                    iconPackFilePaths = iconPackFilePaths,
                 )
             },
         )

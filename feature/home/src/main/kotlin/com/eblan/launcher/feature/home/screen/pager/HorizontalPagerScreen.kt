@@ -98,6 +98,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     swipeY: Float,
     screenHeight: Int,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    iconPackFilePaths: List<String>,
     onTapFolderGridItem: (String) -> Unit,
     onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
@@ -232,9 +233,9 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         textColor = textColor,
                         hasShortcutHostPermission = hasShortcutHostPermission,
                         drag = drag,
-                        iconPackInfoPackageName = iconPackInfoPackageName,
                         statusBarNotifications = statusBarNotifications,
                         isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+                        iconPackFilePaths = iconPackFilePaths,
                         onTapApplicationInfo = { serialNumber, componentName ->
                             val sourceBoundsX = x + leftPadding
 
@@ -349,9 +350,9 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     textColor = textColor,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     drag = drag,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
                     statusBarNotifications = statusBarNotifications,
                     isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+                    iconPackFilePaths = iconPackFilePaths,
                     onTapApplicationInfo = { serialNumber, componentName ->
                         val sourceBoundsX = x + leftPadding
 

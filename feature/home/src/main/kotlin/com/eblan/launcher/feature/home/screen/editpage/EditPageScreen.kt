@@ -73,8 +73,8 @@ internal fun SharedTransitionScope.EditPageScreen(
     textColor: TextColor,
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
-    iconPackInfoPackageName: String,
     hasShortcutHostPermission: Boolean,
+    iconPackFilePaths: List<String>,
     onSaveEditPage: (
         id: Int,
         pageItems: List<PageItem>,
@@ -178,10 +178,10 @@ internal fun SharedTransitionScope.EditPageScreen(
                                     gridItem = gridItem,
                                     textColor = textColor,
                                     gridItemSettings = gridItemSettings,
-                                    iconPackInfoPackageName = iconPackInfoPackageName,
                                     isDragging = false,
                                     statusBarNotifications = emptyMap(),
                                     hasShortcutHostPermission = hasShortcutHostPermission,
+                                    iconPackFilePaths = iconPackFilePaths,
                                 )
                             },
                         )

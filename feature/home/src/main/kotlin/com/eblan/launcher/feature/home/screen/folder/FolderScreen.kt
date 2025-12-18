@@ -79,9 +79,9 @@ internal fun SharedTransitionScope.FolderScreen(
     screenHeight: Int,
     textColor: TextColor,
     homeSettings: HomeSettings,
-    iconPackInfoPackageName: String,
     folderGridHorizontalPagerState: PagerState,
     statusBarNotifications: Map<String, Int>,
+    iconPackFilePaths: List<String>,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
@@ -211,9 +211,9 @@ internal fun SharedTransitionScope.FolderScreen(
                                     drag = drag,
                                     gridItemSettings = homeSettings.gridItemSettings,
                                     textColor = textColor,
-                                    iconPackInfoPackageName = iconPackInfoPackageName,
                                     statusBarNotifications = statusBarNotifications,
                                     isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
+                                    iconPackFilePaths = iconPackFilePaths,
                                     onTapApplicationInfo = { serialNumber, componentName ->
                                         val sourceBoundsX = x + leftPadding
 

@@ -221,7 +221,7 @@ internal fun HomeScreen(
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -563,7 +563,7 @@ private fun SharedTransitionScope.Success(
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -714,9 +714,7 @@ private fun SharedTransitionScope.Success(
 
             when (event) {
                 Lifecycle.Event.ON_START -> {
-                    if (homeData.userData.experimentalSettings.syncData &&
-                        pinItemRequestWrapper.getPinItemRequest() == null
-                    ) {
+                    if (homeData.userData.experimentalSettings.syncData && pinItemRequestWrapper.getPinItemRequest() == null) {
                         context.startService(launcherAppsIntent)
 
                         context.startService(syncDataIntent)
@@ -726,9 +724,7 @@ private fun SharedTransitionScope.Success(
                 }
 
                 Lifecycle.Event.ON_STOP -> {
-                    if (homeData.userData.experimentalSettings.syncData &&
-                        pinItemRequestWrapper.getPinItemRequest() == null
-                    ) {
+                    if (homeData.userData.experimentalSettings.syncData && pinItemRequestWrapper.getPinItemRequest() == null) {
                         context.stopService(launcherAppsIntent)
 
                         context.stopService(syncDataIntent)
@@ -778,7 +774,6 @@ private fun SharedTransitionScope.Success(
                     homeSettings = homeData.userData.homeSettings,
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-                    iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     currentPage = currentPage,
                     statusBarNotifications = statusBarNotifications,

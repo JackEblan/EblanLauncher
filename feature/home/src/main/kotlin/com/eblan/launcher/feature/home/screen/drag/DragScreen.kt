@@ -93,7 +93,7 @@ internal fun SharedTransitionScope.DragScreen(
     currentPage: Int,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,

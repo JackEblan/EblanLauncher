@@ -60,7 +60,7 @@ internal fun SharedTransitionScope.ResizeScreen(
     homeSettings: HomeSettings,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,

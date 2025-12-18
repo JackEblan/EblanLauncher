@@ -147,7 +147,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     hasShortcutHostPermission: Boolean,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -241,7 +241,7 @@ private fun SharedTransitionScope.Success(
     hasShortcutHostPermission: Boolean,
     screenHeight: Int,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -481,7 +481,7 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
     onQueryChange: (String) -> Unit,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     paddingValues: PaddingValues,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -555,7 +555,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     eblanApplicationInfo: EblanApplicationInfo,
     appDrawerSettings: AppDrawerSettings,
     paddingValues: PaddingValues,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -591,14 +591,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     val maxLines = if (appDrawerSettings.gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
-    val icon = iconPackFilePaths.find { iconPackFilePath ->
-        iconPackFilePath.contains(
-            eblanApplicationInfo.componentName.replace(
-                "/",
-                "-",
-            ),
-        )
-    } ?: eblanApplicationInfo.icon
+    val icon = iconPackFilePaths[eblanApplicationInfo.componentName] ?: eblanApplicationInfo.icon
 
     val horizontalAlignment = when (appDrawerSettings.gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -837,7 +830,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,

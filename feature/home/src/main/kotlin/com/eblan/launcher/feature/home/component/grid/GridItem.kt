@@ -74,7 +74,7 @@ internal fun SharedTransitionScope.GridItemContent(
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
     drag: Drag = Drag.End,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
 ) {
     key(gridItem.id) {
         if (isDragging) {
@@ -160,7 +160,7 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
     gridItemSettings: GridItemSettings,
     statusBarNotifications: Map<String, Int>,
     drag: Drag,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
 ) {
     val context = LocalContext.current
 
@@ -168,14 +168,7 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
-    val icon = iconPackFilePaths.find { iconPackFilePath ->
-        iconPackFilePath.contains(
-            data.componentName.replace(
-                "/",
-                "-",
-            ),
-        )
-    } ?: data.icon
+    val icon = iconPackFilePaths[data.componentName] ?: data.icon
 
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -342,7 +335,7 @@ private fun SharedTransitionScope.FolderGridItem(
     textColor: Color,
     gridItemSettings: GridItemSettings,
     drag: Drag,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
 ) {
     val context = LocalContext.current
 
@@ -393,14 +386,7 @@ private fun SharedTransitionScope.FolderGridItem(
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
-                            val icon = iconPackFilePaths.find { iconPackFilePath ->
-                                iconPackFilePath.contains(
-                                    currentData.componentName.replace(
-                                        "/",
-                                        "-",
-                                    ),
-                                )
-                            } ?: data.icon
+                            val icon = iconPackFilePaths[currentData.componentName] ?: currentData.icon
 
                             AsyncImage(
                                 model = Builder(context).data(currentData.customIcon ?: icon)

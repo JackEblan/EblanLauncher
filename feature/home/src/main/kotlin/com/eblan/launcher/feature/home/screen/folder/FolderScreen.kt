@@ -81,7 +81,7 @@ internal fun SharedTransitionScope.FolderScreen(
     homeSettings: HomeSettings,
     folderGridHorizontalPagerState: PagerState,
     statusBarNotifications: Map<String, Int>,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,

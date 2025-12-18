@@ -95,7 +95,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
     drag: Drag,
     statusBarNotifications: Map<String, Int>,
     isScrollInProgress: Boolean,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onTapApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -251,7 +251,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     drag: Drag,
     statusBarNotifications: Map<String, Int>,
     isScrollInProgress: Boolean,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onTap: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -280,14 +280,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
-    val icon = iconPackFilePaths.find { iconPackFilePath ->
-        iconPackFilePath.contains(
-            data.componentName.replace(
-                "/",
-                "-",
-            ),
-        )
-    } ?: data.icon
+    val icon = iconPackFilePaths[data.componentName] ?: data.icon
 
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -826,7 +819,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     data: GridItemData.Folder,
     drag: Drag,
     isScrollInProgress: Boolean,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onTap: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -996,17 +989,10 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
                         when (val currentData = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
-                                val icon = iconPackFilePaths.find { iconPackFilePath ->
-                                    iconPackFilePath.contains(
-                                        currentData.componentName.replace(
-                                            "/",
-                                            "-",
-                                        ),
-                                    )
-                                } ?: data.icon
+                                val icon = iconPackFilePaths[currentData.componentName] ?: currentData.icon
 
                                 AsyncImage(
-                                    model = Builder(context).data(icon)
+                                    model = Builder(context).data(currentData.customIcon ?: icon)
                                         .addLastModifiedToFileCacheKey(true).build(),
                                     contentDescription = null,
                                     modifier = gridItemModifier,

@@ -81,7 +81,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
     folderGridHorizontalPagerState: PagerState,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,

@@ -15,37 +15,37 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.usecase
+package com.eblan.launcher.domain.usecase.applicationcomponent
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
-import com.eblan.launcher.domain.model.EblanShortcutConfig
-import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
+import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetEblanShortcutConfigByLabelUseCase @Inject constructor(
-    private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
+class GetEblanAppWidgetProviderInfosByLabelUseCase @Inject constructor(
+    private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(label: String): Flow<Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>> {
-        return eblanShortcutConfigRepository.eblanShortcutConfigs.map { eblanShortcutConfigs ->
-            eblanShortcutConfigs.sortedBy { eblanShortcutConfig ->
-                eblanShortcutConfig.applicationLabel?.lowercase()
-            }.filter { eblanShortcutConfig ->
-                label.isNotBlank() && eblanShortcutConfig.applicationLabel.toString().contains(
+    operator fun invoke(label: String): Flow<Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>> {
+        return eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
+            eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
+                eblanAppWidgetProviderInfo.label.lowercase()
+            }.filter { eblanAppWidgetProviderInfo ->
+                label.isNotBlank() && eblanAppWidgetProviderInfo.label.contains(
                     other = label,
                     ignoreCase = true,
                 )
             }.groupBy { eblanAppWidgetProviderInfo ->
                 EblanApplicationInfoGroup(
                     packageName = eblanAppWidgetProviderInfo.packageName,
-                    icon = eblanAppWidgetProviderInfo.activityIcon,
-                    label = eblanAppWidgetProviderInfo.applicationLabel,
+                    icon = eblanAppWidgetProviderInfo.icon,
+                    label = eblanAppWidgetProviderInfo.label,
                 )
             }
         }.flowOn(defaultDispatcher)

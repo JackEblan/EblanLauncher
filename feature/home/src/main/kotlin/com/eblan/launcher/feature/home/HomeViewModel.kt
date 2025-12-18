@@ -33,14 +33,14 @@ import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import com.eblan.launcher.domain.usecase.GetEblanAppWidgetProviderInfosByLabelUseCase
-import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
-import com.eblan.launcher.domain.usecase.GetEblanApplicationInfosByLabelUseCase
-import com.eblan.launcher.domain.usecase.GetEblanShortcutConfigByLabelUseCase
-import com.eblan.launcher.domain.usecase.GetEblanShortcutInfosUseCase
-import com.eblan.launcher.domain.usecase.GetFolderDataByIdUseCase
+import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanAppWidgetProviderInfosByLabelUseCase
+import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanApplicationComponentUseCase
+import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanApplicationInfosByLabelUseCase
+import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutConfigByLabelUseCase
+import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutInfosUseCase
+import com.eblan.launcher.domain.usecase.grid.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
-import com.eblan.launcher.domain.usecase.GetIconPackFilePathsUseCase
+import com.eblan.launcher.domain.usecase.iconpack.GetIconPackFilePathsUseCase
 import com.eblan.launcher.domain.usecase.grid.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
@@ -209,7 +209,7 @@ internal class HomeViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList(),
+            initialValue = emptyMap(),
         )
 
     fun moveGridItem(

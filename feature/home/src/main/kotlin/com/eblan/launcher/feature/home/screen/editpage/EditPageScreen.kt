@@ -74,7 +74,7 @@ internal fun SharedTransitionScope.EditPageScreen(
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
     hasShortcutHostPermission: Boolean,
-    iconPackFilePaths: List<String>,
+    iconPackFilePaths: Map<String, String>,
     onSaveEditPage: (
         id: Int,
         pageItems: List<PageItem>,

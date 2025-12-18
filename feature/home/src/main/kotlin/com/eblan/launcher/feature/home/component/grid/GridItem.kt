@@ -36,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -170,24 +171,26 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
-    val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
+    val icon = remember {
+        val iconPacksDirectory = File(
+            context.filesDir, FileManager.ICON_PACKS_DIR
+        )
 
-    val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
+        val iconPackDirectory = File(
+            iconPacksDirectory, iconPackInfoPackageName
+        )
 
-    val iconPackFile = File(
-        iconPackDirectory,
-        data.componentName.replace("/", "-"),
-    )
+        val iconPackFile = File(
+            iconPackDirectory,
+            data.componentName.replace("/", "-"),
+        )
 
-    val icon = if (iconPackInfoPackageName.isNotEmpty()) {
-        iconPackFile.absolutePath
-    } else {
-        data.icon
+        if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
+            iconPackFile.absolutePath
+        } else {
+            data.icon
+        }
     }
-
-    val customIcon = data.customIcon ?: icon
-
-    val customLabel = data.customLabel ?: data.label
 
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -211,10 +214,8 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
-                model = Builder(context)
-                    .data(customIcon)
-                    .addLastModifiedToFileCacheKey(true)
-                    .build(),
+                model = Builder(context).data(data.customIcon ?: icon)
+                    .addLastModifiedToFileCacheKey(true).build(),
                 contentDescription = null,
                 modifier = Modifier
                     .sharedElementWithCallerManagedVisibility(
@@ -258,7 +259,7 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
 
         if (gridItemSettings.showLabel) {
             Text(
-                text = customLabel,
+                text = data.customLabel ?: data.label,
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
@@ -407,33 +408,32 @@ private fun SharedTransitionScope.FolderGridItem(
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
-                            val iconPacksDirectory = File(
-                                context.filesDir,
-                                FileManager.ICON_PACKS_DIR,
-                            )
+                            val icon = remember {
+                                val iconPacksDirectory = File(
+                                    context.filesDir,
+                                    FileManager.ICON_PACKS_DIR,
+                                )
 
-                            val iconPackDirectory = File(
-                                iconPacksDirectory,
-                                iconPackInfoPackageName,
-                            )
+                                val iconPackDirectory = File(
+                                    iconPacksDirectory,
+                                    iconPackInfoPackageName,
+                                )
 
-                            val iconPackFile = File(
-                                iconPackDirectory,
-                                currentData.componentName.replace("/", "-"),
-                            )
+                                val iconPackFile = File(
+                                    iconPackDirectory,
+                                    currentData.componentName.replace("/", "-"),
+                                )
 
-                            val icon =
-                                if (iconPackInfoPackageName.isNotEmpty()) {
+                                if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
                                     iconPackFile.absolutePath
                                 } else {
                                     currentData.icon
                                 }
+                            }
 
                             AsyncImage(
-                                model = Builder(context)
-                                    .data(icon)
-                                    .addLastModifiedToFileCacheKey(true)
-                                    .build(),
+                                model = Builder(context).data(icon)
+                                    .addLastModifiedToFileCacheKey(true).build(),
                                 contentDescription = null,
                                 modifier = gridItemModifier,
                             )
@@ -601,10 +601,6 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
         else -> data.applicationLabel
     }
 
-    val customIcon = data.customIcon ?: icon
-
-    val customLabel = data.customLabel ?: label
-
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
@@ -612,10 +608,8 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
-                model = Builder(context)
-                    .data(customIcon)
-                    .addLastModifiedToFileCacheKey(true)
-                    .build(),
+                model = Builder(context).data(data.customIcon ?: icon)
+                    .addLastModifiedToFileCacheKey(true).build(),
                 contentDescription = null,
                 modifier = Modifier
                     .sharedElementWithCallerManagedVisibility(
@@ -647,7 +641,7 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
 
         if (gridItemSettings.showLabel) {
             Text(
-                text = customLabel.toString(),
+                text = (data.customLabel ?: label).toString(),
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,

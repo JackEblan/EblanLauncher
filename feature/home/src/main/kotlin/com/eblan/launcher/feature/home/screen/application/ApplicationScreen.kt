@@ -593,19 +593,21 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     val maxLines = if (appDrawerSettings.gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
-    val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
+    val icon = remember {
+        val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
 
-    val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
+        val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
 
-    val iconFile = File(
-        iconPackDirectory,
-        eblanApplicationInfo.componentName.replace("/", "-"),
-    )
+        val iconPackFile = File(
+            iconPackDirectory,
+            eblanApplicationInfo.componentName.replace("/", "-"),
+        )
 
-    val icon = if (iconPackInfoPackageName.isNotEmpty()) {
-        iconFile.absolutePath
-    } else {
-        eblanApplicationInfo.icon
+        if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
+            iconPackFile.absolutePath
+        } else {
+            eblanApplicationInfo.icon
+        }
     }
 
     val horizontalAlignment = when (appDrawerSettings.gridItemSettings.horizontalAlignment) {

@@ -282,24 +282,26 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
-    val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
+    val icon = remember {
+        val iconPacksDirectory = File(
+            context.filesDir, FileManager.ICON_PACKS_DIR
+        )
 
-    val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
+        val iconPackDirectory = File(
+            iconPacksDirectory, iconPackInfoPackageName
+        )
 
-    val iconPackFile = File(
-        iconPackDirectory,
-        data.componentName.replace("/", "-"),
-    )
+        val iconPackFile = File(
+            iconPackDirectory,
+            data.componentName.replace("/", "-"),
+        )
 
-    val icon = if (iconPackInfoPackageName.isNotEmpty()) {
-        iconPackFile.absolutePath
-    } else {
-        data.icon
+        if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
+            iconPackFile.absolutePath
+        } else {
+            data.icon
+        }
     }
-
-    val customIcon = data.customIcon ?: icon
-
-    val customLabel = data.customLabel ?: data.label
 
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -411,10 +413,8 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                 modifier = Modifier.size(gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
-                    model = Builder(context)
-                        .data(customIcon)
-                        .addLastModifiedToFileCacheKey(true)
-                        .build(),
+                    model = Builder(context).data(data.customIcon ?: icon)
+                        .addLastModifiedToFileCacheKey(true).build(),
                     contentDescription = null,
                     modifier = Modifier
                         .sharedElementWithCallerManagedVisibility(
@@ -470,7 +470,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
             if (gridItemSettings.showLabel) {
                 Text(
-                    text = customLabel,
+                    text = data.customLabel ?: data.label,
                     color = textColor,
                     textAlign = TextAlign.Center,
                     maxLines = maxLines,
@@ -1010,33 +1010,32 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
                         when (val currentData = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
-                                val iconPacksDirectory = File(
-                                    context.filesDir,
-                                    FileManager.ICON_PACKS_DIR,
-                                )
+                                val icon = remember {
+                                    val iconPacksDirectory = File(
+                                        context.filesDir,
+                                        FileManager.ICON_PACKS_DIR,
+                                    )
 
-                                val iconPackDirectory = File(
-                                    iconPacksDirectory,
-                                    iconPackInfoPackageName,
-                                )
+                                    val iconPackDirectory = File(
+                                        iconPacksDirectory,
+                                        iconPackInfoPackageName,
+                                    )
 
-                                val iconPackFile = File(
-                                    iconPackDirectory,
-                                    currentData.componentName.replace("/", "-"),
-                                )
+                                    val iconPackFile = File(
+                                        iconPackDirectory,
+                                        currentData.componentName.replace("/", "-"),
+                                    )
 
-                                val icon =
-                                    if (iconPackInfoPackageName.isNotEmpty()) {
+                                    if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
                                         iconPackFile.absolutePath
                                     } else {
                                         currentData.icon
                                     }
+                                }
 
                                 AsyncImage(
-                                    model = Builder(context)
-                                        .data(icon)
-                                        .addLastModifiedToFileCacheKey(true)
-                                        .build(),
+                                    model = Builder(context).data(icon)
+                                        .addLastModifiedToFileCacheKey(true).build(),
                                     contentDescription = null,
                                     modifier = gridItemModifier,
                                 )
@@ -1279,9 +1278,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                 modifier = Modifier.size(gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
-                    model = Builder(context)
-                        .data(customIcon)
-                        .addLastModifiedToFileCacheKey(true)
+                    model = Builder(context).data(customIcon).addLastModifiedToFileCacheKey(true)
                         .build(),
                     contentDescription = null,
                     modifier = Modifier

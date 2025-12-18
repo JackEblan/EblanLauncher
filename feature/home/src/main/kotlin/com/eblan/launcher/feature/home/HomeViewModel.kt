@@ -33,15 +33,14 @@ import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanAppWidgetProviderInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanApplicationInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutConfigByLabelUseCase
 import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutInfosUseCase
-import com.eblan.launcher.domain.usecase.grid.GetFolderDataByIdUseCase
-import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
-import com.eblan.launcher.domain.usecase.iconpack.GetIconPackFilePathsUseCase
 import com.eblan.launcher.domain.usecase.grid.DeleteGridItemUseCase
+import com.eblan.launcher.domain.usecase.grid.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveGridItemUseCase
@@ -49,6 +48,7 @@ import com.eblan.launcher.domain.usecase.grid.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterMoveUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterResizeUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsUseCase
+import com.eblan.launcher.domain.usecase.iconpack.GetIconPackFilePathsUseCase
 import com.eblan.launcher.domain.usecase.page.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.page.UpdatePageItemsUseCase
 import com.eblan.launcher.domain.usecase.pin.GetPinGridItemUseCase

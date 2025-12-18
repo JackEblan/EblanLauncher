@@ -1,0 +1,5 @@
+- Bug fixes and stability improvements
+- Widget 0x0 display the size instead
+- Trying to improve drag and drop animation
+- Widgets by app dialog
+- Fix: Improve `GridItemPopup` layout and styling

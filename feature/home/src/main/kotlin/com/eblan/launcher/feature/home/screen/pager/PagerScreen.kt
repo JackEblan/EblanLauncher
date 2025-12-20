@@ -226,6 +226,13 @@ internal fun SharedTransitionScope.PagerScreen(
                     pageCount = homeSettings.pageCount,
                     infiniteScroll = homeSettings.infiniteScroll,
                     windowToken = view.windowToken,
+                    swipeY = swipeY,
+                    screenHeight = screenHeight,
+                    showWidgets = showWidgets,
+                    showShortcutConfigActivities = showShortcutConfigActivities,
+                    onDismiss = {
+                        showAppDrawer = false
+                    },
                 )
 
                 handleEblanActionIntent(

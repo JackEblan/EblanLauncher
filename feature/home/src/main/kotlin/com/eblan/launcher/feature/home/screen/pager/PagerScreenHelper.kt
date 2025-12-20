@@ -146,10 +146,34 @@ internal suspend fun handleActionMainIntent(
     pageCount: Int,
     infiniteScroll: Boolean,
     windowToken: IBinder,
+    swipeY: Animatable<Float, AnimationVector1D>,
+    screenHeight: Int,
+    showWidgets: Boolean,
+    showShortcutConfigActivities: Boolean,
+    onDismiss: () -> Unit,
 ) {
-    if (intent.action != Intent.ACTION_MAIN &&
-        !intent.hasCategory(Intent.CATEGORY_HOME)
-    ) {
+    if (intent.action != Intent.ACTION_MAIN && !intent.hasCategory(Intent.CATEGORY_HOME)) {
+        return
+    }
+
+    if ((intent.flags and Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+        return
+    }
+
+    if (swipeY.value < screenHeight.toFloat()) {
+        swipeY.animateTo(
+            targetValue = screenHeight.toFloat(),
+            animationSpec = tween(
+                easing = FastOutSlowInEasing,
+            ),
+        )
+
+        onDismiss()
+
+        return
+    }
+
+    if (showWidgets || showShortcutConfigActivities) {
         return
     }
 

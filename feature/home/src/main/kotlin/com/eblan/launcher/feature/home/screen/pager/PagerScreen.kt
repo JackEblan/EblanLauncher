@@ -200,6 +200,8 @@ internal fun SharedTransitionScope.PagerScreen(
         }
     }
 
+    var isPressHome by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = hasDoubleTap) {
         handleHasDoubleTap(
             hasDoubleTap = hasDoubleTap,
@@ -230,8 +232,8 @@ internal fun SharedTransitionScope.PagerScreen(
                     screenHeight = screenHeight,
                     showWidgets = showWidgets,
                     showShortcutConfigActivities = showShortcutConfigActivities,
-                    onDismiss = {
-                        showAppDrawer = false
+                    onHome = {
+                        isPressHome = true
                     },
                 )
 
@@ -380,6 +382,7 @@ internal fun SharedTransitionScope.PagerScreen(
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
             gridItemSource = gridItemSource,
+            isPressHome = isPressHome,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -388,6 +391,8 @@ internal fun SharedTransitionScope.PagerScreen(
                             easing = FastOutSlowInEasing,
                         ),
                     )
+
+                    isPressHome = false
                 }
             },
             onDraggingGridItem = onDraggingGridItem,
@@ -441,6 +446,7 @@ internal fun SharedTransitionScope.PagerScreen(
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
             gridItemSource = gridItemSource,
+            isPressHome = isPressHome,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -451,6 +457,8 @@ internal fun SharedTransitionScope.PagerScreen(
                     )
 
                     showAppDrawer = false
+
+                    isPressHome = false
                 }
             },
             onDraggingGridItem = onDraggingGridItem,
@@ -486,11 +494,14 @@ internal fun SharedTransitionScope.PagerScreen(
             drag = drag,
             eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
             screenHeight = screenHeight,
+            isPressHome = isPressHome,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
             onDismiss = {
                 showWidgets = false
+
+                isPressHome = false
             },
             onDraggingGridItem = onDraggingGridItem,
             onResetOverlay = onResetOverlay,
@@ -507,11 +518,14 @@ internal fun SharedTransitionScope.PagerScreen(
             gridItemSettings = homeSettings.gridItemSettings,
             eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
             screenHeight = screenHeight,
+            isPressHome = isPressHome,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
             onDismiss = {
                 showShortcutConfigActivities = false
+
+                isPressHome = false
             },
             onDraggingGridItem = onDraggingGridItem,
             onResetOverlay = onResetOverlay,

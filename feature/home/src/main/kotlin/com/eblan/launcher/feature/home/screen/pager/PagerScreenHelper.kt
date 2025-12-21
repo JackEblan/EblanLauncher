@@ -150,7 +150,7 @@ internal suspend fun handleActionMainIntent(
     screenHeight: Int,
     showWidgets: Boolean,
     showShortcutConfigActivities: Boolean,
-    onDismiss: () -> Unit,
+    onHome: () -> Unit,
 ) {
     if (intent.action != Intent.ACTION_MAIN && !intent.hasCategory(Intent.CATEGORY_HOME)) {
         return
@@ -160,30 +160,19 @@ internal suspend fun handleActionMainIntent(
         return
     }
 
-    if (swipeY.value < screenHeight.toFloat()) {
-        swipeY.animateTo(
-            targetValue = screenHeight.toFloat(),
-            animationSpec = tween(
-                easing = FastOutSlowInEasing,
-            ),
-        )
+    onHome()
 
-        onDismiss()
-
+    if (swipeY.value < screenHeight.toFloat() || showWidgets || showShortcutConfigActivities) {
         return
     }
 
-    if (showWidgets || showShortcutConfigActivities) {
-        return
-    }
-
-    val initialPage = if (infiniteScroll) {
-        (Int.MAX_VALUE / 2) + initialPage
-    } else {
-        initialPage
-    }
-
-    gridHorizontalPagerState.scrollToPage(initialPage)
+    gridHorizontalPagerState.scrollToPage(
+        if (infiniteScroll) {
+            (Int.MAX_VALUE / 2) + initialPage
+        } else {
+            initialPage
+        },
+    )
 
     if (wallpaperScroll) {
         val page = calculatePage(

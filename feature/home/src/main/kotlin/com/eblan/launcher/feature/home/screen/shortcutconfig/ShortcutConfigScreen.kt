@@ -17,10 +17,7 @@
  */
 package com.eblan.launcher.feature.home.screen.shortcutconfig
 
-import android.content.Intent
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
@@ -63,7 +60,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -92,7 +88,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
-import androidx.core.util.Consumer
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.Associate
@@ -110,7 +105,6 @@ import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
-import com.eblan.launcher.feature.home.util.handleActionMainIntent
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -127,6 +121,7 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
     gridItemSettings: GridItemSettings,
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     screenHeight: Int,
+    isPressHome: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -159,8 +154,6 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
         }
     }
 
-    val activity = LocalActivity.current as ComponentActivity
-
     LaunchedEffect(key1 = Unit) {
         offsetY.animateTo(
             targetValue = 0f,
@@ -170,22 +163,18 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
         )
     }
 
-    DisposableEffect(key1 = activity) {
-        val listener = Consumer<Intent> { intent ->
+    LaunchedEffect(key1 = isPressHome) {
+        if (isPressHome) {
             scope.launch {
-                handleActionMainIntent(
-                    intent = intent,
-                    offsetY = offsetY,
-                    screenHeight = screenHeight,
-                    onDismiss = onDismiss,
+                offsetY.animateTo(
+                    targetValue = screenHeight.toFloat(),
+                    animationSpec = tween(
+                        easing = FastOutSlowInEasing,
+                    ),
                 )
+
+                onDismiss()
             }
-        }
-
-        activity.addOnNewIntentListener(listener)
-
-        onDispose {
-            activity.removeOnNewIntentListener(listener)
         }
     }
 

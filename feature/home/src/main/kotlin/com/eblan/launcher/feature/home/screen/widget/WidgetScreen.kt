@@ -110,6 +110,7 @@ internal fun SharedTransitionScope.WidgetScreen(
     drag: Drag,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     screenHeight: Int,
+    isPressHome: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -149,6 +150,21 @@ internal fun SharedTransitionScope.WidgetScreen(
                 easing = FastOutSlowInEasing,
             ),
         )
+    }
+
+    LaunchedEffect(key1 = isPressHome) {
+        if (isPressHome) {
+            scope.launch {
+                offsetY.animateTo(
+                    targetValue = screenHeight.toFloat(),
+                    animationSpec = tween(
+                        easing = FastOutSlowInEasing,
+                    ),
+                )
+
+                onDismiss()
+            }
+        }
     }
 
     BackHandler {

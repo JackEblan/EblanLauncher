@@ -121,6 +121,7 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
     gridItemSettings: GridItemSettings,
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     screenHeight: Int,
+    isPressHome: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -160,6 +161,21 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
                 easing = FastOutSlowInEasing,
             ),
         )
+    }
+
+    LaunchedEffect(key1 = isPressHome) {
+        if (isPressHome) {
+            scope.launch {
+                offsetY.animateTo(
+                    targetValue = screenHeight.toFloat(),
+                    animationSpec = tween(
+                        easing = FastOutSlowInEasing,
+                    ),
+                )
+
+                onDismiss()
+            }
+        }
     }
 
     BackHandler {

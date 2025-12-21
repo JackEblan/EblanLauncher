@@ -148,6 +148,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     hasShortcutHostPermission: Boolean,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
+    isPressHome: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -210,6 +211,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
                     screenHeight = screenHeight,
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     iconPackFilePaths = iconPackFilePaths,
+                    isPressHome = isPressHome,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -242,6 +244,7 @@ private fun SharedTransitionScope.Success(
     screenHeight: Int,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
+    isPressHome: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -293,6 +296,14 @@ private fun SharedTransitionScope.Success(
     }
 
     var eblanApplicationInfoGroup by remember { mutableStateOf<EblanApplicationInfoGroup?>(null) }
+
+    LaunchedEffect(key1 = isPressHome) {
+        if (isPressHome) {
+            showPopupApplicationMenu = false
+
+            onDismiss()
+        }
+    }
 
     BackHandler {
         showPopupApplicationMenu = false
@@ -459,6 +470,7 @@ private fun SharedTransitionScope.Success(
             paddingValues = paddingValues,
             drag = drag,
             screenHeight = screenHeight,
+            isPressHome = isPressHome,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {

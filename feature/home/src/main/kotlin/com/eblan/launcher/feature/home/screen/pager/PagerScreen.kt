@@ -72,6 +72,7 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.shortcutconfig.ShortcutConfigScreen
+import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
@@ -200,6 +201,10 @@ internal fun SharedTransitionScope.PagerScreen(
         }
     }
 
+    var isPressHome by remember { mutableStateOf(false) }
+
+    var eblanApplicationInfoGroup by remember { mutableStateOf<EblanApplicationInfoGroup?>(null) }
+
     LaunchedEffect(key1 = hasDoubleTap) {
         handleHasDoubleTap(
             hasDoubleTap = hasDoubleTap,
@@ -226,6 +231,14 @@ internal fun SharedTransitionScope.PagerScreen(
                     pageCount = homeSettings.pageCount,
                     infiniteScroll = homeSettings.infiniteScroll,
                     windowToken = view.windowToken,
+                    swipeY = swipeY,
+                    screenHeight = screenHeight,
+                    showWidgets = showWidgets,
+                    showShortcutConfigActivities = showShortcutConfigActivities,
+                    eblanApplicationInfoGroup = eblanApplicationInfoGroup,
+                    onHome = {
+                        isPressHome = true
+                    },
                 )
 
                 handleEblanActionIntent(
@@ -331,6 +344,7 @@ internal fun SharedTransitionScope.PagerScreen(
         screenHeight = screenHeight,
         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
         iconPackFilePaths = iconPackFilePaths,
+        isPressHome = isPressHome,
         onTapFolderGridItem = onTapFolderGridItem,
         onEditGridItem = onEditGridItem,
         onResize = onResize,
@@ -351,6 +365,9 @@ internal fun SharedTransitionScope.PagerScreen(
         onDeleteGridItem = onDeleteGridItem,
         onResetOverlay = onResetOverlay,
         onUpdateSharedElementKey = onUpdateSharedElementKey,
+        onUpdateEblanApplicationInfoGroup = { newEblanApplicationInfoGroup ->
+            eblanApplicationInfoGroup = newEblanApplicationInfoGroup
+        },
     )
 
     if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
@@ -373,6 +390,7 @@ internal fun SharedTransitionScope.PagerScreen(
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
             gridItemSource = gridItemSource,
+            isPressHome = isPressHome,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -381,6 +399,8 @@ internal fun SharedTransitionScope.PagerScreen(
                             easing = FastOutSlowInEasing,
                         ),
                     )
+
+                    isPressHome = false
                 }
             },
             onDraggingGridItem = onDraggingGridItem,
@@ -434,6 +454,7 @@ internal fun SharedTransitionScope.PagerScreen(
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
             gridItemSource = gridItemSource,
+            isPressHome = isPressHome,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -444,6 +465,8 @@ internal fun SharedTransitionScope.PagerScreen(
                     )
 
                     showAppDrawer = false
+
+                    isPressHome = false
                 }
             },
             onDraggingGridItem = onDraggingGridItem,
@@ -479,11 +502,14 @@ internal fun SharedTransitionScope.PagerScreen(
             drag = drag,
             eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
             screenHeight = screenHeight,
+            isPressHome = isPressHome,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
             onDismiss = {
                 showWidgets = false
+
+                isPressHome = false
             },
             onDraggingGridItem = onDraggingGridItem,
             onResetOverlay = onResetOverlay,
@@ -500,11 +526,35 @@ internal fun SharedTransitionScope.PagerScreen(
             gridItemSettings = homeSettings.gridItemSettings,
             eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
             screenHeight = screenHeight,
+            isPressHome = isPressHome,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
             onDismiss = {
                 showShortcutConfigActivities = false
+
+                isPressHome = false
+            },
+            onDraggingGridItem = onDraggingGridItem,
+            onResetOverlay = onResetOverlay,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
+        )
+    }
+
+    if (eblanApplicationInfoGroup != null) {
+        AppWidgetScreen(
+            currentPage = currentPage,
+            eblanApplicationInfoGroup = eblanApplicationInfoGroup,
+            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+            gridItemSettings = homeSettings.gridItemSettings,
+            paddingValues = paddingValues,
+            drag = drag,
+            screenHeight = screenHeight,
+            isPressHome = isPressHome,
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onDismiss = {
+                eblanApplicationInfoGroup = null
             },
             onDraggingGridItem = onDraggingGridItem,
             onResetOverlay = onResetOverlay,

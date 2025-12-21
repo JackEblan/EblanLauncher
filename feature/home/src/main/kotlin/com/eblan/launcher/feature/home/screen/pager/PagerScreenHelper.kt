@@ -29,6 +29,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.PagerState
 import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -146,20 +147,34 @@ internal suspend fun handleActionMainIntent(
     pageCount: Int,
     infiniteScroll: Boolean,
     windowToken: IBinder,
+    swipeY: Animatable<Float, AnimationVector1D>,
+    screenHeight: Int,
+    showWidgets: Boolean,
+    showShortcutConfigActivities: Boolean,
+    eblanApplicationInfoGroup: EblanApplicationInfoGroup?,
+    onHome: () -> Unit,
 ) {
-    if (intent.action != Intent.ACTION_MAIN &&
-        !intent.hasCategory(Intent.CATEGORY_HOME)
-    ) {
+    if (intent.action != Intent.ACTION_MAIN && !intent.hasCategory(Intent.CATEGORY_HOME)) {
         return
     }
 
-    val initialPage = if (infiniteScroll) {
-        (Int.MAX_VALUE / 2) + initialPage
-    } else {
-        initialPage
+    if ((intent.flags and Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+        return
     }
 
-    gridHorizontalPagerState.scrollToPage(initialPage)
+    onHome()
+
+    if (swipeY.value < screenHeight.toFloat() || showWidgets || showShortcutConfigActivities || eblanApplicationInfoGroup != null) {
+        return
+    }
+
+    gridHorizontalPagerState.scrollToPage(
+        if (infiniteScroll) {
+            (Int.MAX_VALUE / 2) + initialPage
+        } else {
+            initialPage
+        },
+    )
 
     if (wallpaperScroll) {
         val page = calculatePage(

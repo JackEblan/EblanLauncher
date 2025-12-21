@@ -66,7 +66,6 @@ import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
@@ -98,6 +97,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     screenHeight: Int,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
+    isPressHome: Boolean,
     onTapFolderGridItem: (String) -> Unit,
     onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
@@ -118,6 +118,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -159,8 +160,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         pageIndicatorHeight.roundToPx()
     }
 
-    var eblanApplicationInfoGroup by remember { mutableStateOf<EblanApplicationInfoGroup?>(null) }
-
     LaunchedEffect(key1 = gridHorizontalPagerState) {
         handleWallpaperScroll(
             horizontalPagerState = gridHorizontalPagerState,
@@ -170,6 +169,14 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             infiniteScroll = homeSettings.infiniteScroll,
             windowToken = view.windowToken,
         )
+    }
+
+    LaunchedEffect(key1 = isPressHome) {
+        if (isPressHome) {
+            showGridItemPopup = false
+
+            showSettingsPopup = false
+        }
     }
 
     Column(
@@ -451,9 +458,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             paddingValues = paddingValues,
             onEdit = onEditGridItem,
             onResize = onResize,
-            onWidgets = { newEblanApplicationInfoGroup ->
-                eblanApplicationInfoGroup = newEblanApplicationInfoGroup
-            },
+            onWidgets = onUpdateEblanApplicationInfoGroup,
             onDeleteGridItem = onDeleteGridItem,
             onInfo = { serialNumber, componentName ->
                 launcherApps.startAppDetailsActivity(
@@ -516,26 +521,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             onDismissRequest = {
                 showSettingsPopup = false
             },
-        )
-    }
-
-    if (eblanApplicationInfoGroup != null) {
-        AppWidgetScreen(
-            currentPage = currentPage,
-            eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-            gridItemSettings = homeSettings.gridItemSettings,
-            paddingValues = paddingValues,
-            drag = drag,
-            screenHeight = screenHeight,
-            onLongPressGridItem = onLongPressGridItem,
-            onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onDismiss = {
-                eblanApplicationInfoGroup = null
-            },
-            onDraggingGridItem = onDraggingGridItem,
-            onResetOverlay = onResetOverlay,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 }

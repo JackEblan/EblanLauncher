@@ -29,6 +29,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.PagerState
 import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -150,6 +151,7 @@ internal suspend fun handleActionMainIntent(
     screenHeight: Int,
     showWidgets: Boolean,
     showShortcutConfigActivities: Boolean,
+    eblanApplicationInfoGroup: EblanApplicationInfoGroup?,
     onHome: () -> Unit,
 ) {
     if (intent.action != Intent.ACTION_MAIN && !intent.hasCategory(Intent.CATEGORY_HOME)) {
@@ -162,7 +164,7 @@ internal suspend fun handleActionMainIntent(
 
     onHome()
 
-    if (swipeY.value < screenHeight.toFloat() || showWidgets || showShortcutConfigActivities) {
+    if (swipeY.value < screenHeight.toFloat() || showWidgets || showShortcutConfigActivities || eblanApplicationInfoGroup != null) {
         return
     }
 

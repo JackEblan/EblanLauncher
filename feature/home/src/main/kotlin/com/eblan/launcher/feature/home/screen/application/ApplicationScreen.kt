@@ -470,6 +470,7 @@ private fun SharedTransitionScope.Success(
             paddingValues = paddingValues,
             drag = drag,
             screenHeight = screenHeight,
+            isPressHome = isPressHome,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {

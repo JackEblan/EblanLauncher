@@ -77,6 +77,7 @@ internal fun SharedTransitionScope.AppWidgetScreen(
     paddingValues: PaddingValues,
     drag: Drag,
     screenHeight: Int,
+    isPressHome: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -101,6 +102,21 @@ internal fun SharedTransitionScope.AppWidgetScreen(
                 easing = FastOutSlowInEasing,
             ),
         )
+    }
+
+    LaunchedEffect(key1 = isPressHome) {
+        if (isPressHome) {
+            scope.launch {
+                offsetY.animateTo(
+                    targetValue = screenHeight.toFloat(),
+                    animationSpec = tween(
+                        easing = FastOutSlowInEasing,
+                    ),
+                )
+
+                onDismiss()
+            }
+        }
     }
 
     BackHandler {

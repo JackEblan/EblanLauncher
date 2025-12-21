@@ -72,6 +72,7 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.shortcutconfig.ShortcutConfigScreen
+import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
@@ -202,6 +203,8 @@ internal fun SharedTransitionScope.PagerScreen(
 
     var isPressHome by remember { mutableStateOf(false) }
 
+    var eblanApplicationInfoGroup by remember { mutableStateOf<EblanApplicationInfoGroup?>(null) }
+
     LaunchedEffect(key1 = hasDoubleTap) {
         handleHasDoubleTap(
             hasDoubleTap = hasDoubleTap,
@@ -232,6 +235,7 @@ internal fun SharedTransitionScope.PagerScreen(
                     screenHeight = screenHeight,
                     showWidgets = showWidgets,
                     showShortcutConfigActivities = showShortcutConfigActivities,
+                    eblanApplicationInfoGroup = eblanApplicationInfoGroup,
                     onHome = {
                         isPressHome = true
                     },
@@ -340,6 +344,7 @@ internal fun SharedTransitionScope.PagerScreen(
         screenHeight = screenHeight,
         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
         iconPackFilePaths = iconPackFilePaths,
+        isPressHome = isPressHome,
         onTapFolderGridItem = onTapFolderGridItem,
         onEditGridItem = onEditGridItem,
         onResize = onResize,
@@ -360,6 +365,9 @@ internal fun SharedTransitionScope.PagerScreen(
         onDeleteGridItem = onDeleteGridItem,
         onResetOverlay = onResetOverlay,
         onUpdateSharedElementKey = onUpdateSharedElementKey,
+        onUpdateEblanApplicationInfoGroup = { newEblanApplicationInfoGroup ->
+            eblanApplicationInfoGroup = newEblanApplicationInfoGroup
+        },
     )
 
     if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
@@ -526,6 +534,27 @@ internal fun SharedTransitionScope.PagerScreen(
                 showShortcutConfigActivities = false
 
                 isPressHome = false
+            },
+            onDraggingGridItem = onDraggingGridItem,
+            onResetOverlay = onResetOverlay,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
+        )
+    }
+
+    if (eblanApplicationInfoGroup != null) {
+        AppWidgetScreen(
+            currentPage = currentPage,
+            eblanApplicationInfoGroup = eblanApplicationInfoGroup,
+            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+            gridItemSettings = homeSettings.gridItemSettings,
+            paddingValues = paddingValues,
+            drag = drag,
+            screenHeight = screenHeight,
+            isPressHome = isPressHome,
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onDismiss = {
+                eblanApplicationInfoGroup = null
             },
             onDraggingGridItem = onDraggingGridItem,
             onResetOverlay = onResetOverlay,

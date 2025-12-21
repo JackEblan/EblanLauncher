@@ -36,7 +36,6 @@ import androidx.annotation.RequiresApi
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
-import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
@@ -55,7 +54,6 @@ import javax.inject.Inject
 
 internal class DefaultLauncherAppsWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val packageManagerWrapper: PackageManagerWrapper,
     private val androidByteArrayWrapper: AndroidByteArrayWrapper,
     private val userManagerWrapper: AndroidUserManagerWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
@@ -369,7 +367,9 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             activityIcon = getIcon(0).let { drawable ->
                 androidByteArrayWrapper.createByteArray(drawable = drawable)
             },
-            applicationIcon = packageManagerWrapper.getApplicationIcon(packageName = applicationInfo.packageName),
+            applicationIcon = applicationInfo.loadIcon(context.packageManager).let { drawable ->
+                androidByteArrayWrapper.createByteArray(drawable = drawable)
+            },
             label = label.toString(),
         )
     }

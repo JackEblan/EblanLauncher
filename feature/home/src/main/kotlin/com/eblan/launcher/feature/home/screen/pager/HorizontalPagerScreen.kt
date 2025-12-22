@@ -40,7 +40,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
@@ -427,18 +426,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
-
-            Chevron(
-                modifier = Modifier
-                    .matchParentSize()
-                    .align(Alignment.Center),
-                gestureSettings = gestureSettings,
-                gridItems = gridItems,
-                dockGridItems = dockGridItems,
-                swipeY = swipeY,
-                screenHeight = screenHeight,
-                textColor = textColor,
-            )
         }
     }
 

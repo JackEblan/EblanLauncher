@@ -27,6 +27,7 @@ import com.eblan.launcher.domain.framework.NotificationManagerWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
@@ -36,6 +37,7 @@ import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
 import com.eblan.launcher.domain.model.UpdateShortcutInfoGridItem
 import com.eblan.launcher.domain.model.UpdateWidgetGridItem
+import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
@@ -55,6 +57,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class SyncDataUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
@@ -82,19 +86,23 @@ class SyncDataUseCase @Inject constructor(
                     launch {
                         val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
 
-                        val iconPackInfoPackageName =
-                            userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
+                        val userData = userDataRepository.userData.first()
 
                         updateEblanApplicationInfos(
                             launcherAppsActivityInfos = launcherAppsActivityInfos,
-                            iconPackInfoPackageName = iconPackInfoPackageName,
+                            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+                        )
+
+                        insertApplicationInfoGridItems(
+                            launcherAppsActivityInfos = launcherAppsActivityInfos,
+                            userData = userData,
                         )
 
                         updateApplicationInfoGridItems(launcherAppsActivityInfos = launcherAppsActivityInfos)
 
                         updateIconPackInfos(
                             launcherAppsActivityInfos = launcherAppsActivityInfos,
-                            iconPackInfoPackageName = iconPackInfoPackageName,
+                            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
                         )
                     },
                     launch {
@@ -214,21 +222,95 @@ class SyncDataUseCase @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalUuidApi::class)
+    private suspend fun insertApplicationInfoGridItems(
+        launcherAppsActivityInfos: List<LauncherAppsActivityInfo>,
+        userData: UserData,
+    ) {
+        if (!userData.experimentalSettings.firstLaunch) return
+
+        val columns = userData.homeSettings.columns
+
+        val rows = userData.homeSettings.rows
+
+        val dockColumns = userData.homeSettings.dockColumns
+
+        val dockRows = userData.homeSettings.dockRows
+
+        @OptIn(ExperimentalUuidApi::class)
+        suspend fun insertApplicationInfoGridItem(
+            index: Int,
+            launcherAppsActivityInfo: LauncherAppsActivityInfo,
+        ) {
+            val launcherAppsActivityInfoIcon =
+                launcherAppsActivityInfo.activityIcon ?: launcherAppsActivityInfo.applicationIcon
+
+            val icon = launcherAppsActivityInfoIcon?.let { byteArray ->
+                fileManager.updateAndGetFilePath(
+                    directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                    name = launcherAppsActivityInfo.componentName.replace("/", "-"),
+                    byteArray = byteArray,
+                )
+            }
+
+            val startColumn = index % columns
+
+            val startRow = index / columns
+
+            applicationInfoGridItemRepository.insertApplicationInfoGridItem(
+                applicationInfoGridItem = ApplicationInfoGridItem(
+                    id = Uuid.random().toHexString(),
+                    folderId = null,
+                    page = 0,
+                    startColumn = startColumn,
+                    startRow = startRow,
+                    columnSpan = 1,
+                    rowSpan = 1,
+                    associate = Associate.Grid,
+                    componentName = launcherAppsActivityInfo.componentName,
+                    packageName = launcherAppsActivityInfo.packageName,
+                    icon = icon,
+                    label = launcherAppsActivityInfo.label,
+                    override = false,
+                    serialNumber = launcherAppsActivityInfo.serialNumber,
+                    customIcon = null,
+                    customLabel = null,
+                    gridItemSettings = userData.homeSettings.gridItemSettings,
+                ),
+            )
+        }
+
+        launcherAppsActivityInfos.take(columns * rows)
+            .forEachIndexed { index, launcherAppsActivityInfo ->
+                insertApplicationInfoGridItem(index, launcherAppsActivityInfo)
+            }
+
+        launcherAppsActivityInfos.drop(columns * rows).take(dockColumns * dockRows)
+            .forEachIndexed { index, launcherAppsActivityInfo ->
+                insertApplicationInfoGridItem(index, launcherAppsActivityInfo)
+            }
+
+        userDataRepository.updateExperimentalSettings(
+            experimentalSettings = userData.experimentalSettings.copy(
+                firstLaunch = false,
+            ),
+        )
+    }
+
     private suspend fun updateIconPackInfos(
         launcherAppsActivityInfos: List<LauncherAppsActivityInfo>,
         iconPackInfoPackageName: String,
     ) {
         if (iconPackInfoPackageName.isNotEmpty()) {
-            val appFilter =
-                iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
+            val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 
             val iconPackDirectory = File(
                 fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
                 iconPackInfoPackageName,
             ).apply { if (!exists()) mkdirs() }
 
-            val installedPackageNames = launcherAppsActivityInfos
-                .onEach { launcherAppsActivityInfo ->
+            val installedPackageNames =
+                launcherAppsActivityInfos.onEach { launcherAppsActivityInfo ->
                     currentCoroutineContext().ensureActive()
 
                     cacheIconPackFile(
@@ -240,8 +322,7 @@ class SyncDataUseCase @Inject constructor(
                         componentName = launcherAppsActivityInfo.componentName,
                         packageName = launcherAppsActivityInfo.packageName,
                     )
-                }
-                .map { launcherAppsActivityInfo ->
+                }.map { launcherAppsActivityInfo ->
                     currentCoroutineContext().ensureActive()
 
                     launcherAppsActivityInfo.componentName.replace(
@@ -250,8 +331,7 @@ class SyncDataUseCase @Inject constructor(
                     )
                 }
 
-            iconPackDirectory.listFiles()
-                ?.filter { it.isFile && it.name !in installedPackageNames }
+            iconPackDirectory.listFiles()?.filter { it.isFile && it.name !in installedPackageNames }
                 ?.forEach {
                     currentCoroutineContext().ensureActive()
 

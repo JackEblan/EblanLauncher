@@ -60,7 +60,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
     private val defaultHomeSettingsProto = HomeSettingsProto.newBuilder().apply {
         columns = 5
         rows = 5
-        pageCount = 1
+        pageCount = 2
         infiniteScroll = false
         dockColumns = 5
         dockRows = 1

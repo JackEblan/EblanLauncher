@@ -241,6 +241,7 @@ class SyncDataUseCase @Inject constructor(
         suspend fun insertApplicationInfoGridItem(
             index: Int,
             launcherAppsActivityInfo: LauncherAppsActivityInfo,
+            columns: Int,
         ) {
             val launcherAppsActivityInfoIcon =
                 launcherAppsActivityInfo.activityIcon ?: launcherAppsActivityInfo.applicationIcon
@@ -282,12 +283,20 @@ class SyncDataUseCase @Inject constructor(
 
         launcherAppsActivityInfos.take(columns * rows)
             .forEachIndexed { index, launcherAppsActivityInfo ->
-                insertApplicationInfoGridItem(index, launcherAppsActivityInfo)
+                insertApplicationInfoGridItem(
+                    index = index,
+                    launcherAppsActivityInfo = launcherAppsActivityInfo,
+                    columns = columns,
+                )
             }
 
         launcherAppsActivityInfos.drop(columns * rows).take(dockColumns * dockRows)
             .forEachIndexed { index, launcherAppsActivityInfo ->
-                insertApplicationInfoGridItem(index, launcherAppsActivityInfo)
+                insertApplicationInfoGridItem(
+                    index = index,
+                    launcherAppsActivityInfo = launcherAppsActivityInfo,
+                    columns = dockColumns,
+                )
             }
 
         userDataRepository.updateExperimentalSettings(

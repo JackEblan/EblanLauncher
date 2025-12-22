@@ -20,7 +20,9 @@ package com.eblan.launcher.feature.home.screen.folder
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -39,10 +41,12 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -53,6 +57,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
@@ -65,7 +70,9 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.getSystemTextColor
+import com.eblan.launcher.feature.home.util.handleActionMainIntent
 import com.eblan.launcher.ui.local.LocalLauncherApps
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -131,9 +138,30 @@ internal fun SharedTransitionScope.FolderScreen(
 
     val folderDataById = foldersDataById.lastOrNull()
 
+    val activity = LocalActivity.current as ComponentActivity
+
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(key1 = foldersDataById) {
         if (foldersDataById.isEmpty()) {
             onUpdateScreen(Screen.Pager)
+        }
+    }
+
+    DisposableEffect(key1 = activity) {
+        val listener = Consumer<Intent> { intent ->
+            scope.launch {
+                handleActionMainIntent(
+                    intent = intent,
+                    onUpdateScreen = onUpdateScreen,
+                )
+            }
+        }
+
+        activity.addOnNewIntentListener(listener)
+
+        onDispose {
+            activity.removeOnNewIntentListener(listener)
         }
     }
 

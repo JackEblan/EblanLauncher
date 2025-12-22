@@ -254,6 +254,8 @@ private fun SharedTransitionScope.Success(
     onDragEnd: (Float) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
+
     val scope = rememberCoroutineScope()
 
     val lazyListState = rememberLazyListState()
@@ -305,7 +307,11 @@ private fun SharedTransitionScope.Success(
             onQueryChange = onGetEblanAppWidgetProviderInfosByLabel,
             eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
             drag = drag,
-            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onUpdateGridItemOffset = { intOffset, intSize ->
+                onUpdateGridItemOffset(intOffset, intSize)
+
+                focusManager.clearFocus()
+            },
             onLongPressGridItem = onLongPressGridItem,
             currentPage = currentPage,
             gridItemSettings = gridItemSettings,
@@ -359,8 +365,6 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoDockSearchBar(
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-
     var query by remember { mutableStateOf("") }
 
     var expanded by remember { mutableStateOf(false) }
@@ -394,14 +398,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoDockSearchBar(
                     eblanApplicationInfoGroup = eblanApplicationInfo,
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosByLabel,
                     drag = drag,
-                    onUpdateGridItemOffset = { intOffset, intSize ->
-                        focusManager.clearFocus()
-
-                        onUpdateGridItemOffset(
-                            intOffset,
-                            intSize,
-                        )
-                    },
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,

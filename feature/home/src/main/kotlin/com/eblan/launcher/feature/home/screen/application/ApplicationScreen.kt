@@ -299,6 +299,8 @@ private fun SharedTransitionScope.Success(
 
     LaunchedEffect(key1 = isPressHome) {
         if (isPressHome) {
+            focusManager.clearFocus()
+
             showPopupApplicationMenu = false
 
             onDismiss()
@@ -328,6 +330,7 @@ private fun SharedTransitionScope.Success(
             appDrawerSettings = appDrawerSettings,
             iconPackFilePaths = iconPackFilePaths,
             paddingValues = paddingValues,
+            isPressHome = isPressHome,
             onUpdateGridItemOffset = { intOffset, intSize ->
                 onUpdateGridItemOffset(intOffset, intSize)
 
@@ -494,6 +497,7 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     paddingValues: PaddingValues,
     iconPackFilePaths: Map<String, String>,
+    isPressHome: Boolean,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -510,6 +514,12 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
     var query by remember { mutableStateOf("") }
 
     var expanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = isPressHome) {
+        if (isPressHome) {
+            expanded = false
+        }
+    }
 
     DockedSearchBar(
         modifier = modifier

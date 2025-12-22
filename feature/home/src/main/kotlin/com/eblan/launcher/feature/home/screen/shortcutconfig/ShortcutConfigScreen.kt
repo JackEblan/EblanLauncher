@@ -266,6 +266,8 @@ private fun SharedTransitionScope.Success(
     onDragEnd: (Float) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
+
     val horizontalPagerState = rememberPagerState(
         pageCount = {
             eblanShortcutConfigs.keys.size
@@ -286,7 +288,11 @@ private fun SharedTransitionScope.Success(
             onQueryChange = onGetEblanShortcutConfigsByLabel,
             eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
             drag = drag,
-            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onUpdateGridItemOffset = { intOffset, intSize ->
+                onUpdateGridItemOffset(intOffset, intSize)
+
+                focusManager.clearFocus()
+            },
             onLongPressGridItem = onLongPressGridItem,
             currentPage = currentPage,
             gridItemSettings = gridItemSettings,
@@ -363,8 +369,6 @@ private fun SharedTransitionScope.EblanShortcutConfigDockSearchBar(
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-
     var query by remember { mutableStateOf("") }
 
     var expanded by remember { mutableStateOf(false) }
@@ -399,14 +403,7 @@ private fun SharedTransitionScope.EblanShortcutConfigDockSearchBar(
                     eblanApplicationInfoGroup = eblanApplicationInfoGroup,
                     eblanShortcutConfigs = eblanShortcutConfigsByLabel,
                     drag = drag,
-                    onUpdateGridItemOffset = { intOffset, intSize ->
-                        focusManager.clearFocus()
-
-                        onUpdateGridItemOffset(
-                            intOffset,
-                            intSize,
-                        )
-                    },
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,

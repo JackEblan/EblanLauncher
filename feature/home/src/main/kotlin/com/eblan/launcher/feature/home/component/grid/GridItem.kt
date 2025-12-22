@@ -17,10 +17,10 @@
  */
 package com.eblan.launcher.feature.home.component.grid
 
+import android.graphics.Paint
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,11 +39,13 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -78,14 +80,9 @@ internal fun SharedTransitionScope.GridItemContent(
 ) {
     key(gridItem.id) {
         if (isDragging) {
-            Box(
-                modifier = modifier
-                    .fillMaxSize()
-                    .border(
-                        width = Dp.Hairline,
-                        color = textColor,
-                        shape = RoundedCornerShape(5.dp),
-                    ),
+            WhiteBox(
+                modifier = modifier,
+                textColor = textColor,
             )
         } else {
             when (val data = gridItem.data) {
@@ -147,6 +144,47 @@ internal fun SharedTransitionScope.GridItemContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun WhiteBox(
+    modifier: Modifier,
+    textColor: Color,
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .drawBehind {
+                    drawContext.canvas.nativeCanvas.apply {
+                        val paint = Paint().apply {
+                            style = Paint.Style.STROKE
+                            strokeWidth = 1.5.dp.toPx()
+
+                            color = textColor.copy(alpha = 0.3f).toArgb()
+
+                            setShadowLayer(
+                                12.dp.toPx(),
+                                0f,
+                                0f,
+                                textColor.toArgb(),
+                            )
+                        }
+
+                        drawRoundRect(
+                            0f,
+                            0f,
+                            size.width,
+                            size.height,
+                            5.dp.toPx(),
+                            5.dp.toPx(),
+                            paint,
+                        )
+                    }
+                }
+                .fillMaxSize()
+                .padding(3.dp),
+        )
     }
 }
 
@@ -386,7 +424,8 @@ private fun SharedTransitionScope.FolderGridItem(
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
-                            val icon = iconPackFilePaths[currentData.componentName] ?: currentData.icon
+                            val icon =
+                                iconPackFilePaths[currentData.componentName] ?: currentData.icon
 
                             AsyncImage(
                                 model = Builder(context).data(currentData.customIcon ?: icon)

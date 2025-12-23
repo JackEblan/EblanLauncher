@@ -1,0 +1,4 @@
+- Feat: Add experimental setting to lock grid item movement
+- Feat: Automatically populate home screen on first launch
+- Fix: Dismiss screens when returning to home
+- Refactor: Improve placeholder appearance for dragging items

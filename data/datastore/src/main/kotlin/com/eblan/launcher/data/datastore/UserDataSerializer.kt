@@ -41,14 +41,12 @@ import javax.inject.Inject
 class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
     private val defaultGeneralSettingsProto = GeneralSettingsProto.newBuilder().apply {
         themeProto = Theme.System.toThemeProto()
-
         dynamicTheme = false
-
         iconPackInfoPackageName = ""
     }.build()
 
     private val defaultGridItemSettingsProto = GridItemSettingsProto.newBuilder().apply {
-        iconSize = 40
+        iconSize = 50
         textColorProto = TextColorProto.TextColorSystem
         textSize = 10
         showLabel = true
@@ -81,9 +79,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
 
     private val defaultGestureSettingsProto = GestureSettingsProto.newBuilder().apply {
         doubleTapProto = EblanAction.None.toEblanActionProto()
-
         swipeUpProto = EblanAction.OpenAppDrawer.toEblanActionProto()
-
         swipeDownProto = EblanAction.None.toEblanActionProto()
     }.build()
 
@@ -95,13 +91,9 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
 
     override val defaultValue: UserDataProto = UserDataProto.newBuilder().apply {
         homeSettingsProto = defaultHomeSettingsProto
-
         appDrawerSettingsProto = defaultAppDrawerSettingsProto
-
         gestureSettingsProto = defaultGestureSettingsProto
-
         generalSettingsProto = defaultGeneralSettingsProto
-
         experimentalSettingsProto = defaultExperimentalSettings
     }.build()
 

@@ -17,4 +17,7 @@
  */
 package com.eblan.launcher.domain.model
 
-data class ExperimentalSettings(val syncData: Boolean)
+data class ExperimentalSettings(
+    val syncData: Boolean,
+    val firstLaunch: Boolean,
+)

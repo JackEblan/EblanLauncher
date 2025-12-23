@@ -291,9 +291,13 @@ internal fun GestureSettings.toGestureSettingsProto(): GestureSettingsProto {
 internal fun ExperimentalSettings.toExperimentalSettingsProto(): ExperimentalSettingsProto {
     return ExperimentalSettingsProto.newBuilder()
         .setSyncData(syncData)
+        .setFirstLaunch(firstLaunch)
         .build()
 }
 
 internal fun ExperimentalSettingsProto.toExperimentalSettings(): ExperimentalSettings {
-    return ExperimentalSettings(syncData = syncData)
+    return ExperimentalSettings(
+        syncData = syncData,
+        firstLaunch = firstLaunch,
+    )
 }

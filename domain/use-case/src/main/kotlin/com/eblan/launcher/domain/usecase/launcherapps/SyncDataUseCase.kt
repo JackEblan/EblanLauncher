@@ -30,6 +30,8 @@ import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
+import com.eblan.launcher.domain.model.ExperimentalSettings
+import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
@@ -37,7 +39,6 @@ import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
 import com.eblan.launcher.domain.model.UpdateShortcutInfoGridItem
 import com.eblan.launcher.domain.model.UpdateWidgetGridItem
-import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
@@ -95,7 +96,8 @@ class SyncDataUseCase @Inject constructor(
 
                         insertApplicationInfoGridItems(
                             launcherAppsActivityInfos = launcherAppsActivityInfos,
-                            userData = userData,
+                            experimentalSettings = userData.experimentalSettings,
+                            homeSettings = userData.homeSettings,
                         )
 
                         updateApplicationInfoGridItems(launcherAppsActivityInfos = launcherAppsActivityInfos)
@@ -225,17 +227,10 @@ class SyncDataUseCase @Inject constructor(
     @OptIn(ExperimentalUuidApi::class)
     private suspend fun insertApplicationInfoGridItems(
         launcherAppsActivityInfos: List<LauncherAppsActivityInfo>,
-        userData: UserData,
+        experimentalSettings: ExperimentalSettings,
+        homeSettings: HomeSettings,
     ) {
-        if (!userData.experimentalSettings.firstLaunch) return
-
-        val columns = userData.homeSettings.columns
-
-        val rows = userData.homeSettings.rows
-
-        val dockColumns = userData.homeSettings.dockColumns
-
-        val dockRows = userData.homeSettings.dockRows
+        if (!experimentalSettings.firstLaunch) return
 
         @OptIn(ExperimentalUuidApi::class)
         suspend fun insertApplicationInfoGridItem(
@@ -277,33 +272,34 @@ class SyncDataUseCase @Inject constructor(
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     customIcon = null,
                     customLabel = null,
-                    gridItemSettings = userData.homeSettings.gridItemSettings,
+                    gridItemSettings = homeSettings.gridItemSettings,
                 ),
             )
         }
 
-        launcherAppsActivityInfos.take(columns * rows)
+        launcherAppsActivityInfos.take(homeSettings.columns * homeSettings.rows)
             .forEachIndexed { index, launcherAppsActivityInfo ->
                 insertApplicationInfoGridItem(
                     index = index,
                     launcherAppsActivityInfo = launcherAppsActivityInfo,
-                    columns = columns,
+                    columns = homeSettings.columns,
                     associate = Associate.Grid,
                 )
             }
 
-        launcherAppsActivityInfos.drop(columns * rows).take(dockColumns * dockRows)
+        launcherAppsActivityInfos.drop(homeSettings.columns * homeSettings.rows)
+            .take(homeSettings.dockColumns * homeSettings.dockRows)
             .forEachIndexed { index, launcherAppsActivityInfo ->
                 insertApplicationInfoGridItem(
                     index = index,
                     launcherAppsActivityInfo = launcherAppsActivityInfo,
-                    columns = dockColumns,
+                    columns = homeSettings.dockColumns,
                     associate = Associate.Dock,
                 )
             }
 
         userDataRepository.updateExperimentalSettings(
-            experimentalSettings = userData.experimentalSettings.copy(
+            experimentalSettings = experimentalSettings.copy(
                 firstLaunch = false,
             ),
         )

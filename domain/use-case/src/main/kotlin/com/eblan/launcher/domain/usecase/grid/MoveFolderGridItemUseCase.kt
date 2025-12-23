@@ -46,6 +46,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        lockMovement: Boolean,
     ): MoveGridItemResult {
         return withContext(defaultDispatcher) {
             val gridItems = folderGridCacheRepository.gridItemsCache.first().filter { gridItem ->
@@ -85,6 +86,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
                     columns = columns,
                     rows = rows,
                     gridWidth = gridWidth,
+                    lockMovement = lockMovement,
                 )
             }
 
@@ -102,6 +104,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
                     gridItems = gridItems,
                     columns = columns,
                     rows = rows,
+                    lockMovement = lockMovement,
                 )
             }
 
@@ -123,6 +126,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
         columns: Int,
         rows: Int,
         gridWidth: Int,
+        lockMovement: Boolean,
     ): MoveGridItemResult {
         val resolveDirection = getResolveDirectionByX(
             gridItem = gridItemByCoordinates,
@@ -141,7 +145,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
                     rows = rows,
                 )
 
-                if (resolvedConflicts) {
+                if (resolvedConflicts && !lockMovement) {
                     folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
                 }
 
@@ -168,6 +172,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
         gridItems: MutableList<GridItem>,
         columns: Int,
         rows: Int,
+        lockMovement: Boolean,
     ): MoveGridItemResult {
         val resolveDirection = getRelativeResolveDirection(
             moving = movingGridItem,
@@ -182,7 +187,9 @@ class MoveFolderGridItemUseCase @Inject constructor(
             rows = rows,
         )
 
-        folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
+        if (resolvedConflicts && !lockMovement) {
+            folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
+        }
 
         return MoveGridItemResult(
             isSuccess = resolvedConflicts,

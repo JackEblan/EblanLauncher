@@ -82,6 +82,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
+    lockMovement: Boolean,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -90,6 +91,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        lockMovement: Boolean,
     ) -> Unit,
     onDragEnd: () -> Unit,
     onDragCancel: () -> Unit,
@@ -129,6 +131,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
             isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
             paddingValues = paddingValues,
             titleHeight = titleHeight,
+            lockMovement = lockMovement,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveOutsideFolder = onMoveOutsideFolder,
             onUpdatePageDirection = { newPageDirection ->
@@ -163,7 +166,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
                     onDragCancel = {
                         Toast.makeText(
                             context,
-                            "Can't place grid item at this position",
+                            "Layout was canceled due to an invalid position",
                             Toast.LENGTH_LONG,
                         ).show()
 

@@ -241,6 +241,7 @@ internal fun HomeScreen(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        lockMovement: Boolean,
     ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,
@@ -585,6 +586,7 @@ private fun SharedTransitionScope.Success(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        lockMovement: Boolean,
     ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,
@@ -938,6 +940,7 @@ private fun SharedTransitionScope.Success(
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
+                    lockMovement = homeData.userData.experimentalSettings.lockMovement,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = onResetGridCacheAfterMoveFolder,
                     onDragCancel = onCancelFolderDragGridCache,

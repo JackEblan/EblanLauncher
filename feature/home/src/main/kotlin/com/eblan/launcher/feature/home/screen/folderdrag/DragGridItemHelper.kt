@@ -46,6 +46,7 @@ internal suspend fun handleDragFolderGridItem(
     isScrollInProgress: Boolean,
     paddingValues: PaddingValues,
     titleHeight: Int,
+    lockMovement: Boolean,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
@@ -55,6 +56,7 @@ internal suspend fun handleDragFolderGridItem(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        lockMovement: Boolean,
     ) -> Unit,
     onMoveOutsideFolder: (GridItemSource) -> Unit,
 ) {
@@ -149,6 +151,7 @@ internal suspend fun handleDragFolderGridItem(
                 rows,
                 gridWidth,
                 gridHeight,
+                lockMovement,
             )
         }
     }

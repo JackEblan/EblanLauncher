@@ -107,13 +107,14 @@ class MoveGridItemUseCase @Inject constructor(
                 )
             }
 
-            if (lockMovement && gridItemBySpan != null) {
+            if (gridItemBySpan != null) {
                 return@withContext handleConflictsOfGridItemSpan(
                     movingGridItem = movingGridItem,
                     gridItemBySpan = gridItemBySpan,
                     gridItems = gridItems,
                     columns = columns,
                     rows = rows,
+                    lockMovement = lockMovement,
                 )
             }
 
@@ -154,12 +155,14 @@ class MoveGridItemUseCase @Inject constructor(
                     rows = rows,
                 )
 
-                if (resolvedConflicts && !lockMovement) {
+                val isSuccess = resolvedConflicts && !lockMovement
+
+                if (isSuccess) {
                     gridCacheRepository.upsertGridItems(gridItems = gridItems)
                 }
 
                 MoveGridItemResult(
-                    isSuccess = resolvedConflicts,
+                    isSuccess = isSuccess,
                     movingGridItem = movingGridItem,
                     conflictingGridItem = null,
                 )
@@ -171,7 +174,7 @@ class MoveGridItemUseCase @Inject constructor(
                 }
 
                 MoveGridItemResult(
-                    isSuccess = true,
+                    isSuccess = !lockMovement,
                     movingGridItem = movingGridItem,
                     conflictingGridItem = gridItemByCoordinates,
                 )
@@ -185,6 +188,7 @@ class MoveGridItemUseCase @Inject constructor(
         gridItems: MutableList<GridItem>,
         columns: Int,
         rows: Int,
+        lockMovement: Boolean,
     ): MoveGridItemResult {
         val resolveDirection = getRelativeResolveDirection(
             moving = movingGridItem,
@@ -199,7 +203,7 @@ class MoveGridItemUseCase @Inject constructor(
             rows = rows,
         )
 
-        if (resolvedConflicts) {
+        if (resolvedConflicts && !lockMovement) {
             gridCacheRepository.upsertGridItems(gridItems = gridItems)
         }
 

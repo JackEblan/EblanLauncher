@@ -291,7 +291,7 @@ internal fun SharedTransitionScope.DragScreen(
                     onToast = {
                         Toast.makeText(
                             context,
-                            "Please wait for the box indicator",
+                            "Layout was canceled due to an invalid position",
                             Toast.LENGTH_LONG,
                         ).show()
                     },

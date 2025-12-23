@@ -39,6 +39,7 @@ class ResizeGridItemUseCase @Inject constructor(
         resizingGridItem: GridItem,
         columns: Int,
         rows: Int,
+        lockMovement: Boolean,
     ) {
         withContext(defaultDispatcher) {
             val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
@@ -86,7 +87,7 @@ class ResizeGridItemUseCase @Inject constructor(
                     rows = rows,
                 )
 
-                if (resolvedConflicts) {
+                if (resolvedConflicts && !lockMovement) {
                     gridCacheRepository.upsertGridItems(gridItems = gridItems)
                 }
             } else {

@@ -62,10 +62,12 @@ internal fun GridItemResizeOverlay(
     width: Int,
     height: Int,
     color: Color,
+    lockMovement: Boolean,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
         rows: Int,
+        lockMovement: Boolean,
     ) -> Unit,
     onResizeEnd: (GridItem) -> Unit,
 ) {
@@ -258,6 +260,7 @@ internal fun GridItemResizeOverlay(
                 resizingGridItem,
                 columns,
                 rows,
+                lockMovement,
             )
         }
     }

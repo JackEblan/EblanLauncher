@@ -230,6 +230,7 @@ internal fun HomeScreen(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        lockMovement: Boolean,
     ) -> Unit,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
@@ -244,6 +245,7 @@ internal fun HomeScreen(
         gridItem: GridItem,
         columns: Int,
         rows: Int,
+        lockMovement: Boolean,
     ) -> Unit,
     onShowGridCache: (
         gridItems: List<GridItem>,
@@ -572,6 +574,7 @@ private fun SharedTransitionScope.Success(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        lockMovement: Boolean,
     ) -> Unit,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
@@ -586,6 +589,7 @@ private fun SharedTransitionScope.Success(
         gridItem: GridItem,
         columns: Int,
         rows: Int,
+        lockMovement: Boolean,
     ) -> Unit,
     onShowGridCache: (
         gridItems: List<GridItem>,
@@ -831,6 +835,7 @@ private fun SharedTransitionScope.Success(
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
+                    lockMovement = homeData.userData.experimentalSettings.lockMovement,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = onResetGridCacheAfterMove,
                     onDragCancelAfterMove = onCancelGridCache,
@@ -857,6 +862,7 @@ private fun SharedTransitionScope.Success(
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
+                    lockMovement = homeData.userData.experimentalSettings.lockMovement,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResetGridCacheAfterResize,
                     onResizeCancel = onCancelGridCache,

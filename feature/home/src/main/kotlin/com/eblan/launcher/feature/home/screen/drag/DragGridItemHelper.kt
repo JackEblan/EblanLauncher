@@ -71,6 +71,7 @@ internal suspend fun handleDragGridItem(
     isScrollInProgress: Boolean,
     gridItemSource: GridItemSource,
     paddingValues: PaddingValues,
+    lockMovement: Boolean,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveGridItem: (
         movingGridItem: GridItem,
@@ -80,6 +81,7 @@ internal suspend fun handleDragGridItem(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        lockMovement: Boolean,
     ) -> Unit,
 ) {
     if (drag == Drag.None ||
@@ -179,6 +181,7 @@ internal suspend fun handleDragGridItem(
                 dockRows,
                 gridWidth,
                 dockHeightPx,
+                lockMovement,
             )
         }
     } else {
@@ -220,6 +223,7 @@ internal suspend fun handleDragGridItem(
                 rows,
                 gridWidth,
                 gridHeightWithPadding,
+                lockMovement,
             )
         }
     }

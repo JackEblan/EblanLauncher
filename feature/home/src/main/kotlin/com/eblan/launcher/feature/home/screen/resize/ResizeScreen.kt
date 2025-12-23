@@ -61,10 +61,12 @@ internal fun SharedTransitionScope.ResizeScreen(
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
+    lockMovement: Boolean,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
         rows: Int,
+        lockMovement: Boolean,
     ) -> Unit,
     onResizeEnd: (GridItem) -> Unit,
     onResizeCancel: () -> Unit,
@@ -228,6 +230,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                 width = width,
                 height = height,
                 textColor = textColor,
+                lockMovement = lockMovement,
                 onResizeGridItem = onResizeGridItem,
                 onResizeEnd = onResizeEnd,
             )
@@ -263,6 +266,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                 width = width,
                 height = height,
                 textColor = textColor,
+                lockMovement = lockMovement,
                 onResizeGridItem = onResizeGridItem,
                 onResizeEnd = onResizeEnd,
             )
@@ -284,10 +288,12 @@ private fun ResizeOverlay(
     width: Int,
     height: Int,
     textColor: TextColor,
+    lockMovement: Boolean,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
         rows: Int,
+        lockMovement: Boolean,
     ) -> Unit,
     onResizeEnd: (GridItem) -> Unit,
 ) {
@@ -319,6 +325,7 @@ private fun ResizeOverlay(
                 width = width,
                 height = height,
                 color = currentTextColor,
+                lockMovement = lockMovement,
                 onResizeGridItem = onResizeGridItem,
                 onResizeEnd = onResizeEnd,
             )
@@ -337,6 +344,7 @@ private fun ResizeOverlay(
                 width = width,
                 height = height,
                 color = currentTextColor,
+                lockMovement = lockMovement,
                 onResizeWidgetGridItem = onResizeGridItem,
                 onResizeEnd = onResizeEnd,
             )

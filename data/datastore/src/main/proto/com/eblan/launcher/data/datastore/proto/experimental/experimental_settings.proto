@@ -6,4 +6,5 @@ option java_multiple_files = true;
 message ExperimentalSettingsProto {
   bool syncData = 1;
   bool firstLaunch = 2;
+  bool lockMovement = 3;
 }

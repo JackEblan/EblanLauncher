@@ -98,6 +98,7 @@ import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
 import com.eblan.launcher.feature.home.screen.folder.FolderScreen
 import com.eblan.launcher.feature.home.screen.folderdrag.FolderDragScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
+import com.eblan.launcher.feature.home.screen.loading.PreparingDesktopScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -956,6 +957,10 @@ private fun SharedTransitionScope.Success(
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         PostNotificationPermission()
+    }
+
+    if (homeData.userData.experimentalSettings.firstLaunch) {
+        PreparingDesktopScreen(textColor = homeData.textColor)
     }
 }
 

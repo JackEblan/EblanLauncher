@@ -242,6 +242,7 @@ class SyncDataUseCase @Inject constructor(
             index: Int,
             launcherAppsActivityInfo: LauncherAppsActivityInfo,
             columns: Int,
+            associate: Associate,
         ) {
             val launcherAppsActivityInfoIcon =
                 launcherAppsActivityInfo.activityIcon ?: launcherAppsActivityInfo.applicationIcon
@@ -267,7 +268,7 @@ class SyncDataUseCase @Inject constructor(
                     startRow = startRow,
                     columnSpan = 1,
                     rowSpan = 1,
-                    associate = Associate.Grid,
+                    associate = associate,
                     componentName = launcherAppsActivityInfo.componentName,
                     packageName = launcherAppsActivityInfo.packageName,
                     icon = icon,
@@ -287,6 +288,7 @@ class SyncDataUseCase @Inject constructor(
                     index = index,
                     launcherAppsActivityInfo = launcherAppsActivityInfo,
                     columns = columns,
+                    associate = Associate.Grid,
                 )
             }
 
@@ -296,6 +298,7 @@ class SyncDataUseCase @Inject constructor(
                     index = index,
                     launcherAppsActivityInfo = launcherAppsActivityInfo,
                     columns = dockColumns,
+                    associate = Associate.Dock,
                 )
             }
 

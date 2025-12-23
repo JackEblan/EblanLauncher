@@ -220,6 +220,7 @@ internal class HomeViewModel @Inject constructor(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        lockMovement: Boolean,
     ) {
         moveGridItemJob?.cancel()
 
@@ -233,6 +234,7 @@ internal class HomeViewModel @Inject constructor(
                     rows = rows,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
+                    lockMovement = lockMovement,
                 )
             }
         }
@@ -242,6 +244,7 @@ internal class HomeViewModel @Inject constructor(
         resizingGridItem: GridItem,
         columns: Int,
         rows: Int,
+        lockMovement: Boolean,
     ) {
         moveGridItemJob?.cancel()
 
@@ -250,6 +253,7 @@ internal class HomeViewModel @Inject constructor(
                 resizingGridItem = resizingGridItem,
                 columns = columns,
                 rows = rows,
+                lockMovement = lockMovement,
             )
         }
     }

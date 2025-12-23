@@ -94,6 +94,7 @@ internal fun SharedTransitionScope.DragScreen(
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
+    lockMovement: Boolean,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -102,6 +103,7 @@ internal fun SharedTransitionScope.DragScreen(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        lockMovement: Boolean,
     ) -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
     onDragCancelAfterMove: () -> Unit,
@@ -242,6 +244,7 @@ internal fun SharedTransitionScope.DragScreen(
             isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
             gridItemSource = gridItemSource,
             paddingValues = paddingValues,
+            lockMovement = lockMovement,
             onUpdatePageDirection = { newPageDirection ->
                 pageDirection = newPageDirection
             },

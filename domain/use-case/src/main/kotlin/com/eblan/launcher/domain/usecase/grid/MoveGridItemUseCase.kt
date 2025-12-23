@@ -47,6 +47,7 @@ class MoveGridItemUseCase @Inject constructor(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        lockMovement: Boolean,
     ): MoveGridItemResult {
         return withContext(defaultDispatcher) {
             val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
@@ -95,6 +96,7 @@ class MoveGridItemUseCase @Inject constructor(
                     columns = columns,
                     rows = rows,
                     gridWidth = gridWidth,
+                    lockMovement = lockMovement,
                 )
             }
 
@@ -105,7 +107,7 @@ class MoveGridItemUseCase @Inject constructor(
                 )
             }
 
-            if (gridItemBySpan != null) {
+            if (lockMovement && gridItemBySpan != null) {
                 return@withContext handleConflictsOfGridItemSpan(
                     movingGridItem = movingGridItem,
                     gridItemBySpan = gridItemBySpan,
@@ -133,6 +135,7 @@ class MoveGridItemUseCase @Inject constructor(
         columns: Int,
         rows: Int,
         gridWidth: Int,
+        lockMovement: Boolean,
     ): MoveGridItemResult {
         val resolveDirection = getResolveDirectionByX(
             gridItem = gridItemByCoordinates,
@@ -151,7 +154,7 @@ class MoveGridItemUseCase @Inject constructor(
                     rows = rows,
                 )
 
-                if (resolvedConflicts) {
+                if (resolvedConflicts && !lockMovement) {
                     gridCacheRepository.upsertGridItems(gridItems = gridItems)
                 }
 
@@ -163,7 +166,9 @@ class MoveGridItemUseCase @Inject constructor(
             }
 
             ResolveDirection.Center -> {
-                gridCacheRepository.upsertGridItems(gridItems = gridItems)
+                if (!lockMovement) {
+                    gridCacheRepository.upsertGridItems(gridItems = gridItems)
+                }
 
                 MoveGridItemResult(
                     isSuccess = true,

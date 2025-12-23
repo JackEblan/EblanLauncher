@@ -25,6 +25,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -44,6 +45,7 @@ import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.feature.settings.experimental.dialog.SyncDataDialog
 import com.eblan.launcher.feature.settings.experimental.model.ExperimentalSettingsUiState
 import com.eblan.launcher.ui.settings.SettingsColumn
+import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
 internal fun ExperimentalSettingsRoute(
@@ -130,6 +132,17 @@ private fun Success(
                 subtitle = "Enable or disable sync data",
                 onClick = {
                     showSyncDataDialog = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsSwitch(
+                checked = experimentalSettings.lockMovement,
+                title = "Lock Movement",
+                subtitle = "Prevent other grid items from moving",
+                onCheckedChange = { lockMovement ->
+                    onUpdateExperimentalSettings(experimentalSettings.copy(lockMovement = lockMovement))
                 },
             )
         }

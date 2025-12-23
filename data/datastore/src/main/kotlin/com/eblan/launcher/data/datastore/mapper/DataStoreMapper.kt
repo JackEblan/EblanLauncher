@@ -292,6 +292,7 @@ internal fun ExperimentalSettings.toExperimentalSettingsProto(): ExperimentalSet
     return ExperimentalSettingsProto.newBuilder()
         .setSyncData(syncData)
         .setFirstLaunch(firstLaunch)
+        .setLockMovement(lockMovement)
         .build()
 }
 
@@ -299,5 +300,6 @@ internal fun ExperimentalSettingsProto.toExperimentalSettings(): ExperimentalSet
     return ExperimentalSettings(
         syncData = syncData,
         firstLaunch = firstLaunch,
+        lockMovement = lockMovement,
     )
 }

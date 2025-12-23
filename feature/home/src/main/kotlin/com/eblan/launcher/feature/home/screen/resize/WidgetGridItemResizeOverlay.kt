@@ -63,10 +63,12 @@ internal fun WidgetGridItemResizeOverlay(
     width: Int,
     height: Int,
     color: Color,
+    lockMovement: Boolean,
     onResizeWidgetGridItem: (
         gridItem: GridItem,
         columns: Int,
         rows: Int,
+        lockMovement: Boolean,
     ) -> Unit,
     onResizeEnd: (GridItem) -> Unit,
 ) {
@@ -223,6 +225,7 @@ internal fun WidgetGridItemResizeOverlay(
                 resizingGridItem,
                 columns,
                 rows,
+                lockMovement,
             )
         }
     }

@@ -90,6 +90,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
     private val defaultExperimentalSettings = ExperimentalSettingsProto.newBuilder().apply {
         syncData = true
         firstLaunch = true
+        lockMovement = false
     }.build()
 
     override val defaultValue: UserDataProto = UserDataProto.newBuilder().apply {

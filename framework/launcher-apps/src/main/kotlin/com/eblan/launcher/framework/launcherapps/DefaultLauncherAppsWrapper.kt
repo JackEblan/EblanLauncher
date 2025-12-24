@@ -181,7 +181,11 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    launcherApps.profiles.flatMap { userHandle ->
+                    launcherApps.profiles.filter { userHandle ->
+                        userManagerWrapper.isUserRunning(userHandle = userHandle) && userManagerWrapper.isUserUnlocked(
+                            userHandle = userHandle,
+                        )
+                    }.flatMap { userHandle ->
                         launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
                             shortcutInfo.toLauncherAppsShortcutInfo()
                         } ?: emptyList()
@@ -209,9 +213,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
                     setPackage(packageName)
 
                     setQueryFlags(
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
                     )
                 }
 

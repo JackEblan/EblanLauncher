@@ -41,7 +41,7 @@ class GetIconPackFilePathsUseCase @Inject constructor(
             eblanApplicationInfoRepository.eblanApplicationInfos,
         ) { userData, eblaApplicationInfos ->
             val iconPacksDirectory = fileManager.getFilesDirectory(
-                FileManager.Companion.ICON_PACKS_DIR,
+                FileManager.ICON_PACKS_DIR,
             )
 
             val iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName

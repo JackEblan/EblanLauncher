@@ -40,6 +40,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
@@ -194,7 +195,9 @@ internal fun SharedTransitionScope.FolderDragScreen(
                 .onSizeChanged {
                     titleHeight = it.height
                 }
+                .fillMaxWidth()
                 .padding(5.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.height(20.dp))
 

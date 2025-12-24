@@ -18,13 +18,15 @@
 package com.eblan.launcher.service
 
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.IBinder
 import com.eblan.launcher.domain.usecase.launcherapps.SyncDataUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -37,19 +39,33 @@ class SyncDataService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
-    private var syncDataJob: Job? = null
+    private val userBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            serviceScope.launch {
+                syncDataUseCase()
+            }
+        }
+    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        syncDataJob?.cancel()
+        registerReceiver(
+            userBroadcastReceiver,
+            IntentFilter().apply {
+                addAction(Intent.ACTION_MANAGED_PROFILE_AVAILABLE)
+                addAction(Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE)
+                addAction(Intent.ACTION_MANAGED_PROFILE_REMOVED)
+                addAction(Intent.ACTION_MANAGED_PROFILE_ADDED)
+                addAction(Intent.ACTION_MANAGED_PROFILE_UNLOCKED)
+                addAction(Intent.ACTION_USER_UNLOCKED)
+            },
+        )
 
-        syncDataJob = serviceScope.launch {
+        serviceScope.launch {
             syncDataUseCase()
-
-            stopSelf()
         }
 
         return super.onStartCommand(intent, flags, startId)
@@ -57,6 +73,8 @@ class SyncDataService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+
+        unregisterReceiver(userBroadcastReceiver)
 
         serviceScope.cancel()
     }

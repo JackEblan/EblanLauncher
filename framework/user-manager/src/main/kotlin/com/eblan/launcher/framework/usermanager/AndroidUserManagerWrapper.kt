@@ -23,4 +23,8 @@ interface AndroidUserManagerWrapper {
     fun getSerialNumberForUser(userHandle: UserHandle): Long
 
     fun getUserForSerialNumber(serialNumber: Long): UserHandle?
+
+    fun isUserRunning(userHandle: UserHandle): Boolean
+
+    fun isUserUnlocked(userHandle: UserHandle): Boolean
 }

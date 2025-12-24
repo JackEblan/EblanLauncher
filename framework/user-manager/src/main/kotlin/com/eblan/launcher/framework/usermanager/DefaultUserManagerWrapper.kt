@@ -24,7 +24,8 @@ import android.os.UserManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-internal class DefaultUserManagerWrapper @Inject constructor(@param:ApplicationContext private val context: Context) : AndroidUserManagerWrapper {
+internal class DefaultUserManagerWrapper @Inject constructor(@param:ApplicationContext private val context: Context) :
+    AndroidUserManagerWrapper {
     private val userManager = context.getSystemService(USER_SERVICE) as UserManager
 
     override fun getSerialNumberForUser(userHandle: UserHandle): Long {
@@ -33,5 +34,13 @@ internal class DefaultUserManagerWrapper @Inject constructor(@param:ApplicationC
 
     override fun getUserForSerialNumber(serialNumber: Long): UserHandle? {
         return userManager.getUserForSerialNumber(serialNumber)
+    }
+
+    override fun isUserRunning(userHandle: UserHandle): Boolean {
+        return userManager.isUserRunning(userHandle)
+    }
+
+    override fun isUserUnlocked(userHandle: UserHandle): Boolean {
+        return userManager.isUserUnlocked(userHandle)
     }
 }

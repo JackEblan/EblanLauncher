@@ -147,11 +147,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     override suspend fun getActivityList(): List<LauncherAppsActivityInfo> {
         return withContext(defaultDispatcher) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                launcherApps.profiles.filter { userHandle ->
-                    userManagerWrapper.isUserRunning(userHandle = userHandle) && userManagerWrapper.isUserUnlocked(
-                        userHandle = userHandle,
-                    )
-                }.flatMap { userHandle ->
+                launcherApps.profiles.flatMap { userHandle ->
                     launcherApps.getActivityList(null, userHandle).map { launcherActivityInfo ->
                         launcherActivityInfo.toEblanLauncherActivityInfo()
                     }

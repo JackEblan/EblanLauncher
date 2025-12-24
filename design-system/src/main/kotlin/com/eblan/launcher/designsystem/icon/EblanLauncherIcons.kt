@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material.icons.filled.Work
+import androidx.compose.material.icons.filled.WorkOff
 
 object EblanLauncherIcons {
     val Edit = Icons.Default.Edit
@@ -62,6 +63,7 @@ object EblanLauncherIcons {
     val Info = Icons.Default.Info
     val Add = Icons.Default.Add
     val Work = Icons.Default.Work
+    val WorkOff = Icons.Default.WorkOff
     val DeveloperMode = Icons.Default.DeveloperMode
     val Close = Icons.Default.Close
     val Save = Icons.Default.Save

@@ -19,6 +19,7 @@ package com.eblan.launcher.feature.home.screen.application
 
 import android.graphics.Rect
 import android.os.Build
+import android.os.UserHandle
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -59,8 +60,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
@@ -124,7 +127,11 @@ import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.getSystemTextColor
+import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
+import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.ui.local.LocalLauncherApps
+import com.eblan.launcher.ui.local.LocalPackageManager
+import com.eblan.launcher.ui.local.LocalUserManager
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -868,6 +875,153 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    val userManager = LocalUserManager.current
+
+    val packageManager = LocalPackageManager.current
+
+    val serialNumber = eblanApplicationInfos.keys.toList().getOrElse(
+        index = index,
+        defaultValue = {
+            0
+        },
+    )
+
+    val userHandle = userManager.getUserForSerialNumber(serialNumber = serialNumber)
+
+    var isQuietModeEnabled by remember(key1 = userHandle) {
+        mutableStateOf(
+            if (userHandle != null) {
+                userManager.isQuietModeEnabled(userHandle = userHandle)
+            } else {
+                false
+            },
+        )
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        if (isQuietModeEnabled) {
+            QuiteModeScreen(
+                packageManager = packageManager,
+                userHandle = userHandle,
+                userManager = userManager,
+                onRequestQuietModeDisabled = { newIsQuietModeEnabled ->
+                    isQuietModeEnabled = newIsQuietModeEnabled
+                },
+            )
+        } else {
+            EblanApplicationInfos(
+                serialNumber = serialNumber,
+                currentPage = currentPage,
+                paddingValues = paddingValues,
+                drag = drag,
+                appDrawerSettings = appDrawerSettings,
+                eblanApplicationInfos = eblanApplicationInfos,
+                iconPackFilePaths = iconPackFilePaths,
+                onLongPressGridItem = onLongPressGridItem,
+                onResetOverlay = onResetOverlay,
+                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdatePopupMenu = onUpdatePopupMenu,
+                onVerticalDrag = onVerticalDrag,
+                onDragEnd = onDragEnd,
+                onDraggingGridItem = onDraggingGridItem,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
+            )
+
+            if (packageManager.isDefaultLauncher() &&
+                serialNumber > 0 &&
+                userHandle != null
+            ) {
+                FloatingActionButton(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(
+                            end = 10.dp,
+                            bottom = paddingValues.calculateBottomPadding() + 10.dp,
+                        ),
+                    onClick = {
+                        userManager.requestQuietModeEnabled(
+                            enableQuiteMode = true,
+                            userHandle = userHandle,
+                        )
+
+                        isQuietModeEnabled = userManager.isQuietModeEnabled(userHandle)
+                    },
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.WorkOff,
+                        contentDescription = null,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuiteModeScreen(
+    modifier: Modifier = Modifier,
+    packageManager: AndroidPackageManagerWrapper,
+    userHandle: UserHandle?,
+    userManager: AndroidUserManagerWrapper,
+    onRequestQuietModeDisabled: (Boolean) -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(text = "Work apps are paused", style = MaterialTheme.typography.titleLarge)
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(text = "You won't receive notifications from your work apps")
+
+        if (packageManager.isDefaultLauncher() &&
+            userHandle != null
+        ) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            OutlinedButton(onClick = {
+                userManager.requestQuietModeEnabled(
+                    enableQuiteMode = false,
+                    userHandle = userHandle,
+                )
+
+                onRequestQuietModeDisabled(userManager.isQuietModeEnabled(userHandle = userHandle))
+            }) {
+                Text(text = "Unpause")
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
+@Composable
+private fun SharedTransitionScope.EblanApplicationInfos(
+    modifier: Modifier = Modifier,
+    serialNumber: Long,
+    currentPage: Int,
+    paddingValues: PaddingValues,
+    drag: Drag,
+    appDrawerSettings: AppDrawerSettings,
+    eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
+    iconPackFilePaths: Map<String, String>,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    onResetOverlay: () -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onUpdatePopupMenu: (Boolean) -> Unit,
+    onVerticalDrag: (Float) -> Unit,
+    onDragEnd: (Float) -> Unit,
+    onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+) {
     val scope = rememberCoroutineScope()
 
     val overscrollEffect = remember(key1 = scope) {
@@ -879,13 +1033,6 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     }
 
     val lazyGridState = rememberLazyGridState()
-
-    val serialNumber = eblanApplicationInfos.keys.toList().getOrElse(
-        index = index,
-        defaultValue = {
-            0
-        },
-    )
 
     val canOverscroll by remember(key1 = lazyGridState) {
         derivedStateOf {

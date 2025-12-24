@@ -27,4 +27,11 @@ interface AndroidUserManagerWrapper {
     fun isUserRunning(userHandle: UserHandle): Boolean
 
     fun isUserUnlocked(userHandle: UserHandle): Boolean
+
+    fun isQuietModeEnabled(userHandle: UserHandle): Boolean
+
+    fun requestQuietModeEnabled(
+        enableQuiteMode: Boolean,
+        userHandle: UserHandle,
+    ): Boolean
 }

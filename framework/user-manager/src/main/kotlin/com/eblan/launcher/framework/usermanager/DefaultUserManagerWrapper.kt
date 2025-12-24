@@ -43,4 +43,18 @@ internal class DefaultUserManagerWrapper @Inject constructor(@param:ApplicationC
     override fun isUserUnlocked(userHandle: UserHandle): Boolean {
         return userManager.isUserUnlocked(userHandle)
     }
+
+    override fun isQuietModeEnabled(userHandle: UserHandle): Boolean {
+        return userManager.isQuietModeEnabled(userHandle)
+    }
+
+    override fun requestQuietModeEnabled(
+        enableQuiteMode: Boolean,
+        userHandle: UserHandle,
+    ): Boolean {
+        return userManager.requestQuietModeEnabled(
+            enableQuiteMode,
+            userHandle,
+        )
+    }
 }

@@ -45,6 +45,8 @@ import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
@@ -148,12 +150,18 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         return withContext(defaultDispatcher) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 launcherApps.profiles.flatMap { userHandle ->
+                    currentCoroutineContext().ensureActive()
+
                     launcherApps.getActivityList(null, userHandle).map { launcherActivityInfo ->
+                        currentCoroutineContext().ensureActive()
+
                         launcherActivityInfo.toEblanLauncherActivityInfo()
                     }
                 }
             } else {
                 launcherApps.getActivityList(null, myUserHandle()).map { launcherActivityInfo ->
+                    currentCoroutineContext().ensureActive()
+
                     launcherActivityInfo.toEblanLauncherActivityInfo()
                 }
             }
@@ -167,6 +175,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
 
         return launcherApps.getActivityList(packageName, userHandle).map { launcherActivityInfo ->
+            currentCoroutineContext().ensureActive()
+
             launcherActivityInfo.toEblanLauncherActivityInfo()
         }
     }
@@ -182,16 +192,23 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     launcherApps.profiles.filter { userHandle ->
-                        userManagerWrapper.isUserRunning(userHandle = userHandle) && userManagerWrapper.isUserUnlocked(
-                            userHandle = userHandle,
-                        )
+                        userManagerWrapper.isUserRunning(userHandle = userHandle) &&
+                            userManagerWrapper.isUserUnlocked(userHandle = userHandle) &&
+                            !userManagerWrapper.isQuietModeEnabled(userHandle = userHandle)
                     }.flatMap { userHandle ->
-                        launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
-                            shortcutInfo.toLauncherAppsShortcutInfo()
-                        } ?: emptyList()
+                        currentCoroutineContext().ensureActive()
+
+                        launcherApps.getShortcuts(shortcutQuery, userHandle)
+                            ?.map { shortcutInfo ->
+                                currentCoroutineContext().ensureActive()
+
+                                shortcutInfo.toLauncherAppsShortcutInfo()
+                            } ?: emptyList()
                     }
                 } else {
                     launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
+                        currentCoroutineContext().ensureActive()
+
                         shortcutInfo.toLauncherAppsShortcutInfo()
                     }
                 }
@@ -218,6 +235,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
                 }
 
                 launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
+                    currentCoroutineContext().ensureActive()
+
                     shortcutInfo.toLauncherAppsShortcutInfo()
                 }
             } else {
@@ -236,6 +255,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && userHandle != null) {
                 launcherApps.getShortcutConfigActivityList(packageName, userHandle)
                     .map { launcherActivityInfo ->
+                        currentCoroutineContext().ensureActive()
+
                         launcherActivityInfo.toEblanLauncherActivityInfo()
                     }
             } else {

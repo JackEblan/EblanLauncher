@@ -32,6 +32,7 @@ import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,7 +56,8 @@ class SyncDataService : Service() {
 
     val managedProfileResult = _managedProfileResult.asStateFlow()
 
-    @Suppress("DEPRECATION")
+    private var syncDataJob: Job? = null
+
     private val managedProfileBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val userHandle = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -64,20 +66,23 @@ class SyncDataService : Service() {
                     UserHandle::class.java,
                 )
             } else {
+                @Suppress("DEPRECATION")
                 intent.getParcelableExtra(Intent.EXTRA_USER)
             }
 
             if (userHandle != null) {
+                syncDataJob?.cancel()
+
+                syncDataJob = serviceScope.launch {
+                    syncDataUseCase()
+                }
+
                 _managedProfileResult.update {
                     ManagedProfileResult(
                         serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = userHandle),
                         isQuiteModeEnabled = userManagerWrapper.isQuietModeEnabled(userHandle = userHandle),
                     )
                 }
-            }
-
-            serviceScope.launch {
-                syncDataUseCase()
             }
         }
     }
@@ -100,7 +105,9 @@ class SyncDataService : Service() {
             },
         )
 
-        serviceScope.launch {
+        syncDataJob?.cancel()
+
+        syncDataJob = serviceScope.launch {
             syncDataUseCase()
         }
 
@@ -110,9 +117,9 @@ class SyncDataService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
-        unregisterReceiver(managedProfileBroadcastReceiver)
-
         serviceScope.cancel()
+
+        unregisterReceiver(managedProfileBroadcastReceiver)
     }
 
     inner class LocalBinder : Binder() {

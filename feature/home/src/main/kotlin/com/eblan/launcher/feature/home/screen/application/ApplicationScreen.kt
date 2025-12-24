@@ -989,7 +989,10 @@ private fun QuiteModeScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Text(text = "You won't receive notifications from your work apps")
+        Text(
+            text = "You won't receive notifications from your work apps",
+            textAlign = TextAlign.Center,
+        )
 
         if (packageManager.isDefaultLauncher() &&
             userHandle != null

@@ -34,12 +34,8 @@ class EblanNotificationListenerService : NotificationListenerService() {
 
     private val binder = LocalBinder()
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return if (SERVICE_INTERFACE == intent?.action) {
-            super.onBind(intent)
-        } else {
-            binder
-        }
+    override fun onBind(intent: Intent?): IBinder {
+        return binder
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {

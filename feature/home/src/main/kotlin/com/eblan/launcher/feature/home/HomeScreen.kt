@@ -73,6 +73,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
@@ -84,6 +85,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeData
+import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
@@ -324,6 +326,8 @@ internal fun HomeScreen(
 
     val userManager = LocalUserManager.current
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     val scope = rememberCoroutineScope()
 
     var statusBarNotifications by remember {
@@ -392,14 +396,16 @@ internal fun HomeScreen(
     }
 
     DisposableEffect(key1 = scope) {
-        val connection = object : ServiceConnection {
+        val eblanNotificationListenerServiceConnection = object : ServiceConnection {
             private var listener: EblanNotificationListenerService? = null
 
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
                 listener = (service as EblanNotificationListenerService.LocalBinder).getService()
 
                 scope.launch {
-                    listener?.statusBarNotifications?.collect { statusBarNotifications = it }
+                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        listener?.statusBarNotifications?.collect { statusBarNotifications = it }
+                    }
                 }
             }
 
@@ -410,10 +416,14 @@ internal fun HomeScreen(
 
         val intent = Intent(context, EblanNotificationListenerService::class.java)
 
-        context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        context.bindService(
+            intent,
+            eblanNotificationListenerServiceConnection,
+            Context.BIND_AUTO_CREATE,
+        )
 
         onDispose {
-            context.unbindService(connection)
+            context.unbindService(eblanNotificationListenerServiceConnection)
         }
     }
 
@@ -696,6 +706,10 @@ private fun SharedTransitionScope.Success(
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
+    val scope = rememberCoroutineScope()
+
+    var managedProfileResult by remember { mutableStateOf<ManagedProfileResult?>(null) }
+
     LaunchedEffect(key1 = pinGridItem) {
         val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
@@ -713,17 +727,43 @@ private fun SharedTransitionScope.Success(
     }
 
     DisposableEffect(key1 = lifecycleOwner) {
+        val launcherAppsIntent = Intent(context, LauncherAppsService::class.java)
+
+        val syncDataIntent = Intent(context, SyncDataService::class.java)
+
+        val syncDataServiceConnection = object : ServiceConnection {
+            private var listener: SyncDataService? = null
+
+            override fun onServiceConnected(name: ComponentName, service: IBinder) {
+                listener = (service as SyncDataService.LocalBinder).getService()
+
+                scope.launch {
+                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        listener?.managedProfileResult?.collect {
+                            managedProfileResult = it
+                        }
+                    }
+                }
+            }
+
+            override fun onServiceDisconnected(name: ComponentName) {
+                listener = null
+            }
+        }
+
         val lifecycleEventObserver = LifecycleEventObserver { _, event ->
-            val launcherAppsIntent = Intent(context, LauncherAppsService::class.java)
-
-            val syncDataIntent = Intent(context, SyncDataService::class.java)
-
             when (event) {
                 Lifecycle.Event.ON_START -> {
                     if (homeData.userData.experimentalSettings.syncData && pinItemRequestWrapper.getPinItemRequest() == null) {
                         context.startService(launcherAppsIntent)
 
                         context.startService(syncDataIntent)
+
+                        context.bindService(
+                            syncDataIntent,
+                            syncDataServiceConnection,
+                            Context.BIND_AUTO_CREATE,
+                        )
                     }
 
                     appWidgetHost.startListening()
@@ -731,6 +771,8 @@ private fun SharedTransitionScope.Success(
 
                 Lifecycle.Event.ON_STOP -> {
                     if (homeData.userData.experimentalSettings.syncData && pinItemRequestWrapper.getPinItemRequest() == null) {
+                        context.unbindService(syncDataServiceConnection)
+
                         context.stopService(launcherAppsIntent)
 
                         context.stopService(syncDataIntent)
@@ -787,6 +829,7 @@ private fun SharedTransitionScope.Success(
                     eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     iconPackFilePaths = iconPackFilePaths,
+                    managedProfileResult = managedProfileResult,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(

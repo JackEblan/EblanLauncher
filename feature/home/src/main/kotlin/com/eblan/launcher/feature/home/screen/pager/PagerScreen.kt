@@ -65,6 +65,7 @@ import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
+import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
@@ -106,6 +107,7 @@ internal fun SharedTransitionScope.PagerScreen(
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
+    managedProfileResult: ManagedProfileResult?,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEditGridItem: (String) -> Unit,
@@ -391,6 +393,7 @@ internal fun SharedTransitionScope.PagerScreen(
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
             gridItemSource = gridItemSource,
             isPressHome = isPressHome,
+            managedProfileResult = managedProfileResult,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -450,6 +453,7 @@ internal fun SharedTransitionScope.PagerScreen(
             hasShortcutHostPermission = hasShortcutHostPermission,
             eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
             iconPackFilePaths = iconPackFilePaths,
+            managedProfileResult = managedProfileResult,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,

@@ -15,23 +15,9 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.domain.model
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.hilt)
-}
-
-android {
-    namespace = "com.eblan.launcher.service"
-}
-
-dependencies {
-    implementation(projects.domain.common)
-    implementation(projects.domain.framework)
-    implementation(projects.domain.repository)
-    implementation(projects.domain.useCase)
-    implementation(projects.framework.notificationManager)
-    implementation(projects.framework.userManager)
-
-    implementation(libs.androidx.core.ktx)
-}
+data class ManagedProfileResult(
+    val serialNumber: Long,
+    val isQuiteModeEnabled: Boolean,
+)

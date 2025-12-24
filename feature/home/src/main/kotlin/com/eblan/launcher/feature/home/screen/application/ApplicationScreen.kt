@@ -116,6 +116,7 @@ import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HorizontalAlignment
+import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
@@ -156,6 +157,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
+    managedProfileResult: ManagedProfileResult?,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -219,6 +221,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     iconPackFilePaths = iconPackFilePaths,
                     isPressHome = isPressHome,
+                    managedProfileResult = managedProfileResult,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -252,6 +255,7 @@ private fun SharedTransitionScope.Success(
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
+    managedProfileResult: ManagedProfileResult?,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -375,6 +379,7 @@ private fun SharedTransitionScope.Success(
                     appDrawerSettings = appDrawerSettings,
                     eblanApplicationInfos = eblanApplicationInfos,
                     iconPackFilePaths = iconPackFilePaths,
+                    managedProfileResult = managedProfileResult,
                     onLongPressGridItem = onLongPressGridItem,
                     onResetOverlay = onResetOverlay,
                     onUpdateGridItemOffset = { intOffset, intSize ->
@@ -402,6 +407,7 @@ private fun SharedTransitionScope.Success(
                 appDrawerSettings = appDrawerSettings,
                 eblanApplicationInfos = eblanApplicationInfos,
                 iconPackFilePaths = iconPackFilePaths,
+                managedProfileResult = managedProfileResult,
                 onLongPressGridItem = onLongPressGridItem,
                 onResetOverlay = onResetOverlay,
                 onUpdateGridItemOffset = { intOffset, intSize ->
@@ -860,6 +866,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     appDrawerSettings: AppDrawerSettings,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
     iconPackFilePaths: Map<String, String>,
+    managedProfileResult: ManagedProfileResult?,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -888,23 +895,30 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
 
     val userHandle = userManager.getUserForSerialNumber(serialNumber = serialNumber)
 
-    var isQuietModeEnabled by remember(key1 = userHandle) {
-        mutableStateOf(
-            if (userHandle != null) {
+    var isQuietModeEnabled by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = userHandle) {
+        if (userHandle != null) {
+            isQuietModeEnabled =
                 userManager.isQuietModeEnabled(userHandle = userHandle)
-            } else {
-                false
-            },
-        )
+        }
+    }
+
+    LaunchedEffect(key1 = managedProfileResult) {
+        if (managedProfileResult != null &&
+            managedProfileResult.serialNumber == serialNumber
+        ) {
+            isQuietModeEnabled = managedProfileResult.isQuiteModeEnabled
+        }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
         if (isQuietModeEnabled) {
             QuiteModeScreen(
                 packageManager = packageManager,
-                userHandle = userHandle,
                 userManager = userManager,
-                onRequestQuietModeDisabled = { newIsQuietModeEnabled ->
+                userHandle = userHandle,
+                onUpdateRequestQuietModeEnabled = { newIsQuietModeEnabled ->
                     isQuietModeEnabled = newIsQuietModeEnabled
                 },
             )
@@ -961,9 +975,9 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
 private fun QuiteModeScreen(
     modifier: Modifier = Modifier,
     packageManager: AndroidPackageManagerWrapper,
-    userHandle: UserHandle?,
     userManager: AndroidUserManagerWrapper,
-    onRequestQuietModeDisabled: (Boolean) -> Unit,
+    userHandle: UserHandle?,
+    onUpdateRequestQuietModeEnabled: (Boolean) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -988,7 +1002,7 @@ private fun QuiteModeScreen(
                     userHandle = userHandle,
                 )
 
-                onRequestQuietModeDisabled(userManager.isQuietModeEnabled(userHandle = userHandle))
+                onUpdateRequestQuietModeEnabled(userManager.isQuietModeEnabled(userHandle = userHandle))
             }) {
                 Text(text = "Unpause")
             }

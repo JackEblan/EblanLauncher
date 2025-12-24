@@ -22,13 +22,21 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Binder
+import android.os.Build
 import android.os.IBinder
+import android.os.UserHandle
+import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.domain.usecase.launcherapps.SyncDataUseCase
+import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,30 +45,58 @@ class SyncDataService : Service() {
     @Inject
     lateinit var syncDataUseCase: SyncDataUseCase
 
+    @Inject
+    lateinit var userManagerWrapper: AndroidUserManagerWrapper
+
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
-    private val userBroadcastReceiver = object : BroadcastReceiver() {
+    private val _managedProfileResult =
+        MutableStateFlow<ManagedProfileResult?>(null)
+
+    val managedProfileResult = _managedProfileResult.asStateFlow()
+
+    @Suppress("DEPRECATION")
+    private val managedProfileBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            val userHandle = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(
+                    Intent.EXTRA_USER,
+                    UserHandle::class.java,
+                )
+            } else {
+                intent.getParcelableExtra(Intent.EXTRA_USER)
+            }
+
+            if (userHandle != null) {
+                _managedProfileResult.update {
+                    ManagedProfileResult(
+                        serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = userHandle),
+                        isQuiteModeEnabled = userManagerWrapper.isQuietModeEnabled(userHandle = userHandle),
+                    )
+                }
+            }
+
             serviceScope.launch {
                 syncDataUseCase()
             }
         }
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
+    private val binder = LocalBinder()
+
+    override fun onBind(intent: Intent?): IBinder {
+        return binder
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         registerReceiver(
-            userBroadcastReceiver,
+            managedProfileBroadcastReceiver,
             IntentFilter().apply {
                 addAction(Intent.ACTION_MANAGED_PROFILE_AVAILABLE)
                 addAction(Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE)
                 addAction(Intent.ACTION_MANAGED_PROFILE_REMOVED)
                 addAction(Intent.ACTION_MANAGED_PROFILE_ADDED)
                 addAction(Intent.ACTION_MANAGED_PROFILE_UNLOCKED)
-                addAction(Intent.ACTION_USER_UNLOCKED)
             },
         )
 
@@ -74,8 +110,12 @@ class SyncDataService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
-        unregisterReceiver(userBroadcastReceiver)
+        unregisterReceiver(managedProfileBroadcastReceiver)
 
         serviceScope.cancel()
+    }
+
+    inner class LocalBinder : Binder() {
+        fun getService(): SyncDataService = this@SyncDataService
     }
 }

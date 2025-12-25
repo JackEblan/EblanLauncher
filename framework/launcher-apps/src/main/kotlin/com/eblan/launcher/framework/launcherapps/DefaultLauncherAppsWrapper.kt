@@ -193,18 +193,17 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     launcherApps.profiles.filter { userHandle ->
-                        userManagerWrapper.isUserRunning(userHandle = userHandle) &&
-                            userManagerWrapper.isUserUnlocked(userHandle = userHandle) &&
-                            !userManagerWrapper.isQuietModeEnabled(userHandle = userHandle)
+                        userManagerWrapper.isUserRunning(userHandle = userHandle) && userManagerWrapper.isUserUnlocked(
+                            userHandle = userHandle,
+                        ) && !userManagerWrapper.isQuietModeEnabled(userHandle = userHandle)
                     }.flatMap { userHandle ->
                         currentCoroutineContext().ensureActive()
 
-                        launcherApps.getShortcuts(shortcutQuery, userHandle)
-                            ?.map { shortcutInfo ->
-                                currentCoroutineContext().ensureActive()
+                        launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
+                            currentCoroutineContext().ensureActive()
 
-                                shortcutInfo.toLauncherAppsShortcutInfo()
-                            } ?: emptyList()
+                            shortcutInfo.toLauncherAppsShortcutInfo()
+                        } ?: emptyList()
                     }
                 } else {
                     launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
@@ -273,13 +272,20 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     ) {
         val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
 
-        if (userHandle != null) {
-            launcherApps.startMainActivity(
-                ComponentName.unflattenFromString(componentName),
-                userHandle,
-                sourceBounds,
-                Bundle.EMPTY,
-            )
+        try {
+            if (userHandle != null && userManagerWrapper.isUserRunning(userHandle = userHandle) && userManagerWrapper.isUserUnlocked(
+                    userHandle = userHandle,
+                ) && !userManagerWrapper.isQuietModeEnabled(userHandle = userHandle)
+            ) {
+                launcherApps.startMainActivity(
+                    ComponentName.unflattenFromString(componentName),
+                    userHandle,
+                    sourceBounds,
+                    Bundle.EMPTY,
+                )
+            }
+        } catch (e: SecurityException) {
+            e.printStackTrace()
         }
     }
 
@@ -287,12 +293,21 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         componentName: String,
         sourceBounds: Rect,
     ) {
-        launcherApps.startMainActivity(
-            ComponentName.unflattenFromString(componentName),
-            myUserHandle(),
-            sourceBounds,
-            Bundle.EMPTY,
-        )
+        try {
+            if (userManagerWrapper.isUserRunning(userHandle = myUserHandle()) && userManagerWrapper.isUserUnlocked(
+                    userHandle = myUserHandle(),
+                ) && !userManagerWrapper.isQuietModeEnabled(userHandle = myUserHandle())
+            ) {
+                launcherApps.startMainActivity(
+                    ComponentName.unflattenFromString(componentName),
+                    myUserHandle(),
+                    sourceBounds,
+                    Bundle.EMPTY,
+                )
+            }
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -310,10 +325,9 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
 
         try {
-            if (userHandle != null &&
-                userManagerWrapper.isUserRunning(userHandle = userHandle) &&
-                userManagerWrapper.isUserUnlocked(userHandle = userHandle) &&
-                !userManagerWrapper.isQuietModeEnabled(userHandle = userHandle)
+            if (userHandle != null && userManagerWrapper.isUserRunning(userHandle = userHandle) && userManagerWrapper.isUserUnlocked(
+                    userHandle = userHandle,
+                ) && !userManagerWrapper.isQuietModeEnabled(userHandle = userHandle)
             ) {
                 launcherApps.startShortcut(
                     packageName,
@@ -335,10 +349,9 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         sourceBounds: Rect,
     ) {
         try {
-            if (
-                userManagerWrapper.isUserRunning(userHandle = myUserHandle()) &&
-                userManagerWrapper.isUserUnlocked(userHandle = myUserHandle()) &&
-                !userManagerWrapper.isQuietModeEnabled(userHandle = myUserHandle())
+            if (userManagerWrapper.isUserRunning(userHandle = myUserHandle()) && userManagerWrapper.isUserUnlocked(
+                    userHandle = myUserHandle(),
+                ) && !userManagerWrapper.isQuietModeEnabled(userHandle = myUserHandle())
             ) {
                 launcherApps.startShortcut(
                     packageName,

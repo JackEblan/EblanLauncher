@@ -44,7 +44,7 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
         ) { eblanApplicationInfos, eblanAppWidgetProviderInfos, eblanShortcutConfigs ->
             val groupedEblanApplicationInfos =
                 eblanApplicationInfos.sortedBy { eblanApplicationInfo ->
-                    eblanApplicationInfo.label?.lowercase()
+                    eblanApplicationInfo.label.lowercase()
                 }.groupBy { eblanApplicationInfo ->
                     eblanApplicationInfo.serialNumber
                 }
@@ -54,6 +54,7 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                     eblanAppWidgetProviderInfo.label.lowercase()
                 }.groupBy { eblanAppWidgetProviderInfo ->
                     EblanApplicationInfoGroup(
+                        serialNumber = eblanAppWidgetProviderInfo.serialNumber,
                         packageName = eblanAppWidgetProviderInfo.packageName,
                         icon = eblanAppWidgetProviderInfo.icon,
                         label = eblanAppWidgetProviderInfo.label,
@@ -68,6 +69,7 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                 }.mapValues { entry ->
                     entry.value.groupBy { eblanShortcutConfig ->
                         EblanApplicationInfoGroup(
+                            serialNumber = eblanShortcutConfig.serialNumber,
                             packageName = eblanShortcutConfig.packageName,
                             icon = eblanShortcutConfig.applicationIcon,
                             label = eblanShortcutConfig.applicationLabel,

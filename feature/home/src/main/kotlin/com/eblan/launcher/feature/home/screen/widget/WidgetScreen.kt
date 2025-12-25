@@ -55,6 +55,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -327,18 +328,20 @@ private fun SharedTransitionScope.Success(
             overscrollEffect = overscrollEffect,
         ) {
             items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfoGroup ->
-                EblanApplicationInfoItem(
-                    eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-                    drag = drag,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onLongPressGridItem = onLongPressGridItem,
-                    currentPage = currentPage,
-                    gridItemSettings = gridItemSettings,
-                    onResetOverlay = onResetOverlay,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
+                key(eblanApplicationInfoGroup.packageName) {
+                    EblanApplicationInfoItem(
+                        eblanApplicationInfoGroup = eblanApplicationInfoGroup,
+                        eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                        drag = drag,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onLongPressGridItem = onLongPressGridItem,
+                        currentPage = currentPage,
+                        gridItemSettings = gridItemSettings,
+                        onResetOverlay = onResetOverlay,
+                        onDraggingGridItem = onDraggingGridItem,
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    )
+                }
             }
         }
     }
@@ -393,19 +396,21 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoDockSearchBar(
         onExpandedChange = { expanded = it },
     ) {
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            items(eblanAppWidgetProviderInfosByLabel.keys.toList()) { eblanApplicationInfo ->
-                EblanApplicationInfoItem(
-                    eblanApplicationInfoGroup = eblanApplicationInfo,
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosByLabel,
-                    drag = drag,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onLongPressGridItem = onLongPressGridItem,
-                    currentPage = currentPage,
-                    gridItemSettings = gridItemSettings,
-                    onResetOverlay = onResetOverlay,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
+            items(eblanAppWidgetProviderInfosByLabel.keys.toList()) { eblanApplicationInfoGroup ->
+                key(eblanApplicationInfoGroup.serialNumber, eblanApplicationInfoGroup.packageName) {
+                    EblanApplicationInfoItem(
+                        eblanApplicationInfoGroup = eblanApplicationInfoGroup,
+                        eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosByLabel,
+                        drag = drag,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onLongPressGridItem = onLongPressGridItem,
+                        currentPage = currentPage,
+                        gridItemSettings = gridItemSettings,
+                        onResetOverlay = onResetOverlay,
+                        onDraggingGridItem = onDraggingGridItem,
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    )
+                }
             }
         }
     }

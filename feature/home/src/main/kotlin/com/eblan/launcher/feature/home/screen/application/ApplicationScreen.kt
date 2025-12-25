@@ -73,6 +73,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -562,20 +563,22 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
             modifier = Modifier.fillMaxWidth(),
         ) {
             items(eblanApplicationInfosByLabel) { eblanApplicationInfo ->
-                EblanApplicationInfoItem(
-                    currentPage = currentPage,
-                    drag = drag,
-                    eblanApplicationInfo = eblanApplicationInfo,
-                    appDrawerSettings = appDrawerSettings,
-                    paddingValues = paddingValues,
-                    iconPackFilePaths = iconPackFilePaths,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onLongPressGridItem = onLongPressGridItem,
-                    onUpdatePopupMenu = onUpdatePopupMenu,
-                    onResetOverlay = onResetOverlay,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
+                key(eblanApplicationInfo.serialNumber, eblanApplicationInfo.componentName) {
+                    EblanApplicationInfoItem(
+                        currentPage = currentPage,
+                        drag = drag,
+                        eblanApplicationInfo = eblanApplicationInfo,
+                        appDrawerSettings = appDrawerSettings,
+                        paddingValues = paddingValues,
+                        iconPackFilePaths = iconPackFilePaths,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onLongPressGridItem = onLongPressGridItem,
+                        onUpdatePopupMenu = onUpdatePopupMenu,
+                        onResetOverlay = onResetOverlay,
+                        onDraggingGridItem = onDraggingGridItem,
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    )
+                }
             }
         }
     }
@@ -1092,20 +1095,22 @@ private fun SharedTransitionScope.EblanApplicationInfos(
             },
         ) {
             items(eblanApplicationInfos[serialNumber].orEmpty()) { eblanApplicationInfo ->
-                EblanApplicationInfoItem(
-                    currentPage = currentPage,
-                    drag = drag,
-                    eblanApplicationInfo = eblanApplicationInfo,
-                    appDrawerSettings = appDrawerSettings,
-                    paddingValues = paddingValues,
-                    iconPackFilePaths = iconPackFilePaths,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onLongPressGridItem = onLongPressGridItem,
-                    onUpdatePopupMenu = onUpdatePopupMenu,
-                    onResetOverlay = onResetOverlay,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
+                key(eblanApplicationInfo.serialNumber, eblanApplicationInfo.componentName) {
+                    EblanApplicationInfoItem(
+                        currentPage = currentPage,
+                        drag = drag,
+                        eblanApplicationInfo = eblanApplicationInfo,
+                        appDrawerSettings = appDrawerSettings,
+                        paddingValues = paddingValues,
+                        iconPackFilePaths = iconPackFilePaths,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onLongPressGridItem = onLongPressGridItem,
+                        onUpdatePopupMenu = onUpdatePopupMenu,
+                        onResetOverlay = onResetOverlay,
+                        onDraggingGridItem = onDraggingGridItem,
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    )
+                }
             }
         }
 

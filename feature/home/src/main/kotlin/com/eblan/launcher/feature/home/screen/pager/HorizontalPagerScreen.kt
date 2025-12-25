@@ -432,10 +432,8 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     if (showGridItemPopup && gridItemSource?.gridItem != null) {
         GridItemPopup(
             gridItem = gridItemSource.gridItem,
-            x = popupIntOffset.x,
-            y = popupIntOffset.y,
-            width = popupIntSize.width,
-            height = popupIntSize.height,
+            popupIntOffset = popupIntOffset,
+            popupIntSize = popupIntSize,
             eblanShortcutInfos = eblanShortcutInfos,
             hasShortcutHostPermission = hasShortcutHostPermission,
             currentPage = currentPage,

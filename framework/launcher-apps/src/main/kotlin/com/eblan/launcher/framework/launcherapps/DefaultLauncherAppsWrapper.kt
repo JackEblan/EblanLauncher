@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.framework.launcherapps
 
+import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -308,14 +309,22 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     ) {
         val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
 
-        if (userHandle != null) {
-            launcherApps.startShortcut(
-                packageName,
-                id,
-                sourceBounds,
-                null,
-                userHandle,
-            )
+        try {
+            if (userHandle != null &&
+                userManagerWrapper.isUserRunning(userHandle = userHandle) &&
+                userManagerWrapper.isUserUnlocked(userHandle = userHandle) &&
+                !userManagerWrapper.isQuietModeEnabled(userHandle = userHandle)
+            ) {
+                launcherApps.startShortcut(
+                    packageName,
+                    id,
+                    sourceBounds,
+                    null,
+                    userHandle,
+                )
+            }
+        } catch (e: ActivityNotFoundException) {
+            e.printStackTrace()
         }
     }
 
@@ -325,13 +334,23 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         id: String,
         sourceBounds: Rect,
     ) {
-        launcherApps.startShortcut(
-            packageName,
-            id,
-            sourceBounds,
-            null,
-            myUserHandle(),
-        )
+        try {
+            if (
+                userManagerWrapper.isUserRunning(userHandle = myUserHandle()) &&
+                userManagerWrapper.isUserUnlocked(userHandle = myUserHandle()) &&
+                !userManagerWrapper.isQuietModeEnabled(userHandle = myUserHandle())
+            ) {
+                launcherApps.startShortcut(
+                    packageName,
+                    id,
+                    sourceBounds,
+                    null,
+                    myUserHandle(),
+                )
+            }
+        } catch (e: ActivityNotFoundException) {
+            e.printStackTrace()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)

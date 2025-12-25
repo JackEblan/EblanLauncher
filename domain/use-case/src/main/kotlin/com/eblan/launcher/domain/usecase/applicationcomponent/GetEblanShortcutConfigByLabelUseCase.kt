@@ -43,6 +43,7 @@ class GetEblanShortcutConfigByLabelUseCase @Inject constructor(
                 )
             }.groupBy { eblanAppWidgetProviderInfo ->
                 EblanApplicationInfoGroup(
+                    serialNumber = eblanAppWidgetProviderInfo.serialNumber,
                     packageName = eblanAppWidgetProviderInfo.packageName,
                     icon = eblanAppWidgetProviderInfo.activityIcon,
                     label = eblanAppWidgetProviderInfo.applicationLabel,

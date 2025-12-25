@@ -43,6 +43,7 @@ class GetEblanAppWidgetProviderInfosByLabelUseCase @Inject constructor(
                 )
             }.groupBy { eblanAppWidgetProviderInfo ->
                 EblanApplicationInfoGroup(
+                    serialNumber = eblanAppWidgetProviderInfo.serialNumber,
                     packageName = eblanAppWidgetProviderInfo.packageName,
                     icon = eblanAppWidgetProviderInfo.icon,
                     label = eblanAppWidgetProviderInfo.label,

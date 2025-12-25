@@ -63,6 +63,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -528,19 +529,21 @@ private fun SharedTransitionScope.EblanShortcutConfigsPage(
             },
         ) {
             items(eblanShortcutConfigs[serialNumber].orEmpty().keys.toList()) { eblanApplicationInfoGroup ->
-                EblanApplicationInfoItem(
-                    modifier = modifier,
-                    eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-                    eblanShortcutConfigs = eblanShortcutConfigs[serialNumber].orEmpty(),
-                    drag = drag,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onLongPressGridItem = onLongPressGridItem,
-                    currentPage = currentPage,
-                    gridItemSettings = gridItemSettings,
-                    onResetOverlay = onResetOverlay,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
+                key(eblanApplicationInfoGroup.serialNumber, eblanApplicationInfoGroup.packageName) {
+                    EblanApplicationInfoItem(
+                        modifier = modifier,
+                        eblanApplicationInfoGroup = eblanApplicationInfoGroup,
+                        eblanShortcutConfigs = eblanShortcutConfigs[serialNumber].orEmpty(),
+                        drag = drag,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onLongPressGridItem = onLongPressGridItem,
+                        currentPage = currentPage,
+                        gridItemSettings = gridItemSettings,
+                        onResetOverlay = onResetOverlay,
+                        onDraggingGridItem = onDraggingGridItem,
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    )
+                }
             }
         }
     }

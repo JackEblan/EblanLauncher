@@ -174,6 +174,7 @@ internal fun PopupApplicationInfoMenu(
                 onWidgets = {
                     onWidgets(
                         EblanApplicationInfoGroup(
+                            serialNumber = applicationInfo.serialNumber,
                             packageName = applicationInfo.packageName,
                             icon = applicationInfo.icon,
                             label = applicationInfo.label,

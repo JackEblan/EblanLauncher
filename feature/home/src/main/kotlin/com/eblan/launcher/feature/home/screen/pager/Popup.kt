@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -43,6 +44,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
@@ -114,10 +116,8 @@ internal fun SettingsPopup(
 internal fun GridItemPopup(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
-    x: Int,
-    y: Int,
-    width: Int,
-    height: Int,
+    popupIntOffset: IntOffset,
+    popupIntSize: IntSize,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     hasShortcutHostPermission: Boolean,
     currentPage: Int,
@@ -146,9 +146,16 @@ internal fun GridItemPopup(
 ) {
     val density = LocalDensity.current
 
+    val leftPadding = with(density) {
+        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
     val topPadding = with(density) {
         paddingValues.calculateTopPadding().roundToPx()
     }
+    val x = popupIntOffset.x - leftPadding
+
+    val y = popupIntOffset.y - topPadding
 
     Layout(
         modifier = modifier
@@ -159,7 +166,8 @@ internal fun GridItemPopup(
                     onDismissRequest()
                 })
             }
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(paddingValues),
         content = {
             GridItemPopupContent(
                 modifier = Modifier.padding(5.dp),
@@ -192,15 +200,15 @@ internal fun GridItemPopup(
             ),
         )
 
-        val parentCenterX = x + width / 2
+        val parentCenterX = x + popupIntSize.width / 2
 
         val childX = (parentCenterX - placeable.width / 2)
             .coerceIn(0, constraints.maxWidth - placeable.width)
 
         val topY = y - placeable.height
-        val bottomY = y + height
+        val bottomY = y + popupIntSize.height
 
-        val childY = if (topY < topPadding) bottomY else topY
+        val childY = if (topY < 0) bottomY else topY
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             placeable.place(childX, childY)
@@ -371,6 +379,7 @@ private fun GridItemPopupContent(
                 onWidgets = {
                     onWidgets(
                         EblanApplicationInfoGroup(
+                            serialNumber = data.serialNumber,
                             packageName = data.packageName,
                             icon = data.icon,
                             label = data.label,

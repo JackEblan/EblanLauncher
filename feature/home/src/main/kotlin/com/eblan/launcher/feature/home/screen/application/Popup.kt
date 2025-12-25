@@ -123,7 +123,6 @@ internal fun PopupApplicationInfoMenu(
             .padding(paddingValues),
         content = {
             ApplicationInfoMenu(
-                modifier = modifier,
                 eblanShortcutInfosByPackageName = eblanShortcutInfos[
                     EblanShortcutInfoByGroup(
                         serialNumber = applicationInfo.serialNumber,
@@ -204,7 +203,10 @@ internal fun PopupApplicationInfoMenu(
         val childY = if (topY < 0) bottomY else topY
 
         layout(constraints.maxWidth, constraints.maxHeight) {
-            placeable.place(childX, childY)
+            placeable.place(
+                x = childX,
+                y = childY,
+            )
         }
     }
 }
@@ -240,7 +242,7 @@ private fun ApplicationInfoMenu(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     Surface(
-        modifier = modifier,
+        modifier = modifier.padding(5.dp),
         shape = RoundedCornerShape(30.dp),
         shadowElevation = 2.dp,
         content = {

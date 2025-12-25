@@ -211,7 +211,10 @@ internal fun GridItemPopup(
         val childY = if (topY < 0) bottomY else topY
 
         layout(constraints.maxWidth, constraints.maxHeight) {
-            placeable.place(childX, childY)
+            placeable.place(
+                x = childX,
+                y = childY,
+            )
         }
     }
 }

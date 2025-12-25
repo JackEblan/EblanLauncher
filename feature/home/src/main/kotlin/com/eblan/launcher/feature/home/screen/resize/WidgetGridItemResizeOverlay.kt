@@ -17,7 +17,9 @@
  */
 package com.eblan.launcher.feature.home.screen.resize
 
+import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
+import android.os.Bundle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -46,6 +48,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -73,6 +76,8 @@ internal fun WidgetGridItemResizeOverlay(
     onResizeEnd: (GridItem) -> Unit,
 ) {
     val density = LocalDensity.current
+
+    val appWidgetManager = LocalAppWidgetManager.current
 
     var currentX by remember { mutableIntStateOf(x) }
 
@@ -220,6 +225,18 @@ internal fun WidgetGridItemResizeOverlay(
             )
         ) {
             delay(100L)
+
+            val options = Bundle().apply {
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, data.minWidth)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, data.minHeight)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, data.minWidth)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, data.minHeight)
+            }
+
+            appWidgetManager.updateAppWidgetOptions(
+                appWidgetId = data.appWidgetId,
+                options = options,
+            )
 
             onResizeWidgetGridItem(
                 resizingGridItem,

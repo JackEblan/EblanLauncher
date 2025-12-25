@@ -183,6 +183,7 @@ internal fun SharedTransitionScope.DragScreen(
         handleAppWidgetLauncherResult(
             result = result,
             gridItem = gridItemSource.gridItem,
+            appWidgetManager = appWidgetManager,
             onUpdateWidgetGridItemDataCache = { gridItem ->
                 updatedWidgetGridItem = gridItem
 
@@ -386,11 +387,8 @@ internal fun SharedTransitionScope.DragScreen(
                         getSystemTextColor(textColor = textColor)
                     }
 
-                    val isDragging = (
-                        drag == Drag.Start ||
-                            drag == Drag.Dragging
-                        ) &&
-                        gridItem.id == gridItemSource.gridItem.id
+                    val isDragging =
+                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
 
                     GridItemContent(
                         gridItem = gridItem,
@@ -443,11 +441,8 @@ internal fun SharedTransitionScope.DragScreen(
                     getSystemTextColor(textColor = textColor)
                 }
 
-                val isDragging = (
-                    drag == Drag.Start ||
-                        drag == Drag.Dragging
-                    ) &&
-                    gridItem.id == gridItemSource.gridItem.id
+                val isDragging =
+                    (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
 
                 GridItemContent(
                     gridItem = gridItem,

@@ -544,8 +544,6 @@ private fun SharedTransitionScope.WidgetGridItem(
                 appWidgetHost.createView(
                     appWidgetId = data.appWidgetId,
                     appWidgetProviderInfo = appWidgetInfo,
-                    minWidth = data.minWidth,
-                    minHeight = data.minHeight,
                 )
             },
             modifier = commonModifier,

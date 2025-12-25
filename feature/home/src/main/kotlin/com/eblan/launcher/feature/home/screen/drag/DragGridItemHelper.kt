@@ -245,13 +245,10 @@ private fun getMoveGridItem(
 ): GridItem {
     return when (gridItemSource) {
         is GridItemSource.Existing -> {
-            getMoveExistingGridItem(
-                targetPage = targetPage,
-                gridItem = gridItem,
-                cellWidth = cellWidth,
-                cellHeight = cellHeight,
-                gridX = gridX,
-                gridY = gridY,
+            gridItem.copy(
+                page = targetPage,
+                startColumn = gridX / cellWidth,
+                startRow = gridY / cellHeight,
                 associate = associate,
             )
         }
@@ -321,36 +318,6 @@ private fun getMoveNewGridItem(
                 columnSpan = checkedColumnSpan.coerceIn(1, columns),
                 rowSpan = checkedRowSpan.coerceIn(1, rows),
                 data = newData,
-                associate = associate,
-            )
-        }
-
-        else -> {
-            gridItem.copy(
-                page = targetPage,
-                startColumn = gridX / cellWidth,
-                startRow = gridY / cellHeight,
-                associate = associate,
-            )
-        }
-    }
-}
-
-private fun getMoveExistingGridItem(
-    targetPage: Int,
-    gridItem: GridItem,
-    cellWidth: Int,
-    cellHeight: Int,
-    gridX: Int,
-    gridY: Int,
-    associate: Associate,
-): GridItem {
-    return when (gridItem.data) {
-        is GridItemData.Widget -> {
-            gridItem.copy(
-                page = targetPage,
-                startColumn = gridX / cellWidth,
-                startRow = gridY / cellHeight,
                 associate = associate,
             )
         }

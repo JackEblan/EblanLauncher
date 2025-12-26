@@ -249,12 +249,14 @@ internal class HomeViewModel @Inject constructor(
         moveGridItemJob?.cancel()
 
         moveGridItemJob = viewModelScope.launch {
-            resizeGridItemUseCase(
-                resizingGridItem = resizingGridItem,
-                columns = columns,
-                rows = rows,
-                lockMovement = lockMovement,
-            )
+            _moveGridItemResult.update {
+                resizeGridItemUseCase(
+                    resizingGridItem = resizingGridItem,
+                    columns = columns,
+                    rows = rows,
+                    lockMovement = lockMovement,
+                )
+            }
         }
     }
 
@@ -313,10 +315,6 @@ internal class HomeViewModel @Inject constructor(
             folderGridCacheRepository.insertGridItems(gridItems = gridItems)
 
             delay(defaultDelay)
-
-            _moveGridItemResult.update {
-                null
-            }
 
             _screen.update {
                 screen
@@ -381,6 +379,10 @@ internal class HomeViewModel @Inject constructor(
             _screen.update {
                 Screen.Pager
             }
+
+            _moveGridItemResult.update {
+                null
+            }
         }
     }
 
@@ -394,6 +396,10 @@ internal class HomeViewModel @Inject constructor(
 
             _screen.update {
                 Screen.Pager
+            }
+
+            _moveGridItemResult.update {
+                null
             }
         }
     }
@@ -419,6 +425,10 @@ internal class HomeViewModel @Inject constructor(
                     Screen.Folder
                 }
             }
+
+            _moveGridItemResult.update {
+                null
+            }
         }
     }
 
@@ -430,6 +440,10 @@ internal class HomeViewModel @Inject constructor(
 
             _screen.update {
                 Screen.Pager
+            }
+
+            _moveGridItemResult.update {
+                null
             }
         }
     }
@@ -454,6 +468,10 @@ internal class HomeViewModel @Inject constructor(
                 _screen.update {
                     Screen.Folder
                 }
+            }
+
+            _moveGridItemResult.update {
+                null
             }
         }
     }

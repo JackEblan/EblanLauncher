@@ -908,6 +908,7 @@ private fun SharedTransitionScope.Success(
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
                     lockMovement = homeData.userData.experimentalSettings.lockMovement,
+                    moveGridItemResult = movedGridItemResult,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResetGridCacheAfterResize,
                     onResizeCancel = onCancelGridCache,

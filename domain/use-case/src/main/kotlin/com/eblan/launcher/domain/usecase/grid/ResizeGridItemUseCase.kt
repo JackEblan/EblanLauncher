@@ -25,6 +25,7 @@ import com.eblan.launcher.domain.grid.rectanglesOverlap
 import com.eblan.launcher.domain.grid.resolveConflicts
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -40,8 +41,8 @@ class ResizeGridItemUseCase @Inject constructor(
         columns: Int,
         rows: Int,
         lockMovement: Boolean,
-    ) {
-        withContext(defaultDispatcher) {
+    ): MoveGridItemResult {
+        return withContext(defaultDispatcher) {
             val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
@@ -93,6 +94,12 @@ class ResizeGridItemUseCase @Inject constructor(
             } else {
                 gridCacheRepository.upsertGridItems(gridItems = gridItems)
             }
+
+            MoveGridItemResult(
+                isSuccess = true,
+                movingGridItem = resizingGridItem,
+                conflictingGridItem = null,
+            )
         }
     }
 }

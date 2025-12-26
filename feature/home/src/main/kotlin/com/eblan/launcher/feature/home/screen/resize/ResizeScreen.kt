@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
@@ -68,6 +70,7 @@ internal fun SharedTransitionScope.ResizeScreen(
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
     lockMovement: Boolean,
+    moveGridItemResult: MoveGridItemResult?,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
@@ -121,6 +124,12 @@ internal fun SharedTransitionScope.ResizeScreen(
         mutableStateOf(gridItem)
     }
 
+    LaunchedEffect(key1 = moveGridItemResult) {
+        moveGridItemResult?.movingGridItem?.let { movingGridItem ->
+            currentGridItem = movingGridItem
+        }
+    }
+
     BackHandler {
         onResizeCancel()
     }
@@ -154,10 +163,6 @@ internal fun SharedTransitionScope.ResizeScreen(
                     )
                 } else {
                     getSystemTextColor(textColor = textColor)
-                }
-
-                if (gridItem.id == currentGridItem.id) {
-                    currentGridItem = gridItem
                 }
 
                 GridItemContent(
@@ -203,10 +208,6 @@ internal fun SharedTransitionScope.ResizeScreen(
                     )
                 } else {
                     getSystemTextColor(textColor = textColor)
-                }
-
-                if (gridItem.id == currentGridItem.id) {
-                    currentGridItem = gridItem
                 }
 
                 GridItemContent(

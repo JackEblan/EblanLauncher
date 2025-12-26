@@ -564,8 +564,6 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                     appWidgetHost.createView(
                         appWidgetId = data.appWidgetId,
                         appWidgetProviderInfo = appWidgetInfo,
-                        minWidth = data.minWidth,
-                        minHeight = data.minHeight,
                     ).apply {
                         setOnLongClickListener {
                             scope.launch {

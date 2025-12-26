@@ -137,6 +137,7 @@ internal suspend fun handleDropGridItem(
 internal fun handleAppWidgetLauncherResult(
     result: ActivityResult,
     gridItem: GridItem,
+    appWidgetManager: AndroidAppWidgetManagerWrapper,
     onUpdateWidgetGridItemDataCache: (GridItem) -> Unit,
     onDeleteAppWidgetId: () -> Unit,
 ) {
@@ -145,6 +146,18 @@ internal fun handleAppWidgetLauncherResult(
 
     if (result.resultCode == Activity.RESULT_OK) {
         val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+
+        val options = Bundle().apply {
+            putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, data.minWidth)
+            putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, data.minHeight)
+            putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, data.minWidth)
+            putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, data.minHeight)
+        }
+
+        appWidgetManager.updateAppWidgetOptions(
+            appWidgetId = appWidgetId,
+            options = options,
+        )
 
         val newData = data.copy(appWidgetId = appWidgetId)
 
@@ -387,6 +400,18 @@ private fun onDragEndWidget(
     )
 
     if (bindAppWidgetIdIfAllowed) {
+        val options = Bundle().apply {
+            putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, data.minWidth)
+            putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, data.minHeight)
+            putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, data.minWidth)
+            putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, data.minHeight)
+        }
+
+        appWidgetManager.updateAppWidgetOptions(
+            appWidgetId = appWidgetId,
+            options = options,
+        )
+
         val newData = data.copy(appWidgetId = appWidgetId)
 
         onUpdateWidgetGridItemDataCache(gridItem.copy(data = newData))

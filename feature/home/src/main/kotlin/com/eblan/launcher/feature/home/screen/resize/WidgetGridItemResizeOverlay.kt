@@ -17,7 +17,10 @@
  */
 package com.eblan.launcher.feature.home.screen.resize
 
+import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
+import android.os.Bundle
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -29,9 +32,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,8 +48,9 @@ import com.eblan.launcher.domain.grid.resizeWidgetGridItemWithPixels
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
-import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -70,17 +74,24 @@ internal fun WidgetGridItemResizeOverlay(
         rows: Int,
         lockMovement: Boolean,
     ) -> Unit,
-    onResizeEnd: (GridItem) -> Unit,
 ) {
     val density = LocalDensity.current
 
-    var currentX by remember { mutableIntStateOf(x) }
+    val scope = rememberCoroutineScope()
 
-    var currentY by remember { mutableIntStateOf(y) }
+    val appWidgetManager = LocalAppWidgetManager.current
 
-    var currentWidth by remember { mutableIntStateOf(width) }
+    val currentX = remember { Animatable(x.toFloat()) }
 
-    var currentHeight by remember { mutableIntStateOf(height) }
+    val currentY = remember { Animatable(y.toFloat()) }
+
+    val currentWidth = remember { Animatable(width.toFloat()) }
+
+    val currentHeight = remember { Animatable(height.toFloat()) }
+
+    var isResizing by remember {
+        mutableStateOf(true)
+    }
 
     var dragHandle by remember { mutableStateOf(Alignment.Center) }
 
@@ -93,7 +104,7 @@ internal fun WidgetGridItemResizeOverlay(
     val borderWidth by remember {
         derivedStateOf {
             with(density) {
-                currentWidth.coerceAtLeast(dragHandleSizePx).toDp()
+                currentWidth.value.roundToInt().coerceAtLeast(dragHandleSizePx).toDp()
             }
         }
     }
@@ -101,7 +112,7 @@ internal fun WidgetGridItemResizeOverlay(
     val borderHeight by remember {
         derivedStateOf {
             with(density) {
-                currentHeight.coerceAtLeast(dragHandleSizePx).toDp()
+                currentHeight.value.roundToInt().coerceAtLeast(dragHandleSizePx).toDp()
             }
         }
     }
@@ -109,8 +120,8 @@ internal fun WidgetGridItemResizeOverlay(
     val borderX by remember {
         derivedStateOf {
             if (dragHandle == Alignment.CenterStart) {
-                if (currentWidth >= dragHandleSizePx) {
-                    currentX
+                if (currentWidth.value >= dragHandleSizePx) {
+                    currentX.value.roundToInt()
                 } else {
                     (x + width) - dragHandleSizePx
                 }
@@ -123,8 +134,8 @@ internal fun WidgetGridItemResizeOverlay(
     val borderY by remember {
         derivedStateOf {
             if (dragHandle == Alignment.TopCenter) {
-                if (currentHeight >= dragHandleSizePx) {
-                    currentY
+                if (currentHeight.value >= dragHandleSizePx) {
+                    currentY.value.roundToInt()
                 } else {
                     (y + height) - dragHandleSizePx
                 }
@@ -134,28 +145,32 @@ internal fun WidgetGridItemResizeOverlay(
         }
     }
 
-    var drag by remember { mutableStateOf(Drag.None) }
+    val circleModifier =
+        Modifier
+            .size(dragHandleSize)
+            .background(color = color, shape = CircleShape)
 
-    val circleModifier = Modifier
-        .size(dragHandleSize)
-        .background(color = color, shape = CircleShape)
+    LaunchedEffect(
+        key1 = currentWidth.value,
+        key2 = currentHeight.value,
+    ) {
+        val allowedWidth =
+            if (data.minResizeWidth > 0 && currentWidth.value.roundToInt() <= data.minResizeWidth) {
+                data.minResizeWidth
+            } else if (data.maxResizeWidth in 1..<currentWidth.value.roundToInt()) {
+                data.maxResizeWidth
+            } else {
+                currentWidth.value.roundToInt()
+            }
 
-    LaunchedEffect(key1 = currentWidth, key2 = currentHeight) {
-        val allowedWidth = if (data.minResizeWidth > 0 && currentWidth <= data.minResizeWidth) {
-            data.minResizeWidth
-        } else if (data.maxResizeWidth in 1..<currentWidth) {
-            data.maxResizeWidth
-        } else {
-            currentWidth
-        }
-
-        val allowedHeight = if (data.minResizeHeight > 0 && currentHeight <= data.minResizeHeight) {
-            data.minResizeHeight
-        } else if (data.maxResizeHeight in 1..<currentHeight) {
-            data.maxResizeHeight
-        } else {
-            currentHeight
-        }
+        val allowedHeight =
+            if (data.minResizeHeight > 0 && currentHeight.value.roundToInt() <= data.minResizeHeight) {
+                data.minResizeHeight
+            } else if (data.maxResizeHeight in 1..<currentHeight.value.roundToInt()) {
+                data.maxResizeHeight
+            } else {
+                currentHeight.value.roundToInt()
+            }
 
         val resizingGridItem = when (dragHandle) {
             Alignment.TopCenter -> {
@@ -213,13 +228,25 @@ internal fun WidgetGridItemResizeOverlay(
             else -> null
         }
 
-        if (resizingGridItem != null && isGridItemSpanWithinBounds(
+        if (isResizing && resizingGridItem != null && isGridItemSpanWithinBounds(
                 gridItem = resizingGridItem,
                 columns = columns,
                 rows = rows,
             )
         ) {
             delay(100L)
+
+            val options = Bundle().apply {
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, data.minWidth)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, data.minHeight)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, data.minWidth)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, data.minHeight)
+            }
+
+            appWidgetManager.updateAppWidgetOptions(
+                appWidgetId = data.appWidgetId,
+                options = options,
+            )
 
             onResizeWidgetGridItem(
                 resizingGridItem,
@@ -230,9 +257,12 @@ internal fun WidgetGridItemResizeOverlay(
         }
     }
 
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.End) {
-            onResizeEnd(gridItem)
+    LaunchedEffect(key1 = isResizing) {
+        if (!isResizing) {
+            launch { currentX.animateTo(x.toFloat()) }
+            launch { currentY.animateTo(y.toFloat()) }
+            launch { currentWidth.animateTo(width.toFloat()) }
+            launch { currentHeight.animateTo(height.toFloat()) }
         }
     }
 
@@ -257,19 +287,17 @@ internal fun WidgetGridItemResizeOverlay(
                             detectDragGestures(
                                 onDragStart = {
                                     dragHandle = Alignment.TopCenter
+
+                                    isResizing = true
                                 },
                                 onDragEnd = {
-                                    drag = Drag.End
+                                    isResizing = false
                                 },
-                                onDrag = { change, dragAmount ->
-                                    change.consume()
-                                    val dragAmountY = with(density) {
-                                        dragAmount.y.toDp().roundToPx()
+                                onDrag = { _, dragAmount ->
+                                    scope.launch {
+                                        currentHeight.snapTo(currentHeight.value - dragAmount.y)
+                                        currentY.snapTo(currentY.value + dragAmount.y)
                                     }
-
-                                    currentHeight += -dragAmountY
-
-                                    currentY += dragAmount.y.roundToInt()
                                 },
                             )
                         }
@@ -289,17 +317,16 @@ internal fun WidgetGridItemResizeOverlay(
                             detectDragGestures(
                                 onDragStart = {
                                     dragHandle = Alignment.CenterEnd
+
+                                    isResizing = true
                                 },
                                 onDragEnd = {
-                                    drag = Drag.End
+                                    isResizing = false
                                 },
-                                onDrag = { change, dragAmount ->
-                                    change.consume()
-                                    val dragAmountX = with(density) {
-                                        dragAmount.x.toDp().roundToPx()
+                                onDrag = { _, dragAmount ->
+                                    scope.launch {
+                                        currentWidth.snapTo(currentWidth.value + dragAmount.x)
                                     }
-
-                                    currentWidth += dragAmountX
                                 },
                             )
                         }
@@ -319,17 +346,16 @@ internal fun WidgetGridItemResizeOverlay(
                             detectDragGestures(
                                 onDragStart = {
                                     dragHandle = Alignment.BottomCenter
+
+                                    isResizing = true
                                 },
                                 onDragEnd = {
-                                    drag = Drag.End
+                                    isResizing = false
                                 },
-                                onDrag = { change, dragAmount ->
-                                    change.consume()
-                                    val dragAmountY = with(density) {
-                                        dragAmount.y.toDp().roundToPx()
+                                onDrag = { _, dragAmount ->
+                                    scope.launch {
+                                        currentHeight.snapTo(currentHeight.value + dragAmount.y)
                                     }
-
-                                    currentHeight += dragAmountY
                                 },
                             )
                         }
@@ -349,19 +375,17 @@ internal fun WidgetGridItemResizeOverlay(
                             detectDragGestures(
                                 onDragStart = {
                                     dragHandle = Alignment.CenterStart
+
+                                    isResizing = true
                                 },
                                 onDragEnd = {
-                                    drag = Drag.End
+                                    isResizing = false
                                 },
-                                onDrag = { change, dragAmount ->
-                                    change.consume()
-                                    val dragAmountX = with(density) {
-                                        dragAmount.x.toDp().roundToPx()
+                                onDrag = { _, dragAmount ->
+                                    scope.launch {
+                                        currentWidth.snapTo(currentWidth.value - dragAmount.x)
+                                        currentX.snapTo(currentX.value + dragAmount.x)
                                     }
-
-                                    currentWidth += -dragAmountX
-
-                                    currentX += dragAmount.x.roundToInt()
                                 },
                             )
                         }

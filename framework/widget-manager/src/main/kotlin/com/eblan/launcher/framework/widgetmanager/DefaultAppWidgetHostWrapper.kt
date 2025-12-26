@@ -20,9 +20,6 @@ package com.eblan.launcher.framework.widgetmanager
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
-import android.os.Build
-import android.os.Bundle
-import android.util.SizeF
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.launcher3.LauncherAppWidgetHost
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -48,27 +45,8 @@ internal class DefaultAppWidgetHostWrapper @Inject constructor(@param:Applicatio
     override fun createView(
         appWidgetId: Int,
         appWidgetProviderInfo: AppWidgetProviderInfo,
-        minWidth: Int,
-        minHeight: Int,
     ): AppWidgetHostView {
-        return appWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                updateAppWidgetSize(
-                    Bundle(),
-                    listOf(
-                        SizeF(minWidth.toFloat(), minHeight.toFloat()),
-                    ),
-                )
-            } else {
-                updateAppWidgetSize(
-                    Bundle(),
-                    minWidth,
-                    minHeight,
-                    minWidth,
-                    minHeight,
-                )
-            }
-        }
+        return appWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo)
     }
 
     override fun deleteAppWidgetId(appWidgetId: Int) {

@@ -979,8 +979,8 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                         },
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalArrangement = Arrangement.SpaceEvenly,
-                    maxItemsInEachRow = 2,
-                    maxLines = 2,
+                    maxItemsInEachRow = 3,
+                    maxLines = 3,
                 ) {
                     data.gridItems.sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
                         val gridItemModifier = Modifier.size((gridItemSettings.iconSize * 0.25).dp)

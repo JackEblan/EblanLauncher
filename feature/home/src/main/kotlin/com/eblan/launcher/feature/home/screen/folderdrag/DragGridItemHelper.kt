@@ -94,7 +94,7 @@ internal suspend fun handleDragFolderGridItem(
 
     val dragX = dragIntOffset.x - leftPadding
 
-    val dragY = dragIntOffset.y - topPadding - pageIndicatorHeight - titleHeight
+    val dragY = dragIntOffset.y - topPadding - titleHeight
 
     val isOnLeftGrid = dragIntOffset.x - edgeDistance < 0
 

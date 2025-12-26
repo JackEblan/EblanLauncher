@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.feature.home.screen.resize
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -28,9 +29,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,8 +44,8 @@ import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.resizeGridItemWithPixels
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.feature.home.model.Drag
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -69,17 +70,22 @@ internal fun GridItemResizeOverlay(
         rows: Int,
         lockMovement: Boolean,
     ) -> Unit,
-    onResizeEnd: (GridItem) -> Unit,
 ) {
     val density = LocalDensity.current
 
-    var currentX by remember { mutableIntStateOf(x) }
+    val scope = rememberCoroutineScope()
 
-    var currentY by remember { mutableIntStateOf(y) }
+    val currentX = remember { Animatable(x.toFloat()) }
 
-    var currentWidth by remember { mutableIntStateOf(width) }
+    val currentY = remember { Animatable(y.toFloat()) }
 
-    var currentHeight by remember { mutableIntStateOf(height) }
+    val currentWidth = remember { Animatable(width.toFloat()) }
+
+    val currentHeight = remember { Animatable(height.toFloat()) }
+
+    var isResizing by remember {
+        mutableStateOf(true)
+    }
 
     var dragHandle by remember { mutableStateOf(Alignment.Center) }
 
@@ -92,7 +98,7 @@ internal fun GridItemResizeOverlay(
     val borderWidth by remember {
         derivedStateOf {
             with(density) {
-                currentWidth.coerceAtLeast(dragHandleSizePx).toDp()
+                currentWidth.value.roundToInt().coerceAtLeast(dragHandleSizePx).toDp()
             }
         }
     }
@@ -100,7 +106,7 @@ internal fun GridItemResizeOverlay(
     val borderHeight by remember {
         derivedStateOf {
             with(density) {
-                currentHeight.coerceAtLeast(dragHandleSizePx).toDp()
+                currentHeight.value.roundToInt().coerceAtLeast(dragHandleSizePx).toDp()
             }
         }
     }
@@ -109,32 +115,32 @@ internal fun GridItemResizeOverlay(
         derivedStateOf {
             when (dragHandle) {
                 Alignment.TopStart -> {
-                    if (currentWidth >= dragHandleSizePx) {
-                        currentX
+                    if (currentWidth.value >= dragHandleSizePx) {
+                        currentX.value.roundToInt()
                     } else {
                         (x + width) - dragHandleSizePx
                     }
                 }
 
                 Alignment.TopEnd -> {
-                    if (currentWidth >= dragHandleSizePx) {
-                        currentX
+                    if (currentWidth.value >= dragHandleSizePx) {
+                        currentX.value.roundToInt()
                     } else {
                         x
                     }
                 }
 
                 Alignment.BottomStart -> {
-                    if (currentWidth >= dragHandleSizePx) {
-                        currentX
+                    if (currentWidth.value >= dragHandleSizePx) {
+                        currentX.value.roundToInt()
                     } else {
                         (x + width) - dragHandleSizePx
                     }
                 }
 
                 else -> {
-                    if (currentWidth >= dragHandleSizePx) {
-                        currentX
+                    if (currentWidth.value >= dragHandleSizePx) {
+                        currentX.value.roundToInt()
                     } else {
                         x
                     }
@@ -147,32 +153,32 @@ internal fun GridItemResizeOverlay(
         derivedStateOf {
             when (dragHandle) {
                 Alignment.TopStart -> {
-                    if (currentHeight >= dragHandleSizePx) {
-                        currentY
+                    if (currentHeight.value >= dragHandleSizePx) {
+                        currentY.value.roundToInt()
                     } else {
                         (y + height) - dragHandleSizePx
                     }
                 }
 
                 Alignment.TopEnd -> {
-                    if (currentHeight >= dragHandleSizePx) {
-                        currentY
+                    if (currentHeight.value >= dragHandleSizePx) {
+                        currentY.value.roundToInt()
                     } else {
                         (y + height) - dragHandleSizePx
                     }
                 }
 
                 Alignment.BottomStart -> {
-                    if (currentHeight >= dragHandleSizePx) {
-                        currentY
+                    if (currentHeight.value >= dragHandleSizePx) {
+                        currentY.value.roundToInt()
                     } else {
                         y
                     }
                 }
 
                 else -> {
-                    if (currentHeight >= dragHandleSizePx) {
-                        currentY
+                    if (currentHeight.value >= dragHandleSizePx) {
+                        currentY.value.roundToInt()
                     } else {
                         y
                     }
@@ -181,16 +187,17 @@ internal fun GridItemResizeOverlay(
         }
     }
 
-    var drag by remember { mutableStateOf(Drag.None) }
-
     val circleModifier = Modifier
         .size(dragHandleSize)
         .background(color = color, shape = CircleShape)
 
-    LaunchedEffect(key1 = currentWidth, key2 = currentHeight) {
-        val allowedWidth = currentWidth.coerceAtLeast(cellWidth)
+    LaunchedEffect(
+        key1 = currentWidth.value,
+        key2 = currentHeight.value,
+    ) {
+        val allowedWidth = currentWidth.value.roundToInt().coerceAtLeast(cellWidth)
 
-        val allowedHeight = currentHeight.coerceAtLeast(cellHeight)
+        val allowedHeight = currentHeight.value.roundToInt().coerceAtLeast(cellHeight)
 
         val resizingGridItem = when (dragHandle) {
             Alignment.TopStart -> {
@@ -248,7 +255,9 @@ internal fun GridItemResizeOverlay(
             else -> null
         }
 
-        if (resizingGridItem != null && isGridItemSpanWithinBounds(
+        if (isResizing &&
+            resizingGridItem != null &&
+            isGridItemSpanWithinBounds(
                 gridItem = resizingGridItem,
                 columns = columns,
                 rows = rows,
@@ -265,9 +274,15 @@ internal fun GridItemResizeOverlay(
         }
     }
 
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.End) {
-            onResizeEnd(gridItem)
+    LaunchedEffect(key1 = isResizing) {
+        if (!isResizing) {
+            launch { currentX.animateTo(x.toFloat()) }
+
+            launch { currentY.animateTo(y.toFloat()) }
+
+            launch { currentWidth.animateTo(width.toFloat()) }
+
+            launch { currentHeight.animateTo(height.toFloat()) }
         }
     }
 
@@ -279,7 +294,10 @@ internal fun GridItemResizeOverlay(
                     y = borderY,
                 )
             }
-            .size(width = borderWidth, height = borderHeight)
+            .size(
+                width = borderWidth,
+                height = borderHeight,
+            )
             .border(width = 2.dp, color = color),
     ) {
         Box(
@@ -291,25 +309,22 @@ internal fun GridItemResizeOverlay(
                     detectDragGestures(
                         onDragStart = {
                             dragHandle = Alignment.TopStart
+
+                            isResizing = true
                         },
                         onDragEnd = {
-                            drag = Drag.End
+                            isResizing = false
                         },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            val dragAmountX = with(density) {
-                                dragAmount.x.toDp().roundToPx()
+                        onDrag = { _, dragAmount ->
+                            scope.launch {
+                                currentWidth.snapTo(currentWidth.value - dragAmount.x)
+
+                                currentHeight.snapTo(currentHeight.value - dragAmount.y)
+
+                                currentX.snapTo(currentX.value + dragAmount.x)
+
+                                currentY.snapTo(currentY.value + dragAmount.y)
                             }
-
-                            val dragAmountY = with(density) {
-                                dragAmount.y.toDp().roundToPx()
-                            }
-
-                            currentWidth += -dragAmountX
-                            currentHeight += -dragAmountY
-
-                            currentX += dragAmount.x.roundToInt()
-                            currentY += dragAmount.y.roundToInt()
                         },
                     )
                 },
@@ -324,24 +339,20 @@ internal fun GridItemResizeOverlay(
                     detectDragGestures(
                         onDragStart = {
                             dragHandle = Alignment.TopEnd
+
+                            isResizing = true
                         },
                         onDragEnd = {
-                            drag = Drag.End
+                            isResizing = false
                         },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            val dragAmountX = with(density) {
-                                dragAmount.x.toDp().roundToPx()
+                        onDrag = { _, dragAmount ->
+                            scope.launch {
+                                currentWidth.snapTo(currentWidth.value + dragAmount.x)
+
+                                currentHeight.snapTo(currentHeight.value - dragAmount.y)
+
+                                currentY.snapTo(currentY.value + dragAmount.y)
                             }
-
-                            val dragAmountY = with(density) {
-                                dragAmount.y.toDp().roundToPx()
-                            }
-
-                            currentWidth += dragAmountX
-                            currentHeight += -dragAmountY
-
-                            currentY += dragAmount.y.roundToInt()
                         },
                     )
                 },
@@ -356,24 +367,20 @@ internal fun GridItemResizeOverlay(
                     detectDragGestures(
                         onDragStart = {
                             dragHandle = Alignment.BottomStart
+
+                            isResizing = true
                         },
                         onDragEnd = {
-                            drag = Drag.End
+                            isResizing = false
                         },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            val dragAmountX = with(density) {
-                                dragAmount.x.toDp().roundToPx()
+                        onDrag = { _, dragAmount ->
+                            scope.launch {
+                                currentWidth.snapTo(currentWidth.value - dragAmount.x)
+
+                                currentHeight.snapTo(currentHeight.value + dragAmount.y)
+
+                                currentX.snapTo(currentX.value + dragAmount.x)
                             }
-
-                            val dragAmountY = with(density) {
-                                dragAmount.y.toDp().roundToPx()
-                            }
-
-                            currentWidth += -dragAmountX
-                            currentHeight += dragAmountY
-
-                            currentX += dragAmount.x.roundToInt()
                         },
                     )
                 },
@@ -388,22 +395,18 @@ internal fun GridItemResizeOverlay(
                     detectDragGestures(
                         onDragStart = {
                             dragHandle = Alignment.BottomEnd
+
+                            isResizing = true
                         },
                         onDragEnd = {
-                            drag = Drag.End
+                            isResizing = false
                         },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            val dragAmountX = with(density) {
-                                dragAmount.x.toDp().roundToPx()
-                            }
+                        onDrag = { _, dragAmount ->
+                            scope.launch {
+                                currentWidth.snapTo(currentWidth.value + dragAmount.x)
 
-                            val dragAmountY = with(density) {
-                                dragAmount.y.toDp().roundToPx()
+                                currentHeight.snapTo(currentHeight.value + dragAmount.y)
                             }
-
-                            currentWidth += dragAmountX
-                            currentHeight += dragAmountY
                         },
                     )
                 },

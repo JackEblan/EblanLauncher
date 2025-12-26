@@ -20,6 +20,7 @@ package com.eblan.launcher.feature.home.screen.resize
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -29,7 +30,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -111,12 +117,21 @@ internal fun SharedTransitionScope.ResizeScreen(
         pageIndicatorHeight.roundToPx()
     }
 
+    var currentGridItem by remember {
+        mutableStateOf(gridItem)
+    }
+
     BackHandler {
         onResizeCancel()
     }
 
     Column(
         modifier = modifier
+            .pointerInput(key1 = Unit) {
+                detectTapGestures(onTap = {
+                    onResizeEnd(gridItem)
+                })
+            }
             .fillMaxSize()
             .padding(paddingValues),
     ) {
@@ -139,6 +154,10 @@ internal fun SharedTransitionScope.ResizeScreen(
                     )
                 } else {
                     getSystemTextColor(textColor = textColor)
+                }
+
+                if (gridItem.id == currentGridItem.id) {
+                    currentGridItem = gridItem
                 }
 
                 GridItemContent(
@@ -186,6 +205,10 @@ internal fun SharedTransitionScope.ResizeScreen(
                     getSystemTextColor(textColor = textColor)
                 }
 
+                if (gridItem.id == currentGridItem.id) {
+                    currentGridItem = gridItem
+                }
+
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
@@ -199,26 +222,26 @@ internal fun SharedTransitionScope.ResizeScreen(
         )
     }
 
-    when (gridItem.associate) {
+    when (currentGridItem.associate) {
         Associate.Grid -> {
             val cellWidth = gridWidth / homeSettings.columns
 
             val cellHeight = (gridHeight - pageIndicatorHeightPx - dockHeightPx) / homeSettings.rows
 
-            val x = gridItem.startColumn * cellWidth
+            val x = currentGridItem.startColumn * cellWidth
 
-            val y = gridItem.startRow * cellHeight
+            val y = currentGridItem.startRow * cellHeight
 
-            val width = gridItem.columnSpan * cellWidth
+            val width = currentGridItem.columnSpan * cellWidth
 
-            val height = gridItem.rowSpan * cellHeight
+            val height = currentGridItem.rowSpan * cellHeight
 
             val gridX = x + leftPadding
 
             val gridY = y + topPadding
 
             ResizeOverlay(
-                gridItem = gridItem,
+                gridItem = currentGridItem,
                 gridWidth = gridWidth,
                 gridHeight = gridHeight - dockHeightPx,
                 cellWidth = cellWidth,
@@ -232,7 +255,6 @@ internal fun SharedTransitionScope.ResizeScreen(
                 textColor = textColor,
                 lockMovement = lockMovement,
                 onResizeGridItem = onResizeGridItem,
-                onResizeEnd = onResizeEnd,
             )
         }
 
@@ -241,20 +263,20 @@ internal fun SharedTransitionScope.ResizeScreen(
 
             val cellHeight = dockHeightPx / homeSettings.dockRows
 
-            val x = gridItem.startColumn * cellWidth
+            val x = currentGridItem.startColumn * cellWidth
 
-            val y = gridItem.startRow * cellHeight
+            val y = currentGridItem.startRow * cellHeight
 
             val dockX = x + leftPadding
 
             val dockY = (y + topPadding) + (gridHeight - dockHeightPx)
 
-            val width = gridItem.columnSpan * cellWidth
+            val width = currentGridItem.columnSpan * cellWidth
 
-            val height = gridItem.rowSpan * cellHeight
+            val height = currentGridItem.rowSpan * cellHeight
 
             ResizeOverlay(
-                gridItem = gridItem,
+                gridItem = currentGridItem,
                 gridWidth = gridWidth,
                 gridHeight = dockHeightPx,
                 cellWidth = cellWidth,
@@ -268,7 +290,6 @@ internal fun SharedTransitionScope.ResizeScreen(
                 textColor = textColor,
                 lockMovement = lockMovement,
                 onResizeGridItem = onResizeGridItem,
-                onResizeEnd = onResizeEnd,
             )
         }
     }
@@ -295,7 +316,6 @@ private fun ResizeOverlay(
         rows: Int,
         lockMovement: Boolean,
     ) -> Unit,
-    onResizeEnd: (GridItem) -> Unit,
 ) {
     val currentTextColor = if (gridItem.override) {
         getGridItemTextColor(
@@ -327,7 +347,6 @@ private fun ResizeOverlay(
                 color = currentTextColor,
                 lockMovement = lockMovement,
                 onResizeGridItem = onResizeGridItem,
-                onResizeEnd = onResizeEnd,
             )
         }
 
@@ -346,7 +365,6 @@ private fun ResizeOverlay(
                 color = currentTextColor,
                 lockMovement = lockMovement,
                 onResizeWidgetGridItem = onResizeGridItem,
-                onResizeEnd = onResizeEnd,
             )
         }
     }

@@ -123,7 +123,6 @@ internal fun SharedTransitionScope.WidgetScreen(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onResetOverlay: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -207,7 +206,6 @@ internal fun SharedTransitionScope.WidgetScreen(
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                     onDraggingGridItem = onDraggingGridItem,
-                    onResetOverlay = onResetOverlay,
                     onVerticalDrag = { dragAmount ->
                         scope.launch {
                             offsetY.snapTo(offsetY.value + dragAmount)
@@ -250,7 +248,6 @@ private fun SharedTransitionScope.Success(
     ) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onResetOverlay: () -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
@@ -316,7 +313,6 @@ private fun SharedTransitionScope.Success(
             onLongPressGridItem = onLongPressGridItem,
             currentPage = currentPage,
             gridItemSettings = gridItemSettings,
-            onResetOverlay = onResetOverlay,
             onDraggingGridItem = onDraggingGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
@@ -337,7 +333,6 @@ private fun SharedTransitionScope.Success(
                         onLongPressGridItem = onLongPressGridItem,
                         currentPage = currentPage,
                         gridItemSettings = gridItemSettings,
-                        onResetOverlay = onResetOverlay,
                         onDraggingGridItem = onDraggingGridItem,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
@@ -364,7 +359,6 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoDockSearchBar(
     ) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -406,7 +400,6 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoDockSearchBar(
                         onLongPressGridItem = onLongPressGridItem,
                         currentPage = currentPage,
                         gridItemSettings = gridItemSettings,
-                        onResetOverlay = onResetOverlay,
                         onDraggingGridItem = onDraggingGridItem,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
@@ -433,7 +426,6 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     ) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -492,7 +484,6 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                         onLongPressGridItem = onLongPressGridItem,
                         currentPage = currentPage,
                         gridItemSettings = gridItemSettings,
-                        onResetOverlay = onResetOverlay,
                         onDraggingGridItem = onDraggingGridItem,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
@@ -518,7 +509,6 @@ internal fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
     ) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -563,8 +553,6 @@ internal fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                 if (scale.value < 1f) {
                     scale.animateTo(1f)
                 }
-
-                onResetOverlay()
             }
 
             else -> Unit
@@ -629,8 +617,6 @@ internal fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                         scale.stop()
 
                         isLongPress = false
-
-                        onResetOverlay()
 
                         if (scale.value < 1f) {
                             scale.animateTo(1f)

@@ -170,7 +170,6 @@ internal fun SharedTransitionScope.ApplicationScreen(
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onResetOverlay: () -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
     onEditApplicationInfo: (
@@ -228,7 +227,6 @@ internal fun SharedTransitionScope.ApplicationScreen(
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onDismiss = onDismiss,
                     onDraggingGridItem = onDraggingGridItem,
-                    onResetOverlay = onResetOverlay,
                     onVerticalDrag = onVerticalDrag,
                     onDragEnd = onDragEnd,
                     onEditApplicationInfo = onEditApplicationInfo,
@@ -268,7 +266,6 @@ private fun SharedTransitionScope.Success(
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onResetOverlay: () -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
     onEditApplicationInfo: (
@@ -356,7 +353,6 @@ private fun SharedTransitionScope.Success(
             onUpdatePopupMenu = { newShowPopupApplicationMenu ->
                 showPopupApplicationMenu = newShowPopupApplicationMenu
             },
-            onResetOverlay = onResetOverlay,
             onDraggingGridItem = onDraggingGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
@@ -382,7 +378,6 @@ private fun SharedTransitionScope.Success(
                     iconPackFilePaths = iconPackFilePaths,
                     managedProfileResult = managedProfileResult,
                     onLongPressGridItem = onLongPressGridItem,
-                    onResetOverlay = onResetOverlay,
                     onUpdateGridItemOffset = { intOffset, intSize ->
                         onUpdateGridItemOffset(intOffset, intSize)
 
@@ -410,7 +405,6 @@ private fun SharedTransitionScope.Success(
                 iconPackFilePaths = iconPackFilePaths,
                 managedProfileResult = managedProfileResult,
                 onLongPressGridItem = onLongPressGridItem,
-                onResetOverlay = onResetOverlay,
                 onUpdateGridItemOffset = { intOffset, intSize ->
                     onUpdateGridItemOffset(intOffset, intSize)
 
@@ -467,7 +461,6 @@ private fun SharedTransitionScope.Success(
                     )
                 }
             },
-            onResetOverlay = onResetOverlay,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDraggingGridItem = onDraggingGridItem,
@@ -494,7 +487,6 @@ private fun SharedTransitionScope.Success(
                 eblanApplicationInfoGroup = null
             },
             onDraggingGridItem = onDraggingGridItem,
-            onResetOverlay = onResetOverlay,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
@@ -521,7 +513,6 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
         imageBitmap: ImageBitmap?,
     ) -> Unit,
     onUpdatePopupMenu: (Boolean) -> Unit,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -574,7 +565,6 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdatePopupMenu = onUpdatePopupMenu,
-                        onResetOverlay = onResetOverlay,
                         onDraggingGridItem = onDraggingGridItem,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
@@ -603,7 +593,6 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         imageBitmap: ImageBitmap?,
     ) -> Unit,
     onUpdatePopupMenu: (Boolean) -> Unit,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -682,8 +671,6 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                 if (scale.value < 1f) {
                     scale.animateTo(1f)
                 }
-
-                onResetOverlay()
             }
 
             else -> Unit
@@ -774,8 +761,6 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                         scale.stop()
 
                         isLongPress = false
-
-                        onResetOverlay()
 
                         if (scale.value < 1f) {
                             scale.animateTo(1f)
@@ -874,7 +859,6 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onResetOverlay: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -937,7 +921,6 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 eblanApplicationInfos = eblanApplicationInfos,
                 iconPackFilePaths = iconPackFilePaths,
                 onLongPressGridItem = onLongPressGridItem,
-                onResetOverlay = onResetOverlay,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onUpdatePopupMenu = onUpdatePopupMenu,
                 onVerticalDrag = onVerticalDrag,
@@ -1045,7 +1028,6 @@ private fun SharedTransitionScope.EblanApplicationInfos(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onResetOverlay: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -1120,7 +1102,6 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdatePopupMenu = onUpdatePopupMenu,
-                        onResetOverlay = onResetOverlay,
                         onDraggingGridItem = onDraggingGridItem,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )

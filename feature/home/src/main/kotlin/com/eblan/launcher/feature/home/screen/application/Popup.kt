@@ -79,7 +79,6 @@ internal fun PopupApplicationInfoMenu(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onResetOverlay: () -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -166,7 +165,6 @@ internal fun PopupApplicationInfoMenu(
 
                     onDismissRequest()
                 },
-                onResetOverlay = onResetOverlay,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onDraggingGridItem = onDraggingGridItem,
@@ -228,7 +226,6 @@ private fun ApplicationInfoMenu(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onResetOverlay: () -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -259,7 +256,6 @@ private fun ApplicationInfoMenu(
                         icon = icon,
                         eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
                         gridItemSettings = gridItemSettings,
-                        onResetOverlay = onResetOverlay,
                         onTapShortcutInfo = onTapShortcutInfo,
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,

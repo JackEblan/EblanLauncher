@@ -70,7 +70,6 @@ internal fun ShortcutInfoMenu(
     icon: String?,
     eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
     gridItemSettings: GridItemSettings,
-    onResetOverlay: () -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
         packageName: String,
@@ -101,7 +100,6 @@ internal fun ShortcutInfoMenu(
                 icon = icon,
                 drag = drag,
                 gridItemSettings = gridItemSettings,
-                onResetOverlay = onResetOverlay,
                 onTapShortcutInfo = onTapShortcutInfo,
                 eblanShortcutInfo = eblanShortcutInfo,
                 onLongPressGridItem = onLongPressGridItem,
@@ -121,7 +119,6 @@ private fun ShortcutInfoMenuItem(
     drag: Drag,
     icon: String?,
     gridItemSettings: GridItemSettings,
-    onResetOverlay: () -> Unit,
     onTapShortcutInfo: (Long, String, String) -> Unit,
     eblanShortcutInfo: EblanShortcutInfo,
     onLongPressGridItem: (
@@ -156,8 +153,6 @@ private fun ShortcutInfoMenuItem(
             if (scale.value < 1f) {
                 scale.animateTo(1f)
             }
-
-            onResetOverlay()
         }
     }
 
@@ -248,8 +243,6 @@ private fun ShortcutInfoMenuItem(
                                 scale.stop()
 
                                 isLongPress = false
-
-                                onResetOverlay()
 
                                 if (scale.value < 1f) {
                                     scale.animateTo(1f)

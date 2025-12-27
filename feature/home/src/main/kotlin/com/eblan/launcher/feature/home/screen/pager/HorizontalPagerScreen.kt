@@ -55,7 +55,6 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
-import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
@@ -91,9 +90,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     homeSettings: HomeSettings,
     statusBarNotifications: Map<String, Int>,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    gestureSettings: GestureSettings,
-    swipeY: Float,
-    screenHeight: Int,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
@@ -115,7 +111,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
-    onResetOverlay: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
 ) {
@@ -300,7 +295,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                                 imageBitmap,
                             )
                         },
-                        onResetOverlay = onResetOverlay,
                         onDraggingGridItem = {
                             showGridItemPopup = false
 
@@ -417,7 +411,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                             imageBitmap,
                         )
                     },
-                    onResetOverlay = onResetOverlay,
                     onDraggingGridItem = {
                         showGridItemPopup = false
 
@@ -481,7 +474,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             },
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onResetOverlay = onResetOverlay,
             onDraggingGridItem = onDraggingGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
         )

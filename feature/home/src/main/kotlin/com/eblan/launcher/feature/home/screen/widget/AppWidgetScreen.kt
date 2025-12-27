@@ -88,7 +88,6 @@ internal fun SharedTransitionScope.AppWidgetScreen(
     ) -> Unit,
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onResetOverlay: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -202,7 +201,6 @@ internal fun SharedTransitionScope.AppWidgetScreen(
                     onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
-                    onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
@@ -222,7 +220,6 @@ private fun SharedTransitionScope.Success(
     onLongPressGridItem: (GridItemSource, ImageBitmap?) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -257,7 +254,6 @@ private fun SharedTransitionScope.Success(
                     onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
-                    onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )

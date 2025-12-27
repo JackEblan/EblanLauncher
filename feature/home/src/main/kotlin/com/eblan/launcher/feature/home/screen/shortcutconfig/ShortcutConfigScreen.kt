@@ -134,7 +134,6 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onResetOverlay: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -219,7 +218,6 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
                     onDraggingGridItem = onDraggingGridItem,
-                    onResetOverlay = onResetOverlay,
                     onVerticalDrag = { dragAmount ->
                         scope.launch {
                             offsetY.snapTo(offsetY.value + dragAmount)
@@ -262,7 +260,6 @@ private fun SharedTransitionScope.Success(
     ) -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onResetOverlay: () -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
@@ -297,7 +294,6 @@ private fun SharedTransitionScope.Success(
             onLongPressGridItem = onLongPressGridItem,
             currentPage = currentPage,
             gridItemSettings = gridItemSettings,
-            onResetOverlay = onResetOverlay,
             onDraggingGridItem = onDraggingGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
@@ -321,7 +317,6 @@ private fun SharedTransitionScope.Success(
                     gridItemSettings = gridItemSettings,
                     eblanShortcutConfigs = eblanShortcutConfigs,
                     onLongPressGridItem = onLongPressGridItem,
-                    onResetOverlay = onResetOverlay,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onDraggingGridItem = onDraggingGridItem,
                     onVerticalDrag = onVerticalDrag,
@@ -338,7 +333,6 @@ private fun SharedTransitionScope.Success(
                 gridItemSettings = gridItemSettings,
                 eblanShortcutConfigs = eblanShortcutConfigs,
                 onLongPressGridItem = onLongPressGridItem,
-                onResetOverlay = onResetOverlay,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onDraggingGridItem = onDraggingGridItem,
                 onVerticalDrag = onVerticalDrag,
@@ -366,7 +360,6 @@ private fun SharedTransitionScope.EblanShortcutConfigDockSearchBar(
     ) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -408,7 +401,6 @@ private fun SharedTransitionScope.EblanShortcutConfigDockSearchBar(
                     onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
-                    onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
@@ -460,7 +452,6 @@ private fun SharedTransitionScope.EblanShortcutConfigsPage(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onResetOverlay: () -> Unit,
     onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
     onDraggingGridItem: () -> Unit,
     onVerticalDrag: (Float) -> Unit,
@@ -539,7 +530,6 @@ private fun SharedTransitionScope.EblanShortcutConfigsPage(
                         onLongPressGridItem = onLongPressGridItem,
                         currentPage = currentPage,
                         gridItemSettings = gridItemSettings,
-                        onResetOverlay = onResetOverlay,
                         onDraggingGridItem = onDraggingGridItem,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
@@ -566,7 +556,6 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     ) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -625,7 +614,6 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                         onLongPressGridItem = onLongPressGridItem,
                         currentPage = currentPage,
                         gridItemSettings = gridItemSettings,
-                        onResetOverlay = onResetOverlay,
                         onDraggingGridItem = onDraggingGridItem,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
@@ -651,7 +639,6 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
     ) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -694,8 +681,6 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                 if (scale.value < 1f) {
                     scale.animateTo(1f)
                 }
-
-                onResetOverlay()
             }
 
             else -> Unit
@@ -767,8 +752,6 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                         scale.stop()
 
                         isLongPress = false
-
-                        onResetOverlay()
 
                         if (scale.value < 1f) {
                             scale.animateTo(1f)

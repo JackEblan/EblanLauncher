@@ -143,6 +143,12 @@ internal fun SharedTransitionScope.FolderScreen(
 
     val scope = rememberCoroutineScope()
 
+    val pageIndicatorHeight = 30.dp
+
+    val pageIndicatorHeightPx = with(density) {
+        pageIndicatorHeight.roundToPx()
+    }
+
     LaunchedEffect(key1 = foldersDataById) {
         if (foldersDataById.isEmpty()) {
             onUpdateScreen(Screen.Pager)
@@ -166,14 +172,14 @@ internal fun SharedTransitionScope.FolderScreen(
         }
     }
 
-    BackHandler(foldersDataById.isNotEmpty()) {
-        onRemoveLastFolder()
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.End || drag == Drag.Cancel) {
+            onResetOverlay()
+        }
     }
 
-    val pageIndicatorHeight = 30.dp
-
-    val pageIndicatorHeightPx = with(density) {
-        pageIndicatorHeight.roundToPx()
+    BackHandler(foldersDataById.isNotEmpty()) {
+        onRemoveLastFolder()
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -293,7 +299,6 @@ internal fun SharedTransitionScope.FolderScreen(
                                             imageBitmap,
                                         )
                                     },
-                                    onResetOverlay = onResetOverlay,
                                     onDraggingGridItem = {
                                         onDraggingGridItem(foldersDataById.last().gridItems)
                                     },

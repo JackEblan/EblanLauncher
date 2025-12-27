@@ -84,120 +84,163 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
         when (val data = conflictingGridItem.data) {
             is GridItemData.Folder -> {
-                val newGridItem = findAvailableRegionByPage(
-                    gridItems = data.gridItems,
-                    gridItem = movingGridItem,
-                    pageCount = data.pageCount,
-                    columns = folderColumns,
-                    rows = folderRows,
+                addMovingGridItemIntoFolder(
+                    data = data,
+                    movingGridItem = movingGridItem,
+                    folderColumns = folderColumns,
+                    folderRows = folderRows,
+                    gridItems = gridItems,
+                    movingIndex = movingIndex,
+                    conflictingGridItem = conflictingGridItem,
+                    conflictingIndex = conflictingIndex,
                 )
-
-                if (newGridItem != null) {
-                    val newData = data.copy(gridItems = data.gridItems + newGridItem)
-
-                    gridItems[movingIndex] = newGridItem.copy(
-                        folderId = conflictingGridItem.id,
-                        associate = Associate.Grid,
-                    )
-
-                    gridItems[conflictingIndex] = conflictingGridItem.copy(data = newData)
-                } else {
-                    val newPageCount = data.pageCount + 1
-
-                    val newData = data.copy(
-                        gridItems = data.gridItems + movingGridItem,
-                        pageCount = newPageCount,
-                    )
-
-                    gridItems[movingIndex] = movingGridItem.copy(
-                        folderId = conflictingGridItem.id,
-                        page = newPageCount - 1,
-                        startColumn = 0,
-                        startRow = 0,
-                        associate = Associate.Grid,
-                    )
-
-                    gridItems[conflictingIndex] = conflictingGridItem.copy(data = newData)
-                }
             }
 
             else -> {
-                val id = Uuid.random().toHexString()
-
-                val pageCount = 1
-
-                val firstGridItem = conflictingGridItem.copy(
-                    folderId = id,
-                    page = 0,
-                    startColumn = 0,
-                    startRow = 0,
-                    associate = Associate.Grid,
+                createNewFolder(
+                    conflictingGridItem = conflictingGridItem,
+                    movingGridItem = movingGridItem,
+                    folderColumns = folderColumns,
+                    folderRows = folderRows,
+                    gridItems = gridItems,
+                    conflictingIndex = conflictingIndex,
+                    movingIndex = movingIndex,
                 )
-
-                val secondGridItem = movingGridItem.copy(
-                    folderId = id,
-                    page = 0,
-                    startColumn = 0,
-                    startRow = 0,
-                    associate = Associate.Grid,
-                )
-
-                val movedSecondGridItem = findAvailableRegionByPage(
-                    gridItems = listOf(firstGridItem),
-                    gridItem = secondGridItem,
-                    pageCount = pageCount,
-                    columns = folderColumns,
-                    rows = folderRows,
-                )
-
-                if (movedSecondGridItem != null) {
-                    val newData = GridItemData.Folder(
-                        id = id,
-                        label = "Unknown",
-                        gridItems = listOf(firstGridItem, movedSecondGridItem),
-                        pageCount = pageCount,
-                        icon = null,
-                    )
-
-                    gridItems[conflictingIndex] = firstGridItem
-
-                    gridItems[movingIndex] = movedSecondGridItem
-
-                    gridItems.add(
-                        conflictingGridItem.copy(
-                            id = id,
-                            data = newData,
-                        ),
-                    )
-                } else {
-                    val newPageCount = pageCount + 1
-
-                    val newData = GridItemData.Folder(
-                        id = id,
-                        label = "Unknown",
-                        gridItems = emptyList(),
-                        pageCount = newPageCount,
-                        icon = null,
-                    )
-
-                    gridItems[conflictingIndex] = firstGridItem
-
-                    gridItems[movingIndex] = secondGridItem.copy(
-                        folderId = id,
-                        page = newPageCount - 1,
-                        startColumn = 0,
-                        startRow = 0,
-                        associate = Associate.Grid,
-                    )
-
-                    gridItems.add(
-                        conflictingGridItem.copy(
-                            id = id,
-                            data = newData,
-                        ),
-                    )
-                }
             }
+        }
+    }
+
+    private suspend fun addMovingGridItemIntoFolder(
+        data: GridItemData.Folder,
+        movingGridItem: GridItem,
+        folderColumns: Int,
+        folderRows: Int,
+        gridItems: MutableList<GridItem>,
+        movingIndex: Int,
+        conflictingGridItem: GridItem,
+        conflictingIndex: Int,
+    ) {
+        val newGridItem = findAvailableRegionByPage(
+            gridItems = data.gridItems,
+            gridItem = movingGridItem,
+            pageCount = data.pageCount,
+            columns = folderColumns,
+            rows = folderRows,
+        )
+
+        if (newGridItem != null) {
+            val newData = data.copy(gridItems = data.gridItems + newGridItem)
+
+            gridItems[movingIndex] = newGridItem.copy(
+                folderId = conflictingGridItem.id,
+                associate = Associate.Grid,
+            )
+
+            gridItems[conflictingIndex] = conflictingGridItem.copy(data = newData)
+        } else {
+            val newPageCount = data.pageCount + 1
+
+            val newData = data.copy(
+                gridItems = data.gridItems + movingGridItem,
+                pageCount = newPageCount,
+            )
+
+            gridItems[movingIndex] = movingGridItem.copy(
+                folderId = conflictingGridItem.id,
+                page = newPageCount - 1,
+                startColumn = 0,
+                startRow = 0,
+                associate = Associate.Grid,
+            )
+
+            gridItems[conflictingIndex] = conflictingGridItem.copy(data = newData)
+        }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    private suspend fun createNewFolder(
+        conflictingGridItem: GridItem,
+        movingGridItem: GridItem,
+        folderColumns: Int,
+        folderRows: Int,
+        gridItems: MutableList<GridItem>,
+        conflictingIndex: Int,
+        movingIndex: Int,
+    ) {
+        val id = Uuid.random().toHexString()
+
+        val pageCount = 1
+
+        val firstGridItem = conflictingGridItem.copy(
+            folderId = id,
+            page = 0,
+            startColumn = 0,
+            startRow = 0,
+            associate = Associate.Grid,
+        )
+
+        val secondGridItem = movingGridItem.copy(
+            folderId = id,
+            page = 0,
+            startColumn = 0,
+            startRow = 0,
+            associate = Associate.Grid,
+        )
+
+        val movedSecondGridItem = findAvailableRegionByPage(
+            gridItems = listOf(firstGridItem),
+            gridItem = secondGridItem,
+            pageCount = pageCount,
+            columns = folderColumns,
+            rows = folderRows,
+        )
+
+        if (movedSecondGridItem != null) {
+            val newData = GridItemData.Folder(
+                id = id,
+                label = "Unknown",
+                gridItems = listOf(firstGridItem, movedSecondGridItem),
+                pageCount = pageCount,
+                icon = null,
+            )
+
+            gridItems[conflictingIndex] = firstGridItem
+
+            gridItems[movingIndex] = movedSecondGridItem
+
+            gridItems.add(
+                conflictingGridItem.copy(
+                    id = id,
+                    data = newData,
+                ),
+            )
+        } else {
+            val newPageCount = pageCount + 1
+
+            val newData = GridItemData.Folder(
+                id = id,
+                label = "Unknown",
+                gridItems = emptyList(),
+                pageCount = newPageCount,
+                icon = null,
+            )
+
+            gridItems[conflictingIndex] = firstGridItem
+
+            gridItems[movingIndex] = secondGridItem.copy(
+                folderId = id,
+                page = newPageCount - 1,
+                startColumn = 0,
+                startRow = 0,
+                associate = Associate.Grid,
+            )
+
+            gridItems.add(
+                conflictingGridItem.copy(
+                    id = id,
+                    data = newData,
+                ),
+            )
         }
     }
 }

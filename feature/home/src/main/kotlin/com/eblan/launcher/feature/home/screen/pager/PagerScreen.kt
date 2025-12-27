@@ -274,6 +274,12 @@ internal fun SharedTransitionScope.PagerScreen(
         }
     }
 
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.End || drag == Drag.Cancel) {
+            onResetOverlay()
+        }
+    }
+
     HorizontalPagerScreen(
         modifier = modifier
             .pointerInput(Unit) {
@@ -341,9 +347,6 @@ internal fun SharedTransitionScope.PagerScreen(
         homeSettings = homeSettings,
         statusBarNotifications = statusBarNotifications,
         eblanShortcutInfos = eblanShortcutInfos,
-        gestureSettings = gestureSettings,
-        swipeY = swipeY.value,
-        screenHeight = screenHeight,
         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
         iconPackFilePaths = iconPackFilePaths,
         isPressHome = isPressHome,
@@ -365,7 +368,6 @@ internal fun SharedTransitionScope.PagerScreen(
         onUpdateGridItemOffset = onUpdateGridItemOffset,
         onDraggingGridItem = onDraggingGridItem,
         onDeleteGridItem = onDeleteGridItem,
-        onResetOverlay = onResetOverlay,
         onUpdateSharedElementKey = onUpdateSharedElementKey,
         onUpdateEblanApplicationInfoGroup = { newEblanApplicationInfoGroup ->
             eblanApplicationInfoGroup = newEblanApplicationInfoGroup
@@ -407,7 +409,6 @@ internal fun SharedTransitionScope.PagerScreen(
                 }
             },
             onDraggingGridItem = onDraggingGridItem,
-            onResetOverlay = onResetOverlay,
             onVerticalDrag = { dragAmount ->
                 scope.launch {
                     swipeY.snapTo(swipeY.value + dragAmount)
@@ -474,7 +475,6 @@ internal fun SharedTransitionScope.PagerScreen(
                 }
             },
             onDraggingGridItem = onDraggingGridItem,
-            onResetOverlay = onResetOverlay,
             onVerticalDrag = { dragAmount ->
                 scope.launch {
                     swipeY.snapTo(swipeY.value + dragAmount)
@@ -516,7 +516,6 @@ internal fun SharedTransitionScope.PagerScreen(
                 isPressHome = false
             },
             onDraggingGridItem = onDraggingGridItem,
-            onResetOverlay = onResetOverlay,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
@@ -540,7 +539,6 @@ internal fun SharedTransitionScope.PagerScreen(
                 isPressHome = false
             },
             onDraggingGridItem = onDraggingGridItem,
-            onResetOverlay = onResetOverlay,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
@@ -561,7 +559,6 @@ internal fun SharedTransitionScope.PagerScreen(
                 eblanApplicationInfoGroup = null
             },
             onDraggingGridItem = onDraggingGridItem,
-            onResetOverlay = onResetOverlay,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }

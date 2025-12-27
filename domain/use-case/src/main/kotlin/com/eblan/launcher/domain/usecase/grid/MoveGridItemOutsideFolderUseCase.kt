@@ -39,7 +39,12 @@ class MoveGridItemOutsideFolderUseCase @Inject constructor(
         gridItems: List<GridItem>,
     ) {
         return withContext(defaultDispatcher) {
-            val folderGridItems = folderGridCacheRepository.gridItemsCache.first() - movingGridItem
+            val folderGridItems =
+                folderGridCacheRepository.gridItemsCache.first().toMutableList().apply {
+                    removeIf { gridItem ->
+                        gridItem.id == movingGridItem.id
+                    }
+                }
 
             val folderGridItem = gridItems.find { gridItem ->
                 gridItem.id == folderId && gridItem.data is GridItemData.Folder

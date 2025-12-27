@@ -18,4 +18,5 @@
 <resources>
     <string name="app_name">Einstein Launcher</string>
     <string name="action_name">Einstein Action</string>
+    <string name="einstein_launcher_service">Einstein Launcher Service</string>
 </resources>

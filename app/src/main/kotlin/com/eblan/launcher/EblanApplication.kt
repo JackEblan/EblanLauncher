@@ -45,7 +45,7 @@ class EblanApplication : Application(), Thread.UncaughtExceptionHandler {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManagerWrapper.createNotificationChannel(
                 channelId = AndroidNotificationManagerWrapper.CHANNEL_ID,
-                name = "Eblan Launcher Service",
+                name = getString(R.string.einstein_launcher_service),
                 importance = NotificationManager.IMPORTANCE_DEFAULT,
             )
         }
@@ -78,7 +78,7 @@ class EblanApplication : Application(), Thread.UncaughtExceptionHandler {
                 appendLine("OS: $androidVersion")
                 appendLine("App: $appVersion")
                 appendLine("Time: ${java.util.Date()}")
-                appendLine("GitHub: https://github.com/JackEblan/EblanLauncher")
+                appendLine("GitHub: https://github.com/JackEblan/EinsteinLauncher")
                 appendLine()
                 appendLine(Log.getStackTraceString(throwable))
             }
@@ -115,7 +115,7 @@ class EblanApplication : Application(), Thread.UncaughtExceptionHandler {
         val notification =
             NotificationCompat.Builder(this, AndroidNotificationManagerWrapper.CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.stat_notify_error)
-                .setContentTitle("Eblan Launcher has crashed")
+                .setContentTitle("Einstein Launcher has crashed")
                 .setContentText("View the stack trace and report on GitHub")
                 .setAutoCancel(true)
                 .addAction(0, "Open stacktrace", pendingIntent)

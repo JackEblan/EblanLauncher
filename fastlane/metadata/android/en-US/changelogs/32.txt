@@ -1,0 +1,2 @@
+- Improved Folder Drop Animations
+- Animate resize overlay and improve user experience

@@ -65,6 +65,8 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                 )
             }
 
+            gridCacheRepository.upsertGridItems(gridItems = gridItems)
+
             updateGridItemsUseCase(gridItems = gridItems)
         }
     }
@@ -91,14 +93,21 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                 )
 
                 if (newGridItem != null) {
+                    val newData = data.copy(gridItems = data.gridItems + newGridItem)
+
                     gridItems[movingIndex] = newGridItem.copy(
                         folderId = conflictingGridItem.id,
                         associate = Associate.Grid,
                     )
+
+                    gridItems[conflictingIndex] = conflictingGridItem.copy(data = newData)
                 } else {
                     val newPageCount = data.pageCount + 1
 
-                    val newData = data.copy(pageCount = newPageCount)
+                    val newData = data.copy(
+                        gridItems = data.gridItems + movingGridItem,
+                        pageCount = newPageCount,
+                    )
 
                     gridItems[movingIndex] = movingGridItem.copy(
                         folderId = conflictingGridItem.id,
@@ -145,7 +154,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     val newData = GridItemData.Folder(
                         id = id,
                         label = "Unknown",
-                        gridItems = emptyList(),
+                        gridItems = listOf(firstGridItem, movedSecondGridItem),
                         pageCount = pageCount,
                         icon = null,
                     )

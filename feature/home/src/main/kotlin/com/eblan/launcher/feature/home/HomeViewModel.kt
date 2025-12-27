@@ -297,10 +297,6 @@ internal class HomeViewModel @Inject constructor(
 
             delay(defaultDelay)
 
-            _moveGridItemResult.update {
-                null
-            }
-
             _screen.update {
                 screen
             }

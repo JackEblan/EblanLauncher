@@ -887,7 +887,9 @@ private fun SharedTransitionScope.Success(
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-                    onResetOverlay = onResetOverlay,
+                    onResetOverlay = {
+
+                    },
                     onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
                     onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                 )
@@ -1031,7 +1033,7 @@ private fun SharedTransitionScope.OverlayImage(
                 .size(size)
                 .sharedElementWithCallerManagedVisibility(
                     rememberSharedContentState(key = sharedElementKey),
-                    visible = drag == Drag.Cancel || drag == Drag.End,
+                    visible = drag == Drag.Start || drag == Drag.Dragging,
                 ),
             bitmap = overlayImageBitmap,
             contentDescription = null,

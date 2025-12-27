@@ -16,6 +16,6 @@
   ~
   -->
 <resources>
-    <string name="app_name">Eblan Launcher</string>
-    <string name="action_name">Eblan Action</string>
+    <string name="app_name">Einstein Launcher</string>
+    <string name="action_name">Einstein Action</string>
 </resources>

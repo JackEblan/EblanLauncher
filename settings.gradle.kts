@@ -21,7 +21,7 @@ dependencyResolutionManagement {
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-rootProject.name = "EblanLauncher"
+rootProject.name = "EinsteinLauncher"
 include(":app")
 include(":common")
 include(":design-system")

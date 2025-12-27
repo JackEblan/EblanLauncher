@@ -2,23 +2,55 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="11">
+      <module name="EblanLauncher.app" target="21" />
       <module name="EblanLauncher.broadcast-receiver" target="21" />
       <module name="EblanLauncher.buildSrc" target="17" />
       <module name="EblanLauncher.buildSrc.main" target="17" />
       <module name="EblanLauncher.buildSrc.test" target="17" />
+      <module name="EblanLauncher.common" target="21" />
+      <module name="EblanLauncher.data.cache" target="21" />
+      <module name="EblanLauncher.data.datastore" target="21" />
+      <module name="EblanLauncher.data.repository" target="21" />
+      <module name="EblanLauncher.data.room" target="21" />
+      <module name="EblanLauncher.design-system" target="21" />
       <module name="EblanLauncher.domain.geometry" target="21" />
+      <module name="EblanLauncher.feature.action" target="21" />
       <module name="EblanLauncher.feature.applications" target="21" />
       <module name="EblanLauncher.feature.edit" target="21" />
+      <module name="EblanLauncher.feature.edit-application-info" target="21" />
+      <module name="EblanLauncher.feature.edit-grid-item" target="21" />
+      <module name="EblanLauncher.feature.home" target="21" />
+      <module name="EblanLauncher.feature.pin" target="21" />
       <module name="EblanLauncher.feature.pin.shortcut" target="21" />
       <module name="EblanLauncher.feature.pin.widget" target="21" />
       <module name="EblanLauncher.feature.pinned-widget" target="21" />
+      <module name="EblanLauncher.feature.settings.app-drawer" target="21" />
+      <module name="EblanLauncher.feature.settings.experimental" target="21" />
+      <module name="EblanLauncher.feature.settings.folder" target="21" />
+      <module name="EblanLauncher.feature.settings.general" target="21" />
       <module name="EblanLauncher.feature.settings.gesture" target="21" />
+      <module name="EblanLauncher.feature.settings.gestures" target="21" />
+      <module name="EblanLauncher.feature.settings.home" target="21" />
+      <module name="EblanLauncher.feature.settings.settings" target="21" />
       <module name="EblanLauncher.feature.widgets" target="21" />
       <module name="EblanLauncher.framework.bitmap" target="21" />
+      <module name="EblanLauncher.framework.byte-array" target="21" />
       <module name="EblanLauncher.framework.coil" target="21" />
       <module name="EblanLauncher.framework.drawable" target="21" />
+      <module name="EblanLauncher.framework.file-manager" target="21" />
+      <module name="EblanLauncher.framework.icon-pack-manager" target="21" />
+      <module name="EblanLauncher.framework.launcher-apps" target="21" />
+      <module name="EblanLauncher.framework.notification-manager" target="21" />
+      <module name="EblanLauncher.framework.package-manager" target="21" />
+      <module name="EblanLauncher.framework.resources" target="21" />
+      <module name="EblanLauncher.framework.settings" target="21" />
+      <module name="EblanLauncher.framework.user-manager" target="21" />
+      <module name="EblanLauncher.framework.wallpaper-manager" target="21" />
+      <module name="EblanLauncher.framework.widget-manager" target="21" />
       <module name="EblanLauncher.framework.window-manager" target="21" />
       <module name="EblanLauncher.framework.window-metrics" target="21" />
+      <module name="EblanLauncher.service" target="21" />
+      <module name="EblanLauncher.ui" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

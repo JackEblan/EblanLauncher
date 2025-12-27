@@ -140,7 +140,6 @@ internal fun GridItemPopup(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -187,7 +186,6 @@ internal fun GridItemPopup(
                 onTapShortcutInfo = onTapShortcutInfo,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
-                onResetOverlay = onResetOverlay,
                 onDraggingGridItem = onDraggingGridItem,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
@@ -336,7 +334,6 @@ private fun GridItemPopupContent(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -402,7 +399,6 @@ private fun GridItemPopupContent(
                 },
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
-                onResetOverlay = onResetOverlay,
                 onDraggingGridItem = {
                     onDraggingGridItem()
 
@@ -482,7 +478,6 @@ private fun ApplicationInfoGridItemMenu(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -504,7 +499,6 @@ private fun ApplicationInfoGridItemMenu(
                         icon = icon,
                         eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
                         gridItemSettings = gridItemSettings,
-                        onResetOverlay = onResetOverlay,
                         onTapShortcutInfo = onTapShortcutInfo,
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,

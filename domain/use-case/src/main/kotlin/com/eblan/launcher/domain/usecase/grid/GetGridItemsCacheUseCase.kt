@@ -48,7 +48,8 @@ class GetGridItemsCacheUseCase @Inject constructor(
                     gridItem = gridItem,
                     columns = userData.homeSettings.columns,
                     rows = userData.homeSettings.rows,
-                ) && gridItem.associate == Associate.Grid
+                ) && gridItem.associate == Associate.Grid &&
+                    gridItem.folderId == null
             }.groupBy { gridItem -> gridItem.page }
 
             val dockGridItemsCache = gridItems.filter { gridItem ->

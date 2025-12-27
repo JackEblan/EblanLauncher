@@ -43,6 +43,7 @@ import com.eblan.launcher.domain.usecase.grid.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
+import com.eblan.launcher.domain.usecase.grid.MoveGridItemOutsideFolderUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterMoveUseCase
@@ -101,6 +102,7 @@ internal class HomeViewModel @Inject constructor(
     getEblanShortcutInfosUseCase: GetEblanShortcutInfosUseCase,
     eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     getIconPackFilePathsUseCase: GetIconPackFilePathsUseCase,
+    private val moveGridItemOutsideFolderUseCase: MoveGridItemOutsideFolderUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -297,10 +299,6 @@ internal class HomeViewModel @Inject constructor(
 
             delay(defaultDelay)
 
-            _moveGridItemResult.update {
-                null
-            }
-
             _screen.update {
                 screen
             }
@@ -406,14 +404,14 @@ internal class HomeViewModel @Inject constructor(
 
     fun resetGridCacheAfterMoveFolder() {
         viewModelScope.launch {
-            val lastId = _foldersDataById.value.last().id
+            val lastFolderId = _foldersDataById.value.last().folderId
 
             updateGridItemsUseCase(gridItems = folderGridCacheRepository.gridItemsCache.first())
 
-            getFolderDataByIdUseCase(id = lastId)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folder ->
                 _foldersDataById.update { currentFolders ->
                     ArrayDeque(currentFolders).apply {
-                        val index = indexOfFirst { it.id == lastId }
+                        val index = indexOfFirst { it.folderId == lastFolderId }
 
                         set(index, folder)
                     }
@@ -452,12 +450,12 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
-            val lastId = _foldersDataById.value.last().id
+            val lastFolderId = _foldersDataById.value.last().folderId
 
-            getFolderDataByIdUseCase(id = lastId)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folder ->
                 _foldersDataById.update { currentFolders ->
                     ArrayDeque(currentFolders).apply {
-                        val index = indexOfFirst { it.id == lastId }
+                        val index = indexOfFirst { it.folderId == lastFolderId }
 
                         set(index, folder)
                     }
@@ -542,9 +540,9 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun showFolder(id: String) {
+    fun showFolder(folderId: String) {
         viewModelScope.launch {
-            getFolderDataByIdUseCase(id = id)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = folderId)?.let { folder ->
                 _foldersDataById.update { currentFolders ->
                     ArrayDeque(currentFolders).apply {
                         clear()
@@ -560,9 +558,9 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun addFolder(id: String) {
+    fun addFolder(folderId: String) {
         viewModelScope.launch {
-            getFolderDataByIdUseCase(id = id)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = folderId)?.let { folder ->
                 _foldersDataById.update { currentFolders ->
                     ArrayDeque(currentFolders).apply {
                         add(folder)
@@ -663,6 +661,27 @@ internal class HomeViewModel @Inject constructor(
             )
 
             resetGridCacheAfterMove(moveGridItemResult = moveGridItemResult)
+        }
+    }
+
+    fun moveGridItemOutsideFolder(
+        folderId: String,
+        movingGridItem: GridItem,
+        gridItems: List<GridItem>,
+        screen: Screen,
+    ) {
+        viewModelScope.launch {
+            moveGridItemOutsideFolderUseCase(
+                folderId = folderId,
+                movingGridItem = movingGridItem,
+                gridItems = gridItems,
+            )
+
+            delay(defaultDelay)
+
+            _screen.update {
+                screen
+            }
         }
     }
 }

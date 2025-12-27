@@ -41,7 +41,7 @@ class GetFolderDataByIdUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(id: String): FolderDataById? {
+    suspend operator fun invoke(folderId: String): FolderDataById? {
         return withContext(defaultDispatcher) {
             val homeSettings = userDataRepository.userData.first().homeSettings
 
@@ -52,16 +52,16 @@ class GetFolderDataByIdUseCase @Inject constructor(
                     folderGridItemRepository.gridItems.first() +
                     shortcutConfigGridItemRepository.gridItems.first()
                 ).filter { gridItem ->
-                gridItem.folderId == id && isGridItemSpanWithinBounds(
+                gridItem.folderId == folderId && isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     columns = homeSettings.folderColumns,
                     rows = homeSettings.folderRows,
                 )
             }
 
-            folderGridItemRepository.getFolderGridItemData(id = id)?.let { folderGridItemData ->
+            folderGridItemRepository.getFolderGridItemData(id = folderId)?.let { folderGridItemData ->
                 FolderDataById(
-                    id = id,
+                    folderId = folderId,
                     label = folderGridItemData.label,
                     gridItems = gridItems,
                     gridItemsByPage = gridItems.groupBy { gridItem -> gridItem.page },

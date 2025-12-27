@@ -112,7 +112,6 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -151,7 +150,6 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     },
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onResetOverlay = onResetOverlay,
                     statusBarNotifications = statusBarNotifications,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
@@ -167,7 +165,6 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     isScrollInProgress = isScrollInProgress,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
@@ -192,7 +189,6 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     },
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
@@ -211,7 +207,6 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onTap = onTapFolderGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
@@ -231,7 +226,6 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     },
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
@@ -258,7 +252,6 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -322,8 +315,6 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                 if (scale.value < 1f) {
                     scale.animateTo(1f)
                 }
-
-                onResetOverlay()
             }
 
             else -> Unit
@@ -370,8 +361,6 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                         awaitRelease()
 
                         scale.stop()
-
-                        onResetOverlay()
 
                         if (scale.value < 1f) {
                             scale.animateTo(1f)
@@ -474,7 +463,6 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -521,8 +509,6 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                 if (scale.value < 1f) {
                     scale.animateTo(1f)
                 }
-
-                onResetOverlay()
             }
 
             else -> Unit
@@ -621,7 +607,6 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -682,8 +667,6 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                 if (scale.value < 1f) {
                     scale.animateTo(1f)
                 }
-
-                onResetOverlay()
             }
 
             else -> Unit
@@ -732,8 +715,6 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                         awaitRelease()
 
                         scale.stop()
-
-                        onResetOverlay()
 
                         if (scale.value < 1f) {
                             scale.animateTo(1f)
@@ -824,7 +805,6 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -880,8 +860,6 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                 if (scale.value < 1f) {
                     scale.animateTo(1f)
                 }
-
-                onResetOverlay()
             }
 
             else -> Unit
@@ -928,8 +906,6 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                         awaitRelease()
 
                         scale.stop()
-
-                        onResetOverlay()
 
                         if (scale.value < 1f) {
                             scale.animateTo(1f)
@@ -987,7 +963,8 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
                         when (val currentData = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
-                                val icon = iconPackFilePaths[currentData.componentName] ?: currentData.icon
+                                val icon =
+                                    iconPackFilePaths[currentData.componentName] ?: currentData.icon
 
                                 AsyncImage(
                                     model = Builder(context).data(currentData.customIcon ?: icon)
@@ -1091,7 +1068,6 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -1164,8 +1140,6 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                 if (scale.value < 1f) {
                     scale.animateTo(1f)
                 }
-
-                onResetOverlay()
             }
 
             else -> Unit
@@ -1212,8 +1186,6 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                         awaitRelease()
 
                         scale.stop()
-
-                        onResetOverlay()
 
                         if (scale.value < 1f) {
                             scale.animateTo(1f)

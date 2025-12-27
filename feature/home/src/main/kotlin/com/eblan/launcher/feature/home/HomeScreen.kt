@@ -203,6 +203,7 @@ internal fun HomeRoute(
         onUpdateShortcutConfigGridItemDataCache = viewModel::updateShortcutConfigGridItemDataCache,
         onUpdateShortcutConfigIntoShortcutInfoGridItem = viewModel::updateShortcutConfigIntoShortcutInfoGridItem,
         onEditApplicationInfo = onEditApplicationInfo,
+        onMoveGridItemOutsideFolder = viewModel::moveGridItemOutsideFolder,
     )
 }
 
@@ -300,6 +301,12 @@ internal fun HomeScreen(
     onEditApplicationInfo: (
         serialNumber: Long,
         packageName: String,
+    ) -> Unit,
+    onMoveGridItemOutsideFolder: (
+        folderId: String,
+        movingGridItem: GridItem,
+        gridItems: List<GridItem>,
+        screen: Screen,
     ) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -538,6 +545,7 @@ internal fun HomeScreen(
                         onUpdateSharedElementKey = { newSharedElementKey ->
                             sharedElementKey = newSharedElementKey
                         },
+                        onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
                     )
                 }
             }
@@ -659,6 +667,12 @@ private fun SharedTransitionScope.Success(
         packageName: String,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onMoveGridItemOutsideFolder: (
+        folderId: String,
+        movingGridItem: GridItem,
+        gridItems: List<GridItem>,
+        screen: Screen,
+    ) -> Unit,
 ) {
     val activity = LocalActivity.current
 
@@ -887,7 +901,7 @@ private fun SharedTransitionScope.Success(
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-                    onResetOverlay = onResetOverlay,
+                    onResetOverlay = {},
                     onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
                     onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                 )
@@ -987,10 +1001,12 @@ private fun SharedTransitionScope.Success(
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = onResetGridCacheAfterMoveFolder,
                     onDragCancel = onCancelFolderDragGridCache,
-                    onMoveOutsideFolder = { newGridItemSource ->
+                    onMoveGridItemOutsideFolder = { newGridItemSource, folderId, movingGridItem ->
                         gridItemSource = newGridItemSource
 
-                        onShowGridCache(
+                        onMoveGridItemOutsideFolder(
+                            folderId,
+                            movingGridItem,
                             homeData.gridItems,
                             Screen.Drag,
                         )
@@ -1031,7 +1047,7 @@ private fun SharedTransitionScope.OverlayImage(
                 .size(size)
                 .sharedElementWithCallerManagedVisibility(
                     rememberSharedContentState(key = sharedElementKey),
-                    visible = drag == Drag.Cancel || drag == Drag.End,
+                    visible = drag == Drag.Start || drag == Drag.Dragging,
                 ),
             bitmap = overlayImageBitmap,
             contentDescription = null,

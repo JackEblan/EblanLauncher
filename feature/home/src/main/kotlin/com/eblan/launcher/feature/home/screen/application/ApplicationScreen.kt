@@ -924,6 +924,8 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 onUpdateRequestQuietModeEnabled = { newIsQuietModeEnabled ->
                     isQuietModeEnabled = newIsQuietModeEnabled
                 },
+                onVerticalDrag = onVerticalDrag,
+                onDragEnd = onDragEnd,
             )
         } else {
             EblanApplicationInfos(
@@ -981,9 +983,21 @@ private fun QuiteModeScreen(
     userManager: AndroidUserManagerWrapper,
     userHandle: UserHandle?,
     onUpdateRequestQuietModeEnabled: (Boolean) -> Unit,
+    onVerticalDrag: (Float) -> Unit,
+    onDragEnd: (Float) -> Unit,
 ) {
     Column(
         modifier = modifier
+            .pointerInput(key1 = Unit) {
+                detectVerticalDragGestures(
+                    onVerticalDrag = { _, dragAmount ->
+                        onVerticalDrag(dragAmount)
+                    },
+                    onDragEnd = {
+                        onDragEnd(0f)
+                    },
+                )
+            }
             .fillMaxSize()
             .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

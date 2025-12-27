@@ -96,7 +96,11 @@ internal fun SharedTransitionScope.FolderDragScreen(
     ) -> Unit,
     onDragEnd: () -> Unit,
     onDragCancel: () -> Unit,
-    onMoveOutsideFolder: (GridItemSource) -> Unit,
+    onMoveGridItemOutsideFolder: (
+        gridItemSource: GridItemSource,
+        folderId: String,
+        movingGridItem: GridItem,
+    ) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
     requireNotNull(gridItemSource)
@@ -133,8 +137,9 @@ internal fun SharedTransitionScope.FolderDragScreen(
             paddingValues = paddingValues,
             titleHeight = titleHeight,
             lockMovement = lockMovement,
+            folderId = folderDataById?.folderId,
             onMoveFolderGridItem = onMoveFolderGridItem,
-            onMoveOutsideFolder = onMoveOutsideFolder,
+            onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
             onUpdatePageDirection = { newPageDirection ->
                 pageDirection = newPageDirection
             },

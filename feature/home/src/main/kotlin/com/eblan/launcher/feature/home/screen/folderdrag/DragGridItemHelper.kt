@@ -47,6 +47,7 @@ internal suspend fun handleDragFolderGridItem(
     paddingValues: PaddingValues,
     titleHeight: Int,
     lockMovement: Boolean,
+    folderId: String?,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
@@ -58,9 +59,16 @@ internal suspend fun handleDragFolderGridItem(
         gridHeight: Int,
         lockMovement: Boolean,
     ) -> Unit,
-    onMoveOutsideFolder: (GridItemSource) -> Unit,
+    onMoveGridItemOutsideFolder: (
+        gridItemSource: GridItemSource,
+        folderId: String,
+        movingGridItem: GridItem,
+    ) -> Unit,
 ) {
-    if (drag != Drag.Dragging || isScrollInProgress) {
+    if (folderId == null ||
+        drag != Drag.Dragging ||
+        isScrollInProgress
+    ) {
         return
     }
 
@@ -113,7 +121,7 @@ internal suspend fun handleDragFolderGridItem(
     } else if (isOnTopGrid) {
         delay(100L)
 
-        onMoveOutsideFolder(
+        onMoveGridItemOutsideFolder(
             GridItemSource.Existing(
                 gridItem = gridItem.copy(
                     startColumn = -1,
@@ -121,6 +129,8 @@ internal suspend fun handleDragFolderGridItem(
                     folderId = null,
                 ),
             ),
+            folderId,
+            gridItem,
         )
     } else {
         delay(100L)

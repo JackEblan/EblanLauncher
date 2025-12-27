@@ -22,6 +22,9 @@ Only 2 MB Android Launcher, total control, zero bloat, zero tracking
 > [!WARNING]
 > This is an Alpha Stage Build. Expect bugs, instability, and incomplete features.
 
+> [!NOTE]
+> Formerly known as **Eblan Launcher**, it has now been renamed to **Einstein Launcher**.
+
 ## About The Project
 
 Most Android launchers are just forks of AOSP’s Launcher3. I wanted to try something

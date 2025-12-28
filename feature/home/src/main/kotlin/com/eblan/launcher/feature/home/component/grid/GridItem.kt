@@ -409,6 +409,8 @@ private fun SharedTransitionScope.FolderGridItem(
             .size(gridItemSettings.iconSize.dp)
 
         if (data.gridItems.isNotEmpty()) {
+            val maxItemsInEachRow = 3
+
             FlowRow(
                 modifier = commonModifier.background(
                     color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
@@ -416,10 +418,12 @@ private fun SharedTransitionScope.FolderGridItem(
                 ),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalArrangement = Arrangement.SpaceEvenly,
-                maxItemsInEachRow = 3,
-                maxLines = 3,
+                maxItemsInEachRow = maxItemsInEachRow,
+                maxLines = maxItemsInEachRow,
             ) {
-                data.gridItems.sortedBy { it.startRow + it.startColumn }.take(9)
+                data.gridItems
+                    .sortedWith(compareBy({ it.startRow }, { it.startColumn }))
+                    .take(maxItemsInEachRow * maxItemsInEachRow)
                     .forEach { gridItem ->
                         val gridItemModifier = Modifier
                             .sharedElementWithCallerManagedVisibility(

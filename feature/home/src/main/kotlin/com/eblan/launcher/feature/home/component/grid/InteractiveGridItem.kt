@@ -935,6 +935,8 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                 .size(gridItemSettings.iconSize.dp)
 
             if (data.gridItems.isNotEmpty()) {
+                val maxItemsInEachRow = 3
+
                 FlowRow(
                     modifier = commonModifier
                         .drawWithContent {
@@ -955,73 +957,80 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                         },
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalArrangement = Arrangement.SpaceEvenly,
-                    maxItemsInEachRow = 3,
-                    maxLines = 3,
+                    maxItemsInEachRow = maxItemsInEachRow,
+                    maxLines = maxItemsInEachRow,
                 ) {
-                    data.gridItems.sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
-                        val gridItemModifier = Modifier.size((gridItemSettings.iconSize * 0.25).dp)
+                    data.gridItems
+                        .sortedWith(compareBy({ it.startRow }, { it.startColumn }))
+                        .take(maxItemsInEachRow * maxItemsInEachRow)
+                        .forEach { gridItem ->
+                            val gridItemModifier =
+                                Modifier.size((gridItemSettings.iconSize * 0.25).dp)
 
-                        when (val currentData = gridItem.data) {
-                            is GridItemData.ApplicationInfo -> {
-                                val icon =
-                                    iconPackFilePaths[currentData.componentName] ?: currentData.icon
+                            when (val currentData = gridItem.data) {
+                                is GridItemData.ApplicationInfo -> {
+                                    val icon =
+                                        iconPackFilePaths[currentData.componentName]
+                                            ?: currentData.icon
 
-                                AsyncImage(
-                                    model = Builder(context).data(currentData.customIcon ?: icon)
-                                        .addLastModifiedToFileCacheKey(true).build(),
-                                    contentDescription = null,
-                                    modifier = gridItemModifier,
-                                )
-                            }
+                                    AsyncImage(
+                                        model = Builder(context).data(
+                                            currentData.customIcon ?: icon,
+                                        )
+                                            .addLastModifiedToFileCacheKey(true).build(),
+                                        contentDescription = null,
+                                        modifier = gridItemModifier,
+                                    )
+                                }
 
-                            is GridItemData.ShortcutInfo -> {
-                                AsyncImage(
-                                    model = currentData.icon,
-                                    contentDescription = null,
-                                    modifier = gridItemModifier,
-                                )
-                            }
-
-                            is GridItemData.Widget -> {
-                                AsyncImage(
-                                    model = currentData.preview,
-                                    contentDescription = null,
-                                    modifier = gridItemModifier,
-                                )
-                            }
-
-                            is GridItemData.Folder -> {
-                                if (currentData.icon != null) {
+                                is GridItemData.ShortcutInfo -> {
                                     AsyncImage(
                                         model = currentData.icon,
                                         contentDescription = null,
                                         modifier = gridItemModifier,
                                     )
-                                } else {
-                                    Icon(
-                                        imageVector = EblanLauncherIcons.Folder,
+                                }
+
+                                is GridItemData.Widget -> {
+                                    AsyncImage(
+                                        model = currentData.preview,
                                         contentDescription = null,
                                         modifier = gridItemModifier,
-                                        tint = textColor,
+                                    )
+                                }
+
+                                is GridItemData.Folder -> {
+                                    if (currentData.icon != null) {
+                                        AsyncImage(
+                                            model = currentData.icon,
+                                            contentDescription = null,
+                                            modifier = gridItemModifier,
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = EblanLauncherIcons.Folder,
+                                            contentDescription = null,
+                                            modifier = gridItemModifier,
+                                            tint = textColor,
+                                        )
+                                    }
+                                }
+
+                                is GridItemData.ShortcutConfig -> {
+                                    val icon = when {
+                                        currentData.shortcutIntentIcon != null -> currentData.shortcutIntentIcon
+                                        currentData.activityIcon != null -> currentData.activityIcon
+                                        else -> currentData.applicationIcon
+                                    }
+
+                                    AsyncImage(
+                                        model = currentData.customIcon ?: icon,
+                                        contentDescription = null,
+                                        modifier = gridItemModifier,
                                     )
                                 }
                             }
-
-                            is GridItemData.ShortcutConfig -> {
-                                val icon = when {
-                                    currentData.shortcutIntentIcon != null -> currentData.shortcutIntentIcon
-                                    currentData.activityIcon != null -> currentData.activityIcon
-                                    else -> currentData.applicationIcon
-                                }
-
-                                AsyncImage(
-                                    model = currentData.customIcon ?: icon,
-                                    contentDescription = null,
-                                    modifier = gridItemModifier,
-                                )
-                            }
                         }
-                    }
                 }
             } else if (data.icon != null) {
                 AsyncImage(

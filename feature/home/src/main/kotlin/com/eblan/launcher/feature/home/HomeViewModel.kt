@@ -551,9 +551,9 @@ internal class HomeViewModel @Inject constructor(
                     }
                 }
 
-                _screen.update {
-                    Screen.Folder
-                }
+//                _screen.update {
+//                    Screen.Folder
+//                }
             }
         }
     }

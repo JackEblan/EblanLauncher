@@ -844,6 +844,7 @@ private fun SharedTransitionScope.Success(
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     iconPackFilePaths = iconPackFilePaths,
                     managedProfileResult = managedProfileResult,
+                    foldersDataById = foldersDataById,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(
@@ -948,36 +949,36 @@ private fun SharedTransitionScope.Success(
             }
 
             Screen.Folder -> {
-                FolderScreen(
-                    foldersDataById = foldersDataById,
-                    drag = drag,
-                    paddingValues = paddingValues,
-                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
-                    textColor = homeData.textColor,
-                    homeSettings = homeData.userData.homeSettings,
-                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
-                    statusBarNotifications = statusBarNotifications,
-                    iconPackFilePaths = iconPackFilePaths,
-                    onUpdateScreen = onUpdateScreen,
-                    onRemoveLastFolder = onRemoveLastFolder,
-                    onAddFolder = onAddFolder,
-                    onLongPressGridItem = { newGridItemSource, imageBitmap ->
-                        gridItemSource = newGridItemSource
-
-                        onUpdateGridItemImageBitmap(imageBitmap)
-                    },
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onDraggingGridItem = { folderGridItems ->
-                        onShowFolderGridCache(
-                            folderGridItems,
-                            Screen.FolderDrag,
-                        )
-                    },
-                    onResetOverlay = onResetOverlay,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
+//                FolderScreen(
+//                    foldersDataById = foldersDataById,
+//                    drag = drag,
+//                    paddingValues = paddingValues,
+//                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+//                    screenWidth = screenWidth,
+//                    screenHeight = screenHeight,
+//                    textColor = homeData.textColor,
+//                    homeSettings = homeData.userData.homeSettings,
+//                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+//                    statusBarNotifications = statusBarNotifications,
+//                    iconPackFilePaths = iconPackFilePaths,
+//                    onUpdateScreen = onUpdateScreen,
+//                    onRemoveLastFolder = onRemoveLastFolder,
+//                    onAddFolder = onAddFolder,
+//                    onLongPressGridItem = { newGridItemSource, imageBitmap ->
+//                        gridItemSource = newGridItemSource
+//
+//                        onUpdateGridItemImageBitmap(imageBitmap)
+//                    },
+//                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+//                    onDraggingGridItem = { folderGridItems ->
+//                        onShowFolderGridCache(
+//                            folderGridItems,
+//                            Screen.FolderDrag,
+//                        )
+//                    },
+//                    onResetOverlay = onResetOverlay,
+//                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+//                )
             }
 
             Screen.FolderDrag -> {

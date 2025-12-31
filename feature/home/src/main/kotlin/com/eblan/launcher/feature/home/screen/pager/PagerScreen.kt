@@ -61,6 +61,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
+import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
@@ -108,6 +109,7 @@ internal fun SharedTransitionScope.PagerScreen(
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
+    foldersDataById: ArrayDeque<FolderDataById>,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEditGridItem: (String) -> Unit,
@@ -350,6 +352,9 @@ internal fun SharedTransitionScope.PagerScreen(
         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
         iconPackFilePaths = iconPackFilePaths,
         isPressHome = isPressHome,
+        foldersDataById = foldersDataById,
+        screenWidth = screenWidth,
+        screenHeight = screenHeight,
         onTapFolderGridItem = onTapFolderGridItem,
         onEditGridItem = onEditGridItem,
         onResize = onResize,

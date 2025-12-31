@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -55,6 +56,7 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
+import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
@@ -62,8 +64,10 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.FolderPopupType
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.screen.folder.FolderPopup
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
@@ -93,6 +97,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
+    foldersDataById: ArrayDeque<FolderDataById>,
+    screenWidth: Int,
+    screenHeight: Int,
+    folderPopupType: FolderPopupType,
     onTapFolderGridItem: (String) -> Unit,
     onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
@@ -153,6 +161,14 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     val pageIndicatorHeightPx = with(density) {
         pageIndicatorHeight.roundToPx()
     }
+
+    val folderDataById = foldersDataById.lastOrNull()
+
+    val folderGridHorizontalPagerState = rememberPagerState(
+        pageCount = {
+            folderDataById?.pageCount ?: 0
+        },
+    )
 
     LaunchedEffect(key1 = gridHorizontalPagerState) {
         handleWallpaperScroll(
@@ -274,7 +290,14 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         onTapShortcutConfig = { uri ->
                             context.startActivity(Intent.parseUri(uri, 0))
                         },
-                        onTapFolderGridItem = {
+                        onTapFolderGridItem = { intOffset ->
+                            popupIntOffset = intOffset
+
+                            popupIntSize = IntSize(
+                                width = width,
+                                height = height,
+                            )
+
                             onTapFolderGridItem(gridItem.id)
                         },
                         onUpdateGridItemOffset = { intOffset, intSize ->
@@ -390,7 +413,14 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     onTapShortcutConfig = { uri ->
                         context.startActivity(Intent.parseUri(uri, 0))
                     },
-                    onTapFolderGridItem = {
+                    onTapFolderGridItem = { intOffset ->
+                        popupIntOffset = intOffset
+
+                        popupIntSize = IntSize(
+                            width = width,
+                            height = height,
+                        )
+
                         onTapFolderGridItem(gridItem.id)
                     },
                     onUpdateGridItemOffset = { intOffset, intSize ->
@@ -498,6 +528,33 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             onDismissRequest = {
                 showSettingsPopup = false
             },
+        )
+    }
+
+    if (folderDataById != null) {
+        FolderPopup(
+            foldersDataById = foldersDataById,
+            popupIntOffset = popupIntOffset,
+            popupIntSize = popupIntSize,
+            hasShortcutHostPermission = hasShortcutHostPermission,
+            drag = drag,
+            paddingValues = paddingValues,
+            textColor = textColor,
+            homeSettings = homeSettings,
+            folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+            statusBarNotifications = statusBarNotifications,
+            iconPackFilePaths = iconPackFilePaths,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            onDismissRequest = {
+
+            },
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onDraggingGridItem = {
+
+            },
+            onUpdateSharedElementKey = onUpdateSharedElementKey
         )
     }
 }

@@ -19,7 +19,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.HomeSettings
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.FolderPopupType
@@ -44,6 +46,11 @@ internal fun SharedTransitionScope.FolderPopup(
     screenWidth: Int,
     screenHeight: Int,
     folderPopupType: FolderPopupType,
+    gridItemCache: GridItemCache,
+    gridItemSource: GridItemSource?,
+    dragIntOffset: IntOffset,
+    moveGridItemResult: MoveGridItemResult?,
+    lockMovement: Boolean,
     onDismissRequest: () -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
@@ -55,6 +62,24 @@ internal fun SharedTransitionScope.FolderPopup(
     ) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onMoveFolderGridItem: (
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        lockMovement: Boolean,
+    ) -> Unit,
+    onDragEndFolder: () -> Unit,
+    onDragCancelFolder: () -> Unit,
+    onMoveGridItemOutsideFolder: (
+        gridItemSource: GridItemSource,
+        folderId: String,
+        movingGridItem: GridItem,
+    ) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -97,6 +122,17 @@ internal fun SharedTransitionScope.FolderPopup(
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onDraggingGridItem = onDraggingGridItem,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
+                gridItemCache = gridItemCache,
+                gridItemSource = gridItemSource,
+                folderPopupType = folderPopupType,
+                dragIntOffset = dragIntOffset - popupIntOffset,
+                moveGridItemResult = moveGridItemResult,
+                lockMovement = lockMovement,
+                onMoveFolderGridItem = onMoveFolderGridItem,
+                onDragEndFolder = onDragEndFolder,
+                onDragCancelFolder = onDragCancelFolder,
+                onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
+                onResetOverlay = onResetOverlay,
             )
         },
     ) { measurables, constraints ->

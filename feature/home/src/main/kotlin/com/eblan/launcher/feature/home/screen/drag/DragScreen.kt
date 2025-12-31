@@ -113,7 +113,6 @@ internal fun SharedTransitionScope.DragScreen(
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
-    onResetOverlay: () -> Unit,
     onUpdateShortcutConfigGridItemDataCache: (
         byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
@@ -297,14 +296,10 @@ internal fun SharedTransitionScope.DragScreen(
                         ).show()
                     },
                 )
-
-                onResetOverlay()
             }
 
             Drag.Cancel -> {
                 onDragCancelAfterMove()
-
-                onResetOverlay()
             }
 
             else -> Unit

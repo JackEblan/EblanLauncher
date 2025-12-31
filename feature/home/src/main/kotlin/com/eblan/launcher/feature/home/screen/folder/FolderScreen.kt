@@ -20,6 +20,7 @@ package com.eblan.launcher.feature.home.screen.folder
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
@@ -99,8 +100,8 @@ internal fun SharedTransitionScope.FolderScreen(
         gridHeight: Int,
         lockMovement: Boolean,
     ) -> Unit,
-    onDragEnd: () -> Unit,
-    onDragCancel: () -> Unit,
+    onDragEndFolder: () -> Unit,
+    onDragCancelFolder: () -> Unit,
     onMoveGridItemOutsideFolder: (
         gridItemSource: GridItemSource,
         folderId: String,
@@ -153,72 +154,59 @@ internal fun SharedTransitionScope.FolderScreen(
 
     Surface(modifier = modifier) {
         if (folderDataById != null) {
-            when (folderPopupType) {
-                FolderPopupType.Folder -> {
-                    val totalColumns =
-                        folderDataById.gridItems.maxOfOrNull { it.startColumn + it.columnSpan }
-                            ?: 1
+            AnimatedContent(targetState = folderPopupType) { targetState ->
+                when (targetState) {
+                    FolderPopupType.Folder -> {
+                        val totalColumns =
+                            folderDataById.gridItems.maxOfOrNull { it.startColumn + it.columnSpan }
+                                ?: 1
 
-                    val totalRows =
-                        folderDataById.gridItems.maxOfOrNull { it.startRow + it.rowSpan }
-                            ?: 1
+                        val totalRows =
+                            folderDataById.gridItems.maxOfOrNull { it.startRow + it.rowSpan }
+                                ?: 1
 
-                    val folderWidth =
-                        with(density) {
-                            (cellWidth * totalColumns).toDp()
-                        }
+                        val folderWidth =
+                            with(density) {
+                                (cellWidth * totalColumns).toDp()
+                            }
 
-                    val folderHeight =
-                        with(density) {
-                            ((cellHeight * totalRows) + pageIndicatorHeightPx).toDp()
-                        }
+                        val folderHeight =
+                            with(density) {
+                                ((cellHeight * totalRows) + pageIndicatorHeightPx).toDp()
+                            }
 
-                    Column(modifier = Modifier.size(folderWidth, folderHeight)) {
-                        HorizontalPager(
-                            state = folderGridHorizontalPagerState,
-                            modifier = Modifier.fillMaxSize(),
-                        ) { index ->
-                            GridLayout(
-                                modifier = Modifier.fillMaxSize(),
-                                gridItems = folderDataById.gridItemsByPage[index],
-                                columns = totalColumns,
-                                rows = totalRows,
-                                { gridItem ->
-                                    val x = gridItem.startColumn * cellWidth
+                        Column(modifier = Modifier.size(folderWidth, folderHeight)) {
+                            HorizontalPager(
+                                state = folderGridHorizontalPagerState,
+                                modifier = Modifier.weight(1f),
+                            ) { index ->
+                                GridLayout(
+                                    modifier = Modifier.fillMaxSize(),
+                                    gridItems = folderDataById.gridItemsByPage[index],
+                                    columns = totalColumns,
+                                    rows = totalRows,
+                                    { gridItem ->
+                                        val x = gridItem.startColumn * cellWidth
 
-                                    val y = gridItem.startRow * cellHeight
+                                        val y = gridItem.startRow * cellHeight
 
-                                    val width = gridItem.columnSpan * cellWidth
+                                        val width = gridItem.columnSpan * cellWidth
 
-                                    val height = gridItem.rowSpan * cellHeight
+                                        val height = gridItem.rowSpan * cellHeight
 
-                                    InteractiveGridItemContent(
-                                        gridItem = gridItem,
-                                        hasShortcutHostPermission = hasShortcutHostPermission,
-                                        drag = drag,
-                                        gridItemSettings = homeSettings.gridItemSettings,
-                                        textColor = textColor,
-                                        statusBarNotifications = statusBarNotifications,
-                                        isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
-                                        iconPackFilePaths = iconPackFilePaths,
-                                        onTapApplicationInfo = { serialNumber, componentName ->
-                                            launcherApps.startMainActivity(
-                                                serialNumber = serialNumber,
-                                                componentName = componentName,
-                                                sourceBounds = Rect(
-                                                    x,
-                                                    y,
-                                                    x + width,
-                                                    y + height,
-                                                ),
-                                            )
-                                        },
-                                        onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                                                launcherApps.startShortcut(
+                                        InteractiveGridItemContent(
+                                            gridItem = gridItem,
+                                            hasShortcutHostPermission = hasShortcutHostPermission,
+                                            drag = drag,
+                                            gridItemSettings = homeSettings.gridItemSettings,
+                                            textColor = textColor,
+                                            statusBarNotifications = statusBarNotifications,
+                                            isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
+                                            iconPackFilePaths = iconPackFilePaths,
+                                            onTapApplicationInfo = { serialNumber, componentName ->
+                                                launcherApps.startMainActivity(
                                                     serialNumber = serialNumber,
-                                                    packageName = packageName,
-                                                    id = shortcutId,
+                                                    componentName = componentName,
                                                     sourceBounds = Rect(
                                                         x,
                                                         y,
@@ -226,63 +214,78 @@ internal fun SharedTransitionScope.FolderScreen(
                                                         y + height,
                                                     ),
                                                 )
-                                            }
-                                        },
-                                        onTapShortcutConfig = { uri ->
-                                            context.startActivity(Intent.parseUri(uri, 0))
-                                        },
-                                        onTapFolderGridItem = {
-                                        },
-                                        onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                        onUpdateImageBitmap = { imageBitmap ->
-                                            onLongPressGridItem(
-                                                GridItemSource.Existing(gridItem = gridItem),
-                                                imageBitmap,
-                                            )
-                                        },
-                                        onDraggingGridItem = {
-                                            onDraggingGridItem(foldersDataById.last().gridItems)
-                                        },
-                                        onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                    )
-                                },
+                                            },
+                                            onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
+                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                                                    launcherApps.startShortcut(
+                                                        serialNumber = serialNumber,
+                                                        packageName = packageName,
+                                                        id = shortcutId,
+                                                        sourceBounds = Rect(
+                                                            x,
+                                                            y,
+                                                            x + width,
+                                                            y + height,
+                                                        ),
+                                                    )
+                                                }
+                                            },
+                                            onTapShortcutConfig = { uri ->
+                                                context.startActivity(Intent.parseUri(uri, 0))
+                                            },
+                                            onTapFolderGridItem = {
+                                            },
+                                            onUpdateGridItemOffset = onUpdateGridItemOffset,
+                                            onUpdateImageBitmap = { imageBitmap ->
+                                                onLongPressGridItem(
+                                                    GridItemSource.Existing(gridItem = gridItem),
+                                                    imageBitmap,
+                                                )
+                                            },
+                                            onDraggingGridItem = {
+                                                onDraggingGridItem(foldersDataById.last().gridItems)
+                                            },
+                                            onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                        )
+                                    },
+                                )
+                            }
+
+                            PageIndicator(
+                                modifier = Modifier.height(pageIndicatorHeight),
+                                pageCount = folderGridHorizontalPagerState.pageCount,
+                                currentPage = folderGridHorizontalPagerState.currentPage,
+                                pageOffset = folderGridHorizontalPagerState.currentPageOffsetFraction,
+                                color = getSystemTextColor(textColor = textColor),
                             )
                         }
+                    }
 
-                        PageIndicator(
-                            modifier = Modifier.height(pageIndicatorHeight),
-                            pageCount = folderGridHorizontalPagerState.pageCount,
-                            currentPage = folderGridHorizontalPagerState.currentPage,
-                            pageOffset = folderGridHorizontalPagerState.currentPageOffsetFraction,
-                            color = getSystemTextColor(textColor = textColor),
+                    FolderPopupType.Drag -> {
+                        FolderDragScreen(
+                            gridItemCache = gridItemCache,
+                            folderDataById = folderDataById,
+                            gridItemSource = gridItemSource,
+                            textColor = textColor,
+                            drag = drag,
+                            dragIntOffset = dragIntOffset,
+                            screenWidth = screenWidth,
+                            screenHeight = screenHeight,
+                            paddingValues = paddingValues,
+                            homeSettings = homeSettings,
+                            moveGridItemResult = moveGridItemResult,
+                            folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+                            statusBarNotifications = statusBarNotifications,
+                            hasShortcutHostPermission = hasShortcutHostPermission,
+                            iconPackFilePaths = iconPackFilePaths,
+                            lockMovement = lockMovement,
+                            onMoveFolderGridItem = onMoveFolderGridItem,
+                            onDragEndFolder = onDragEndFolder,
+                            onDragCancelFolder = onDragCancelFolder,
+                            onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
+                            onResetOverlay = onResetOverlay,
                         )
                     }
-                }
-
-                FolderPopupType.Drag -> {
-                    FolderDragScreen(
-                        gridItemCache = gridItemCache,
-                        foldersDataById = foldersDataById,
-                        gridItemSource = gridItemSource,
-                        textColor = textColor,
-                        drag = drag,
-                        dragIntOffset = dragIntOffset,
-                        screenWidth = screenWidth,
-                        screenHeight = screenHeight,
-                        paddingValues = paddingValues,
-                        homeSettings = homeSettings,
-                        moveGridItemResult = moveGridItemResult,
-                        folderGridHorizontalPagerState = folderGridHorizontalPagerState,
-                        statusBarNotifications = statusBarNotifications,
-                        hasShortcutHostPermission = hasShortcutHostPermission,
-                        iconPackFilePaths = iconPackFilePaths,
-                        lockMovement = lockMovement,
-                        onMoveFolderGridItem = onMoveFolderGridItem,
-                        onDragEnd = onDragEnd,
-                        onDragCancel = onDragCancel,
-                        onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
-                        onResetOverlay = onResetOverlay,
-                    )
                 }
             }
         }

@@ -29,11 +29,11 @@ internal fun handleDropFolderGridItem(
     screenHeight: Int,
     pageIndicatorHeight: Int,
     paddingValues: PaddingValues,
-    onDragEnd: () -> Unit,
-    onDragCancel: () -> Unit,
+    onDragEndFolder: () -> Unit,
+    onDragCancelFolder: () -> Unit,
 ) {
     if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
-        onDragCancel()
+        onDragCancelFolder()
 
         return
     }
@@ -59,8 +59,8 @@ internal fun handleDropFolderGridItem(
     val isVerticalBounds = !isOnTopGrid && !isOnBottomGrid
 
     if (isVerticalBounds) {
-        onDragEnd()
+        onDragEndFolder()
     } else {
-        onDragCancel()
+        onDragCancelFolder()
     }
 }

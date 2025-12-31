@@ -22,27 +22,21 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -68,7 +62,7 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 @Composable
 internal fun SharedTransitionScope.FolderDragScreen(
     modifier: Modifier = Modifier,
-    foldersDataById: ArrayDeque<FolderDataById>,
+    folderDataById: FolderDataById,
     gridItemCache: GridItemCache,
     gridItemSource: GridItemSource?,
     textColor: TextColor,
@@ -94,8 +88,8 @@ internal fun SharedTransitionScope.FolderDragScreen(
         gridHeight: Int,
         lockMovement: Boolean,
     ) -> Unit,
-    onDragEnd: () -> Unit,
-    onDragCancel: () -> Unit,
+    onDragEndFolder: () -> Unit,
+    onDragCancelFolder: () -> Unit,
     onMoveGridItemOutsideFolder: (
         gridItemSource: GridItemSource,
         folderId: String,
@@ -117,9 +111,62 @@ internal fun SharedTransitionScope.FolderDragScreen(
         pageIndicatorHeight.roundToPx()
     }
 
-    var titleHeight by remember { mutableIntStateOf(0) }
+    val leftPadding = with(density) {
+        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
+    }
 
-    val folderDataById = foldersDataById.lastOrNull()
+    val rightPadding = with(density) {
+        paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
+    val bottomPadding = with(density) {
+        paddingValues.calculateBottomPadding().roundToPx()
+    }
+
+    val horizontalPadding = leftPadding + rightPadding
+
+    val verticalPadding = topPadding + bottomPadding
+
+    val gridWidth = screenWidth - horizontalPadding
+
+    val gridHeight = screenHeight - verticalPadding
+
+    val cellWidth = gridWidth / homeSettings.folderColumns
+
+    val cellHeight =
+        (gridHeight - pageIndicatorHeightPx) / homeSettings.folderRows
+
+    val totalColumns =
+        folderDataById.gridItems.maxOfOrNull { it.startColumn + it.columnSpan }
+            ?: 1
+
+    val totalRows =
+        folderDataById.gridItems.maxOfOrNull { it.startRow + it.rowSpan }
+            ?: 1
+
+    val folderWidth =
+        with(density) {
+            (cellWidth * totalColumns).toDp()
+        }
+
+    val folderHeight =
+        with(density) {
+            ((cellHeight * totalRows) + pageIndicatorHeightPx).toDp()
+        }
+
+    val folderWidthPx =
+        with(density) {
+            folderWidth.roundToPx()
+        }
+
+    val folderHeightPx =
+        with(density) {
+            folderHeight.roundToPx()
+        }
 
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleDragFolderGridItem(
@@ -128,16 +175,15 @@ internal fun SharedTransitionScope.FolderDragScreen(
             drag = drag,
             gridItem = gridItemSource.gridItem,
             dragIntOffset = dragIntOffset,
-            screenHeight = screenHeight,
-            screenWidth = screenWidth,
+            folderHeight = folderWidthPx,
+            folderWidth = folderHeightPx,
             pageIndicatorHeight = pageIndicatorHeightPx,
-            columns = homeSettings.folderColumns,
-            rows = homeSettings.folderRows,
+            columns = totalColumns,
+            rows = totalRows,
             isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
             paddingValues = paddingValues,
-            titleHeight = titleHeight,
             lockMovement = lockMovement,
-            folderId = folderDataById?.folderId,
+            folderId = folderDataById.folderId,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
             onUpdatePageDirection = { newPageDirection ->
@@ -165,18 +211,18 @@ internal fun SharedTransitionScope.FolderDragScreen(
                     moveGridItemResult = moveGridItemResult,
                     density = density,
                     dragIntOffset = dragIntOffset,
-                    screenHeight = screenHeight,
+                    screenHeight = folderHeightPx,
                     pageIndicatorHeight = pageIndicatorHeightPx,
                     paddingValues = paddingValues,
-                    onDragEnd = onDragEnd,
-                    onDragCancel = {
+                    onDragEndFolder = onDragEndFolder,
+                    onDragCancelFolder = {
                         Toast.makeText(
                             context,
                             "Layout was canceled due to an invalid position",
                             Toast.LENGTH_LONG,
                         ).show()
 
-                        onDragCancel()
+                        onDragCancelFolder()
                     },
                 )
 
@@ -187,48 +233,17 @@ internal fun SharedTransitionScope.FolderDragScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(
-                top = paddingValues.calculateTopPadding(),
-                bottom = paddingValues.calculateBottomPadding(),
-            ),
-    ) {
-        Column(
-            modifier = Modifier
-                .onSizeChanged {
-                    titleHeight = it.height
-                }
-                .fillMaxWidth()
-                .padding(5.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = folderDataById?.label.toString(),
-                color = getSystemTextColor(textColor = textColor),
-                style = MaterialTheme.typography.headlineLarge,
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-        }
-
+    Column(modifier = Modifier.size(folderWidth, folderHeight)) {
         HorizontalPager(
             state = folderGridHorizontalPagerState,
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(
-                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-            ),
             userScrollEnabled = false,
         ) { index ->
             GridLayout(
                 modifier = modifier.fillMaxSize(),
                 gridItems = gridItemCache.folderGridItemsCacheByPage[index],
-                columns = homeSettings.folderColumns,
-                rows = homeSettings.folderRows,
+                columns = totalColumns,
+                rows = totalRows,
                 content = { gridItem ->
                     val gridItemSettings = if (gridItem.override) {
                         gridItem.gridItemSettings
@@ -246,10 +261,10 @@ internal fun SharedTransitionScope.FolderDragScreen(
                     }
 
                     val isDragging = (
-                        drag == Drag.Start ||
-                            drag == Drag.Dragging
-                        ) &&
-                        gridItem.id == gridItemSource.gridItem.id
+                            drag == Drag.Start ||
+                                    drag == Drag.Dragging
+                            ) &&
+                            gridItem.id == gridItemSource.gridItem.id
 
                     GridItemContent(
                         gridItem = gridItem,

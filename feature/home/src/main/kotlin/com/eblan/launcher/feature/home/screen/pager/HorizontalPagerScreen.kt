@@ -58,7 +58,9 @@ import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.HomeSettings
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
@@ -101,6 +103,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     screenWidth: Int,
     screenHeight: Int,
     folderPopupType: FolderPopupType,
+    gridItemCache: GridItemCache,
+    dragIntOffset: IntOffset,
+    moveGridItemResult: MoveGridItemResult?,
+    lockMovement: Boolean,
     onTapFolderGridItem: (String) -> Unit,
     onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
@@ -118,9 +124,28 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         intSize: IntSize,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onDraggingFolderGridItem: (List<GridItem>) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
+    onMoveFolderGridItem: (
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        lockMovement: Boolean,
+    ) -> Unit,
+    onDragEndFolder: () -> Unit,
+    onDragCancelFolder: () -> Unit,
+    onMoveGridItemOutsideFolder: (
+        gridItemSource: GridItemSource,
+        folderId: String,
+        movingGridItem: GridItem,
+    ) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -546,15 +571,24 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             iconPackFilePaths = iconPackFilePaths,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
+            folderPopupType = folderPopupType,
+            gridItemCache = gridItemCache,
+            gridItemSource = gridItemSource,
+            dragIntOffset = dragIntOffset,
+            moveGridItemResult = moveGridItemResult,
+            lockMovement = lockMovement,
             onDismissRequest = {
 
             },
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onDraggingGridItem = {
-
-            },
-            onUpdateSharedElementKey = onUpdateSharedElementKey
+            onDraggingGridItem = onDraggingFolderGridItem,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
+            onMoveFolderGridItem = onMoveFolderGridItem,
+            onDragEndFolder = onDragEndFolder,
+            onDragCancelFolder = onDragCancelFolder,
+            onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
+            onResetOverlay = onResetOverlay
         )
     }
 }

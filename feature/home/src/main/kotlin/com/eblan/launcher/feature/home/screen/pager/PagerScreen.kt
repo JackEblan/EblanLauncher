@@ -65,11 +65,14 @@ import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.ManagedProfileResult
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
+import com.eblan.launcher.feature.home.model.FolderPopupType
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
@@ -110,8 +113,14 @@ internal fun SharedTransitionScope.PagerScreen(
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
     foldersDataById: ArrayDeque<FolderDataById>,
+    folderPopupType: FolderPopupType,
+    gridItemCache: GridItemCache,
+    dragIntOffset: IntOffset,
+    moveGridItemResult: MoveGridItemResult?,
+    lockMovement: Boolean,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onDraggingFolderGridItem: (List<GridItem>) -> Unit,
     onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
     onSettings: () -> Unit,
@@ -134,6 +143,23 @@ internal fun SharedTransitionScope.PagerScreen(
         packageName: String,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onMoveFolderGridItem: (
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        lockMovement: Boolean,
+    ) -> Unit,
+    onDragEndFolder: () -> Unit,
+    onDragCancelFolder: () -> Unit,
+    onMoveGridItemOutsideFolder: (
+        gridItemSource: GridItemSource,
+        folderId: String,
+        movingGridItem: GridItem,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -355,6 +381,11 @@ internal fun SharedTransitionScope.PagerScreen(
         foldersDataById = foldersDataById,
         screenWidth = screenWidth,
         screenHeight = screenHeight,
+        folderPopupType = folderPopupType,
+        gridItemCache = gridItemCache,
+        dragIntOffset = dragIntOffset,
+        moveGridItemResult = moveGridItemResult,
+        lockMovement = lockMovement,
         onTapFolderGridItem = onTapFolderGridItem,
         onEditGridItem = onEditGridItem,
         onResize = onResize,
@@ -372,11 +403,17 @@ internal fun SharedTransitionScope.PagerScreen(
         onLongPressGridItem = onLongPressGridItem,
         onUpdateGridItemOffset = onUpdateGridItemOffset,
         onDraggingGridItem = onDraggingGridItem,
+        onDraggingFolderGridItem = onDraggingFolderGridItem,
         onDeleteGridItem = onDeleteGridItem,
         onUpdateSharedElementKey = onUpdateSharedElementKey,
         onUpdateEblanApplicationInfoGroup = { newEblanApplicationInfoGroup ->
             eblanApplicationInfoGroup = newEblanApplicationInfoGroup
         },
+        onMoveFolderGridItem = onMoveFolderGridItem,
+        onDragEndFolder = onDragEndFolder,
+        onDragCancelFolder = onDragCancelFolder,
+        onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
+        onResetOverlay = onResetOverlay,
     )
 
     if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {

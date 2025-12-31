@@ -38,14 +38,13 @@ internal suspend fun handleDragFolderGridItem(
     drag: Drag,
     gridItem: GridItem,
     dragIntOffset: IntOffset,
-    screenHeight: Int,
-    screenWidth: Int,
+    folderHeight: Int,
+    folderWidth: Int,
     pageIndicatorHeight: Int,
     columns: Int,
     rows: Int,
     isScrollInProgress: Boolean,
     paddingValues: PaddingValues,
-    titleHeight: Int,
     lockMovement: Boolean,
     folderId: String?,
     onUpdatePageDirection: (PageDirection) -> Unit,
@@ -96,19 +95,19 @@ internal suspend fun handleDragFolderGridItem(
 
     val verticalPadding = topPadding + bottomPadding
 
-    val gridWidth = screenWidth - horizontalPadding
+    val gridWidth = folderWidth - horizontalPadding
 
-    val gridHeight = screenHeight - verticalPadding - pageIndicatorHeight - titleHeight
+    val gridHeight = folderHeight - verticalPadding - pageIndicatorHeight
 
     val dragX = dragIntOffset.x - leftPadding
 
-    val dragY = dragIntOffset.y - topPadding - titleHeight
+    val dragY = dragIntOffset.y - topPadding
 
     val isOnLeftGrid = dragIntOffset.x - edgeDistance < 0
 
     val isOnRightGrid = dragIntOffset.x + edgeDistance > gridWidth
 
-    val isOnTopGrid = dragIntOffset.y < topPadding + titleHeight
+    val isOnTopGrid = dragIntOffset.y < topPadding
 
     if (isOnLeftGrid && !isOnTopGrid) {
         delay(1000L)

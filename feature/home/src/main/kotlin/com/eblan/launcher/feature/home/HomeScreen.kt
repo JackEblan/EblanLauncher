@@ -91,14 +91,13 @@ import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
+import com.eblan.launcher.feature.home.model.FolderPopupType
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
-import com.eblan.launcher.feature.home.screen.folder.FolderScreen
-import com.eblan.launcher.feature.home.screen.folderdrag.FolderDragScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
@@ -157,6 +156,8 @@ internal fun HomeRoute(
 
     val iconPackFilePaths by viewModel.iconPackFilePaths.collectAsStateWithLifecycle()
 
+    val folderPopupType by viewModel.folderPopupType.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -173,6 +174,7 @@ internal fun HomeRoute(
         eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
         iconPackFilePaths = iconPackFilePaths,
+        folderPopupType = folderPopupType,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -225,6 +227,7 @@ internal fun HomeScreen(
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
+    folderPopupType: FolderPopupType,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -257,7 +260,7 @@ internal fun HomeScreen(
     ) -> Unit,
     onShowFolderGridCache: (
         gridItems: List<GridItem>,
-        screen: Screen,
+        folderPopupType: FolderPopupType,
     ) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
@@ -481,7 +484,7 @@ internal fun HomeScreen(
                         homeData = homeUiState.homeData,
                         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                         pageItems = pageItems,
-                        movedGridItemResult = movedGridItemResult,
+                        moveGridItemResult = movedGridItemResult,
                         screenWidth = this@BoxWithConstraints.constraints.maxWidth,
                         screenHeight = this@BoxWithConstraints.constraints.maxHeight,
                         paddingValues = paddingValues,
@@ -497,6 +500,7 @@ internal fun HomeScreen(
                         eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
                         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                         iconPackFilePaths = iconPackFilePaths,
+                        folderPopupType = folderPopupType,
                         onMoveGridItem = onMoveGridItem,
                         onMoveFolderGridItem = onMoveFolderGridItem,
                         onResizeGridItem = onResizeGridItem,
@@ -569,7 +573,7 @@ private fun SharedTransitionScope.Success(
     homeData: HomeData,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     pageItems: List<PageItem>,
-    movedGridItemResult: MoveGridItemResult?,
+    moveGridItemResult: MoveGridItemResult?,
     screenWidth: Int,
     screenHeight: Int,
     paddingValues: PaddingValues,
@@ -585,6 +589,7 @@ private fun SharedTransitionScope.Success(
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
+    folderPopupType: FolderPopupType,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -617,7 +622,7 @@ private fun SharedTransitionScope.Success(
     ) -> Unit,
     onShowFolderGridCache: (
         gridItems: List<GridItem>,
-        screen: Screen,
+        folderPopupType: FolderPopupType,
     ) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
@@ -845,11 +850,22 @@ private fun SharedTransitionScope.Success(
                     iconPackFilePaths = iconPackFilePaths,
                     managedProfileResult = managedProfileResult,
                     foldersDataById = foldersDataById,
+                    folderPopupType = folderPopupType,
+                    gridItemCache = gridItemCache,
+                    dragIntOffset = dragIntOffset,
+                    moveGridItemResult = moveGridItemResult,
+                    lockMovement = homeData.userData.experimentalSettings.lockMovement,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(
                             homeData.gridItems,
                             Screen.Drag,
+                        )
+                    },
+                    onDraggingFolderGridItem = { gridItems ->
+                        onShowFolderGridCache(
+                            gridItems,
+                            FolderPopupType.Drag,
                         )
                     },
                     onEditGridItem = onEditGridItem,
@@ -874,6 +890,19 @@ private fun SharedTransitionScope.Success(
                     onResetOverlay = onResetOverlay,
                     onEditApplicationInfo = onEditApplicationInfo,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onMoveFolderGridItem = onMoveFolderGridItem,
+                    onDragEndFolder = onResetGridCacheAfterMoveFolder,
+                    onDragCancelFolder = onCancelFolderDragGridCache,
+                    onMoveGridItemOutsideFolder = { newGridItemSource, folderId, movingGridItem ->
+                        gridItemSource = newGridItemSource
+
+                        onMoveGridItemOutsideFolder(
+                            folderId,
+                            movingGridItem,
+                            homeData.gridItems,
+                            Screen.Drag,
+                        )
+                    },
                 )
             }
 
@@ -888,7 +917,7 @@ private fun SharedTransitionScope.Success(
                     paddingValues = paddingValues,
                     dockGridItemsCache = gridItemCache.dockGridItemsCache,
                     textColor = homeData.textColor,
-                    moveGridItemResult = movedGridItemResult,
+                    moveGridItemResult = moveGridItemResult,
                     homeSettings = homeData.userData.homeSettings,
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     currentPage = currentPage,
@@ -902,7 +931,6 @@ private fun SharedTransitionScope.Success(
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-                    onResetOverlay = {},
                     onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
                     onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                 )
@@ -923,7 +951,7 @@ private fun SharedTransitionScope.Success(
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
                     lockMovement = homeData.userData.experimentalSettings.lockMovement,
-                    moveGridItemResult = movedGridItemResult,
+                    moveGridItemResult = moveGridItemResult,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResetGridCacheAfterResize,
                     onResizeCancel = onCancelGridCache,
@@ -982,38 +1010,38 @@ private fun SharedTransitionScope.Success(
             }
 
             Screen.FolderDrag -> {
-                FolderDragScreen(
-                    gridItemCache = gridItemCache,
-                    foldersDataById = foldersDataById,
-                    gridItemSource = gridItemSource,
-                    textColor = homeData.textColor,
-                    drag = drag,
-                    dragIntOffset = dragIntOffset,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
-                    paddingValues = paddingValues,
-                    homeSettings = homeData.userData.homeSettings,
-                    moveGridItemResult = movedGridItemResult,
-                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
-                    statusBarNotifications = statusBarNotifications,
-                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
-                    iconPackFilePaths = iconPackFilePaths,
-                    lockMovement = homeData.userData.experimentalSettings.lockMovement,
-                    onMoveFolderGridItem = onMoveFolderGridItem,
-                    onDragEnd = onResetGridCacheAfterMoveFolder,
-                    onDragCancel = onCancelFolderDragGridCache,
-                    onMoveGridItemOutsideFolder = { newGridItemSource, folderId, movingGridItem ->
-                        gridItemSource = newGridItemSource
-
-                        onMoveGridItemOutsideFolder(
-                            folderId,
-                            movingGridItem,
-                            homeData.gridItems,
-                            Screen.Drag,
-                        )
-                    },
-                    onResetOverlay = onResetOverlay,
-                )
+//                FolderDragScreen(
+//                    gridItemCache = gridItemCache,
+//                    foldersDataById = foldersDataById,
+//                    gridItemSource = gridItemSource,
+//                    textColor = homeData.textColor,
+//                    drag = drag,
+//                    dragIntOffset = dragIntOffset,
+//                    screenWidth = screenWidth,
+//                    screenHeight = screenHeight,
+//                    paddingValues = paddingValues,
+//                    homeSettings = homeData.userData.homeSettings,
+//                    moveGridItemResult = moveGridItemResult,
+//                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+//                    statusBarNotifications = statusBarNotifications,
+//                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+//                    iconPackFilePaths = iconPackFilePaths,
+//                    lockMovement = homeData.userData.experimentalSettings.lockMovement,
+//                    onMoveFolderGridItem = onMoveFolderGridItem,
+//                    onDragEnd = onResetGridCacheAfterMoveFolder,
+//                    onDragCancel = onCancelFolderDragGridCache,
+//                    onMoveGridItemOutsideFolder = { newGridItemSource, folderId, movingGridItem ->
+//                        gridItemSource = newGridItemSource
+//
+//                        onMoveGridItemOutsideFolder(
+//                            folderId,
+//                            movingGridItem,
+//                            homeData.gridItems,
+//                            Screen.Drag,
+//                        )
+//                    },
+//                    onResetOverlay = onResetOverlay,
+//                )
             }
         }
     }

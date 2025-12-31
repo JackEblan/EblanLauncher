@@ -37,11 +37,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
@@ -105,12 +108,6 @@ internal fun SharedTransitionScope.FolderDragScreen(
 
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
-    val pageIndicatorHeight = 30.dp
-
-    val pageIndicatorHeightPx = with(density) {
-        pageIndicatorHeight.roundToPx()
-    }
-
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
@@ -137,8 +134,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
 
     val cellWidth = gridWidth / homeSettings.folderColumns
 
-    val cellHeight =
-        (gridHeight - pageIndicatorHeightPx) / homeSettings.folderRows
+    val cellHeight = gridHeight / homeSettings.folderRows
 
     val totalColumns =
         folderDataById.gridItems.maxOfOrNull { it.startColumn + it.columnSpan }
@@ -148,25 +144,23 @@ internal fun SharedTransitionScope.FolderDragScreen(
         folderDataById.gridItems.maxOfOrNull { it.startRow + it.rowSpan }
             ?: 1
 
-    val folderWidth =
-        with(density) {
+    val folderWidth = with(density) {
             (cellWidth * totalColumns).toDp()
         }
 
-    val folderHeight =
-        with(density) {
-            ((cellHeight * totalRows) + pageIndicatorHeightPx).toDp()
-        }
+    val folderHeight = with(density) {
+        ((cellHeight * totalRows)).toDp()
+    }
 
-    val folderWidthPx =
-        with(density) {
-            folderWidth.roundToPx()
-        }
+    val folderWidthPx = with(density) {
+        folderWidth.roundToPx()
+    }
 
-    val folderHeightPx =
-        with(density) {
-            folderHeight.roundToPx()
-        }
+    val folderHeightPx = with(density) {
+        folderHeight.roundToPx()
+    }
+
+    var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleDragFolderGridItem(
@@ -175,9 +169,9 @@ internal fun SharedTransitionScope.FolderDragScreen(
             drag = drag,
             gridItem = gridItemSource.gridItem,
             dragIntOffset = dragIntOffset,
+            folderIntOffset = intOffset,
             folderHeight = folderWidthPx,
             folderWidth = folderHeightPx,
-            pageIndicatorHeight = pageIndicatorHeightPx,
             columns = totalColumns,
             rows = totalRows,
             isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
@@ -212,7 +206,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
                     density = density,
                     dragIntOffset = dragIntOffset,
                     screenHeight = folderHeightPx,
-                    pageIndicatorHeight = pageIndicatorHeightPx,
+                    pageIndicatorHeight = 0,
                     paddingValues = paddingValues,
                     onDragEndFolder = onDragEndFolder,
                     onDragCancelFolder = {
@@ -233,14 +227,18 @@ internal fun SharedTransitionScope.FolderDragScreen(
         }
     }
 
-    Column(modifier = Modifier.size(folderWidth, folderHeight)) {
+    Column(
+        modifier = Modifier
+            .size(folderWidth, folderHeight)
+            .onGloballyPositioned { layoutCoordinates ->
+                intOffset = layoutCoordinates.positionInRoot().round()
+            }) {
         HorizontalPager(
             state = folderGridHorizontalPagerState,
-            modifier = Modifier.weight(1f),
             userScrollEnabled = false,
         ) { index ->
             GridLayout(
-                modifier = modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 gridItems = gridItemCache.folderGridItemsCacheByPage[index],
                 columns = totalColumns,
                 rows = totalRows,
@@ -278,15 +276,5 @@ internal fun SharedTransitionScope.FolderDragScreen(
                 },
             )
         }
-
-        PageIndicator(
-            modifier = Modifier
-                .height(pageIndicatorHeight)
-                .fillMaxWidth(),
-            pageCount = folderGridHorizontalPagerState.pageCount,
-            currentPage = folderGridHorizontalPagerState.currentPage,
-            pageOffset = folderGridHorizontalPagerState.currentPageOffsetFraction,
-            color = getSystemTextColor(textColor = textColor),
-        )
     }
 }

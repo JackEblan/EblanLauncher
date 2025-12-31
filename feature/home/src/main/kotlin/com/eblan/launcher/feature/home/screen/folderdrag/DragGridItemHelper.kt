@@ -38,9 +38,9 @@ internal suspend fun handleDragFolderGridItem(
     drag: Drag,
     gridItem: GridItem,
     dragIntOffset: IntOffset,
+    folderIntOffset: IntOffset,
     folderHeight: Int,
     folderWidth: Int,
-    pageIndicatorHeight: Int,
     columns: Int,
     rows: Int,
     isScrollInProgress: Boolean,
@@ -75,93 +75,47 @@ internal suspend fun handleDragFolderGridItem(
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
 
-    val rightPadding = with(density) {
-        paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
-    }
-
     val topPadding = with(density) {
         paddingValues.calculateTopPadding().roundToPx()
     }
 
-    val bottomPadding = with(density) {
-        paddingValues.calculateBottomPadding().roundToPx()
-    }
+    val dragX = (dragIntOffset.x - folderIntOffset.x) - leftPadding
 
-    val edgeDistance = with(density) {
-        30.dp.roundToPx()
-    }
+    val dragY = (dragIntOffset.y - folderIntOffset.y) - topPadding
 
-    val horizontalPadding = leftPadding + rightPadding
+    val isOnLeftGrid = dragX < 0
 
-    val verticalPadding = topPadding + bottomPadding
+    val isOnRightGrid = dragX > folderWidth
 
-    val gridWidth = folderWidth - horizontalPadding
+    delay(100L)
 
-    val gridHeight = folderHeight - verticalPadding - pageIndicatorHeight
+    val cellWidth = folderWidth / columns
 
-    val dragX = dragIntOffset.x - leftPadding
+    val cellHeight = folderHeight / rows
 
-    val dragY = dragIntOffset.y - topPadding
+    val newGridItem = gridItem.copy(
+        page = currentPage,
+        startColumn = dragX / cellWidth,
+        startRow = dragY / cellHeight,
+        associate = Associate.Grid,
+    )
 
-    val isOnLeftGrid = dragIntOffset.x - edgeDistance < 0
+    val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
+        gridItem = newGridItem,
+        columns = columns,
+        rows = rows,
+    )
 
-    val isOnRightGrid = dragIntOffset.x + edgeDistance > gridWidth
-
-    val isOnTopGrid = dragIntOffset.y < topPadding
-
-    if (isOnLeftGrid && !isOnTopGrid) {
-        delay(1000L)
-
-        onUpdatePageDirection(PageDirection.Left)
-    } else if (isOnRightGrid && !isOnTopGrid) {
-        delay(1000L)
-
-        onUpdatePageDirection(PageDirection.Right)
-    } else if (isOnTopGrid) {
-        delay(100L)
-
-        onMoveGridItemOutsideFolder(
-            GridItemSource.Existing(
-                gridItem = gridItem.copy(
-                    startColumn = -1,
-                    startRow = -1,
-                    folderId = null,
-                ),
-            ),
-            folderId,
-            gridItem,
+    if (isGridItemSpanWithinBounds) {
+        onMoveFolderGridItem(
+            newGridItem,
+            dragX,
+            dragY,
+            columns,
+            rows,
+            folderWidth,
+            folderHeight,
+            lockMovement,
         )
-    } else {
-        delay(100L)
-
-        val cellWidth = gridWidth / columns
-
-        val cellHeight = gridHeight / rows
-
-        val newGridItem = gridItem.copy(
-            page = currentPage,
-            startColumn = dragX / cellWidth,
-            startRow = dragY / cellHeight,
-            associate = Associate.Grid,
-        )
-
-        val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
-            gridItem = newGridItem,
-            columns = columns,
-            rows = rows,
-        )
-
-        if (isGridItemSpanWithinBounds) {
-            onMoveFolderGridItem(
-                newGridItem,
-                dragX,
-                dragY,
-                columns,
-                rows,
-                gridWidth,
-                gridHeight,
-                lockMovement,
-            )
-        }
     }
 }

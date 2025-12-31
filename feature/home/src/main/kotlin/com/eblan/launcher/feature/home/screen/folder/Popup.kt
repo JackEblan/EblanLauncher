@@ -125,7 +125,7 @@ internal fun SharedTransitionScope.FolderPopup(
                 gridItemCache = gridItemCache,
                 gridItemSource = gridItemSource,
                 folderPopupType = folderPopupType,
-                dragIntOffset = dragIntOffset - popupIntOffset,
+                dragIntOffset = dragIntOffset,
                 moveGridItemResult = moveGridItemResult,
                 lockMovement = lockMovement,
                 onMoveFolderGridItem = onMoveFolderGridItem,

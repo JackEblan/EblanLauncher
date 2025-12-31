@@ -901,7 +901,6 @@ private fun SharedTransitionScope.Success(
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-                    onResetOverlay = {},
                     onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
                     onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                 )

@@ -166,7 +166,7 @@ internal fun handleLifecycleEvent(
         override fun onServiceDisconnected(name: ComponentName) {
             listener = null
 
-            isSyncDataServiceBound = true
+            isSyncDataServiceBound = false
         }
     }
 

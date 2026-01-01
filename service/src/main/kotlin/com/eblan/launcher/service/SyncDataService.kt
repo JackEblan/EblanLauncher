@@ -94,6 +94,12 @@ class SyncDataService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        syncDataJob?.cancel()
+
+        syncDataJob = serviceScope.launch {
+            syncDataUseCase()
+        }
+
         registerReceiver(
             managedProfileBroadcastReceiver,
             IntentFilter().apply {
@@ -104,12 +110,6 @@ class SyncDataService : Service() {
                 addAction(Intent.ACTION_MANAGED_PROFILE_UNLOCKED)
             },
         )
-
-        syncDataJob?.cancel()
-
-        syncDataJob = serviceScope.launch {
-            syncDataUseCase()
-        }
 
         return super.onStartCommand(intent, flags, startId)
     }

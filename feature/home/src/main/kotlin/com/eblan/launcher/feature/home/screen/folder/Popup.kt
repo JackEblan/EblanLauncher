@@ -126,6 +126,7 @@ internal fun SharedTransitionScope.FolderPopup(
                 gridItemSource = gridItemSource,
                 folderPopupType = folderPopupType,
                 dragIntOffset = dragIntOffset,
+                popupIntOffset = popupIntOffset,
                 moveGridItemResult = moveGridItemResult,
                 lockMovement = lockMovement,
                 onMoveFolderGridItem = onMoveFolderGridItem,
@@ -148,10 +149,7 @@ internal fun SharedTransitionScope.FolderPopup(
         val childX = (parentCenterX - placeable.width / 2)
             .coerceIn(0, constraints.maxWidth - placeable.width)
 
-        val topY = y - placeable.height
-        val bottomY = y + popupIntSize.height
-
-        val childY = if (topY < 0) bottomY else topY
+        val childY = y.coerceIn(0, constraints.maxHeight - placeable.height)
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             placeable.place(

@@ -71,6 +71,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
     textColor: TextColor,
     drag: Drag,
     dragIntOffset: IntOffset,
+    popupIntOffset: IntOffset,
     screenWidth: Int,
     screenHeight: Int,
     paddingValues: PaddingValues,
@@ -128,6 +129,12 @@ internal fun SharedTransitionScope.FolderDragScreen(
 
     val verticalPadding = topPadding + bottomPadding
 
+    val pageIndicatorHeight = 30.dp
+
+    val pageIndicatorHeightPx = with(density) {
+        pageIndicatorHeight.roundToPx()
+    }
+
     val gridWidth = screenWidth - horizontalPadding
 
     val gridHeight = screenHeight - verticalPadding
@@ -145,11 +152,11 @@ internal fun SharedTransitionScope.FolderDragScreen(
             ?: 1
 
     val folderWidth = with(density) {
-            (cellWidth * totalColumns).toDp()
-        }
+        (cellWidth * totalColumns).toDp()
+    }
 
     val folderHeight = with(density) {
-        ((cellHeight * totalRows)).toDp()
+        (cellHeight * totalRows).toDp() + pageIndicatorHeight
     }
 
     val folderWidthPx = with(density) {
@@ -168,21 +175,20 @@ internal fun SharedTransitionScope.FolderDragScreen(
             currentPage = folderGridHorizontalPagerState.currentPage,
             drag = drag,
             gridItem = gridItemSource.gridItem,
-            dragIntOffset = dragIntOffset,
-            folderIntOffset = intOffset,
-            folderHeight = folderWidthPx,
-            folderWidth = folderHeightPx,
+            dragIntOffset = dragIntOffset - intOffset,
+            folderGridWidth = folderWidthPx,
+            folderGridHeight = folderHeightPx - pageIndicatorHeightPx,
             columns = totalColumns,
             rows = totalRows,
             isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
             paddingValues = paddingValues,
             lockMovement = lockMovement,
             folderId = folderDataById.folderId,
-            onMoveFolderGridItem = onMoveFolderGridItem,
-            onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
             onUpdatePageDirection = { newPageDirection ->
                 pageDirection = newPageDirection
             },
+            onMoveFolderGridItem = onMoveFolderGridItem,
+            onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
         )
     }
 
@@ -205,7 +211,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
                     moveGridItemResult = moveGridItemResult,
                     density = density,
                     dragIntOffset = dragIntOffset,
-                    screenHeight = folderHeightPx,
+                    folderHeight = folderHeightPx,
                     pageIndicatorHeight = 0,
                     paddingValues = paddingValues,
                     onDragEndFolder = onDragEndFolder,
@@ -228,13 +234,15 @@ internal fun SharedTransitionScope.FolderDragScreen(
     }
 
     Column(
-        modifier = Modifier
-            .size(folderWidth, folderHeight)
+        modifier = modifier
             .onGloballyPositioned { layoutCoordinates ->
                 intOffset = layoutCoordinates.positionInRoot().round()
-            }) {
+            }
+            .size(folderWidth, folderHeight)
+    ) {
         HorizontalPager(
             state = folderGridHorizontalPagerState,
+            modifier = Modifier.weight(1f),
             userScrollEnabled = false,
         ) { index ->
             GridLayout(
@@ -276,5 +284,15 @@ internal fun SharedTransitionScope.FolderDragScreen(
                 },
             )
         }
+
+        PageIndicator(
+            modifier = Modifier
+                .height(pageIndicatorHeight)
+                .fillMaxWidth(),
+            pageCount = folderGridHorizontalPagerState.pageCount,
+            currentPage = folderGridHorizontalPagerState.currentPage,
+            pageOffset = folderGridHorizontalPagerState.currentPageOffsetFraction,
+            color = getSystemTextColor(textColor = textColor),
+        )
     }
 }

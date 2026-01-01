@@ -18,12 +18,10 @@
 package com.eblan.launcher.feature.home.screen.folderdrag
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
@@ -38,9 +36,8 @@ internal suspend fun handleDragFolderGridItem(
     drag: Drag,
     gridItem: GridItem,
     dragIntOffset: IntOffset,
-    folderIntOffset: IntOffset,
-    folderHeight: Int,
-    folderWidth: Int,
+    folderGridWidth: Int,
+    folderGridHeight: Int,
     columns: Int,
     rows: Int,
     isScrollInProgress: Boolean,
@@ -79,19 +76,15 @@ internal suspend fun handleDragFolderGridItem(
         paddingValues.calculateTopPadding().roundToPx()
     }
 
-    val dragX = (dragIntOffset.x - folderIntOffset.x) - leftPadding
+    val dragX = dragIntOffset.x
 
-    val dragY = (dragIntOffset.y - folderIntOffset.y) - topPadding
-
-    val isOnLeftGrid = dragX < 0
-
-    val isOnRightGrid = dragX > folderWidth
+    val dragY = dragIntOffset.y
 
     delay(100L)
 
-    val cellWidth = folderWidth / columns
+    val cellWidth = folderGridWidth / columns
 
-    val cellHeight = folderHeight / rows
+    val cellHeight = folderGridHeight / rows
 
     val newGridItem = gridItem.copy(
         page = currentPage,
@@ -113,8 +106,8 @@ internal suspend fun handleDragFolderGridItem(
             dragY,
             columns,
             rows,
-            folderWidth,
-            folderHeight,
+            folderGridWidth,
+            folderGridHeight,
             lockMovement,
         )
     }

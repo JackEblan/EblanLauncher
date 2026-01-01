@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -78,6 +79,7 @@ internal fun SharedTransitionScope.FolderScreen(
     paddingValues: PaddingValues,
     folderPopupType: FolderPopupType,
     dragIntOffset: IntOffset,
+    popupIntOffset: IntOffset,
     moveGridItemResult: MoveGridItemResult?,
     lockMovement: Boolean,
     onLongPressGridItem: (
@@ -143,14 +145,9 @@ internal fun SharedTransitionScope.FolderScreen(
 
     val pageIndicatorHeight = 30.dp
 
-    val pageIndicatorHeightPx = with(density) {
-        pageIndicatorHeight.roundToPx()
-    }
-
     val cellWidth = gridWidth / homeSettings.folderColumns
 
-    val cellHeight =
-        (gridHeight - pageIndicatorHeightPx) / homeSettings.folderRows
+    val cellHeight = gridHeight / homeSettings.folderRows
 
     Surface(modifier = modifier) {
         if (folderDataById != null) {
@@ -172,7 +169,7 @@ internal fun SharedTransitionScope.FolderScreen(
 
                         val folderHeight =
                             with(density) {
-                                ((cellHeight * totalRows) + pageIndicatorHeightPx).toDp()
+                                (cellHeight * totalRows).toDp() + pageIndicatorHeight
                             }
 
                         Column(modifier = Modifier.size(folderWidth, folderHeight)) {
@@ -252,7 +249,9 @@ internal fun SharedTransitionScope.FolderScreen(
                             }
 
                             PageIndicator(
-                                modifier = Modifier.height(pageIndicatorHeight),
+                                modifier = Modifier
+                                    .height(pageIndicatorHeight)
+                                    .fillMaxWidth(),
                                 pageCount = folderGridHorizontalPagerState.pageCount,
                                 currentPage = folderGridHorizontalPagerState.currentPage,
                                 pageOffset = folderGridHorizontalPagerState.currentPageOffsetFraction,
@@ -269,6 +268,7 @@ internal fun SharedTransitionScope.FolderScreen(
                             textColor = textColor,
                             drag = drag,
                             dragIntOffset = dragIntOffset,
+                            popupIntOffset = popupIntOffset,
                             screenWidth = screenWidth,
                             screenHeight = screenHeight,
                             paddingValues = paddingValues,

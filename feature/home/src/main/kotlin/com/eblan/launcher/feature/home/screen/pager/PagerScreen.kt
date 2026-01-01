@@ -160,6 +160,7 @@ internal fun SharedTransitionScope.PagerScreen(
         folderId: String,
         movingGridItem: GridItem,
     ) -> Unit,
+    onResetFolder: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -414,6 +415,7 @@ internal fun SharedTransitionScope.PagerScreen(
         onDragCancelFolder = onDragCancelFolder,
         onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
         onResetOverlay = onResetOverlay,
+        onResetFolder = onResetFolder,
     )
 
     if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {

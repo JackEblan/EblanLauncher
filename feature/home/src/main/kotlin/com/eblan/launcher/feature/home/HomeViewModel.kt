@@ -676,6 +676,8 @@ internal class HomeViewModel @Inject constructor(
         screen: Screen,
     ) {
         viewModelScope.launch {
+            resetFolder()
+
             moveGridItemOutsideFolderUseCase(
                 folderId = folderId,
                 movingGridItem = movingGridItem,
@@ -687,6 +689,16 @@ internal class HomeViewModel @Inject constructor(
             _screen.update {
                 screen
             }
+        }
+    }
+
+    fun resetFolder() {
+        _folderPopupType.update {
+            FolderPopupType.Folder
+        }
+
+        _foldersDataById.update {
+            ArrayDeque()
         }
     }
 }

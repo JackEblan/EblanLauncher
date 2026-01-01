@@ -146,6 +146,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         movingGridItem: GridItem,
     ) -> Unit,
     onResetOverlay: () -> Unit,
+    onResetFolder: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -577,9 +578,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             dragIntOffset = dragIntOffset,
             moveGridItemResult = moveGridItemResult,
             lockMovement = lockMovement,
-            onDismissRequest = {
-
-            },
+            onDismissRequest = onResetFolder,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDraggingGridItem = onDraggingFolderGridItem,

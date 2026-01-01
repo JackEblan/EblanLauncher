@@ -139,24 +139,16 @@ internal fun SharedTransitionScope.FolderDragScreen(
 
     val gridHeight = screenHeight - verticalPadding
 
-    val cellWidth = gridWidth / homeSettings.folderColumns
+    val cellWidth = gridWidth / homeSettings.columns
 
-    val cellHeight = gridHeight / homeSettings.folderRows
-
-    val totalColumns =
-        folderDataById.gridItems.maxOfOrNull { it.startColumn + it.columnSpan }
-            ?: 1
-
-    val totalRows =
-        folderDataById.gridItems.maxOfOrNull { it.startRow + it.rowSpan }
-            ?: 1
+    val cellHeight = gridHeight / homeSettings.rows
 
     val folderWidth = with(density) {
-        (cellWidth * totalColumns).toDp()
+        (cellWidth * homeSettings.folderColumns).toDp()
     }
 
     val folderHeight = with(density) {
-        (cellHeight * totalRows).toDp() + pageIndicatorHeight
+        (cellHeight * homeSettings.folderRows).toDp() + pageIndicatorHeight
     }
 
     val folderWidthPx = with(density) {
@@ -178,10 +170,9 @@ internal fun SharedTransitionScope.FolderDragScreen(
             dragIntOffset = dragIntOffset - intOffset,
             folderGridWidth = folderWidthPx,
             folderGridHeight = folderHeightPx - pageIndicatorHeightPx,
-            columns = totalColumns,
-            rows = totalRows,
+            columns = homeSettings.folderColumns,
+            rows = homeSettings.folderRows,
             isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
-            paddingValues = paddingValues,
             lockMovement = lockMovement,
             folderId = folderDataById.folderId,
             onUpdatePageDirection = { newPageDirection ->
@@ -248,8 +239,8 @@ internal fun SharedTransitionScope.FolderDragScreen(
             GridLayout(
                 modifier = Modifier.fillMaxSize(),
                 gridItems = gridItemCache.folderGridItemsCacheByPage[index],
-                columns = totalColumns,
-                rows = totalRows,
+                columns = homeSettings.folderColumns,
+                rows = homeSettings.folderRows,
                 content = { gridItem ->
                     val gridItemSettings = if (gridItem.override) {
                         gridItem.gridItemSettings

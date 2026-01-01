@@ -145,31 +145,23 @@ internal fun SharedTransitionScope.FolderScreen(
 
     val pageIndicatorHeight = 30.dp
 
-    val cellWidth = gridWidth / homeSettings.folderColumns
+    val cellWidth = gridWidth / homeSettings.columns
 
-    val cellHeight = gridHeight / homeSettings.folderRows
+    val cellHeight = gridHeight / homeSettings.rows
 
     Surface(modifier = modifier) {
         if (folderDataById != null) {
             AnimatedContent(targetState = folderPopupType) { targetState ->
                 when (targetState) {
                     FolderPopupType.Folder -> {
-                        val totalColumns =
-                            folderDataById.gridItems.maxOfOrNull { it.startColumn + it.columnSpan }
-                                ?: 1
-
-                        val totalRows =
-                            folderDataById.gridItems.maxOfOrNull { it.startRow + it.rowSpan }
-                                ?: 1
-
                         val folderWidth =
                             with(density) {
-                                (cellWidth * totalColumns).toDp()
+                                (cellWidth * homeSettings.folderColumns).toDp()
                             }
 
                         val folderHeight =
                             with(density) {
-                                (cellHeight * totalRows).toDp() + pageIndicatorHeight
+                                (cellHeight * homeSettings.folderRows).toDp() + pageIndicatorHeight
                             }
 
                         Column(modifier = Modifier.size(folderWidth, folderHeight)) {
@@ -180,8 +172,8 @@ internal fun SharedTransitionScope.FolderScreen(
                                 GridLayout(
                                     modifier = Modifier.fillMaxSize(),
                                     gridItems = folderDataById.gridItemsByPage[index],
-                                    columns = totalColumns,
-                                    rows = totalRows,
+                                    columns = homeSettings.folderColumns,
+                                    rows = homeSettings.folderRows,
                                     { gridItem ->
                                         val x = gridItem.startColumn * cellWidth
 

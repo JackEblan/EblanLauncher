@@ -26,41 +26,19 @@ internal fun handleDropFolderGridItem(
     moveGridItemResult: MoveGridItemResult?,
     density: Density,
     dragIntOffset: IntOffset,
-    screenHeight: Int,
+    folderHeight: Int,
     pageIndicatorHeight: Int,
     paddingValues: PaddingValues,
-    onDragEnd: () -> Unit,
-    onDragCancel: () -> Unit,
+    onDragEndFolder: () -> Unit,
+    onDragCancelFolder: () -> Unit,
 ) {
     if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
-        onDragCancel()
+        onDragCancelFolder()
 
         return
     }
 
-    val topPadding = with(density) {
-        paddingValues.calculateTopPadding().roundToPx()
-    }
+    val dragY = dragIntOffset.y
 
-    val bottomPadding = with(density) {
-        paddingValues.calculateBottomPadding().roundToPx()
-    }
-
-    val verticalPadding = topPadding + bottomPadding
-
-    val gridHeight = screenHeight - verticalPadding
-
-    val dragY = dragIntOffset.y - topPadding
-
-    val isOnTopGrid = dragY < 0
-
-    val isOnBottomGrid = dragY > gridHeight - pageIndicatorHeight
-
-    val isVerticalBounds = !isOnTopGrid && !isOnBottomGrid
-
-    if (isVerticalBounds) {
-        onDragEnd()
-    } else {
-        onDragCancel()
-    }
+    onDragEndFolder()
 }

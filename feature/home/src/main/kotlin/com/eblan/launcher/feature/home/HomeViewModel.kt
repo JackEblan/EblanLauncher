@@ -54,6 +54,7 @@ import com.eblan.launcher.domain.usecase.page.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.page.UpdatePageItemsUseCase
 import com.eblan.launcher.domain.usecase.pin.GetPinGridItemUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
+import com.eblan.launcher.feature.home.model.FolderPopupType
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -214,6 +215,10 @@ internal class HomeViewModel @Inject constructor(
             initialValue = emptyMap(),
         )
 
+    private val _folderPopupType = MutableStateFlow(FolderPopupType.Folder)
+
+    val folderPopupType = _folderPopupType.asStateFlow()
+
     fun moveGridItem(
         movingGridItem: GridItem,
         x: Int,
@@ -307,15 +312,15 @@ internal class HomeViewModel @Inject constructor(
 
     fun showFolderGridCache(
         gridItems: List<GridItem>,
-        screen: Screen,
+        folderPopupType: FolderPopupType,
     ) {
         viewModelScope.launch {
             folderGridCacheRepository.insertGridItems(gridItems = gridItems)
 
             delay(defaultDelay)
 
-            _screen.update {
-                screen
+            _folderPopupType.update {
+                folderPopupType
             }
         }
     }
@@ -419,8 +424,8 @@ internal class HomeViewModel @Inject constructor(
 
                 delay(defaultDelay)
 
-                _screen.update {
-                    Screen.Folder
+                _folderPopupType.update {
+                    FolderPopupType.Folder
                 }
             }
 
@@ -463,8 +468,8 @@ internal class HomeViewModel @Inject constructor(
 
                 delay(defaultDelay)
 
-                _screen.update {
-                    Screen.Folder
+                _folderPopupType.update {
+                    FolderPopupType.Folder
                 }
             }
 
@@ -551,9 +556,9 @@ internal class HomeViewModel @Inject constructor(
                     }
                 }
 
-                _screen.update {
-                    Screen.Folder
-                }
+//                _screen.update {
+//                    Screen.Folder
+//                }
             }
         }
     }
@@ -671,6 +676,8 @@ internal class HomeViewModel @Inject constructor(
         screen: Screen,
     ) {
         viewModelScope.launch {
+            resetFolder()
+
             moveGridItemOutsideFolderUseCase(
                 folderId = folderId,
                 movingGridItem = movingGridItem,
@@ -682,6 +689,16 @@ internal class HomeViewModel @Inject constructor(
             _screen.update {
                 screen
             }
+        }
+    }
+
+    fun resetFolder() {
+        _folderPopupType.update {
+            FolderPopupType.Folder
+        }
+
+        _foldersDataById.update {
+            ArrayDeque()
         }
     }
 }

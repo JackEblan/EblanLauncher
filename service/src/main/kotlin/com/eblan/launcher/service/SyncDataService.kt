@@ -90,10 +90,12 @@ class SyncDataService : Service() {
     private val binder = LocalBinder()
 
     override fun onBind(intent: Intent?): IBinder {
-        return binder
-    }
+        syncDataJob?.cancel()
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        syncDataJob = serviceScope.launch {
+            syncDataUseCase()
+        }
+
         registerReceiver(
             managedProfileBroadcastReceiver,
             IntentFilter().apply {
@@ -105,21 +107,15 @@ class SyncDataService : Service() {
             },
         )
 
-        syncDataJob?.cancel()
-
-        syncDataJob = serviceScope.launch {
-            syncDataUseCase()
-        }
-
-        return super.onStartCommand(intent, flags, startId)
+        return binder
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
+    override fun onUnbind(intent: Intent?): Boolean {
         serviceScope.cancel()
 
         unregisterReceiver(managedProfileBroadcastReceiver)
+
+        return super.onUnbind(intent)
     }
 
     inner class LocalBinder : Binder() {

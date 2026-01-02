@@ -17,28 +17,13 @@
  */
 package com.eblan.launcher.feature.home
 
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
 import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
-import android.os.IBinder
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
-import com.eblan.launcher.domain.model.HomeData
-import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
-import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
-import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
-import com.eblan.launcher.service.LauncherAppsService
-import com.eblan.launcher.service.SyncDataService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 internal suspend fun handlePinItemRequest(
     pinItemRequest: PinItemRequest?,
@@ -127,86 +112,5 @@ internal suspend fun handlePinItemRequest(
                 }
             }
         }
-    }
-}
-
-internal fun handleLifecycleEvent(
-    context: Context,
-    scope: CoroutineScope,
-    lifecycleOwner: LifecycleOwner,
-    event: Lifecycle.Event,
-    homeData: HomeData,
-    pinItemRequestWrapper: PinItemRequestWrapper,
-    appWidgetHost: AndroidAppWidgetHostWrapper,
-    onUpdateManagedProfileResult: (ManagedProfileResult?) -> Unit,
-) {
-    val launcherAppsIntent = Intent(context, LauncherAppsService::class.java)
-
-    val syncDataIntent = Intent(context, SyncDataService::class.java)
-
-    var isSyncDataServiceBound = false
-
-    val syncDataServiceConnection = object : ServiceConnection {
-        private var listener: SyncDataService? = null
-
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            listener = (service as SyncDataService.LocalBinder).getService()
-
-            scope.launch {
-                lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    listener?.managedProfileResult?.collect {
-                        onUpdateManagedProfileResult(it)
-                    }
-                }
-            }
-
-            isSyncDataServiceBound = true
-        }
-
-        override fun onServiceDisconnected(name: ComponentName) {
-            listener = null
-
-            isSyncDataServiceBound = false
-        }
-    }
-
-    when (event) {
-        Lifecycle.Event.ON_START -> {
-            if (homeData.userData.experimentalSettings.syncData &&
-                pinItemRequestWrapper.getPinItemRequest() == null
-            ) {
-                context.startService(launcherAppsIntent)
-
-                context.startService(syncDataIntent)
-
-                context.bindService(
-                    syncDataIntent,
-                    syncDataServiceConnection,
-                    Context.BIND_AUTO_CREATE,
-                )
-            }
-
-            appWidgetHost.startListening()
-        }
-
-        Lifecycle.Event.ON_STOP -> {
-            if (homeData.userData.experimentalSettings.syncData &&
-                pinItemRequestWrapper.getPinItemRequest() == null
-            ) {
-                if (isSyncDataServiceBound) {
-                    context.unbindService(syncDataServiceConnection)
-
-                    isSyncDataServiceBound = false
-                }
-
-                context.stopService(launcherAppsIntent)
-
-                context.stopService(syncDataIntent)
-            }
-
-            appWidgetHost.stopListening()
-        }
-
-        else -> Unit
     }
 }

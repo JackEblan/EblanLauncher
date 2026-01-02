@@ -104,6 +104,8 @@ import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.service.EblanNotificationListenerService
+import com.eblan.launcher.service.LauncherAppsService
+import com.eblan.launcher.service.SyncDataService
 import com.eblan.launcher.ui.dialog.TextDialog
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalByteArray
@@ -331,13 +333,7 @@ internal fun HomeScreen(
 
     val userManager = LocalUserManager.current
 
-    val lifecycleOwner = LocalLifecycleOwner.current
-
     val scope = rememberCoroutineScope()
-
-    var statusBarNotifications by remember {
-        mutableStateOf<Map<String, Int>>(emptyMap())
-    }
 
     val touchSlop = with(density) {
         50.dp.toPx()
@@ -400,38 +396,6 @@ internal fun HomeScreen(
         }
     }
 
-    DisposableEffect(key1 = scope) {
-        val eblanNotificationListenerServiceConnection = object : ServiceConnection {
-            private var listener: EblanNotificationListenerService? = null
-
-            override fun onServiceConnected(name: ComponentName, service: IBinder) {
-                listener = (service as EblanNotificationListenerService.LocalBinder).getService()
-
-                scope.launch {
-                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        listener?.statusBarNotifications?.collect { statusBarNotifications = it }
-                    }
-                }
-            }
-
-            override fun onServiceDisconnected(name: ComponentName) {
-                listener = null
-            }
-        }
-
-        val intent = Intent(context, EblanNotificationListenerService::class.java)
-
-        context.bindService(
-            intent,
-            eblanNotificationListenerServiceConnection,
-            Context.BIND_AUTO_CREATE,
-        )
-
-        onDispose {
-            context.unbindService(eblanNotificationListenerServiceConnection)
-        }
-    }
-
     SharedTransitionLayout(
         modifier = modifier
             .pointerInput(Unit) {
@@ -490,7 +454,6 @@ internal fun HomeScreen(
                         eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
                         gridItemCache = gridItemsCache,
                         pinGridItem = pinGridItem,
-                        statusBarNotifications = statusBarNotifications,
                         eblanShortcutInfos = eblanShortcutInfos,
                         eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
                         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
@@ -578,7 +541,6 @@ private fun SharedTransitionScope.Success(
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     gridItemCache: GridItemCache,
     pinGridItem: GridItem?,
-    statusBarNotifications: Map<String, Int>,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
@@ -674,12 +636,6 @@ private fun SharedTransitionScope.Success(
 ) {
     val activity = LocalActivity.current
 
-    val context = LocalContext.current
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    val appWidgetHost = LocalAppWidgetHost.current
-
     val pinItemRequestWrapper = LocalPinItemRequest.current
 
     val gridHorizontalPagerState = rememberPagerState(
@@ -718,9 +674,11 @@ private fun SharedTransitionScope.Success(
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
-    val scope = rememberCoroutineScope()
-
     var managedProfileResult by remember { mutableStateOf<ManagedProfileResult?>(null) }
+
+    var statusBarNotifications by remember {
+        mutableStateOf<Map<String, Int>>(emptyMap())
+    }
 
     LaunchedEffect(key1 = pinGridItem) {
         val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
@@ -738,28 +696,15 @@ private fun SharedTransitionScope.Success(
         }
     }
 
-    DisposableEffect(key1 = lifecycleOwner) {
-        val lifecycleEventObserver = LifecycleEventObserver { _, event ->
-            handleLifecycleEvent(
-                context = context,
-                scope = scope,
-                lifecycleOwner = lifecycleOwner,
-                event = event,
-                homeData = homeData,
-                pinItemRequestWrapper = pinItemRequestWrapper,
-                appWidgetHost = appWidgetHost,
-                onUpdateManagedProfileResult = { newManagedProfileResult ->
-                    managedProfileResult = newManagedProfileResult
-                },
-            )
-        }
-
-        lifecycleOwner.lifecycle.addObserver(lifecycleEventObserver)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(lifecycleEventObserver)
-        }
-    }
+    LifecycleEffect(
+        syncDataEnabled = homeData.userData.experimentalSettings.syncData,
+        onManagedProfileResultChange = { newManagedProfileResult ->
+            managedProfileResult = newManagedProfileResult
+        },
+        onStatusBarNotificationsChange = { newStatusBarNotifications ->
+            statusBarNotifications = newStatusBarNotifications
+        },
+    )
 
     LaunchedEffect(key1 = Unit) {
         if (homeData.userData.homeSettings.lockScreenOrientation) {
@@ -972,7 +917,7 @@ private fun SharedTransitionScope.Success(
     }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        PostNotificationPermission()
+        PostNotificationPermissionEffect()
     }
 }
 
@@ -1012,7 +957,7 @@ private fun SharedTransitionScope.OverlayImage(
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-private fun PostNotificationPermission(modifier: Modifier = Modifier) {
+private fun PostNotificationPermissionEffect(modifier: Modifier = Modifier) {
     val notificationsPermissionState =
         rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
 
@@ -1040,5 +985,129 @@ private fun PostNotificationPermission(modifier: Modifier = Modifier) {
                 showTextDialog = false
             },
         )
+    }
+}
+
+@Composable
+private fun LifecycleEffect(
+    syncDataEnabled: Boolean,
+    onManagedProfileResultChange: (ManagedProfileResult?) -> Unit,
+    onStatusBarNotificationsChange: (Map<String, Int>) -> Unit,
+) {
+    val context = LocalContext.current
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val appWidgetHost = LocalAppWidgetHost.current
+
+    val pinItemRequestWrapper = LocalPinItemRequest.current
+
+    val scope = rememberCoroutineScope()
+
+    DisposableEffect(key1 = lifecycleOwner) {
+        val launcherAppsIntent = Intent(context, LauncherAppsService::class.java)
+
+        val syncDataIntent = Intent(context, SyncDataService::class.java)
+
+        val eblanNotificationListenerIntent =
+            Intent(context, EblanNotificationListenerService::class.java)
+
+        var isSyncDataServiceBound = false
+
+        var isEblanNotificationListenerServiceBound = false
+
+        val syncDataServiceConnection = object : ServiceConnection {
+            private var listener: SyncDataService? = null
+
+            override fun onServiceConnected(name: ComponentName, service: IBinder) {
+                listener = (service as SyncDataService.LocalBinder).getService()
+
+                scope.launch {
+                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        listener?.managedProfileResult?.collect {
+                            onManagedProfileResultChange(it)
+                        }
+                    }
+                }
+
+                isSyncDataServiceBound = true
+            }
+
+            override fun onServiceDisconnected(name: ComponentName) {
+                listener = null
+                isSyncDataServiceBound = false
+            }
+        }
+
+        val eblanNotificationListenerServiceConnection = object : ServiceConnection {
+            private var listener: EblanNotificationListenerService? = null
+
+            override fun onServiceConnected(name: ComponentName, service: IBinder) {
+                listener = (service as EblanNotificationListenerService.LocalBinder).getService()
+
+                scope.launch {
+                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        listener?.statusBarNotifications?.collect {
+                            onStatusBarNotificationsChange(it)
+                        }
+                    }
+                }
+
+                isEblanNotificationListenerServiceBound = true
+            }
+
+            override fun onServiceDisconnected(name: ComponentName) {
+                listener = null
+
+                isEblanNotificationListenerServiceBound = false
+            }
+        }
+
+        val lifecycleEventObserver = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> {
+                    if (syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
+                        context.startService(launcherAppsIntent)
+                        context.bindService(
+                            syncDataIntent,
+                            syncDataServiceConnection,
+                            Context.BIND_AUTO_CREATE,
+                        )
+
+                        context.bindService(
+                            eblanNotificationListenerIntent,
+                            eblanNotificationListenerServiceConnection,
+                            Context.BIND_AUTO_CREATE,
+                        )
+                    }
+
+                    appWidgetHost.startListening()
+                }
+
+                Lifecycle.Event.ON_STOP -> {
+                    if (syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
+                        if (isSyncDataServiceBound) {
+                            context.unbindService(syncDataServiceConnection)
+                        }
+
+                        if (isEblanNotificationListenerServiceBound) {
+                            context.unbindService(eblanNotificationListenerServiceConnection)
+                        }
+
+                        context.stopService(launcherAppsIntent)
+                    }
+
+                    appWidgetHost.stopListening()
+                }
+
+                else -> Unit
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(lifecycleEventObserver)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(lifecycleEventObserver)
+        }
     }
 }

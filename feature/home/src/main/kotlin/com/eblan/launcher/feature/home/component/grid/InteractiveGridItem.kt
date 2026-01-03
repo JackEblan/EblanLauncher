@@ -932,6 +932,18 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                     ),
                     visible = !isScrollInProgress,
                 )
+                .drawWithContent {
+                    graphicsLayer.record {
+                        this@drawWithContent.drawContent()
+                    }
+
+                    drawLayer(graphicsLayer)
+                }
+                .onGloballyPositioned { layoutCoordinates ->
+                    intOffset = layoutCoordinates.positionInRoot().round()
+
+                    intSize = layoutCoordinates.size
+                }
                 .size(gridItemSettings.iconSize.dp)
 
             if (data.gridItems.isNotEmpty()) {
@@ -939,22 +951,10 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
                 FlowRow(
                     modifier = commonModifier
-                        .drawWithContent {
-                            graphicsLayer.record {
-                                this@drawWithContent.drawContent()
-                            }
-
-                            drawLayer(graphicsLayer)
-                        }
                         .background(
                             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
                             shape = RoundedCornerShape(5.dp),
-                        )
-                        .onGloballyPositioned { layoutCoordinates ->
-                            intOffset = layoutCoordinates.positionInRoot().round()
-
-                            intSize = layoutCoordinates.size
-                        },
+                        ),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalArrangement = Arrangement.SpaceEvenly,
                     maxItemsInEachRow = maxItemsInEachRow,

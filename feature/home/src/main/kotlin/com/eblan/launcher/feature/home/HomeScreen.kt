@@ -204,6 +204,7 @@ internal fun HomeRoute(
         onUpdateShortcutConfigIntoShortcutInfoGridItem = viewModel::updateShortcutConfigIntoShortcutInfoGridItem,
         onEditApplicationInfo = onEditApplicationInfo,
         onMoveGridItemOutsideFolder = viewModel::moveGridItemOutsideFolder,
+        onShowFolderWhenDragging = viewModel::showFolderWhenDragging,
     )
 }
 
@@ -308,6 +309,7 @@ internal fun HomeScreen(
         gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
+    onShowFolderWhenDragging: (String) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -507,6 +509,7 @@ internal fun HomeScreen(
                             sharedElementKey = newSharedElementKey
                         },
                         onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
+                        onShowFolderWhenDragging = onShowFolderWhenDragging,
                     )
                 }
             }
@@ -633,6 +636,7 @@ private fun SharedTransitionScope.Success(
         gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
+    onShowFolderWhenDragging: (String) -> Unit,
 ) {
     val activity = LocalActivity.current
 
@@ -803,6 +807,7 @@ private fun SharedTransitionScope.Success(
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
                     onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
                     onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
+                    onShowFolderWhenDragging = onShowFolderWhenDragging,
                 )
             }
 

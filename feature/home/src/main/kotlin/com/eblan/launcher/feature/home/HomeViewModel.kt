@@ -684,4 +684,23 @@ internal class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    fun showFolderWhenDragging(folderId: String) {
+        viewModelScope.launch {
+            getFolderDataByIdUseCase(folderId = folderId)?.let { folder ->
+                _foldersDataById.update { currentFolders ->
+                    ArrayDeque(currentFolders).apply {
+                        clear()
+
+                        add(folder)
+                    }
+                }
+
+                showFolderGridCache(
+                    gridItems = folder.gridItems,
+                    screen = Screen.FolderDrag,
+                )
+            }
+        }
+    }
 }

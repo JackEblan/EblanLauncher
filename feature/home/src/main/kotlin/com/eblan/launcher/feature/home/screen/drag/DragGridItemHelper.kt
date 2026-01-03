@@ -31,6 +31,7 @@ import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
@@ -226,6 +227,21 @@ internal suspend fun handleDragGridItem(
                 lockMovement,
             )
         }
+    }
+}
+
+internal suspend fun handleConflictingGridItem(
+    moveGridItemResult: MoveGridItemResult?,
+    onShowFolderWhenDragging: (String) -> Unit,
+) {
+    if (moveGridItemResult == null) return
+
+    val conflictingGridItem = moveGridItemResult.conflictingGridItem
+
+    if (conflictingGridItem != null) {
+        delay(1500L)
+
+        onShowFolderWhenDragging(conflictingGridItem.id)
     }
 }
 

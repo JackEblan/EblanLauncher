@@ -123,6 +123,7 @@ internal fun SharedTransitionScope.DragScreen(
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
     ) -> Unit,
+    onShowFolderWhenDragging: (String) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -336,6 +337,10 @@ internal fun SharedTransitionScope.DragScreen(
             infiniteScroll = homeSettings.infiniteScroll,
             windowToken = view.windowToken,
         )
+    }
+
+    LaunchedEffect(key1 = moveGridItemResult) {
+        handleConflictingGridItem(moveGridItemResult, onShowFolderWhenDragging)
     }
 
     Column(

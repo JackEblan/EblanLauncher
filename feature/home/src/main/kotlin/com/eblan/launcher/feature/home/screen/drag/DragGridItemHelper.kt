@@ -75,6 +75,7 @@ internal suspend fun handleDragGridItem(
     gridItemSource: GridItemSource,
     paddingValues: PaddingValues,
     lockMovement: Boolean,
+    screen: Screen,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveGridItem: (
         movingGridItem: GridItem,
@@ -86,6 +87,7 @@ internal suspend fun handleDragGridItem(
         gridHeight: Int,
         lockMovement: Boolean,
     ) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     if (drag == Drag.None ||
         drag == Drag.End ||
@@ -176,6 +178,13 @@ internal suspend fun handleDragGridItem(
         )
 
         if (isGridItemSpanWithinBounds) {
+            onUpdateSharedElementKey(
+                SharedElementKey(
+                    id = moveGridItem.id,
+                    screen = screen,
+                ),
+            )
+
             onMoveGridItem(
                 moveGridItem,
                 dragX,
@@ -218,6 +227,13 @@ internal suspend fun handleDragGridItem(
         )
 
         if (isGridItemSpanWithinBounds) {
+            onUpdateSharedElementKey(
+                SharedElementKey(
+                    id = moveGridItem.id,
+                    screen = screen,
+                ),
+            )
+
             onMoveGridItem(
                 moveGridItem,
                 dragX,
@@ -233,10 +249,13 @@ internal suspend fun handleDragGridItem(
 }
 
 internal suspend fun handleConflictingGridItem(
+    drag: Drag,
     moveGridItemResult: MoveGridItemResult?,
     onShowFolderWhenDragging: (String) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    if (drag != Drag.Dragging) return
+
     if (moveGridItemResult == null) return
 
     val conflictingGridItem = moveGridItemResult.conflictingGridItem

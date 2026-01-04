@@ -142,6 +142,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
             titleHeight = titleHeight,
             lockMovement = lockMovement,
             folderId = folderDataById?.folderId,
+            screen = screen,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
             onUpdatePageDirection = { newPageDirection ->

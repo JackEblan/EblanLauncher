@@ -250,10 +250,12 @@ internal fun SharedTransitionScope.DragScreen(
             gridItemSource = gridItemSource,
             paddingValues = paddingValues,
             lockMovement = lockMovement,
+            screen = screen,
             onUpdatePageDirection = { newPageDirection ->
                 pageDirection = newPageDirection
             },
             onMoveGridItem = onMoveGridItem,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 
@@ -343,8 +345,9 @@ internal fun SharedTransitionScope.DragScreen(
         )
     }
 
-    LaunchedEffect(key1 = moveGridItemResult) {
+    LaunchedEffect(key1 = dragIntOffset, key2 = moveGridItemResult) {
         handleConflictingGridItem(
+            drag = drag,
             moveGridItemResult = moveGridItemResult,
             onShowFolderWhenDragging = onShowFolderWhenDragging,
             onUpdateSharedElementKey = onUpdateSharedElementKey,

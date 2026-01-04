@@ -50,6 +50,7 @@ internal suspend fun handleDragFolderGridItem(
     titleHeight: Int,
     lockMovement: Boolean,
     folderId: String?,
+    screen: Screen,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
@@ -164,6 +165,13 @@ internal suspend fun handleDragFolderGridItem(
         )
 
         if (isGridItemSpanWithinBounds) {
+            onUpdateSharedElementKey(
+                SharedElementKey(
+                    id = newGridItem.id,
+                    screen = screen,
+                ),
+            )
+
             onMoveFolderGridItem(
                 newGridItem,
                 dragX,

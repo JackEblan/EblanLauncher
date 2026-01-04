@@ -35,6 +35,8 @@ import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
+import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import kotlinx.coroutines.delay
 
 internal suspend fun handlePageDirection(
@@ -233,13 +235,21 @@ internal suspend fun handleDragGridItem(
 internal suspend fun handleConflictingGridItem(
     moveGridItemResult: MoveGridItemResult?,
     onShowFolderWhenDragging: (String) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     if (moveGridItemResult == null) return
 
     val conflictingGridItem = moveGridItemResult.conflictingGridItem
 
     if (conflictingGridItem != null) {
-        delay(1500L)
+        delay(1000L)
+
+        onUpdateSharedElementKey(
+            SharedElementKey(
+                id = moveGridItemResult.movingGridItem.id,
+                screen = Screen.FolderDrag,
+            ),
+        )
 
         onShowFolderWhenDragging(conflictingGridItem.id)
     }

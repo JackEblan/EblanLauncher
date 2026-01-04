@@ -123,6 +123,7 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     screenHeight: Int,
     isPressHome: Boolean,
+    screen: Screen,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -214,6 +215,7 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
                     gridItemSettings = gridItemSettings,
                     eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
                     eblanShortcutConfigs = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutConfigs,
+                    screen = screen,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
@@ -250,6 +252,7 @@ private fun SharedTransitionScope.Success(
     gridItemSettings: GridItemSettings,
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    screen: Screen,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -286,6 +289,7 @@ private fun SharedTransitionScope.Success(
             onQueryChange = onGetEblanShortcutConfigsByLabel,
             eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
             drag = drag,
+            screen = screen,
             onUpdateGridItemOffset = { intOffset, intSize ->
                 onUpdateGridItemOffset(intOffset, intSize)
 
@@ -316,6 +320,7 @@ private fun SharedTransitionScope.Success(
                     drag = drag,
                     gridItemSettings = gridItemSettings,
                     eblanShortcutConfigs = eblanShortcutConfigs,
+                    screen = screen,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onDraggingGridItem = onDraggingGridItem,
@@ -332,6 +337,7 @@ private fun SharedTransitionScope.Success(
                 drag = drag,
                 gridItemSettings = gridItemSettings,
                 eblanShortcutConfigs = eblanShortcutConfigs,
+                screen = screen,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onDraggingGridItem = onDraggingGridItem,
@@ -350,6 +356,7 @@ private fun SharedTransitionScope.EblanShortcutConfigDockSearchBar(
     onQueryChange: (String) -> Unit,
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     drag: Drag,
+    screen: Screen,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -401,6 +408,7 @@ private fun SharedTransitionScope.EblanShortcutConfigDockSearchBar(
                     onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
+                    screen = screen,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
@@ -448,6 +456,7 @@ private fun SharedTransitionScope.EblanShortcutConfigsPage(
     drag: Drag,
     gridItemSettings: GridItemSettings,
     eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    screen: Screen,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -530,6 +539,7 @@ private fun SharedTransitionScope.EblanShortcutConfigsPage(
                         onLongPressGridItem = onLongPressGridItem,
                         currentPage = currentPage,
                         gridItemSettings = gridItemSettings,
+                        screen = screen,
                         onDraggingGridItem = onDraggingGridItem,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
@@ -556,6 +566,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     ) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
+    screen: Screen,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -614,6 +625,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                         onLongPressGridItem = onLongPressGridItem,
                         currentPage = currentPage,
                         gridItemSettings = gridItemSettings,
+                        screen = screen,
                         onDraggingGridItem = onDraggingGridItem,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
@@ -629,6 +641,7 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
     modifier: Modifier = Modifier,
     eblanShortcutConfig: EblanShortcutConfig,
     drag: Drag,
+    screen: Screen,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -739,7 +752,7 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = id,
-                                    screen = Screen.Pager,
+                                    screen = screen,
                                 ),
                             )
 

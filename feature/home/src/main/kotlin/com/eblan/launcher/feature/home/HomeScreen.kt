@@ -748,6 +748,7 @@ private fun SharedTransitionScope.Success(
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     iconPackFilePaths = iconPackFilePaths,
                     managedProfileResult = managedProfileResult,
+                    screen = targetState,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(
@@ -799,6 +800,7 @@ private fun SharedTransitionScope.Success(
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
                     lockMovement = homeData.userData.experimentalSettings.lockMovement,
+                    screen = targetState,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = onResetGridCacheAfterMove,
                     onDragCancelAfterMove = onCancelGridCache,
@@ -808,6 +810,7 @@ private fun SharedTransitionScope.Success(
                     onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
                     onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                     onShowFolderWhenDragging = onShowFolderWhenDragging,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
 
@@ -827,6 +830,7 @@ private fun SharedTransitionScope.Success(
                     iconPackFilePaths = iconPackFilePaths,
                     lockMovement = homeData.userData.experimentalSettings.lockMovement,
                     moveGridItemResult = movedGridItemResult,
+                    screen = targetState,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResetGridCacheAfterResize,
                     onResizeCancel = onCancelGridCache,
@@ -846,6 +850,7 @@ private fun SharedTransitionScope.Success(
                     homeSettings = homeData.userData.homeSettings,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
+                    screen = targetState,
                     onSaveEditPage = onSaveEditPage,
                     onUpdateScreen = onUpdateScreen,
                 )
@@ -864,6 +869,7 @@ private fun SharedTransitionScope.Success(
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     statusBarNotifications = statusBarNotifications,
                     iconPackFilePaths = iconPackFilePaths,
+                    screen = targetState,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
@@ -902,6 +908,7 @@ private fun SharedTransitionScope.Success(
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
                     lockMovement = homeData.userData.experimentalSettings.lockMovement,
+                    screen = targetState,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = onResetGridCacheAfterMoveFolder,
                     onDragCancel = onCancelFolderDragGridCache,
@@ -916,6 +923,7 @@ private fun SharedTransitionScope.Success(
                         )
                     },
                     onResetOverlay = onResetOverlay,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }

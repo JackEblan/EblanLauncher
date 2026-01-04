@@ -60,6 +60,8 @@ import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
+import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -84,6 +86,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
     lockMovement: Boolean,
+    screen: Screen,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -102,6 +105,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
         movingGridItem: GridItem,
     ) -> Unit,
     onResetOverlay: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -143,6 +147,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
             onUpdatePageDirection = { newPageDirection ->
                 pageDirection = newPageDirection
             },
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 
@@ -259,6 +264,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
                         statusBarNotifications = statusBarNotifications,
                         hasShortcutHostPermission = hasShortcutHostPermission,
                         iconPackFilePaths = iconPackFilePaths,
+                        screen = screen,
                     )
                 },
             )

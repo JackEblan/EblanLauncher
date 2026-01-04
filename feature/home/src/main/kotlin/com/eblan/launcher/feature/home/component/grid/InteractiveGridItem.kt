@@ -96,6 +96,8 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
     statusBarNotifications: Map<String, Int>,
     isScrollInProgress: Boolean,
     iconPackFilePaths: Map<String, String>,
+    initialScreen: Screen,
+    targetScreen: Screen,
     onTapApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -142,6 +144,8 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     drag = drag,
                     isScrollInProgress = isScrollInProgress,
                     iconPackFilePaths = iconPackFilePaths,
+                    initialScreen = initialScreen,
+                    targetScreen = targetScreen,
                     onTap = {
                         onTapApplicationInfo(
                             data.serialNumber,
@@ -163,6 +167,8 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     data = data,
                     drag = drag,
                     isScrollInProgress = isScrollInProgress,
+                    initialScreen = initialScreen,
+                    targetScreen = targetScreen,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onDraggingGridItem = onDraggingGridItem,
@@ -180,6 +186,8 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     drag = drag,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     isScrollInProgress = isScrollInProgress,
+                    initialScreen = initialScreen,
+                    targetScreen = targetScreen,
                     onTap = {
                         onTapShortcutInfo(
                             data.serialNumber,
@@ -204,6 +212,8 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     drag = drag,
                     isScrollInProgress = isScrollInProgress,
                     iconPackFilePaths = iconPackFilePaths,
+                    initialScreen = initialScreen,
+                    targetScreen = targetScreen,
                     onTap = onTapFolderGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
@@ -221,6 +231,8 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     data = data,
                     drag = drag,
                     isScrollInProgress = isScrollInProgress,
+                    initialScreen = initialScreen,
+                    targetScreen = targetScreen,
                     onTap = {
                         data.shortcutIntentUri?.let(onTapShortcutConfig)
                     },
@@ -246,6 +258,8 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     statusBarNotifications: Map<String, Int>,
     isScrollInProgress: Boolean,
     iconPackFilePaths: Map<String, String>,
+    initialScreen: Screen,
+    targetScreen: Screen,
     onTap: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -299,7 +313,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                     onUpdateSharedElementKey(
                         SharedElementKey(
                             id = gridItem.id,
-                            screen = Screen.Drag,
+                            screen = targetScreen,
                         ),
                     )
 
@@ -341,7 +355,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = gridItem.id,
-                                    screen = Screen.Pager,
+                                    screen = initialScreen,
                                 ),
                             )
 
@@ -389,7 +403,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                             rememberSharedContentState(
                                 key = SharedElementKey(
                                     id = gridItem.id,
-                                    screen = Screen.Pager,
+                                    screen = initialScreen,
                                 ),
                             ),
                             visible = !isScrollInProgress,
@@ -458,6 +472,8 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
     data: GridItemData.Widget,
     drag: Drag,
     isScrollInProgress: Boolean,
+    initialScreen: Screen,
+    targetScreen: Screen,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -493,7 +509,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                     onUpdateSharedElementKey(
                         SharedElementKey(
                             id = gridItem.id,
-                            screen = Screen.Drag,
+                            screen = targetScreen,
                         ),
                     )
 
@@ -521,7 +537,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                 rememberSharedContentState(
                     key = SharedElementKey(
                         id = gridItem.id,
-                        screen = Screen.Pager,
+                        screen = initialScreen,
                     ),
                 ),
                 visible = !isScrollInProgress,
@@ -567,7 +583,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                                 onUpdateSharedElementKey(
                                     SharedElementKey(
                                         id = gridItem.id,
-                                        screen = Screen.Pager,
+                                        screen = initialScreen,
                                     ),
                                 )
 
@@ -601,6 +617,8 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
     drag: Drag,
     hasShortcutHostPermission: Boolean,
     isScrollInProgress: Boolean,
+    initialScreen: Screen,
+    targetScreen: Screen,
     onTap: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -651,7 +669,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                     onUpdateSharedElementKey(
                         SharedElementKey(
                             id = gridItem.id,
-                            screen = Screen.Drag,
+                            screen = targetScreen,
                         ),
                     )
 
@@ -693,7 +711,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = gridItem.id,
-                                    screen = Screen.Pager,
+                                    screen = initialScreen,
                                 ),
                             )
 
@@ -742,7 +760,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                             rememberSharedContentState(
                                 key = SharedElementKey(
                                     id = gridItem.id,
-                                    screen = Screen.Pager,
+                                    screen = initialScreen,
                                 ),
                             ),
                             visible = !isScrollInProgress,
@@ -799,6 +817,8 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     drag: Drag,
     isScrollInProgress: Boolean,
     iconPackFilePaths: Map<String, String>,
+    initialScreen: Screen,
+    targetScreen: Screen,
     onTap: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -844,7 +864,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                     onUpdateSharedElementKey(
                         SharedElementKey(
                             id = gridItem.id,
-                            screen = Screen.Drag,
+                            screen = targetScreen,
                         ),
                     )
 
@@ -886,7 +906,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = gridItem.id,
-                                    screen = Screen.Pager,
+                                    screen = initialScreen,
                                 ),
                             )
 
@@ -927,7 +947,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                     rememberSharedContentState(
                         key = SharedElementKey(
                             id = gridItem.id,
-                            screen = Screen.Pager,
+                            screen = initialScreen,
                         ),
                     ),
                     visible = !isScrollInProgress,
@@ -1071,6 +1091,8 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     data: GridItemData.ShortcutConfig,
     drag: Drag,
     isScrollInProgress: Boolean,
+    initialScreen: Screen,
+    targetScreen: Screen,
     onTap: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -1133,7 +1155,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                     onUpdateSharedElementKey(
                         SharedElementKey(
                             id = gridItem.id,
-                            screen = Screen.Drag,
+                            screen = targetScreen,
                         ),
                     )
 
@@ -1175,7 +1197,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = gridItem.id,
-                                    screen = Screen.Pager,
+                                    screen = initialScreen,
                                 ),
                             )
 
@@ -1223,7 +1245,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                             rememberSharedContentState(
                                 key = SharedElementKey(
                                     id = gridItem.id,
-                                    screen = Screen.Pager,
+                                    screen = initialScreen,
                                 ),
                             ),
                             visible = !isScrollInProgress,

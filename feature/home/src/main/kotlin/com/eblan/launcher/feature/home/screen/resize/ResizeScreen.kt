@@ -50,6 +50,7 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
+import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 
@@ -71,6 +72,7 @@ internal fun SharedTransitionScope.ResizeScreen(
     iconPackFilePaths: Map<String, String>,
     lockMovement: Boolean,
     moveGridItemResult: MoveGridItemResult?,
+    screen: Screen,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
@@ -173,6 +175,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
+                    screen = screen,
                 )
             },
         )
@@ -218,6 +221,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
+                    screen = screen,
                 )
             },
         )

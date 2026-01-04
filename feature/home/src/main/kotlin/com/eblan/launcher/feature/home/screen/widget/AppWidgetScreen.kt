@@ -61,6 +61,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
 import kotlinx.coroutines.launch
@@ -78,6 +79,7 @@ internal fun SharedTransitionScope.AppWidgetScreen(
     drag: Drag,
     screenHeight: Int,
     isPressHome: Boolean,
+    screen: Screen,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -201,6 +203,7 @@ internal fun SharedTransitionScope.AppWidgetScreen(
                     onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
+                    screen = screen,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
@@ -220,6 +223,7 @@ private fun SharedTransitionScope.Success(
     onLongPressGridItem: (GridItemSource, ImageBitmap?) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
+    screen: Screen,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -254,6 +258,7 @@ private fun SharedTransitionScope.Success(
                     onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
+                    screen = screen,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )

@@ -83,6 +83,7 @@ internal fun SharedTransitionScope.EditPageScreen(
     homeSettings: HomeSettings,
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
+    screen: Screen,
     onSaveEditPage: (
         id: Int,
         pageItems: List<PageItem>,
@@ -211,6 +212,7 @@ internal fun SharedTransitionScope.EditPageScreen(
                                     statusBarNotifications = emptyMap(),
                                     hasShortcutHostPermission = hasShortcutHostPermission,
                                     iconPackFilePaths = iconPackFilePaths,
+                                    screen = screen,
                                 )
                             },
                         )

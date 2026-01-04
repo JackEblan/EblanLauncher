@@ -63,6 +63,7 @@ import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -93,6 +94,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
+    screen: Screen,
     onTapFolderGridItem: (String) -> Unit,
     onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
@@ -236,6 +238,8 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         statusBarNotifications = statusBarNotifications,
                         isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                         iconPackFilePaths = iconPackFilePaths,
+                        initialScreen = screen,
+                        targetScreen = Screen.Drag,
                         onTapApplicationInfo = { serialNumber, componentName ->
                             val sourceBoundsX = x + leftPadding
 
@@ -352,6 +356,8 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     statusBarNotifications = statusBarNotifications,
                     isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                     iconPackFilePaths = iconPackFilePaths,
+                    initialScreen = screen,
+                    targetScreen = Screen.Drag,
                     onTapApplicationInfo = { serialNumber, componentName ->
                         val sourceBoundsX = x + leftPadding
 

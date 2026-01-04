@@ -70,6 +70,7 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.shortcutconfig.ShortcutConfigScreen
@@ -108,6 +109,7 @@ internal fun SharedTransitionScope.PagerScreen(
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
+    screen: Screen,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEditGridItem: (String) -> Unit,
@@ -350,6 +352,7 @@ internal fun SharedTransitionScope.PagerScreen(
         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
         iconPackFilePaths = iconPackFilePaths,
         isPressHome = isPressHome,
+        screen = screen,
         onTapFolderGridItem = onTapFolderGridItem,
         onEditGridItem = onEditGridItem,
         onResize = onResize,
@@ -396,6 +399,7 @@ internal fun SharedTransitionScope.PagerScreen(
             gridItemSource = gridItemSource,
             isPressHome = isPressHome,
             managedProfileResult = managedProfileResult,
+            screen = screen,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -455,6 +459,7 @@ internal fun SharedTransitionScope.PagerScreen(
             eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
             iconPackFilePaths = iconPackFilePaths,
             managedProfileResult = managedProfileResult,
+            screen = screen,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -507,6 +512,7 @@ internal fun SharedTransitionScope.PagerScreen(
             eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
             screenHeight = screenHeight,
             isPressHome = isPressHome,
+            screen = screen,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
@@ -530,6 +536,7 @@ internal fun SharedTransitionScope.PagerScreen(
             eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
             screenHeight = screenHeight,
             isPressHome = isPressHome,
+            screen = screen,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
@@ -553,6 +560,7 @@ internal fun SharedTransitionScope.PagerScreen(
             drag = drag,
             screenHeight = screenHeight,
             isPressHome = isPressHome,
+            screen = screen,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {

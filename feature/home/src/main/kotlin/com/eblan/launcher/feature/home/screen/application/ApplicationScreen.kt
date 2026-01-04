@@ -159,6 +159,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
     managedProfileResult: ManagedProfileResult?,
+    screen: Screen,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -222,6 +223,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
                     iconPackFilePaths = iconPackFilePaths,
                     isPressHome = isPressHome,
                     managedProfileResult = managedProfileResult,
+                    screen = screen,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -255,6 +257,7 @@ private fun SharedTransitionScope.Success(
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
     managedProfileResult: ManagedProfileResult?,
+    screen: Screen,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -340,6 +343,7 @@ private fun SharedTransitionScope.Success(
             iconPackFilePaths = iconPackFilePaths,
             paddingValues = paddingValues,
             isPressHome = isPressHome,
+            screen = screen,
             onUpdateGridItemOffset = { intOffset, intSize ->
                 onUpdateGridItemOffset(intOffset, intSize)
 
@@ -377,6 +381,7 @@ private fun SharedTransitionScope.Success(
                     eblanApplicationInfos = eblanApplicationInfos,
                     iconPackFilePaths = iconPackFilePaths,
                     managedProfileResult = managedProfileResult,
+                    screen = screen,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = { intOffset, intSize ->
                         onUpdateGridItemOffset(intOffset, intSize)
@@ -404,6 +409,7 @@ private fun SharedTransitionScope.Success(
                 eblanApplicationInfos = eblanApplicationInfos,
                 iconPackFilePaths = iconPackFilePaths,
                 managedProfileResult = managedProfileResult,
+                screen = screen,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = { intOffset, intSize ->
                     onUpdateGridItemOffset(intOffset, intSize)
@@ -481,6 +487,7 @@ private fun SharedTransitionScope.Success(
             drag = drag,
             screenHeight = screenHeight,
             isPressHome = isPressHome,
+            screen = screen,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {
@@ -504,6 +511,7 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
     paddingValues: PaddingValues,
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
+    screen: Screen,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -562,6 +570,7 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
                         appDrawerSettings = appDrawerSettings,
                         paddingValues = paddingValues,
                         iconPackFilePaths = iconPackFilePaths,
+                        screen = screen,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdatePopupMenu = onUpdatePopupMenu,
@@ -584,6 +593,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     appDrawerSettings: AppDrawerSettings,
     paddingValues: PaddingValues,
     iconPackFilePaths: Map<String, String>,
+    screen: Screen,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -746,7 +756,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = id,
-                                    screen = Screen.Pager,
+                                    screen = screen,
                                 ),
                             )
 
@@ -781,11 +791,9 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                 modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
-                    model = ImageRequest
-                        .Builder(context)
+                    model = ImageRequest.Builder(context)
                         .data(eblanApplicationInfo.customIcon ?: icon)
-                        .addLastModifiedToFileCacheKey(true)
-                        .build(),
+                        .addLastModifiedToFileCacheKey(true).build(),
                     contentDescription = null,
                     modifier = Modifier
                         .sharedElementWithCallerManagedVisibility(
@@ -855,6 +863,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
+    screen: Screen,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -886,15 +895,12 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
 
     LaunchedEffect(key1 = userHandle) {
         if (userHandle != null) {
-            isQuietModeEnabled =
-                userManager.isQuietModeEnabled(userHandle = userHandle)
+            isQuietModeEnabled = userManager.isQuietModeEnabled(userHandle = userHandle)
         }
     }
 
     LaunchedEffect(key1 = managedProfileResult) {
-        if (managedProfileResult != null &&
-            managedProfileResult.serialNumber == serialNumber
-        ) {
+        if (managedProfileResult != null && managedProfileResult.serialNumber == serialNumber) {
             isQuietModeEnabled = managedProfileResult.isQuiteModeEnabled
         }
     }
@@ -920,6 +926,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 appDrawerSettings = appDrawerSettings,
                 eblanApplicationInfos = eblanApplicationInfos,
                 iconPackFilePaths = iconPackFilePaths,
+                screen = screen,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onUpdatePopupMenu = onUpdatePopupMenu,
@@ -929,10 +936,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
 
-            if (packageManager.isDefaultLauncher() &&
-                serialNumber > 0 &&
-                userHandle != null
-            ) {
+            if (packageManager.isDefaultLauncher() && serialNumber > 0 && userHandle != null) {
                 FloatingActionButton(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -994,9 +998,7 @@ private fun QuiteModeScreen(
             textAlign = TextAlign.Center,
         )
 
-        if (packageManager.isDefaultLauncher() &&
-            userHandle != null
-        ) {
+        if (packageManager.isDefaultLauncher() && userHandle != null) {
             Spacer(modifier = Modifier.height(10.dp))
 
             OutlinedButton(onClick = {
@@ -1024,6 +1026,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     appDrawerSettings: AppDrawerSettings,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
     iconPackFilePaths: Map<String, String>,
+    screen: Screen,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -1099,6 +1102,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                         appDrawerSettings = appDrawerSettings,
                         paddingValues = paddingValues,
                         iconPackFilePaths = iconPackFilePaths,
+                        screen = screen,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdatePopupMenu = onUpdatePopupMenu,

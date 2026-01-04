@@ -61,6 +61,8 @@ import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
+import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -95,6 +97,7 @@ internal fun SharedTransitionScope.DragScreen(
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
     lockMovement: Boolean,
+    screen: Screen,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -124,6 +127,7 @@ internal fun SharedTransitionScope.DragScreen(
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
     ) -> Unit,
     onShowFolderWhenDragging: (String) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -340,7 +344,11 @@ internal fun SharedTransitionScope.DragScreen(
     }
 
     LaunchedEffect(key1 = moveGridItemResult) {
-        handleConflictingGridItem(moveGridItemResult, onShowFolderWhenDragging)
+        handleConflictingGridItem(
+            moveGridItemResult = moveGridItemResult,
+            onShowFolderWhenDragging = onShowFolderWhenDragging,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
+        )
     }
 
     Column(
@@ -399,6 +407,7 @@ internal fun SharedTransitionScope.DragScreen(
                         hasShortcutHostPermission = hasShortcutHostPermission,
                         drag = drag,
                         iconPackFilePaths = iconPackFilePaths,
+                        screen = screen,
                     )
                 },
             )
@@ -453,6 +462,7 @@ internal fun SharedTransitionScope.DragScreen(
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     drag = drag,
                     iconPackFilePaths = iconPackFilePaths,
+                    screen = screen,
                 )
             },
         )

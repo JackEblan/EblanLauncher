@@ -30,6 +30,8 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
+import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import kotlinx.coroutines.delay
 
 internal suspend fun handleDragFolderGridItem(
@@ -64,6 +66,7 @@ internal suspend fun handleDragFolderGridItem(
         folderId: String,
         movingGridItem: GridItem,
     ) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     if (folderId == null ||
         drag != Drag.Dragging ||
@@ -120,6 +123,13 @@ internal suspend fun handleDragFolderGridItem(
         onUpdatePageDirection(PageDirection.Right)
     } else if (isOnTopGrid) {
         delay(100L)
+
+        onUpdateSharedElementKey(
+            SharedElementKey(
+                id = gridItem.id,
+                screen = Screen.Drag,
+            ),
+        )
 
         onMoveGridItemOutsideFolder(
             GridItemSource.Existing(

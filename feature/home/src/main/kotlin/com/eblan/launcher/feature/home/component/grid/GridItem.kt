@@ -77,6 +77,7 @@ internal fun SharedTransitionScope.GridItemContent(
     hasShortcutHostPermission: Boolean,
     drag: Drag = Drag.End,
     iconPackFilePaths: Map<String, String>,
+    screen: Screen,
 ) {
     key(gridItem.id) {
         if (isDragging) {
@@ -96,6 +97,7 @@ internal fun SharedTransitionScope.GridItemContent(
                         statusBarNotifications = statusBarNotifications,
                         drag = drag,
                         iconPackFilePaths = iconPackFilePaths,
+                        screen = screen,
                     )
                 }
 
@@ -105,6 +107,7 @@ internal fun SharedTransitionScope.GridItemContent(
                         gridItem = gridItem,
                         data = data,
                         drag = drag,
+                        screen = screen,
                     )
                 }
 
@@ -117,6 +120,7 @@ internal fun SharedTransitionScope.GridItemContent(
                         gridItemSettings = gridItemSettings,
                         hasShortcutHostPermission = hasShortcutHostPermission,
                         drag = drag,
+                        screen = screen,
                     )
                 }
 
@@ -129,6 +133,7 @@ internal fun SharedTransitionScope.GridItemContent(
                         gridItemSettings = gridItemSettings,
                         drag = drag,
                         iconPackFilePaths = iconPackFilePaths,
+                        screen = screen,
                     )
                 }
 
@@ -140,6 +145,7 @@ internal fun SharedTransitionScope.GridItemContent(
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
                         drag = drag,
+                        screen = screen,
                     )
                 }
             }
@@ -199,6 +205,7 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
     statusBarNotifications: Map<String, Int>,
     drag: Drag,
     iconPackFilePaths: Map<String, String>,
+    screen: Screen,
 ) {
     val context = LocalContext.current
 
@@ -238,7 +245,7 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
                         rememberSharedContentState(
                             key = SharedElementKey(
                                 id = gridItem.id,
-                                screen = Screen.Drag,
+                                screen = screen,
                             ),
                         ),
                         visible = drag == Drag.Cancel || drag == Drag.End,
@@ -296,6 +303,7 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
     gridItemSettings: GridItemSettings,
     hasShortcutHostPermission: Boolean,
     drag: Drag,
+    screen: Screen,
 ) {
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
@@ -330,7 +338,7 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
                         rememberSharedContentState(
                             key = SharedElementKey(
                                 id = gridItem.id,
-                                screen = Screen.Drag,
+                                screen = screen,
                             ),
                         ),
                         visible = drag == Drag.Cancel || drag == Drag.End,
@@ -374,6 +382,7 @@ private fun SharedTransitionScope.FolderGridItem(
     gridItemSettings: GridItemSettings,
     drag: Drag,
     iconPackFilePaths: Map<String, String>,
+    screen: Screen,
 ) {
     val context = LocalContext.current
 
@@ -401,7 +410,7 @@ private fun SharedTransitionScope.FolderGridItem(
                 rememberSharedContentState(
                     key = SharedElementKey(
                         id = gridItem.id,
-                        screen = Screen.Drag,
+                        screen = screen,
                     ),
                 ),
                 visible = drag == Drag.Cancel || drag == Drag.End,
@@ -430,7 +439,7 @@ private fun SharedTransitionScope.FolderGridItem(
                                 rememberSharedContentState(
                                     key = SharedElementKey(
                                         id = gridItem.id,
-                                        screen = Screen.Drag,
+                                        screen = screen,
                                     ),
                                 ),
                                 visible = drag == Drag.Cancel || drag == Drag.End,
@@ -534,6 +543,7 @@ private fun SharedTransitionScope.WidgetGridItem(
     gridItem: GridItem,
     data: GridItemData.Widget,
     drag: Drag,
+    screen: Screen,
 ) {
     val appWidgetManager = LocalAppWidgetManager.current
 
@@ -546,7 +556,7 @@ private fun SharedTransitionScope.WidgetGridItem(
             rememberSharedContentState(
                 key = SharedElementKey(
                     id = gridItem.id,
-                    screen = Screen.Drag,
+                    screen = screen,
                 ),
             ),
             visible = drag == Drag.Cancel || drag == Drag.End,
@@ -581,6 +591,7 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
     textColor: Color,
     gridItemSettings: GridItemSettings,
     drag: Drag,
+    screen: Screen,
 ) {
     val context = LocalContext.current
 
@@ -625,7 +636,7 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
                         rememberSharedContentState(
                             key = SharedElementKey(
                                 id = gridItem.id,
-                                screen = Screen.Drag,
+                                screen = screen,
                             ),
                         ),
                         visible = drag == Drag.Cancel || drag == Drag.End,

@@ -925,7 +925,10 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
 
-            if (packageManager.isDefaultLauncher() && serialNumber > 0 && userHandle != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+                packageManager.isDefaultLauncher() && serialNumber > 0 &&
+                userHandle != null
+            ) {
                 FloatingActionButton(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -987,7 +990,10 @@ private fun QuiteModeScreen(
             textAlign = TextAlign.Center,
         )
 
-        if (packageManager.isDefaultLauncher() && userHandle != null) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+            packageManager.isDefaultLauncher() &&
+            userHandle != null
+        ) {
             Spacer(modifier = Modifier.height(10.dp))
 
             OutlinedButton(onClick = {

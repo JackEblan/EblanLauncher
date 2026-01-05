@@ -19,8 +19,10 @@ package com.eblan.launcher.framework.usermanager
 
 import android.content.Context
 import android.content.Context.USER_SERVICE
+import android.os.Build
 import android.os.UserHandle
 import android.os.UserManager
+import androidx.annotation.RequiresApi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -48,6 +50,7 @@ internal class DefaultUserManagerWrapper @Inject constructor(@param:ApplicationC
         return userManager.isQuietModeEnabled(userHandle)
     }
 
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun requestQuietModeEnabled(
         enableQuiteMode: Boolean,
         userHandle: UserHandle,

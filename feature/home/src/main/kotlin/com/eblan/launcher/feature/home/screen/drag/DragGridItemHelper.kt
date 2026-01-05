@@ -249,19 +249,16 @@ internal suspend fun handleDragGridItem(
 }
 
 internal suspend fun handleConflictingGridItem(
-    drag: Drag,
     moveGridItemResult: MoveGridItemResult?,
     onShowFolderWhenDragging: (String) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
-    if (drag != Drag.Dragging) return
-
     if (moveGridItemResult == null) return
 
     val conflictingGridItem = moveGridItemResult.conflictingGridItem
 
     if (conflictingGridItem != null) {
-        delay(1000L)
+        delay(1500L)
 
         onUpdateSharedElementKey(
             SharedElementKey(

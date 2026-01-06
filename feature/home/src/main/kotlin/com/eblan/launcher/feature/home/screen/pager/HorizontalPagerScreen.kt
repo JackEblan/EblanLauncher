@@ -314,6 +314,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                 .fillMaxWidth()
                 .height(pageIndicatorHeight),
             gridHorizontalPagerState = gridHorizontalPagerState,
+            infiniteScroll = homeSettings.infiniteScroll,
             pageCount = homeSettings.pageCount,
             color = getSystemTextColor(textColor = textColor),
         )

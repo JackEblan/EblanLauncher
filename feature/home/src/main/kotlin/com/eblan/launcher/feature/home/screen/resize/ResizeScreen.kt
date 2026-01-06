@@ -187,6 +187,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                 .height(pageIndicatorHeight)
                 .fillMaxWidth(),
             gridHorizontalPagerState = gridHorizontalPagerState,
+            infiniteScroll = homeSettings.infiniteScroll,
             pageCount = homeSettings.pageCount,
             color = getSystemTextColor(textColor = textColor),
         )

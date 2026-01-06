@@ -515,7 +515,7 @@ internal fun HomeScreen(
                             overlayImageBitmap = null
 
                             sharedElementKey = null
-                        }
+                        },
                     )
                 }
             }

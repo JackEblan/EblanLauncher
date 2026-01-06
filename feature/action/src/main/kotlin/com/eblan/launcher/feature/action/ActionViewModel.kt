@@ -33,7 +33,7 @@ class ActionViewModel @Inject constructor(eblanApplicationInfoRepository: EblanA
     val actionUiState =
         eblanApplicationInfoRepository.eblanApplicationInfos.map { eblanApplicationInfos ->
             eblanApplicationInfos.sortedBy { eblanApplicationInfo ->
-                eblanApplicationInfo.label?.lowercase()
+                eblanApplicationInfo.label.lowercase()
             }.run(ActionUiState::Success)
         }.stateIn(
             scope = viewModelScope,

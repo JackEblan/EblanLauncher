@@ -141,7 +141,6 @@ private fun PinShortcutScreen(
         shortLabel: String,
         longLabel: String,
         isEnabled: Boolean,
-        disabledMessage: String?,
         byteArray: ByteArray?,
     ) -> Unit,
     onDeleteShortcutGridItem: (GridItem) -> Unit,
@@ -213,7 +212,6 @@ private fun PinShortcutScreen(
                                 shortcutInfo.shortLabel.toString(),
                                 shortcutInfo.longLabel.toString(),
                                 shortcutInfo.isEnabled,
-                                shortcutInfo.disabledMessage?.toString(),
                                 icon?.let {
                                     byteArrayWrapper.createByteArray(drawable = it)
                                 },

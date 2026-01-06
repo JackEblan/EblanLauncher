@@ -104,7 +104,6 @@ internal fun SharedTransitionScope.FolderDragScreen(
         folderId: String,
         movingGridItem: GridItem,
     ) -> Unit,
-    onResetOverlay: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     requireNotNull(gridItemSource)
@@ -185,8 +184,6 @@ internal fun SharedTransitionScope.FolderDragScreen(
                         onDragCancel()
                     },
                 )
-
-                onResetOverlay()
             }
 
             else -> Unit
@@ -252,10 +249,10 @@ internal fun SharedTransitionScope.FolderDragScreen(
                     }
 
                     val isDragging = (
-                            drag == Drag.Start ||
-                                    drag == Drag.Dragging
-                            ) &&
-                            gridItem.id == gridItemSource.gridItem.id
+                        drag == Drag.Start ||
+                            drag == Drag.Dragging
+                        ) &&
+                        gridItem.id == gridItemSource.gridItem.id
 
                     GridItemContent(
                         gridItem = gridItem,

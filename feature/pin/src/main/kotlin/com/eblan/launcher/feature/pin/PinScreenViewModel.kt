@@ -60,7 +60,6 @@ class PinScreenViewModel @Inject constructor(
         shortLabel: String,
         longLabel: String,
         isEnabled: Boolean,
-        disabledMessage: String?,
         byteArray: ByteArray?,
     ) {
         viewModelScope.launch {
@@ -72,7 +71,6 @@ class PinScreenViewModel @Inject constructor(
                     shortLabel = shortLabel,
                     longLabel = longLabel,
                     isEnabled = isEnabled,
-                    disabledMessage = disabledMessage,
                     byteArray = byteArray,
                 )
             }

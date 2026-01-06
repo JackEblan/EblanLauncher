@@ -105,7 +105,6 @@ internal fun SharedTransitionScope.FolderScreen(
         intSize: IntSize,
     ) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
-    onResetOverlay: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -172,12 +171,6 @@ internal fun SharedTransitionScope.FolderScreen(
 
         onDispose {
             activity.removeOnNewIntentListener(listener)
-        }
-    }
-
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.End || drag == Drag.Cancel) {
-            onResetOverlay()
         }
     }
 

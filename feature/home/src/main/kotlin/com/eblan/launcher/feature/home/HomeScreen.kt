@@ -499,15 +499,6 @@ internal fun HomeScreen(
                         onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                         onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
                         onDeleteGridItem = onDeleteGridItem,
-                        onResetOverlay = {
-                            overlayIntOffset = IntOffset.Zero
-
-                            overlayIntSize = IntSize.Zero
-
-                            overlayImageBitmap = null
-
-                            sharedElementKey = null
-                        },
                         onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
                         onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                         onEditApplicationInfo = onEditApplicationInfo,
@@ -526,6 +517,15 @@ internal fun HomeScreen(
                 overlayImageBitmap = overlayImageBitmap,
                 sharedElementKey = sharedElementKey,
                 drag = drag,
+                onResetOverlay = {
+                    overlayIntOffset = IntOffset.Zero
+
+                    overlayIntSize = IntSize.Zero
+
+                    overlayImageBitmap = null
+
+                    sharedElementKey = null
+                },
             )
         }
     }
@@ -620,7 +620,6 @@ private fun SharedTransitionScope.Success(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
-    onResetOverlay: () -> Unit,
     onUpdateShortcutConfigGridItemDataCache: (
         byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
@@ -781,7 +780,6 @@ private fun SharedTransitionScope.Success(
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                     onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
                     onDeleteGridItem = onDeleteGridItem,
-                    onResetOverlay = onResetOverlay,
                     onEditApplicationInfo = onEditApplicationInfo,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
@@ -892,7 +890,6 @@ private fun SharedTransitionScope.Success(
                             Screen.FolderDrag,
                         )
                     },
-                    onResetOverlay = onResetOverlay,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
@@ -929,7 +926,6 @@ private fun SharedTransitionScope.Success(
                             Screen.Drag,
                         )
                     },
-                    onResetOverlay = onResetOverlay,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
@@ -950,11 +946,18 @@ private fun SharedTransitionScope.OverlayImage(
     overlayImageBitmap: ImageBitmap?,
     sharedElementKey: SharedElementKey?,
     drag: Drag,
+    onResetOverlay: () -> Unit,
 ) {
     val density = LocalDensity.current
 
     val size = with(density) {
         DpSize(width = overlayIntSize.width.toDp(), height = overlayIntSize.height.toDp())
+    }
+
+    LaunchedEffect(key1 = isTransitionActive) {
+        if (!isTransitionActive) {
+            onResetOverlay()
+        }
     }
 
     if (overlayImageBitmap != null && sharedElementKey != null) {

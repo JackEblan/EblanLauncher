@@ -84,7 +84,6 @@ class LauncherAppsService : Service() {
 
                     is LauncherAppsEvent.ShortcutsChanged -> {
                         changeShortcutsUseCase(
-                            packageName = launcherAppsEvent.packageName,
                             launcherAppsShortcutInfos = launcherAppsEvent.launcherAppsShortcutInfos,
                         )
                     }

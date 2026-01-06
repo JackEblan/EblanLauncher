@@ -790,7 +790,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                         rememberSharedContentState(
                             key = SharedElementKey(
                                 id = id,
-                                screen = Screen.Pager,
+                                screen = screen,
                             ),
                         ),
                         visible = drag == Drag.Cancel || drag == Drag.End,

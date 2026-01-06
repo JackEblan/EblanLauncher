@@ -56,7 +56,6 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
         shortLabel: String,
         longLabel: String,
         isEnabled: Boolean,
-        disabledMessage: String?,
         byteArray: ByteArray?,
     ): GridItem? {
         return withContext(defaultDispatcher) {

@@ -39,10 +39,7 @@ class ChangeShortcutsUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(
-        packageName: String,
-        launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
-    ) {
+    suspend operator fun invoke(launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>) {
         if (!launcherAppsWrapper.hasShortcutHostPermission) {
             return
         }

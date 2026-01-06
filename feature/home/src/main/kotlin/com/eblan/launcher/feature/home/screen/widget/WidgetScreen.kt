@@ -536,6 +536,8 @@ internal fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
+    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+
     val id = remember { Uuid.random().toHexString() }
 
     LaunchedEffect(key1 = drag) {
@@ -634,43 +636,45 @@ internal fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            text = if (eblanAppWidgetProviderInfo.targetCellWidth > 0 && eblanAppWidgetProviderInfo.targetCellHeight > 0) {
-                "Cell ${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}"
-            } else {
-                "Size ${eblanAppWidgetProviderInfo.minWidth}x${eblanAppWidgetProviderInfo.minHeight}"
-            },
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodySmall,
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        AsyncImage(
-            modifier = Modifier
-                .sharedElementWithCallerManagedVisibility(
-                    rememberSharedContentState(
-                        key = SharedElementKey(
-                            id = id,
-                            screen = screen,
-                        ),
-                    ),
-                    visible = drag == Drag.Cancel || drag == Drag.End,
-                )
-                .drawWithContent {
-                    graphicsLayer.record {
-                        this@drawWithContent.drawContent()
-                    }
-
-                    drawLayer(graphicsLayer)
-                }
-                .onGloballyPositioned { layoutCoordinates ->
-                    intOffset = layoutCoordinates.positionInRoot().round()
-
-                    intSize = layoutCoordinates.size
+        if (!isDragging) {
+            Text(
+                text = if (eblanAppWidgetProviderInfo.targetCellWidth > 0 && eblanAppWidgetProviderInfo.targetCellHeight > 0) {
+                    "Cell ${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}"
+                } else {
+                    "Size ${eblanAppWidgetProviderInfo.minWidth}x${eblanAppWidgetProviderInfo.minHeight}"
                 },
-            model = preview,
-            contentDescription = null,
-        )
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodySmall,
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            AsyncImage(
+                modifier = Modifier
+                    .sharedElementWithCallerManagedVisibility(
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = id,
+                                screen = screen,
+                            ),
+                        ),
+                        visible = drag == Drag.Cancel || drag == Drag.End,
+                    )
+                    .drawWithContent {
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
+                        }
+
+                        drawLayer(graphicsLayer)
+                    }
+                    .onGloballyPositioned { layoutCoordinates ->
+                        intOffset = layoutCoordinates.positionInRoot().round()
+
+                        intSize = layoutCoordinates.size
+                    },
+                model = preview,
+                contentDescription = null,
+            )
+        }
     }
 }

@@ -106,6 +106,7 @@ internal fun SharedTransitionScope.FolderScreen(
     ) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -171,6 +172,12 @@ internal fun SharedTransitionScope.FolderScreen(
 
         onDispose {
             activity.removeOnNewIntentListener(listener)
+        }
+    }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.End || drag == Drag.Cancel) {
+            onResetOverlay()
         }
     }
 
@@ -255,8 +262,7 @@ internal fun SharedTransitionScope.FolderScreen(
                                     statusBarNotifications = statusBarNotifications,
                                     isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
                                     iconPackFilePaths = iconPackFilePaths,
-                                    initialScreen = screen,
-                                    targetScreen = Screen.FolderDrag,
+                                    screen = screen,
                                     onTapApplicationInfo = { serialNumber, componentName ->
                                         val sourceBoundsX = x + leftPadding
 

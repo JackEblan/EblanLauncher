@@ -507,6 +507,15 @@ internal fun HomeScreen(
                         },
                         onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
                         onShowFolderWhenDragging = onShowFolderWhenDragging,
+                        onResetOverlay = {
+                            overlayIntOffset = IntOffset.Zero
+
+                            overlayIntSize = IntSize.Zero
+
+                            overlayImageBitmap = null
+
+                            sharedElementKey = null
+                        }
                     )
                 }
             }
@@ -517,15 +526,6 @@ internal fun HomeScreen(
                 overlayImageBitmap = overlayImageBitmap,
                 sharedElementKey = sharedElementKey,
                 drag = drag,
-                onResetOverlay = {
-                    overlayIntOffset = IntOffset.Zero
-
-                    overlayIntSize = IntSize.Zero
-
-                    overlayImageBitmap = null
-
-                    sharedElementKey = null
-                },
             )
         }
     }
@@ -642,6 +642,7 @@ private fun SharedTransitionScope.Success(
         screen: Screen,
     ) -> Unit,
     onShowFolderWhenDragging: (String) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val activity = LocalActivity.current
 
@@ -782,6 +783,7 @@ private fun SharedTransitionScope.Success(
                     onDeleteGridItem = onDeleteGridItem,
                     onEditApplicationInfo = onEditApplicationInfo,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onResetOverlay = onResetOverlay,
                 )
             }
 
@@ -891,6 +893,7 @@ private fun SharedTransitionScope.Success(
                         )
                     },
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onResetOverlay = onResetOverlay,
                 )
             }
 
@@ -946,18 +949,11 @@ private fun SharedTransitionScope.OverlayImage(
     overlayImageBitmap: ImageBitmap?,
     sharedElementKey: SharedElementKey?,
     drag: Drag,
-    onResetOverlay: () -> Unit,
 ) {
     val density = LocalDensity.current
 
     val size = with(density) {
         DpSize(width = overlayIntSize.width.toDp(), height = overlayIntSize.height.toDp())
-    }
-
-    LaunchedEffect(key1 = isTransitionActive) {
-        if (!isTransitionActive) {
-            onResetOverlay()
-        }
     }
 
     if (overlayImageBitmap != null && sharedElementKey != null) {

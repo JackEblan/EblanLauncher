@@ -254,7 +254,7 @@ internal suspend fun handleConflictingGridItem(
     onShowFolderWhenDragging: (String) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
-    delay(1000L)
+    delay(1500L)
 
     if (drag != Drag.Dragging) return
 

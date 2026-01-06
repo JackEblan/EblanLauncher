@@ -238,8 +238,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         statusBarNotifications = statusBarNotifications,
                         isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                         iconPackFilePaths = iconPackFilePaths,
-                        initialScreen = screen,
-                        targetScreen = Screen.Drag,
+                        screen = screen,
                         onTapApplicationInfo = { serialNumber, componentName ->
                             val sourceBoundsX = x + leftPadding
 
@@ -285,7 +284,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                             popupIntOffset = intOffset
 
                             popupIntSize = IntSize(
-                                width = width,
+                                width = intSize.width,
                                 height = height,
                             )
 
@@ -355,8 +354,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     statusBarNotifications = statusBarNotifications,
                     isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                     iconPackFilePaths = iconPackFilePaths,
-                    initialScreen = screen,
-                    targetScreen = Screen.Drag,
+                    screen = screen,
                     onTapApplicationInfo = { serialNumber, componentName ->
                         val sourceBoundsX = x + leftPadding
 
@@ -402,7 +400,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         popupIntOffset = intOffset
 
                         popupIntSize = IntSize(
-                            width = width,
+                            width = intSize.width,
                             height = height,
                         )
 

@@ -652,6 +652,8 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
+    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+
     val id = remember { Uuid.random().toHexString() }
 
     LaunchedEffect(key1 = drag) {
@@ -777,65 +779,67 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        Box(
-            modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp),
-        ) {
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(eblanApplicationInfo.customIcon ?: icon)
-                    .addLastModifiedToFileCacheKey(true).build(),
-                contentDescription = null,
-                modifier = Modifier
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = id,
-                                screen = screen,
-                            ),
-                        ),
-                        visible = drag == Drag.Cancel || drag == Drag.End,
-                    )
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
-
-                        drawLayer(graphicsLayer)
-                    }
-                    .onGloballyPositioned { layoutCoordinates ->
-                        intOffset = layoutCoordinates.positionInRoot().round()
-
-                        intSize = layoutCoordinates.size
-                    }
-                    .matchParentSize(),
-            )
-
-            if (eblanApplicationInfo.serialNumber != 0L) {
-                ElevatedCard(
+        if (!isDragging) {
+            Box(
+                modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp),
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(eblanApplicationInfo.customIcon ?: icon)
+                        .addLastModifiedToFileCacheKey(true).build(),
+                    contentDescription = null,
                     modifier = Modifier
-                        .size((appDrawerSettings.gridItemSettings.iconSize * 0.40).dp)
-                        .align(Alignment.BottomEnd),
-                ) {
-                    Icon(
-                        imageVector = EblanLauncherIcons.Work,
-                        contentDescription = null,
-                        modifier = Modifier.padding(2.dp),
-                    )
+                        .sharedElementWithCallerManagedVisibility(
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = id,
+                                    screen = screen,
+                                ),
+                            ),
+                            visible = drag == Drag.Cancel || drag == Drag.End,
+                        )
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+
+                            drawLayer(graphicsLayer)
+                        }
+                        .onGloballyPositioned { layoutCoordinates ->
+                            intOffset = layoutCoordinates.positionInRoot().round()
+
+                            intSize = layoutCoordinates.size
+                        }
+                        .matchParentSize(),
+                )
+
+                if (eblanApplicationInfo.serialNumber != 0L) {
+                    ElevatedCard(
+                        modifier = Modifier
+                            .size((appDrawerSettings.gridItemSettings.iconSize * 0.40).dp)
+                            .align(Alignment.BottomEnd),
+                    ) {
+                        Icon(
+                            imageVector = EblanLauncherIcons.Work,
+                            contentDescription = null,
+                            modifier = Modifier.padding(2.dp),
+                        )
+                    }
                 }
             }
-        }
 
-        if (appDrawerSettings.gridItemSettings.showLabel) {
-            Spacer(modifier = Modifier.height(10.dp))
+            if (appDrawerSettings.gridItemSettings.showLabel) {
+                Spacer(modifier = Modifier.height(10.dp))
 
-            Text(
-                text = eblanApplicationInfo.customLabel ?: eblanApplicationInfo.label,
-                color = textColor,
-                textAlign = TextAlign.Center,
-                maxLines = maxLines,
-                fontSize = appDrawerSettings.gridItemSettings.textSize.sp,
-                overflow = TextOverflow.Ellipsis,
-            )
+                Text(
+                    text = eblanApplicationInfo.customLabel ?: eblanApplicationInfo.label,
+                    color = textColor,
+                    textAlign = TextAlign.Center,
+                    maxLines = maxLines,
+                    fontSize = appDrawerSettings.gridItemSettings.textSize.sp,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }

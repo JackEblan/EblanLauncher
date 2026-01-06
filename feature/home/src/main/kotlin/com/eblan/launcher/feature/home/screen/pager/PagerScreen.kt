@@ -133,6 +133,7 @@ internal fun SharedTransitionScope.PagerScreen(
         packageName: String,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -272,6 +273,12 @@ internal fun SharedTransitionScope.PagerScreen(
 
         onDispose {
             activity.removeOnNewIntentListener(listener)
+        }
+    }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.End || drag == Drag.Cancel) {
+            onResetOverlay()
         }
     }
 

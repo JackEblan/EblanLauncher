@@ -24,8 +24,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -36,29 +40,38 @@ import kotlin.math.abs
 @Composable
 fun PageIndicator(
     modifier: Modifier = Modifier,
+    gridHorizontalPagerState: PagerState,
     pageCount: Int,
-    currentPage: Int,
-    pageOffset: Float,
     color: Color,
 ) {
+    val baseWidth = 8.dp
+    val baseHeight = 8.dp
+    val activeWidth = 16.dp
+
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center,
     ) {
         if (pageCount > 1) {
             repeat(pageCount) { index ->
-                val rel = (currentPage + pageOffset) - index
-                val dist = rel.coerceIn(-1f, 1f)
+                val dist by remember(key1 = index) {
+                    derivedStateOf {
+                        val rel =
+                            (gridHorizontalPagerState.currentPage + gridHorizontalPagerState.currentPageOffsetFraction) - index
 
-                val baseWidth = 8.dp
-                val baseHeight = 8.dp
-                val activeWidth = 16.dp
+                        rel.coerceIn(-1f, 1f)
+                    }
+                }
 
-                val width = when (dist) {
-                    0f -> activeWidth
-                    in -1f..0f -> baseWidth + (activeWidth - baseWidth) * (1f + dist)
-                    in 0f..1f -> baseWidth + (activeWidth - baseWidth) * (1f - dist)
-                    else -> baseWidth
+                val width by remember {
+                    derivedStateOf {
+                        when (dist) {
+                            0f -> activeWidth
+                            in -1f..0f -> baseWidth + (activeWidth - baseWidth) * (1f + dist)
+                            in 0f..1f -> baseWidth + (activeWidth - baseWidth) * (1f - dist)
+                            else -> baseWidth
+                        }
+                    }
                 }
 
                 Box(

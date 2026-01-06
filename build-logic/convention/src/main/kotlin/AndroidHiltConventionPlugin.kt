@@ -32,6 +32,7 @@ class AndroidHiltConventionPlugin : Plugin<Project> {
             dependencies {
                 add("implementation", libs.hilt.android)
                 add("ksp", libs.hilt.compiler)
+                add("ksp", libs.kotlin.metadata.jvm)
             }
         }
     }

@@ -35,7 +35,7 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -61,6 +61,7 @@ import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
@@ -68,7 +69,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -345,6 +346,8 @@ internal fun HomeScreen(
 
     var sharedElementKey by remember { mutableStateOf<SharedElementKey?>(null) }
 
+    var screenIntSize by remember { mutableStateOf(IntSize.Zero) }
+
     val target = remember {
         object : DragAndDropTarget {
             override fun onStarted(event: DragAndDropEvent) {
@@ -434,9 +437,12 @@ internal fun HomeScreen(
                 },
                 target = target,
             )
+            .onSizeChanged { intSize ->
+                screenIntSize = intSize
+            }
             .fillMaxSize(),
     ) {
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize()) {
             when (homeUiState) {
                 HomeUiState.Loading -> {}
                 is HomeUiState.Success -> {
@@ -446,8 +452,8 @@ internal fun HomeScreen(
                         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                         pageItems = pageItems,
                         movedGridItemResult = movedGridItemResult,
-                        screenWidth = this@BoxWithConstraints.constraints.maxWidth,
-                        screenHeight = this@BoxWithConstraints.constraints.maxHeight,
+                        screenWidth = screenIntSize.width,
+                        screenHeight = screenIntSize.height,
                         paddingValues = paddingValues,
                         dragIntOffset = dragIntOffset,
                         drag = drag,
@@ -831,6 +837,7 @@ private fun SharedTransitionScope.Success(
                     lockMovement = homeData.userData.experimentalSettings.lockMovement,
                     moveGridItemResult = movedGridItemResult,
                     screen = targetState,
+                    gridHorizontalPagerState = gridHorizontalPagerState,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResetGridCacheAfterResize,
                     onResizeCancel = onCancelGridCache,

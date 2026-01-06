@@ -325,9 +325,8 @@ internal fun SharedTransitionScope.FolderScreen(
                         modifier = Modifier
                             .height(pageIndicatorHeight)
                             .fillMaxWidth(),
-                        pageCount = folderGridHorizontalPagerState.pageCount,
-                        currentPage = folderGridHorizontalPagerState.currentPage,
-                        pageOffset = folderGridHorizontalPagerState.currentPageOffsetFraction,
+                        gridHorizontalPagerState = folderGridHorizontalPagerState,
+                        pageCount = folderDataById.pageCount,
                         color = getSystemTextColor(textColor = textColor),
                     )
                 }

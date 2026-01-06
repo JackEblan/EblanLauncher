@@ -34,11 +34,11 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 add("implementation", project(":design-system"))
                 add("implementation", project(":ui"))
 
+                add("implementation", libs.androidx.hilt.lifecycle.viewmodel.compose)
                 add("implementation", libs.androidx.hilt.navigation.compose)
                 add("implementation", libs.androidx.activity.compose)
                 add("implementation", libs.androidx.activity.ktx)
                 add("implementation", libs.androidx.lifecycle.runtime.compose)
-                add("implementation", libs.androidx.lifecycle.viewmodel.compose)
                 add("implementation", libs.androidx.navigation.compose)
                 add("implementation", libs.kotlinx.serialization.json)
             }

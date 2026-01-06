@@ -35,7 +35,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             configure<ApplicationExtension> {
                 defaultConfig {
-                    targetSdk = 35
+                    targetSdk = 36
                 }
 
                 configureKotlinAndroid(this)

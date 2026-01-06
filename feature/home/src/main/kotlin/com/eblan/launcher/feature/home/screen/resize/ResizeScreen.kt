@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -73,6 +74,7 @@ internal fun SharedTransitionScope.ResizeScreen(
     lockMovement: Boolean,
     moveGridItemResult: MoveGridItemResult?,
     screen: Screen,
+    gridHorizontalPagerState: PagerState,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
@@ -184,9 +186,8 @@ internal fun SharedTransitionScope.ResizeScreen(
             modifier = Modifier
                 .height(pageIndicatorHeight)
                 .fillMaxWidth(),
+            gridHorizontalPagerState = gridHorizontalPagerState,
             pageCount = homeSettings.pageCount,
-            currentPage = currentPage,
-            pageOffset = 0f,
             color = getSystemTextColor(textColor = textColor),
         )
 

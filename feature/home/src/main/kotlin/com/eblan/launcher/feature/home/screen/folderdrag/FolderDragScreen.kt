@@ -123,7 +123,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
 
     var titleHeight by remember { mutableIntStateOf(0) }
 
-    val folderDataById = foldersDataById.lastOrNull()
+    val folderDataById = requireNotNull(foldersDataById.lastOrNull())
 
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleDragFolderGridItem(
@@ -141,7 +141,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
             paddingValues = paddingValues,
             titleHeight = titleHeight,
             lockMovement = lockMovement,
-            folderId = folderDataById?.folderId,
+            folderId = folderDataById.folderId,
             screen = screen,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
@@ -213,7 +213,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = folderDataById?.label.toString(),
+                text = folderDataById.label,
                 color = getSystemTextColor(textColor = textColor),
                 style = MaterialTheme.typography.headlineLarge,
             )
@@ -252,10 +252,10 @@ internal fun SharedTransitionScope.FolderDragScreen(
                     }
 
                     val isDragging = (
-                        drag == Drag.Start ||
-                            drag == Drag.Dragging
-                        ) &&
-                        gridItem.id == gridItemSource.gridItem.id
+                            drag == Drag.Start ||
+                                    drag == Drag.Dragging
+                            ) &&
+                            gridItem.id == gridItemSource.gridItem.id
 
                     GridItemContent(
                         gridItem = gridItem,
@@ -275,9 +275,8 @@ internal fun SharedTransitionScope.FolderDragScreen(
             modifier = Modifier
                 .height(pageIndicatorHeight)
                 .fillMaxWidth(),
-            pageCount = folderGridHorizontalPagerState.pageCount,
-            currentPage = folderGridHorizontalPagerState.currentPage,
-            pageOffset = folderGridHorizontalPagerState.currentPageOffsetFraction,
+            gridHorizontalPagerState = folderGridHorizontalPagerState,
+            pageCount = folderDataById.pageCount,
             color = getSystemTextColor(textColor = textColor),
         )
     }

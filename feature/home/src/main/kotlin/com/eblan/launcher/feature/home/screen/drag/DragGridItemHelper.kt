@@ -118,7 +118,7 @@ internal suspend fun handleDragGridItem(
     }
 
     val edgeDistance = with(density) {
-        30.dp.roundToPx()
+        15.dp.roundToPx()
     }
 
     val horizontalPadding = leftPadding + rightPadding
@@ -140,11 +140,11 @@ internal suspend fun handleDragGridItem(
     val isOnDock = dragY > (gridHeight - dockHeightPx)
 
     if (isOnLeftGrid) {
-        delay(1000L)
+        delay(500L)
 
         onUpdatePageDirection(PageDirection.Left)
     } else if (isOnRightGrid) {
-        delay(1000L)
+        delay(500L)
 
         onUpdatePageDirection(PageDirection.Right)
     } else if (isOnDock) {

@@ -68,6 +68,7 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -85,6 +86,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -118,6 +120,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.ManagedProfileResult
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
@@ -128,6 +131,7 @@ import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
+import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
@@ -160,6 +164,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     isPressHome: Boolean,
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
+    textColor: TextColor,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -181,7 +186,11 @@ internal fun SharedTransitionScope.ApplicationScreen(
 ) {
     val alpha by remember {
         derivedStateOf {
-            ((screenHeight - offsetY()) / (screenHeight / 2)).coerceIn(0f, 1f)
+            if (appDrawerSettings.transparent) {
+                1f
+            } else {
+                ((screenHeight - offsetY()) / (screenHeight / 2)).coerceIn(0f, 1f)
+            }
         }
     }
 
@@ -201,6 +210,11 @@ internal fun SharedTransitionScope.ApplicationScreen(
             .fillMaxSize()
             .clip(RoundedCornerShape(cornerSize))
             .alpha(alpha),
+        color = if (appDrawerSettings.transparent) {
+            Color.Transparent
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
     ) {
         when (eblanApplicationComponentUiState) {
             EblanApplicationComponentUiState.Loading -> {
@@ -224,6 +238,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
                     isPressHome = isPressHome,
                     managedProfileResult = managedProfileResult,
                     screen = screen,
+                    textColor = textColor,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -258,6 +273,7 @@ private fun SharedTransitionScope.Success(
     isPressHome: Boolean,
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
+    textColor: TextColor,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -344,6 +360,7 @@ private fun SharedTransitionScope.Success(
             paddingValues = paddingValues,
             isPressHome = isPressHome,
             screen = screen,
+            textColor = textColor,
             onUpdateGridItemOffset = { intOffset, intSize ->
                 onUpdateGridItemOffset(intOffset, intSize)
 
@@ -365,6 +382,7 @@ private fun SharedTransitionScope.Success(
             EblanApplicationInfoTabRow(
                 currentPage = horizontalPagerState.currentPage,
                 eblanApplicationInfos = eblanApplicationInfos,
+                transparent = appDrawerSettings.transparent,
                 onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
             )
 
@@ -382,6 +400,7 @@ private fun SharedTransitionScope.Success(
                     iconPackFilePaths = iconPackFilePaths,
                     managedProfileResult = managedProfileResult,
                     screen = screen,
+                    textColor = textColor,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = { intOffset, intSize ->
                         onUpdateGridItemOffset(intOffset, intSize)
@@ -410,6 +429,7 @@ private fun SharedTransitionScope.Success(
                 iconPackFilePaths = iconPackFilePaths,
                 managedProfileResult = managedProfileResult,
                 screen = screen,
+                textColor = textColor,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = { intOffset, intSize ->
                     onUpdateGridItemOffset(intOffset, intSize)
@@ -512,6 +532,7 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
     screen: Screen,
+    textColor: TextColor,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -571,6 +592,7 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
                         paddingValues = paddingValues,
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
+                        textColor = textColor,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdatePopupMenu = onUpdatePopupMenu,
@@ -594,6 +616,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     paddingValues: PaddingValues,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
+    textColor: TextColor,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -622,7 +645,14 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     val launcherApps = LocalLauncherApps.current
 
-    val textColor = getSystemTextColor(textColor = appDrawerSettings.gridItemSettings.textColor)
+    val textColor = if (appDrawerSettings.transparent) {
+        getGridItemTextColor(
+            systemTextColor = textColor,
+            gridItemTextColor = appDrawerSettings.gridItemSettings.textColor,
+        )
+    } else {
+        getSystemTextColor(textColor = appDrawerSettings.gridItemSettings.textColor)
+    }
 
     val appDrawerRowsHeight = appDrawerSettings.appDrawerRowsHeight.dp
 
@@ -857,6 +887,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
+    textColor: TextColor,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -920,6 +951,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 eblanApplicationInfos = eblanApplicationInfos,
                 iconPackFilePaths = iconPackFilePaths,
                 screen = screen,
+                textColor = textColor,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onUpdatePopupMenu = onUpdatePopupMenu,
@@ -1026,6 +1058,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
+    textColor: TextColor,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -1102,6 +1135,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                         paddingValues = paddingValues,
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
+                        textColor = textColor,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdatePopupMenu = onUpdatePopupMenu,
@@ -1132,11 +1166,19 @@ private fun SharedTransitionScope.EblanApplicationInfos(
 private fun EblanApplicationInfoTabRow(
     currentPage: Int,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
+    transparent: Boolean,
     onAnimateScrollToPage: suspend (Int) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
-    SecondaryTabRow(selectedTabIndex = currentPage) {
+    SecondaryTabRow(
+        selectedTabIndex = currentPage,
+        containerColor = if (transparent) {
+            Color.Transparent
+        } else {
+            TabRowDefaults.secondaryContainerColor
+        },
+    ) {
         eblanApplicationInfos.keys.forEachIndexed { index, serialNumber ->
             Tab(
                 selected = currentPage == index,

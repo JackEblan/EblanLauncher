@@ -77,6 +77,7 @@ internal fun AppDrawerSettingsProto.toAppDrawerSettings(): AppDrawerSettings {
         appDrawerColumns = appDrawerColumns,
         appDrawerRowsHeight = appDrawerRowsHeight,
         gridItemSettings = gridItemSettingsProto.toGridItemSettings(),
+        transparent = transparent,
     )
 }
 
@@ -268,6 +269,7 @@ internal fun AppDrawerSettings.toAppDrawerSettingsProto(): AppDrawerSettingsProt
     return AppDrawerSettingsProto.newBuilder()
         .setAppDrawerColumns(appDrawerColumns)
         .setAppDrawerRowsHeight(appDrawerRowsHeight)
+        .setTransparent(transparent)
         .setGridItemSettingsProto(gridItemSettingsProto)
         .build()
 }

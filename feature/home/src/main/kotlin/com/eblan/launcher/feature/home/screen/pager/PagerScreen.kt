@@ -61,6 +61,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
+import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
@@ -110,6 +111,7 @@ internal fun SharedTransitionScope.PagerScreen(
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
+    experimentalSettings: ExperimentalSettings,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEditGridItem: (String) -> Unit,
@@ -209,6 +211,12 @@ internal fun SharedTransitionScope.PagerScreen(
 
     var eblanApplicationInfoGroup by remember { mutableStateOf<EblanApplicationInfoGroup?>(null) }
 
+    val isApplicationScreenVisible by remember {
+        derivedStateOf {
+            swipeY.value < screenHeight.toFloat()
+        }
+    }
+
     LaunchedEffect(key1 = hasDoubleTap) {
         handleHasDoubleTap(
             hasDoubleTap = hasDoubleTap,
@@ -280,6 +288,14 @@ internal fun SharedTransitionScope.PagerScreen(
         if (drag == Drag.End || drag == Drag.Cancel) {
             onResetOverlay()
         }
+    }
+
+    LaunchedEffect(key1 = isApplicationScreenVisible) {
+        handleKlwpBroadcasts(
+            klwpIntegration = experimentalSettings.klwpIntegration,
+            isApplicationScreenVisible = isApplicationScreenVisible,
+            context = context,
+        )
     }
 
     HorizontalPagerScreen(
@@ -400,6 +416,8 @@ internal fun SharedTransitionScope.PagerScreen(
             isPressHome = isPressHome,
             managedProfileResult = managedProfileResult,
             screen = screen,
+            textColor = textColor,
+            klwpIntegration = experimentalSettings.klwpIntegration,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -465,6 +483,8 @@ internal fun SharedTransitionScope.PagerScreen(
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
             gridItemSource = gridItemSource,
             isPressHome = isPressHome,
+            textColor = textColor,
+            klwpIntegration = experimentalSettings.klwpIntegration,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(

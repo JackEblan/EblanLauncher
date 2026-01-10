@@ -34,3 +34,8 @@ internal fun handleActionMainIntent(
 
     onUpdateScreen(Screen.Pager)
 }
+
+internal const val KUSTOM_ACTION = "org.kustom.action.SEND_VAR"
+internal const val KUSTOM_ACTION_EXT_NAME = "org.kustom.action.EXT_NAME"
+internal const val KUSTOM_ACTION_VAR_NAME = "org.kustom.action.VAR_NAME"
+internal const val KUSTOM_ACTION_VAR_VALUE = "org.kustom.action.VAR_VALUE"

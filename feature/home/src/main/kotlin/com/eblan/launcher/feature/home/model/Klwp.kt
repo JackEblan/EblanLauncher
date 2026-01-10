@@ -15,11 +15,12 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.feature.home.model
 
-data class ExperimentalSettings(
-    val syncData: Boolean,
-    val firstLaunch: Boolean,
-    val lockMovement: Boolean,
-    val klwpIntegration: Boolean,
-)
+enum class Klwp {
+    Pager,
+    EditPage,
+    Folder,
+    FolderDrag,
+    AppDrawer,
+}

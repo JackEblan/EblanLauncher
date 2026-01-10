@@ -87,6 +87,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         syncData = true
         firstLaunch = true
         lockMovement = false
+        klwpIntegration = false
     }.build()
 
     override val defaultValue: UserDataProto = UserDataProto.newBuilder().apply {

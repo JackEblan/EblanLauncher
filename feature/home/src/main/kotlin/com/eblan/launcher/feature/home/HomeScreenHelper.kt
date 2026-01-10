@@ -18,9 +18,16 @@
 package com.eblan.launcher.feature.home
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
 import com.eblan.launcher.domain.model.PinItemRequestType
+import com.eblan.launcher.feature.home.model.Klwp
+import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.util.KUSTOM_ACTION
+import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_EXT_NAME
+import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_NAME
+import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_VALUE
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
@@ -112,5 +119,54 @@ internal suspend fun handlePinItemRequest(
                 }
             }
         }
+    }
+}
+
+internal fun handleKlwpBroadcasts(
+    klwpIntegration: Boolean,
+    screen: Screen,
+    context: Context,
+) {
+    if (!klwpIntegration) return
+
+    val intent = Intent(KUSTOM_ACTION).apply {
+        putExtra(KUSTOM_ACTION_EXT_NAME, "einstein-launcher")
+        putExtra(KUSTOM_ACTION_VAR_NAME, "screen")
+    }
+
+    when (screen) {
+        Screen.Folder -> {
+            context.sendBroadcast(
+                intent.apply {
+                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.Folder.ordinal)
+                },
+            )
+        }
+
+        Screen.FolderDrag -> {
+            context.sendBroadcast(
+                intent.apply {
+                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.FolderDrag.ordinal)
+                },
+            )
+        }
+
+        Screen.EditPage -> {
+            context.sendBroadcast(
+                intent.apply {
+                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.EditPage.ordinal)
+                },
+            )
+        }
+
+        Screen.Pager -> {
+            context.sendBroadcast(
+                intent.apply {
+                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.Pager.ordinal)
+                },
+            )
+        }
+
+        else -> Unit
     }
 }

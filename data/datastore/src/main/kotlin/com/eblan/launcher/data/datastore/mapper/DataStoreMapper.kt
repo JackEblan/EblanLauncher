@@ -293,6 +293,7 @@ internal fun ExperimentalSettings.toExperimentalSettingsProto(): ExperimentalSet
         .setSyncData(syncData)
         .setFirstLaunch(firstLaunch)
         .setLockMovement(lockMovement)
+        .setKlwpIntegration(klwpIntegration)
         .build()
 }
 
@@ -301,5 +302,6 @@ internal fun ExperimentalSettingsProto.toExperimentalSettings(): ExperimentalSet
         syncData = syncData,
         firstLaunch = firstLaunch,
         lockMovement = lockMovement,
+        klwpIntegration = klwpIntegration,
     )
 }

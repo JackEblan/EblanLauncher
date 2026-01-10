@@ -131,7 +131,7 @@ internal fun handleKlwpBroadcasts(
 
     val intent = Intent(KUSTOM_ACTION).apply {
         putExtra(KUSTOM_ACTION_EXT_NAME, "einstein-launcher")
-        putExtra(KUSTOM_ACTION_VAR_NAME, "klwp-state")
+        putExtra(KUSTOM_ACTION_VAR_NAME, "screen")
     }
 
     when (screen) {

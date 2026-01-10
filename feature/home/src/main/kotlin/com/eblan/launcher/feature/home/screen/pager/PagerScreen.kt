@@ -211,6 +211,12 @@ internal fun SharedTransitionScope.PagerScreen(
 
     var eblanApplicationInfoGroup by remember { mutableStateOf<EblanApplicationInfoGroup?>(null) }
 
+    val isApplicationScreenVisible by remember {
+        derivedStateOf {
+            swipeY.value < screenHeight.toFloat()
+        }
+    }
+
     LaunchedEffect(key1 = hasDoubleTap) {
         handleHasDoubleTap(
             hasDoubleTap = hasDoubleTap,
@@ -284,11 +290,10 @@ internal fun SharedTransitionScope.PagerScreen(
         }
     }
 
-    LaunchedEffect(key1 = swipeY) {
+    LaunchedEffect(key1 = isApplicationScreenVisible) {
         handleKlwpBroadcasts(
             klwpIntegration = experimentalSettings.klwpIntegration,
-            swipeY = swipeY,
-            screenHeight = screenHeight,
+            isApplicationScreenVisible = isApplicationScreenVisible,
             context = context,
         )
     }

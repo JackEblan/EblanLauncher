@@ -28,7 +28,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.runtime.snapshotFlow
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.GestureSettings
@@ -42,8 +41,6 @@ import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
@@ -343,10 +340,9 @@ internal fun handleHasDoubleTap(
     }
 }
 
-internal suspend fun handleKlwpBroadcasts(
+internal fun handleKlwpBroadcasts(
     klwpIntegration: Boolean,
-    swipeY: Animatable<Float, AnimationVector1D>,
-    screenHeight: Int,
+    isApplicationScreenVisible: Boolean,
     context: Context,
 ) {
     if (!klwpIntegration) return
@@ -356,19 +352,17 @@ internal suspend fun handleKlwpBroadcasts(
         putExtra(KUSTOM_ACTION_VAR_NAME, "klwp-state")
     }
 
-    snapshotFlow { swipeY.value }.onEach { swipeY ->
-        if (swipeY < screenHeight) {
-            context.sendBroadcast(
-                intent.apply {
-                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.AppDrawer.ordinal)
-                },
-            )
-        } else {
-            context.sendBroadcast(
-                intent.apply {
-                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.Pager.ordinal)
-                },
-            )
-        }
-    }.collect()
+    if (isApplicationScreenVisible) {
+        context.sendBroadcast(
+            intent.apply {
+                putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.AppDrawer.ordinal)
+            },
+        )
+    } else {
+        context.sendBroadcast(
+            intent.apply {
+                putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.Pager.ordinal)
+            },
+        )
+    }
 }

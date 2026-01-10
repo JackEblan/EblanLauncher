@@ -33,6 +33,7 @@ import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
+import com.eblan.launcher.feature.home.model.Klwp
 import com.eblan.launcher.feature.home.util.KUSTOM_ACTION
 import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_EXT_NAME
 import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_NAME
@@ -350,15 +351,24 @@ internal suspend fun handleKlwpBroadcasts(
 ) {
     if (!klwpIntegration) return
 
+    val intent = Intent(KUSTOM_ACTION).apply {
+        putExtra(KUSTOM_ACTION_EXT_NAME, "einstein-launcher")
+        putExtra(KUSTOM_ACTION_VAR_NAME, "klwp-state")
+    }
+
     snapshotFlow { swipeY.value }.onEach { swipeY ->
-        val swipeYPercent = ((screenHeight - swipeY) / screenHeight).coerceIn(0f, 1f)
-
-        val intent = Intent(KUSTOM_ACTION).apply {
-            putExtra(KUSTOM_ACTION_EXT_NAME, "einstein-launcher")
-            putExtra(KUSTOM_ACTION_VAR_NAME, "blur-percent")
-            putExtra(KUSTOM_ACTION_VAR_VALUE, swipeYPercent)
+        if (swipeY < screenHeight) {
+            context.sendBroadcast(
+                intent.apply {
+                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.AppDrawer.ordinal)
+                },
+            )
+        } else {
+            context.sendBroadcast(
+                intent.apply {
+                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.Pager.ordinal)
+                },
+            )
         }
-
-        context.sendBroadcast(intent)
     }.collect()
 }

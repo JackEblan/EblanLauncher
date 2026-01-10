@@ -22,6 +22,7 @@ import android.content.Intent
 import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
 import com.eblan.launcher.domain.model.PinItemRequestType
+import com.eblan.launcher.feature.home.model.Klwp
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.KUSTOM_ACTION
 import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_EXT_NAME
@@ -128,25 +129,42 @@ internal fun handleKlwpBroadcasts(
 ) {
     if (!klwpIntegration) return
 
-    when (screen) {
-        Screen.Folder, Screen.FolderDrag, Screen.EditPage -> {
-            val intent = Intent(KUSTOM_ACTION).apply {
-                putExtra(KUSTOM_ACTION_EXT_NAME, "einstein-launcher")
-                putExtra(KUSTOM_ACTION_VAR_NAME, "blur-percent")
-                putExtra(KUSTOM_ACTION_VAR_VALUE, 1.0)
-            }
+    val intent = Intent(KUSTOM_ACTION).apply {
+        putExtra(KUSTOM_ACTION_EXT_NAME, "einstein-launcher")
+        putExtra(KUSTOM_ACTION_VAR_NAME, "klwp-state")
+    }
 
-            context.sendBroadcast(intent)
+    when (screen) {
+        Screen.Folder -> {
+            context.sendBroadcast(
+                intent.apply {
+                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.Folder.ordinal)
+                },
+            )
+        }
+
+        Screen.FolderDrag -> {
+            context.sendBroadcast(
+                intent.apply {
+                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.FolderDrag.ordinal)
+                },
+            )
+        }
+
+        Screen.EditPage -> {
+            context.sendBroadcast(
+                intent.apply {
+                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.EditPage.ordinal)
+                },
+            )
         }
 
         Screen.Pager -> {
-            val intent = Intent(KUSTOM_ACTION).apply {
-                putExtra(KUSTOM_ACTION_EXT_NAME, "einstein-launcher")
-                putExtra(KUSTOM_ACTION_VAR_NAME, "blur-percent")
-                putExtra(KUSTOM_ACTION_VAR_VALUE, 0.0)
-            }
-
-            context.sendBroadcast(intent)
+            context.sendBroadcast(
+                intent.apply {
+                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.Pager.ordinal)
+                },
+            )
         }
 
         else -> Unit

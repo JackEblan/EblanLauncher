@@ -9,5 +9,4 @@ message AppDrawerSettingsProto {
   int32 appDrawerColumns = 1;
   int32 appDrawerRowsHeight = 2;
   GridItemSettingsProto gridItemSettingsProto = 3;
-  bool transparent = 4;
 }

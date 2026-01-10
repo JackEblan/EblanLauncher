@@ -412,6 +412,7 @@ internal fun SharedTransitionScope.PagerScreen(
             managedProfileResult = managedProfileResult,
             screen = screen,
             textColor = textColor,
+            klwpIntegration = experimentalSettings.klwpIntegration,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -478,6 +479,7 @@ internal fun SharedTransitionScope.PagerScreen(
             gridItemSource = gridItemSource,
             isPressHome = isPressHome,
             textColor = textColor,
+            klwpIntegration = experimentalSettings.klwpIntegration,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(

@@ -26,7 +26,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -48,7 +47,6 @@ import com.eblan.launcher.feature.settings.appdrawer.model.AppDrawerSettingsUiSt
 import com.eblan.launcher.ui.dialog.TwoTextFieldsDialog
 import com.eblan.launcher.ui.settings.GridItemSettings
 import com.eblan.launcher.ui.settings.SettingsColumn
-import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
 internal fun AppDrawerSettingsRoute(
@@ -134,17 +132,6 @@ private fun Success(
                 subtitle = "Number of columns and rows height",
                 onClick = {
                     showGridDialog = true
-                },
-            )
-
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-            SettingsSwitch(
-                checked = appDrawerSettings.transparent,
-                title = "Transparent",
-                subtitle = "Transparent background, useful for blurring the wallpaper",
-                onCheckedChange = { transparent ->
-                    onUpdateAppDrawerSettings(appDrawerSettings.copy(transparent = transparent))
                 },
             )
         }

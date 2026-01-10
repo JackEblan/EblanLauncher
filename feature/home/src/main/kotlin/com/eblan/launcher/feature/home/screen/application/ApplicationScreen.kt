@@ -165,6 +165,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
     textColor: TextColor,
+    klwpIntegration: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -186,7 +187,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
 ) {
     val alpha by remember {
         derivedStateOf {
-            if (appDrawerSettings.transparent) {
+            if (klwpIntegration) {
                 1f
             } else {
                 ((screenHeight - offsetY()) / (screenHeight / 2)).coerceIn(0f, 1f)
@@ -210,7 +211,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             .fillMaxSize()
             .clip(RoundedCornerShape(cornerSize))
             .alpha(alpha),
-        color = if (appDrawerSettings.transparent) {
+        color = if (klwpIntegration) {
             Color.Transparent
         } else {
             MaterialTheme.colorScheme.surface
@@ -239,6 +240,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
                     managedProfileResult = managedProfileResult,
                     screen = screen,
                     textColor = textColor,
+                    klwpIntegration = klwpIntegration,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -274,6 +276,7 @@ private fun SharedTransitionScope.Success(
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
     textColor: TextColor,
+    klwpIntegration: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -361,6 +364,7 @@ private fun SharedTransitionScope.Success(
             isPressHome = isPressHome,
             screen = screen,
             textColor = textColor,
+            klwpIntegration = klwpIntegration,
             onUpdateGridItemOffset = { intOffset, intSize ->
                 onUpdateGridItemOffset(intOffset, intSize)
 
@@ -382,7 +386,7 @@ private fun SharedTransitionScope.Success(
             EblanApplicationInfoTabRow(
                 currentPage = horizontalPagerState.currentPage,
                 eblanApplicationInfos = eblanApplicationInfos,
-                transparent = appDrawerSettings.transparent,
+                klwpIntegration = klwpIntegration,
                 onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
             )
 
@@ -401,6 +405,7 @@ private fun SharedTransitionScope.Success(
                     managedProfileResult = managedProfileResult,
                     screen = screen,
                     textColor = textColor,
+                    klwpIntegration = klwpIntegration,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = { intOffset, intSize ->
                         onUpdateGridItemOffset(intOffset, intSize)
@@ -430,6 +435,7 @@ private fun SharedTransitionScope.Success(
                 managedProfileResult = managedProfileResult,
                 screen = screen,
                 textColor = textColor,
+                klwpIntegration = klwpIntegration,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = { intOffset, intSize ->
                     onUpdateGridItemOffset(intOffset, intSize)
@@ -533,6 +539,7 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
     isPressHome: Boolean,
     screen: Screen,
     textColor: TextColor,
+    klwpIntegration: Boolean,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -593,6 +600,7 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
                         textColor = textColor,
+                        klwpIntegration = klwpIntegration,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdatePopupMenu = onUpdatePopupMenu,
@@ -617,6 +625,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
     textColor: TextColor,
+    klwpIntegration: Boolean,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -645,7 +654,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     val launcherApps = LocalLauncherApps.current
 
-    val textColor = if (appDrawerSettings.transparent) {
+    val textColor = if (klwpIntegration) {
         getGridItemTextColor(
             systemTextColor = textColor,
             gridItemTextColor = appDrawerSettings.gridItemSettings.textColor,
@@ -888,6 +897,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
     textColor: TextColor,
+    klwpIntegration: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -952,6 +962,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 iconPackFilePaths = iconPackFilePaths,
                 screen = screen,
                 textColor = textColor,
+                klwpIntegration = klwpIntegration,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onUpdatePopupMenu = onUpdatePopupMenu,
@@ -1059,6 +1070,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
     textColor: TextColor,
+    klwpIntegration: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -1136,6 +1148,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
                         textColor = textColor,
+                        klwpIntegration = klwpIntegration,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdatePopupMenu = onUpdatePopupMenu,
@@ -1166,14 +1179,14 @@ private fun SharedTransitionScope.EblanApplicationInfos(
 private fun EblanApplicationInfoTabRow(
     currentPage: Int,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
-    transparent: Boolean,
+    klwpIntegration: Boolean,
     onAnimateScrollToPage: suspend (Int) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
     SecondaryTabRow(
         selectedTabIndex = currentPage,
-        containerColor = if (transparent) {
+        containerColor = if (klwpIntegration) {
             Color.Transparent
         } else {
             TabRowDefaults.secondaryContainerColor

@@ -15,10 +15,12 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.feature.home.model
 
-data class AppDrawerSettings(
-    val appDrawerColumns: Int,
-    val appDrawerRowsHeight: Int,
-    val gridItemSettings: GridItemSettings,
-)
+enum class Klwp {
+    Pager,
+    EditPage,
+    Folder,
+    FolderDrag,
+    AppDrawer,
+}

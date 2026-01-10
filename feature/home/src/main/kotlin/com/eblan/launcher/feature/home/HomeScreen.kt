@@ -641,6 +641,8 @@ private fun SharedTransitionScope.Success(
     onShowFolderWhenDragging: (String) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
+    val context = LocalContext.current
+
     val activity = LocalActivity.current
 
     val pinItemRequestWrapper = LocalPinItemRequest.current
@@ -719,6 +721,14 @@ private fun SharedTransitionScope.Success(
         }
     }
 
+    LaunchedEffect(key1 = screen) {
+        handleKlwpBroadcasts(
+            klwpIntegration = homeData.userData.experimentalSettings.klwpIntegration,
+            screen = screen,
+            context = context,
+        )
+    }
+
     AnimatedContent(
         modifier = modifier,
         targetState = screen,
@@ -752,6 +762,7 @@ private fun SharedTransitionScope.Success(
                     iconPackFilePaths = iconPackFilePaths,
                     managedProfileResult = managedProfileResult,
                     screen = targetState,
+                    experimentalSettings = homeData.userData.experimentalSettings,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(

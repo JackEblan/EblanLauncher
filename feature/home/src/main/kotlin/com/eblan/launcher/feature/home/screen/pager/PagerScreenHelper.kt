@@ -28,14 +28,21 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.runtime.snapshotFlow
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
+import com.eblan.launcher.feature.home.util.KUSTOM_ACTION
+import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_EXT_NAME
+import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_NAME
+import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_VALUE
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
@@ -333,4 +340,25 @@ internal fun handleHasDoubleTap(
             context.sendBroadcast(intent)
         }
     }
+}
+
+internal suspend fun handleKlwpBroadcasts(
+    klwpIntegration: Boolean,
+    swipeY: Animatable<Float, AnimationVector1D>,
+    screenHeight: Int,
+    context: Context,
+) {
+    if (!klwpIntegration) return
+
+    snapshotFlow { swipeY.value }.onEach { swipeY ->
+        val swipeYPercent = ((screenHeight - swipeY) / screenHeight).coerceIn(0f, 1f)
+
+        val intent = Intent(KUSTOM_ACTION).apply {
+            putExtra(KUSTOM_ACTION_EXT_NAME, "einstein-launcher")
+            putExtra(KUSTOM_ACTION_VAR_NAME, "blur-percent")
+            putExtra(KUSTOM_ACTION_VAR_VALUE, swipeYPercent)
+        }
+
+        context.sendBroadcast(intent)
+    }.collect()
 }

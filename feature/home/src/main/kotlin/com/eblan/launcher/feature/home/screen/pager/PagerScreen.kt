@@ -42,7 +42,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ImageBitmap
@@ -62,6 +61,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
+import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
@@ -79,8 +79,6 @@ import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -113,6 +111,7 @@ internal fun SharedTransitionScope.PagerScreen(
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
+    experimentalSettings: ExperimentalSettings,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEditGridItem: (String) -> Unit,
@@ -286,17 +285,12 @@ internal fun SharedTransitionScope.PagerScreen(
     }
 
     LaunchedEffect(key1 = swipeY) {
-        snapshotFlow { swipeY.value }.onEach { swipeY ->
-            val swipeYPercent = ((screenHeight - swipeY) / (screenHeight / 2)).coerceIn(0f, 1f)
-
-            val intent = Intent("org.kustom.action.SEND_VAR").apply {
-                putExtra("org.kustom.action.EXT_NAME", "einstein-launcher")
-                putExtra("org.kustom.action.VAR_NAME", "swipey-percent")
-                putExtra("org.kustom.action.VAR_VALUE", swipeYPercent)
-            }
-
-            context.sendBroadcast(intent)
-        }.collect()
+        handleKlwpBroadcasts(
+            klwpIntegration = experimentalSettings.klwpIntegration,
+            swipeY = swipeY,
+            screenHeight = screenHeight,
+            context = context,
+        )
     }
 
     HorizontalPagerScreen(

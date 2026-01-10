@@ -18,9 +18,15 @@
 package com.eblan.launcher.feature.home
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
 import com.eblan.launcher.domain.model.PinItemRequestType
+import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.util.KUSTOM_ACTION
+import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_EXT_NAME
+import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_NAME
+import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_VALUE
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
@@ -112,5 +118,37 @@ internal suspend fun handlePinItemRequest(
                 }
             }
         }
+    }
+}
+
+internal fun handleKlwpBroadcasts(
+    klwpIntegration: Boolean,
+    screen: Screen,
+    context: Context,
+) {
+    if (!klwpIntegration) return
+
+    when (screen) {
+        Screen.Folder, Screen.FolderDrag, Screen.EditPage -> {
+            val intent = Intent(KUSTOM_ACTION).apply {
+                putExtra(KUSTOM_ACTION_EXT_NAME, "einstein-launcher")
+                putExtra(KUSTOM_ACTION_VAR_NAME, "blur-percent")
+                putExtra(KUSTOM_ACTION_VAR_VALUE, 1.0)
+            }
+
+            context.sendBroadcast(intent)
+        }
+
+        Screen.Pager -> {
+            val intent = Intent(KUSTOM_ACTION).apply {
+                putExtra(KUSTOM_ACTION_EXT_NAME, "einstein-launcher")
+                putExtra(KUSTOM_ACTION_VAR_NAME, "blur-percent")
+                putExtra(KUSTOM_ACTION_VAR_VALUE, 0.0)
+            }
+
+            context.sendBroadcast(intent)
+        }
+
+        else -> Unit
     }
 }

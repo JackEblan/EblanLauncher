@@ -186,7 +186,7 @@ class SyncDataUseCase @Inject constructor(
                     packageName = eblanApplicationInfo.packageName,
                     icon = eblanApplicationInfo.icon,
                     label = eblanApplicationInfo.label,
-                    isHidden = eblanApplicationInfo.isHidden
+                    isHidden = eblanApplicationInfo.isHidden,
                 )
             }
 

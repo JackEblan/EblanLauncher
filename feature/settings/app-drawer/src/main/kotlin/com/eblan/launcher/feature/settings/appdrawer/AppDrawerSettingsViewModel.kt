@@ -20,20 +20,33 @@ package com.eblan.launcher.feature.settings.appdrawer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.feature.settings.appdrawer.model.AppDrawerSettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-internal class AppDrawerSettingsViewModel @Inject constructor(private val userDataRepository: UserDataRepository) :
+internal class AppDrawerSettingsViewModel @Inject constructor(
+    private val userDataRepository: UserDataRepository,
+    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
+) :
     ViewModel() {
-    val appDrawerSettingsUiState = userDataRepository.userData.map { userData ->
-        AppDrawerSettingsUiState.Success(appDrawerSettings = userData.appDrawerSettings)
+    val appDrawerSettingsUiState = combine(
+        userDataRepository.userData,
+        eblanApplicationInfoRepository.eblanApplicationInfos,
+    ) { userData, eblanApplicationInfos ->
+        AppDrawerSettingsUiState.Success(
+            appDrawerSettings = userData.appDrawerSettings,
+            eblanApplicationInfos = eblanApplicationInfos.filter { eblanApplicationInfo ->
+                eblanApplicationInfo.isHidden
+            },
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -43,6 +56,12 @@ internal class AppDrawerSettingsViewModel @Inject constructor(private val userDa
     fun updateAppDrawerSettings(appDrawerSettings: AppDrawerSettings) {
         viewModelScope.launch {
             userDataRepository.updateAppDrawerSettings(appDrawerSettings = appDrawerSettings)
+        }
+    }
+
+    fun updateEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
+        viewModelScope.launch {
+            eblanApplicationInfoRepository.upsertEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
         }
     }
 }

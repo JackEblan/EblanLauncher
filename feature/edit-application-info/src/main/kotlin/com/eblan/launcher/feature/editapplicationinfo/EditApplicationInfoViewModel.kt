@@ -22,13 +22,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.eblan.launcher.domain.framework.FileManager
-import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.usecase.applicationcomponent.RestoreEblanApplicationInfoUseCase
+import com.eblan.launcher.domain.usecase.iconpack.GetIconPackInfosUseCase
 import com.eblan.launcher.feature.editapplicationinfo.model.EditApplicationInfoUiState
 import com.eblan.launcher.feature.editapplicationinfo.navigation.EditApplicationInfoRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,10 +46,10 @@ import javax.inject.Inject
 internal class EditApplicationInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
-    private val iconPackManager: IconPackManager,
     packageManagerWrapper: PackageManagerWrapper,
     private val fileManager: FileManager,
     private val restoreEblanApplicationInfoUseCase: RestoreEblanApplicationInfoUseCase,
+    private val getIconPackInfosUseCase: GetIconPackInfosUseCase,
 ) : ViewModel() {
     private val editApplicationInfoRouteData =
         savedStateHandle.toRoute<EditApplicationInfoRouteData>()
@@ -92,13 +92,16 @@ internal class EditApplicationInfoViewModel @Inject constructor(
         }
     }
 
-    fun updateIconPackInfoPackageName(packageName: String) {
+    fun updateIconPackInfoPackageName(
+        packageName: String,
+        component: String,
+    ) {
         iconPackInfoComponentsJob = viewModelScope.launch {
             _iconPackInfoComponents.update {
-                iconPackManager.parseAppFilter(packageName = packageName)
-                    .distinctBy { iconPackInfoComponent ->
-                        iconPackInfoComponent.drawable
-                    }
+                getIconPackInfosUseCase(
+                    packageName = packageName,
+                    component = component,
+                )
             }
         }
     }

@@ -167,7 +167,7 @@ class Migration4To5Test {
             Migration4To5(),
         )
 
-        // EblanApplicationInfo
+        // EblanApplicationInfoEntity
         dbV5.query(
             """
             SELECT componentName, serialNumber, packageName, label, customIcon, customLabel

@@ -15,13 +15,17 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.data.room.migration
 
-data class SyncEblanApplicationInfo(
-    val serialNumber: Long,
-    val componentName: String,
-    val packageName: String,
-    val icon: String?,
-    val label: String?,
-    val isHidden: Boolean,
-)
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+
+class Migration6To7 : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        updateEblanApplicationInfoEntities(db = db)
+    }
+
+    private fun updateEblanApplicationInfoEntities(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `EblanApplicationInfoEntity` ADD COLUMN `isHidden` INTEGER NOT NULL DEFAULT 0")
+    }
+}

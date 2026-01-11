@@ -133,34 +133,23 @@ class SyncDataUseCase @Inject constructor(
         launcherAppsActivityInfos: List<LauncherAppsActivityInfo>,
         iconPackInfoPackageName: String,
     ) {
-        val oldSyncEblanApplicationInfos =
-            eblanApplicationInfoRepository.eblanApplicationInfos.first()
-                .map { eblanApplicationInfo ->
-                    SyncEblanApplicationInfo(
-                        serialNumber = eblanApplicationInfo.serialNumber,
-                        componentName = eblanApplicationInfo.componentName,
-                        packageName = eblanApplicationInfo.packageName,
-                        icon = eblanApplicationInfo.icon,
-                        label = eblanApplicationInfo.label,
-                        isHidden = eblanApplicationInfo.isHidden,
-                    )
-                }
+        val oldEblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.first()
+            .associateBy { eblanApplicationInfo ->
+                eblanApplicationInfo.componentName to eblanApplicationInfo.serialNumber
+            }
 
         val newSyncEblanApplicationInfos =
             launcherAppsActivityInfos.map { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
-                val launcherAppsActivityInfoIcon = launcherAppsActivityInfo.activityIcon
+                val launcherIcon = launcherAppsActivityInfo.activityIcon
                     ?: launcherAppsActivityInfo.applicationIcon
 
-                val icon = launcherAppsActivityInfoIcon?.let { byteArray ->
+                val iconPath = launcherIcon?.let { bytes ->
                     fileManager.updateAndGetFilePath(
                         directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        name = launcherAppsActivityInfo.componentName.replace(
-                            "/",
-                            "-",
-                        ),
-                        byteArray = byteArray,
+                        name = launcherAppsActivityInfo.componentName.replace("/", "-"),
+                        byteArray = bytes,
                     )
                 }
 
@@ -170,17 +159,34 @@ class SyncDataUseCase @Inject constructor(
                     eblanShortcutConfigRepository = eblanShortcutConfigRepository,
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     packageName = launcherAppsActivityInfo.packageName,
-                    icon = icon,
+                    icon = iconPath,
                     label = launcherAppsActivityInfo.label,
                 )
+
+                val key =
+                    launcherAppsActivityInfo.componentName to launcherAppsActivityInfo.serialNumber
+
+                val isHidden = oldEblanApplicationInfos[key]?.isHidden ?: false
 
                 SyncEblanApplicationInfo(
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     componentName = launcherAppsActivityInfo.componentName,
                     packageName = launcherAppsActivityInfo.packageName,
-                    icon = icon,
+                    icon = iconPath,
                     label = launcherAppsActivityInfo.label,
-                    isHidden = false,
+                    isHidden = isHidden,
+                )
+            }
+
+        val oldSyncEblanApplicationInfos =
+            oldEblanApplicationInfos.values.map { eblanApplicationInfo ->
+                SyncEblanApplicationInfo(
+                    serialNumber = eblanApplicationInfo.serialNumber,
+                    componentName = eblanApplicationInfo.componentName,
+                    packageName = eblanApplicationInfo.packageName,
+                    icon = eblanApplicationInfo.icon,
+                    label = eblanApplicationInfo.label,
+                    isHidden = eblanApplicationInfo.isHidden
                 )
             }
 

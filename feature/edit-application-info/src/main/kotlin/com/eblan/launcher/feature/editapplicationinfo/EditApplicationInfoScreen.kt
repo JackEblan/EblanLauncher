@@ -48,6 +48,7 @@ import com.eblan.launcher.ui.dialog.IconPackInfoFilesDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
 import com.eblan.launcher.ui.edit.CustomIcon
 import com.eblan.launcher.ui.settings.SettingsColumn
+import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
 internal fun EditApplicationInfoRoute(
@@ -110,15 +111,6 @@ internal fun EditApplicationInfoScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = {
-
-                        }) {
-                            Icon(
-                                imageVector = EblanLauncherIcons.HideSource,
-                                contentDescription = null,
-                            )
-                        }
-
                         IconButton(onClick = {
                             onRestoreEblanApplicationInfo(editApplicationInfoUiState.eblanApplicationInfo)
                         }) {
@@ -201,6 +193,17 @@ private fun Success(
             subtitle = eblanApplicationInfo.customLabel ?: "None",
             onClick = {
                 showCustomLabelDialog = true
+            },
+        )
+
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+        SettingsSwitch(
+            checked = eblanApplicationInfo.isHidden,
+            title = "Hide From Drawer",
+            subtitle = "Hide from drawer",
+            onCheckedChange = { isHidden ->
+                onUpdateEblanApplicationInfo(eblanApplicationInfo.copy(isHidden = isHidden))
             },
         )
 

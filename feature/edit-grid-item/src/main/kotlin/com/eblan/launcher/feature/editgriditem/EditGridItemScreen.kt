@@ -98,74 +98,60 @@ internal fun EditGridItemScreen(
     ) -> Unit,
     onRestoreGridItem: (GridItem) -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "Edit Grid Item")
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateUp) {
-                        Icon(
-                            imageVector = EblanLauncherIcons.ArrowBack,
-                            contentDescription = null,
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        when (editGridItemUiState) {
-                            EditGridItemUiState.Loading -> {
-                            }
-
-                            is EditGridItemUiState.Success -> {
-                                editGridItemUiState.gridItem?.let { gridItem ->
-                                    when (gridItem.data) {
-                                        is GridItemData.ApplicationInfo,
-                                        is GridItemData.ShortcutConfig,
-                                        is GridItemData.ShortcutInfo,
-                                        -> {
-                                            onRestoreGridItem(gridItem)
-                                        }
-
-                                        else -> Unit
-                                    }
-                                }
-                            }
+    if (editGridItemUiState is EditGridItemUiState.Success &&
+        editGridItemUiState.gridItem != null
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(text = "Edit Grid Item")
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onNavigateUp) {
+                            Icon(
+                                imageVector = EblanLauncherIcons.ArrowBack,
+                                contentDescription = null,
+                            )
                         }
-                    }) {
-                        Icon(
-                            imageVector = EblanLauncherIcons.Restore,
-                            contentDescription = null,
-                        )
-                    }
-                },
-            )
-        },
-    ) { paddingValues ->
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-        ) {
-            when (editGridItemUiState) {
-                EditGridItemUiState.Loading -> {
-                }
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            when (editGridItemUiState.gridItem.data) {
+                                is GridItemData.ApplicationInfo,
+                                is GridItemData.ShortcutConfig,
+                                is GridItemData.ShortcutInfo,
+                                    -> {
+                                    onRestoreGridItem(editGridItemUiState.gridItem)
+                                }
 
-                is EditGridItemUiState.Success -> {
-                    if (editGridItemUiState.gridItem != null) {
-                        Success(
-                            modifier = modifier,
-                            gridItem = editGridItemUiState.gridItem,
-                            packageManagerIconPackInfos = packageManagerIconPackInfos,
-                            iconPackInfoComponents = iconPackInfoComponents,
-                            onUpdateGridItem = onUpdateGridItem,
-                            onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
-                            onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
-                            onUpdateGridItemCustomIcon = onUpdateGridItemCustomIcon,
-                        )
-                    }
-                }
+                                else -> Unit
+                            }
+                        }) {
+                            Icon(
+                                imageVector = EblanLauncherIcons.Restore,
+                                contentDescription = null,
+                            )
+                        }
+                    },
+                )
+            },
+        ) { paddingValues ->
+            Box(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+            ) {
+                Success(
+                    modifier = modifier,
+                    gridItem = editGridItemUiState.gridItem,
+                    packageManagerIconPackInfos = packageManagerIconPackInfos,
+                    iconPackInfoComponents = iconPackInfoComponents,
+                    onUpdateGridItem = onUpdateGridItem,
+                    onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
+                    onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
+                    onUpdateGridItemCustomIcon = onUpdateGridItemCustomIcon,
+                )
             }
         }
     }

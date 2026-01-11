@@ -55,7 +55,7 @@ import com.eblan.launcher.data.room.migration.AutoMigration5To6
         EblanShortcutConfigEntity::class,
         ShortcutConfigGridItemEntity::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(

@@ -26,6 +26,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -43,6 +44,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.feature.settings.appdrawer.dialog.HiddenEblanApplicationInfosDialog
 import com.eblan.launcher.feature.settings.appdrawer.model.AppDrawerSettingsUiState
 import com.eblan.launcher.ui.dialog.TwoTextFieldsDialog
 import com.eblan.launcher.ui.settings.GridItemSettings
@@ -61,6 +64,7 @@ internal fun AppDrawerSettingsRoute(
         appDrawerSettingsUiState = appDrawerSettingsUiState,
         onNavigateUp = onNavigateUp,
         onUpdateAppDrawerSettings = viewModel::updateAppDrawerSettings,
+        onUpdateEblanApplicationInfo = viewModel::updateEblanApplicationInfo,
     )
 }
 
@@ -71,6 +75,7 @@ internal fun AppDrawerSettingsScreen(
     appDrawerSettingsUiState: AppDrawerSettingsUiState,
     onNavigateUp: () -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
+    onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -101,7 +106,9 @@ internal fun AppDrawerSettingsScreen(
                 is AppDrawerSettingsUiState.Success -> {
                     Success(
                         appDrawerSettings = appDrawerSettingsUiState.appDrawerSettings,
+                        eblanApplicationInfos = appDrawerSettingsUiState.eblanApplicationInfos,
                         onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
+                        onUpdateEblanApplicationInfo = onUpdateEblanApplicationInfo,
                     )
                 }
             }
@@ -113,9 +120,13 @@ internal fun AppDrawerSettingsScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     appDrawerSettings: AppDrawerSettings,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
+    onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
 ) {
     var showGridDialog by remember { mutableStateOf(false) }
+
+    var showHiddenEblanApplicationInfosDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -132,6 +143,16 @@ private fun Success(
                 subtitle = "Number of columns and rows height",
                 onClick = {
                     showGridDialog = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Hidden Applications",
+                subtitle = "Hidden Applications",
+                onClick = {
+                    showHiddenEblanApplicationInfosDialog = true
                 },
             )
         }
@@ -197,6 +218,16 @@ private fun Success(
                     showGridDialog = false
                 }
             },
+        )
+    }
+
+    if (showHiddenEblanApplicationInfosDialog) {
+        HiddenEblanApplicationInfosDialog(
+            eblanApplicationInfos = eblanApplicationInfos,
+            onDismissRequest = {
+                showHiddenEblanApplicationInfosDialog = false
+            },
+            onUpdateEblanApplicationInfo = onUpdateEblanApplicationInfo,
         )
     }
 }

@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Gesture
 import androidx.compose.material.icons.filled.Handshake
+import androidx.compose.material.icons.filled.HideSource
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Info
@@ -70,4 +71,5 @@ object EblanLauncherIcons {
     val Handshake = Icons.Default.Handshake
     val Shortcut = Icons.AutoMirrored.Filled.Shortcut
     val Restore = Icons.Default.Restore
+    val HideSource = Icons.Default.HideSource
 }

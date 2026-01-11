@@ -43,7 +43,9 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
             eblanShortcutConfigRepository.eblanShortcutConfigs,
         ) { eblanApplicationInfos, eblanAppWidgetProviderInfos, eblanShortcutConfigs ->
             val groupedEblanApplicationInfos =
-                eblanApplicationInfos.sortedBy { eblanApplicationInfo ->
+                eblanApplicationInfos.filterNot { eblanApplicationInfo ->
+                    eblanApplicationInfo.isHidden
+                }.sortedBy { eblanApplicationInfo ->
                     eblanApplicationInfo.label.lowercase()
                 }.groupBy { eblanApplicationInfo ->
                     eblanApplicationInfo.serialNumber

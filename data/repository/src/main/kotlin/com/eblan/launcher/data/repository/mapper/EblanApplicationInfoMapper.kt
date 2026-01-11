@@ -29,6 +29,7 @@ fun EblanApplicationInfo.asEntity(): EblanApplicationInfoEntity {
         label = label,
         customIcon = customIcon,
         customLabel = customLabel,
+        isHidden = isHidden,
     )
 }
 
@@ -41,5 +42,6 @@ fun EblanApplicationInfoEntity.asModel(): EblanApplicationInfo {
         label = label,
         customIcon = customIcon,
         customLabel = customLabel,
+        isHidden = isHidden,
     )
 }

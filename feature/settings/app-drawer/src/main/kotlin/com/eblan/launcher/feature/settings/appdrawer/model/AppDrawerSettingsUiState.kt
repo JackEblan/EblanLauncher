@@ -18,9 +18,13 @@
 package com.eblan.launcher.feature.settings.appdrawer.model
 
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 
 internal sealed interface AppDrawerSettingsUiState {
     data object Loading : AppDrawerSettingsUiState
 
-    data class Success(val appDrawerSettings: AppDrawerSettings) : AppDrawerSettingsUiState
+    data class Success(
+        val appDrawerSettings: AppDrawerSettings,
+        val eblanApplicationInfos: List<EblanApplicationInfo>,
+    ) : AppDrawerSettingsUiState
 }

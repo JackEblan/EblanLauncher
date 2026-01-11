@@ -48,6 +48,7 @@ import com.eblan.launcher.ui.dialog.IconPackInfoFilesDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
 import com.eblan.launcher.ui.edit.CustomIcon
 import com.eblan.launcher.ui.settings.SettingsColumn
+import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
 internal fun EditApplicationInfoRoute(
@@ -92,64 +93,50 @@ internal fun EditApplicationInfoScreen(
         eblanApplicationInfo: EblanApplicationInfo,
     ) -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "Edit Application Info")
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateUp) {
-                        Icon(
-                            imageVector = EblanLauncherIcons.ArrowBack,
-                            contentDescription = null,
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        when (editApplicationInfoUiState) {
-                            EditApplicationInfoUiState.Loading -> {
-                            }
-
-                            is EditApplicationInfoUiState.Success -> {
-                                editApplicationInfoUiState.eblanApplicationInfo?.let { eblanApplicationInfo ->
-                                    onRestoreEblanApplicationInfo(eblanApplicationInfo)
-                                }
-                            }
+    if (editApplicationInfoUiState is EditApplicationInfoUiState.Success &&
+        editApplicationInfoUiState.eblanApplicationInfo != null
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(text = "Edit Application Info")
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onNavigateUp) {
+                            Icon(
+                                imageVector = EblanLauncherIcons.ArrowBack,
+                                contentDescription = null,
+                            )
                         }
-                    }) {
-                        Icon(
-                            imageVector = EblanLauncherIcons.Restore,
-                            contentDescription = null,
-                        )
-                    }
-                },
-            )
-        },
-    ) { paddingValues ->
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-        ) {
-            when (editApplicationInfoUiState) {
-                EditApplicationInfoUiState.Loading -> {
-                }
-
-                is EditApplicationInfoUiState.Success -> {
-                    if (editApplicationInfoUiState.eblanApplicationInfo != null) {
-                        Success(
-                            eblanApplicationInfo = editApplicationInfoUiState.eblanApplicationInfo,
-                            packageManagerIconPackInfos = packageManagerIconPackInfos,
-                            iconPackInfoComponents = iconPackInfoComponents,
-                            onUpdateEblanApplicationInfo = onUpdateEblanApplicationInfo,
-                            onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
-                            onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
-                            onUpdateGridItemCustomIcon = onUpdateGridItemCustomIcon,
-                        )
-                    }
-                }
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            onRestoreEblanApplicationInfo(editApplicationInfoUiState.eblanApplicationInfo)
+                        }) {
+                            Icon(
+                                imageVector = EblanLauncherIcons.Restore,
+                                contentDescription = null,
+                            )
+                        }
+                    },
+                )
+            },
+        ) { paddingValues ->
+            Box(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+            ) {
+                Success(
+                    eblanApplicationInfo = editApplicationInfoUiState.eblanApplicationInfo,
+                    packageManagerIconPackInfos = packageManagerIconPackInfos,
+                    iconPackInfoComponents = iconPackInfoComponents,
+                    onUpdateEblanApplicationInfo = onUpdateEblanApplicationInfo,
+                    onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
+                    onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
+                    onUpdateGridItemCustomIcon = onUpdateGridItemCustomIcon,
+                )
             }
         }
     }
@@ -206,6 +193,17 @@ private fun Success(
             subtitle = eblanApplicationInfo.customLabel ?: "None",
             onClick = {
                 showCustomLabelDialog = true
+            },
+        )
+
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+        SettingsSwitch(
+            checked = eblanApplicationInfo.isHidden,
+            title = "Hide From Drawer",
+            subtitle = "Hide from drawer",
+            onCheckedChange = { isHidden ->
+                onUpdateEblanApplicationInfo(eblanApplicationInfo.copy(isHidden = isHidden))
             },
         )
 

@@ -124,6 +124,7 @@ class AddPackageUseCase @Inject constructor(
                 label = label,
                 customIcon = null,
                 customLabel = null,
+                isHidden = false,
             ),
         )
     }

@@ -40,8 +40,6 @@ import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_VALUE
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 internal fun doEblanActions(
@@ -102,45 +100,24 @@ internal fun doEblanActions(
 }
 
 internal fun resetSwipeOffset(
-    scope: CoroutineScope,
     gestureSettings: GestureSettings,
-    swipeDownY: Animatable<Float, AnimationVector1D>,
+    swipeYTarget: Float,
     screenHeight: Int,
-    swipeUpY: Animatable<Float, AnimationVector1D>,
+    onChangeTargetValue: (Float) -> Unit,
 ) {
-    fun animateOffset(
-        eblanAction: EblanAction,
-        swipeY: Animatable<Float, AnimationVector1D>,
+    if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer ||
+        gestureSettings.swipeDown is EblanAction.OpenAppDrawer
     ) {
-        scope.launch {
-            if (eblanAction is EblanAction.OpenAppDrawer) {
-                val targetValue = if (swipeY.value < screenHeight - 200f) {
-                    0f
-                } else {
-                    screenHeight.toFloat()
-                }
-
-                swipeY.animateTo(
-                    targetValue = targetValue,
-                    animationSpec = tween(
-                        easing = FastOutSlowInEasing,
-                    ),
-                )
-            } else {
-                swipeY.snapTo(screenHeight.toFloat())
-            }
+        val targetValue = if (swipeYTarget < screenHeight - 200f) {
+            0f
+        } else {
+            screenHeight.toFloat()
         }
+
+        onChangeTargetValue(targetValue)
+    } else {
+        onChangeTargetValue(screenHeight.toFloat())
     }
-
-    animateOffset(
-        eblanAction = gestureSettings.swipeDown,
-        swipeY = swipeDownY,
-    )
-
-    animateOffset(
-        eblanAction = gestureSettings.swipeUp,
-        swipeY = swipeUpY,
-    )
 }
 
 internal suspend fun handleActionMainIntent(
@@ -152,7 +129,7 @@ internal suspend fun handleActionMainIntent(
     pageCount: Int,
     infiniteScroll: Boolean,
     windowToken: IBinder,
-    swipeY: Animatable<Float, AnimationVector1D>,
+    swipeYTarget: Float,
     screenHeight: Int,
     showWidgets: Boolean,
     showShortcutConfigActivities: Boolean,
@@ -169,7 +146,7 @@ internal suspend fun handleActionMainIntent(
 
     onHome()
 
-    if (swipeY.value < screenHeight.toFloat() || showWidgets || showShortcutConfigActivities || eblanApplicationInfoGroup != null) {
+    if (swipeYTarget < screenHeight.toFloat() || showWidgets || showShortcutConfigActivities || eblanApplicationInfoGroup != null) {
         return
     }
 
@@ -241,6 +218,27 @@ internal fun handleEblanActionIntent(
         EblanAction.None, null -> Unit
     }
 }
+
+internal fun handleApplyFlingTest(
+    offsetY: Float,
+    remaining: Float,
+    screenHeight: Int,
+    onDismiss: () -> Unit = {},
+    onChangeTargetValue: (Float) -> Unit,
+) {
+    if (offsetY <= 0f && remaining > 10000f) {
+        onChangeTargetValue(screenHeight.toFloat())
+
+        onDismiss()
+    } else if (offsetY > 200f) {
+        onChangeTargetValue(screenHeight.toFloat())
+
+        onDismiss()
+    } else {
+        onChangeTargetValue(0f)
+    }
+}
+
 
 internal suspend fun handleApplyFling(
     offsetY: Animatable<Float, AnimationVector1D>,

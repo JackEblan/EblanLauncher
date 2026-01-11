@@ -25,7 +25,7 @@
       <SelectionState runConfigName="MigrationAllTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Migration6To7Test">
+      <SelectionState runConfigName="migrate6To7()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

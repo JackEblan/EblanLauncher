@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 7,
-    "identityHash": "9b11b91714dfd8d82e440a2037a7adfd",
+    "identityHash": "c54f26e054ae39aceec86e65968b2fd8",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`componentName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT NOT NULL, `customIcon` TEXT, `customLabel` TEXT, `isHidden` INTEGER NOT NULL, PRIMARY KEY(`componentName`, `serialNumber`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`componentName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT NOT NULL, `customIcon` TEXT, `customLabel` TEXT, `isHidden` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`componentName`, `serialNumber`))",
         "fields": [
           {
             "fieldPath": "componentName",
@@ -51,7 +51,8 @@
             "fieldPath": "isHidden",
             "columnName": "isHidden",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0"
           }
         ],
         "primaryKey": {
@@ -1118,7 +1119,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9b11b91714dfd8d82e440a2037a7adfd')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c54f26e054ae39aceec86e65968b2fd8')"
     ]
   }
 }

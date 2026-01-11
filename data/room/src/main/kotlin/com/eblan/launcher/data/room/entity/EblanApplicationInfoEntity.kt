@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.data.room.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 
 @Entity(primaryKeys = ["componentName", "serialNumber"])
@@ -28,5 +29,6 @@ data class EblanApplicationInfoEntity(
     val label: String,
     val customIcon: String?,
     val customLabel: String?,
+    @ColumnInfo(defaultValue = "0")
     val isHidden: Boolean,
 )

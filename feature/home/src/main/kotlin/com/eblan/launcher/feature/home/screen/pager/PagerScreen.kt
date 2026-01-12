@@ -38,10 +38,13 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ImageBitmap
@@ -52,6 +55,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAction
@@ -79,6 +83,8 @@ import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -177,9 +183,13 @@ internal fun SharedTransitionScope.PagerScreen(
 
     val gridHeight = screenHeight - verticalPadding
 
-    val swipeUpY = remember { Animatable(screenHeight.toFloat()) }
+    var lastSwipeUpY by rememberSaveable { mutableFloatStateOf(screenHeight.toFloat()) }
 
-    val swipeDownY = remember { Animatable(screenHeight.toFloat()) }
+    var lastSwipeDownY by rememberSaveable { mutableFloatStateOf(screenHeight.toFloat()) }
+
+    val swipeUpY = remember { Animatable(lastSwipeUpY) }
+
+    val swipeDownY = remember { Animatable(lastSwipeDownY) }
 
     val wallpaperManagerWrapper = LocalWallpaperManager.current
 
@@ -199,7 +209,7 @@ internal fun SharedTransitionScope.PagerScreen(
         }
     }
 
-    val alpha by remember {
+    val pagerAlpha by remember {
         derivedStateOf {
             val threshold = screenHeight / 2
 
@@ -214,6 +224,24 @@ internal fun SharedTransitionScope.PagerScreen(
     val isApplicationScreenVisible by remember {
         derivedStateOf {
             swipeY.value < screenHeight.toFloat()
+        }
+    }
+
+    val alpha by remember {
+        derivedStateOf {
+            if (experimentalSettings.klwpIntegration) {
+                1f
+            } else {
+                ((screenHeight - swipeY.value) / (screenHeight / 2)).coerceIn(0f, 1f)
+            }
+        }
+    }
+
+    val cornerSize by remember {
+        derivedStateOf {
+            val progress = swipeY.value.coerceAtLeast(0f) / screenHeight
+
+            (20 * progress).dp
         }
     }
 
@@ -298,6 +326,18 @@ internal fun SharedTransitionScope.PagerScreen(
         )
     }
 
+    LaunchedEffect(key1 = swipeY) {
+        snapshotFlow { swipeY.value }.onEach { swipeY ->
+            if (swipeY == screenHeight.toFloat()) {
+                lastSwipeUpY = screenHeight.toFloat()
+                lastSwipeDownY = screenHeight.toFloat()
+            } else {
+                lastSwipeUpY = 0f
+                lastSwipeDownY = 0f
+            }
+        }.collect()
+    }
+
     HorizontalPagerScreen(
         modifier = modifier
             .pointerInput(Unit) {
@@ -331,13 +371,14 @@ internal fun SharedTransitionScope.PagerScreen(
                             },
                         )
 
-                        resetSwipeOffset(
-                            scope = scope,
-                            gestureSettings = gestureSettings,
-                            swipeDownY = swipeDownY,
-                            screenHeight = screenHeight,
-                            swipeUpY = swipeUpY,
-                        )
+                        scope.launch {
+                            resetSwipeOffset(
+                                gestureSettings = gestureSettings,
+                                swipeDownY = swipeDownY,
+                                screenHeight = screenHeight,
+                                swipeUpY = swipeUpY,
+                            )
+                        }
                     },
                     onDragCancel = {
                         scope.launch {
@@ -348,7 +389,7 @@ internal fun SharedTransitionScope.PagerScreen(
                     },
                 )
             }
-            .alpha(alpha),
+            .alpha(pagerAlpha),
         gridHorizontalPagerState = gridHorizontalPagerState,
         currentPage = currentPage,
         gridItems = gridItems,
@@ -396,9 +437,7 @@ internal fun SharedTransitionScope.PagerScreen(
     if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
         ApplicationScreen(
             currentPage = currentPage,
-            offsetY = {
-                swipeY.value
-            },
+            swipeY = swipeY.value,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             paddingValues = paddingValues,
             drag = drag,
@@ -418,6 +457,8 @@ internal fun SharedTransitionScope.PagerScreen(
             screen = screen,
             textColor = textColor,
             klwpIntegration = experimentalSettings.klwpIntegration,
+            alpha = alpha,
+            cornerSize = cornerSize,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -463,9 +504,7 @@ internal fun SharedTransitionScope.PagerScreen(
 
         ApplicationScreen(
             currentPage = currentPage,
-            offsetY = {
-                swipeY.value
-            },
+            swipeY = swipeY.value,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             paddingValues = paddingValues,
             drag = drag,
@@ -485,6 +524,8 @@ internal fun SharedTransitionScope.PagerScreen(
             isPressHome = isPressHome,
             textColor = textColor,
             klwpIntegration = experimentalSettings.klwpIntegration,
+            alpha = alpha,
+            cornerSize = cornerSize,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(

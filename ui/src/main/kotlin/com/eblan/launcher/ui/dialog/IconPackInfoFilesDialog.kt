@@ -20,16 +20,26 @@ package com.eblan.launcher.ui.dialog
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,11 +52,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalIconPackManager
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IconPackInfoFilesDialog(
     modifier: Modifier = Modifier,
@@ -62,10 +74,15 @@ fun IconPackInfoFilesDialog(
 
     val iconPackManager = LocalIconPackManager.current
 
+    val searchBarState = rememberSearchBarState()
+
+    val textFieldState = rememberTextFieldState()
+
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = modifier
+            .fillMaxWidth()
+            .padding(10.dp)) {
             Text(
-                modifier = Modifier.padding(10.dp),
                 text = iconPackInfoLabel.toString(),
                 style = MaterialTheme.typography.titleLarge,
             )
@@ -80,6 +97,46 @@ fun IconPackInfoFilesDialog(
                 }
 
                 else -> {
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    SearchBar(
+                        state = searchBarState,
+                        inputField = {
+                            SearchBarDefaults.InputField(
+                                searchBarState = searchBarState,
+                                textFieldState = textFieldState,
+                                onSearch = {
+                                    scope.launch { searchBarState.animateToCollapsed() }
+                                },
+                                placeholder = {
+                                    Text("Search")
+                                },
+                                leadingIcon = {
+                                    if (searchBarState.currentValue == SearchBarValue.Expanded) {
+                                        IconButton(
+                                            onClick = {
+                                                scope.launch {
+                                                    searchBarState.animateToCollapsed()
+                                                }
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = EblanLauncherIcons.ArrowBack,
+                                                contentDescription = null,
+                                            )
+                                        }
+                                    } else {
+                                        Icon(
+                                            imageVector = EblanLauncherIcons.Search,
+                                            contentDescription = null
+                                        )
+                                    }
+                                },
+                            )
+                        })
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
                     LazyVerticalGrid(
                         modifier = Modifier.weight(
                             weight = 1f,
@@ -124,10 +181,11 @@ fun IconPackInfoFilesDialog(
                 }
             }
 
+            Spacer(modifier = Modifier.height(10.dp))
+
             TextButton(
                 modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(10.dp),
+                    .align(Alignment.End),
                 onClick = onDismissRequest,
             ) {
                 Text(text = "Cancel")

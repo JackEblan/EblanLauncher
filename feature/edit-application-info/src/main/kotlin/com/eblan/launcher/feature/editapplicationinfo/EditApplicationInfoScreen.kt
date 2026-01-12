@@ -86,7 +86,10 @@ internal fun EditApplicationInfoScreen(
     iconPackInfoComponents: List<IconPackInfoComponent>,
     onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
     onRestoreEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
-    onUpdateIconPackInfoPackageName: (String) -> Unit,
+    onUpdateIconPackInfoPackageName: (
+        packageName: String,
+        component: String,
+    ) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
     onUpdateGridItemCustomIcon: (
         byteArray: ByteArray,
@@ -149,7 +152,10 @@ private fun Success(
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
     onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
-    onUpdateIconPackInfoPackageName: (String) -> Unit,
+    onUpdateIconPackInfoPackageName: (
+        packageName: String,
+        component: String,
+    ) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
     onUpdateGridItemCustomIcon: (
         byteArray: ByteArray,
@@ -179,7 +185,7 @@ private fun Success(
 
                 showCustomIconDialog = true
 
-                onUpdateIconPackInfoPackageName(packageName)
+                onUpdateIconPackInfoPackageName(packageName, "")
             },
             onUpdateUri = { uri ->
                 onUpdateEblanApplicationInfo(eblanApplicationInfo.copy(customIcon = uri))

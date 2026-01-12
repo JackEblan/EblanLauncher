@@ -76,6 +76,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.FolderDataById
@@ -143,9 +144,15 @@ internal fun HomeRoute(
 
     val pinGridItem by viewModel.pinGridItem.collectAsStateWithLifecycle()
 
-    val eblanShortcutInfos by viewModel.eblanShortcutInfos.collectAsStateWithLifecycle()
+    val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
+
+    val eblanShortcutConfigs by viewModel.eblanShortcutConfigs.collectAsStateWithLifecycle()
 
     val eblanAppWidgetProviderInfos by viewModel.eblanAppWidgetProviderInfos.collectAsStateWithLifecycle()
+
+    val eblanShortcutInfosGroup by viewModel.eblanShortcutInfosGroup.collectAsStateWithLifecycle()
+
+    val eblanAppWidgetProviderInfosGroup by viewModel.eblanAppWidgetProviderInfosGroup.collectAsStateWithLifecycle()
 
     val iconPackFilePaths by viewModel.iconPackFilePaths.collectAsStateWithLifecycle()
 
@@ -159,9 +166,10 @@ internal fun HomeRoute(
         foldersDataById = folders,
         gridItemsCache = gridItemsCache,
         pinGridItem = pinGridItem,
-        eblanShortcutInfos = eblanShortcutInfos,
-        eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+        eblanShortcutInfosGroup = eblanShortcutInfosGroup,
+        eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
         iconPackFilePaths = iconPackFilePaths,
+        eblanApplicationInfos = eblanApplicationInfos,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -209,9 +217,10 @@ internal fun HomeScreen(
     foldersDataById: ArrayDeque<FolderDataById>,
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
-    eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
+    eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -443,9 +452,10 @@ internal fun HomeScreen(
                     foldersDataById = foldersDataById,
                     gridItemCache = gridItemsCache,
                     pinGridItem = pinGridItem,
-                    eblanShortcutInfos = eblanShortcutInfos,
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                    eblanShortcutInfos = eblanShortcutInfosGroup,
+                    eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfosGroup,
                     iconPackFilePaths = iconPackFilePaths,
+                    eblanApplicationInfos = eblanApplicationInfos,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -528,8 +538,9 @@ private fun SharedTransitionScope.Success(
     gridItemCache: GridItemCache,
     pinGridItem: GridItem?,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosByPackageName: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
+    eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -734,11 +745,12 @@ private fun SharedTransitionScope.Success(
                     currentPage = currentPage,
                     statusBarNotifications = statusBarNotifications,
                     eblanShortcutInfos = eblanShortcutInfos,
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                    eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfosByPackageName,
                     iconPackFilePaths = iconPackFilePaths,
                     managedProfileResult = managedProfileResult,
                     screen = targetState,
                     experimentalSettings = homeData.userData.experimentalSettings,
+                    eblanApplicationInfos = eblanApplicationInfos,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(

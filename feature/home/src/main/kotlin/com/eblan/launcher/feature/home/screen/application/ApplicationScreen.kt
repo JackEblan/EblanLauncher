@@ -124,11 +124,9 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnec
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.component.searchbar.SearchBar
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -149,7 +147,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     swipeY: Float,
-    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
+    eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
     paddingValues: PaddingValues,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
@@ -157,7 +155,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     screenHeight: Int,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     hasShortcutHostPermission: Boolean,
-    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosByPackageName: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
     managedProfileResult: ManagedProfileResult?,
@@ -199,41 +197,33 @@ internal fun SharedTransitionScope.ApplicationScreen(
             MaterialTheme.colorScheme.surface
         },
     ) {
-        when (eblanApplicationComponentUiState) {
-            EblanApplicationComponentUiState.Loading -> {
-                LoadingScreen()
-            }
-
-            is EblanApplicationComponentUiState.Success -> {
-                Success(
-                    currentPage = currentPage,
-                    paddingValues = paddingValues,
-                    drag = drag,
-                    appDrawerSettings = appDrawerSettings,
-                    gridItemSource = gridItemSource,
-                    eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
-                    eblanShortcutInfos = eblanShortcutInfos,
-                    hasShortcutHostPermission = hasShortcutHostPermission,
-                    screenHeight = screenHeight,
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-                    iconPackFilePaths = iconPackFilePaths,
-                    isPressHome = isPressHome,
-                    managedProfileResult = managedProfileResult,
-                    screen = screen,
-                    textColor = textColor,
-                    klwpIntegration = klwpIntegration,
-                    onLongPressGridItem = onLongPressGridItem,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-                    onDismiss = onDismiss,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onVerticalDrag = onVerticalDrag,
-                    onDragEnd = onDragEnd,
-                    onEditApplicationInfo = onEditApplicationInfo,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
-            }
-        }
+        Success(
+            currentPage = currentPage,
+            paddingValues = paddingValues,
+            drag = drag,
+            appDrawerSettings = appDrawerSettings,
+            gridItemSource = gridItemSource,
+            eblanApplicationInfos = eblanApplicationInfos,
+            eblanShortcutInfos = eblanShortcutInfos,
+            hasShortcutHostPermission = hasShortcutHostPermission,
+            screenHeight = screenHeight,
+            eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfosByPackageName,
+            iconPackFilePaths = iconPackFilePaths,
+            isPressHome = isPressHome,
+            managedProfileResult = managedProfileResult,
+            screen = screen,
+            textColor = textColor,
+            klwpIntegration = klwpIntegration,
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+            onDismiss = onDismiss,
+            onDraggingGridItem = onDraggingGridItem,
+            onVerticalDrag = onVerticalDrag,
+            onDragEnd = onDragEnd,
+            onEditApplicationInfo = onEditApplicationInfo,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
+        )
     }
 }
 
@@ -250,7 +240,7 @@ private fun SharedTransitionScope.Success(
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     hasShortcutHostPermission: Boolean,
     screenHeight: Int,
-    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosByPackageName: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
     managedProfileResult: ManagedProfileResult?,
@@ -429,7 +419,7 @@ private fun SharedTransitionScope.Success(
             currentPage = currentPage,
             drag = drag,
             gridItemSettings = appDrawerSettings.gridItemSettings,
-            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosByPackageName,
             onDismissRequest = {
                 showPopupApplicationMenu = false
             },
@@ -467,7 +457,7 @@ private fun SharedTransitionScope.Success(
         AppWidgetScreen(
             currentPage = currentPage,
             eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+            eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfosByPackageName,
             gridItemSettings = appDrawerSettings.gridItemSettings,
             paddingValues = paddingValues,
             drag = drag,

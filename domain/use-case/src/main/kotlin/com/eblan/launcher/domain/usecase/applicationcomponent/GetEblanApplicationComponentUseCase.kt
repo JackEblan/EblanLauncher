@@ -44,70 +44,203 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
             eblanShortcutConfigRepository.eblanShortcutConfigs,
             searchByLabel,
         ) { eblanApplicationInfos, eblanAppWidgetProviderInfos, eblanShortcutConfigs, searchByLabel ->
-            val groupedEblanApplicationInfos =
-                eblanApplicationInfos.filterNot { eblanApplicationInfo ->
-                    eblanApplicationInfo.isHidden
-                }.filter { eblanApplicationInfo ->
-                    searchByLabel == null || (
-                        searchByLabel is SearchByLabel.EblanApplicationInfo && eblanApplicationInfo.label.contains(
-                            searchByLabel.label,
-                            ignoreCase = true,
-                        )
-                        )
-                }.sortedBy { eblanApplicationInfo ->
-                    eblanApplicationInfo.label.lowercase()
-                }.groupBy { eblanApplicationInfo ->
-                    eblanApplicationInfo.serialNumber
-                }
-
-            val groupedEblanAppWidgetProviderInfos =
-                eblanAppWidgetProviderInfos.filter { eblanAppWidgetProviderInfo ->
-                    searchByLabel == null || (
-                        searchByLabel is SearchByLabel.EblanAppWidgetProviderInfo && eblanAppWidgetProviderInfo.label.contains(
-                            other = searchByLabel.label,
-                            ignoreCase = true,
-                        )
-                        )
-                }.sortedBy { eblanAppWidgetProviderInfo ->
-                    eblanAppWidgetProviderInfo.label.lowercase()
-                }.groupBy { eblanAppWidgetProviderInfo ->
-                    EblanApplicationInfoGroup(
-                        serialNumber = eblanAppWidgetProviderInfo.serialNumber,
-                        packageName = eblanAppWidgetProviderInfo.packageName,
-                        icon = eblanAppWidgetProviderInfo.icon,
-                        label = eblanAppWidgetProviderInfo.label,
-                    )
-                }
-
-            val groupedEblanShortcutConfigs =
-                eblanShortcutConfigs.filter { eblanShortcutConfig ->
-                    searchByLabel == null || (
-                        searchByLabel is SearchByLabel.EblanShortcutConfig && eblanShortcutConfig.applicationLabel.toString()
-                            .contains(
+            when (searchByLabel) {
+                is SearchByLabel.EblanApplicationInfo -> {
+                    val groupedEblanApplicationInfos =
+                        eblanApplicationInfos.filterNot { eblanApplicationInfo ->
+                            eblanApplicationInfo.isHidden
+                        }.filter { eblanApplicationInfo ->
+                            eblanApplicationInfo.label.contains(
                                 other = searchByLabel.label,
                                 ignoreCase = true,
                             )
-                        )
-                }.sortedBy { eblanShortcutConfig ->
-                    eblanShortcutConfig.applicationLabel?.lowercase()
-                }.groupBy { eblanShortcutConfig ->
-                    eblanShortcutConfig.serialNumber
-                }.mapValues { entry ->
-                    entry.value.groupBy { eblanShortcutConfig ->
-                        EblanApplicationInfoGroup(
-                            serialNumber = eblanShortcutConfig.serialNumber,
-                            packageName = eblanShortcutConfig.packageName,
-                            icon = eblanShortcutConfig.applicationIcon,
-                            label = eblanShortcutConfig.applicationLabel,
-                        )
-                    }
+                        }.sortedBy { eblanApplicationInfo ->
+                            eblanApplicationInfo.label.lowercase()
+                        }.groupBy { eblanApplicationInfo ->
+                            eblanApplicationInfo.serialNumber
+                        }
+
+                    val groupedEblanAppWidgetProviderInfos =
+                        eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
+                            eblanAppWidgetProviderInfo.label.lowercase()
+                        }.groupBy { eblanAppWidgetProviderInfo ->
+                            EblanApplicationInfoGroup(
+                                serialNumber = eblanAppWidgetProviderInfo.serialNumber,
+                                packageName = eblanAppWidgetProviderInfo.packageName,
+                                icon = eblanAppWidgetProviderInfo.icon,
+                                label = eblanAppWidgetProviderInfo.label,
+                            )
+                        }
+
+                    val groupedEblanShortcutConfigs =
+                        eblanShortcutConfigs.sortedBy { eblanShortcutConfig ->
+                            eblanShortcutConfig.applicationLabel?.lowercase()
+                        }.groupBy { eblanShortcutConfig ->
+                            eblanShortcutConfig.serialNumber
+                        }.mapValues { entry ->
+                            entry.value.groupBy { eblanShortcutConfig ->
+                                EblanApplicationInfoGroup(
+                                    serialNumber = eblanShortcutConfig.serialNumber,
+                                    packageName = eblanShortcutConfig.packageName,
+                                    icon = eblanShortcutConfig.applicationIcon,
+                                    label = eblanShortcutConfig.applicationLabel,
+                                )
+                            }
+                        }
+
+                    EblanApplicationComponent(
+                        eblanApplicationInfos = groupedEblanApplicationInfos,
+                        eblanAppWidgetProviderInfos = groupedEblanAppWidgetProviderInfos,
+                        eblanShortcutConfigs = groupedEblanShortcutConfigs,
+                    )
                 }
 
-            EblanApplicationComponent(
-                eblanApplicationInfos = groupedEblanApplicationInfos,
-                eblanAppWidgetProviderInfos = groupedEblanAppWidgetProviderInfos,
-                eblanShortcutConfigs = groupedEblanShortcutConfigs,
-            )
+                is SearchByLabel.EblanAppWidgetProviderInfo -> {
+                    val groupedEblanApplicationInfos =
+                        eblanApplicationInfos.filterNot { eblanApplicationInfo ->
+                            eblanApplicationInfo.isHidden
+                        }.sortedBy { eblanApplicationInfo ->
+                            eblanApplicationInfo.label.lowercase()
+                        }.groupBy { eblanApplicationInfo ->
+                            eblanApplicationInfo.serialNumber
+                        }
+
+                    val groupedEblanAppWidgetProviderInfos =
+                        eblanAppWidgetProviderInfos.filter { eblanAppWidgetProviderInfo ->
+                            eblanAppWidgetProviderInfo.label.contains(
+                                other = searchByLabel.label,
+                                ignoreCase = true,
+                            )
+                        }.sortedBy { eblanAppWidgetProviderInfo ->
+                            eblanAppWidgetProviderInfo.label.lowercase()
+                        }.groupBy { eblanAppWidgetProviderInfo ->
+                            EblanApplicationInfoGroup(
+                                serialNumber = eblanAppWidgetProviderInfo.serialNumber,
+                                packageName = eblanAppWidgetProviderInfo.packageName,
+                                icon = eblanAppWidgetProviderInfo.icon,
+                                label = eblanAppWidgetProviderInfo.label,
+                            )
+                        }
+
+                    val groupedEblanShortcutConfigs =
+                        eblanShortcutConfigs.sortedBy { eblanShortcutConfig ->
+                            eblanShortcutConfig.applicationLabel?.lowercase()
+                        }.groupBy { eblanShortcutConfig ->
+                            eblanShortcutConfig.serialNumber
+                        }.mapValues { entry ->
+                            entry.value.groupBy { eblanShortcutConfig ->
+                                EblanApplicationInfoGroup(
+                                    serialNumber = eblanShortcutConfig.serialNumber,
+                                    packageName = eblanShortcutConfig.packageName,
+                                    icon = eblanShortcutConfig.applicationIcon,
+                                    label = eblanShortcutConfig.applicationLabel,
+                                )
+                            }
+                        }
+
+                    EblanApplicationComponent(
+                        eblanApplicationInfos = groupedEblanApplicationInfos,
+                        eblanAppWidgetProviderInfos = groupedEblanAppWidgetProviderInfos,
+                        eblanShortcutConfigs = groupedEblanShortcutConfigs,
+                    )
+                }
+
+                is SearchByLabel.EblanShortcutConfig -> {
+                    val groupedEblanApplicationInfos =
+                        eblanApplicationInfos.filterNot { eblanApplicationInfo ->
+                            eblanApplicationInfo.isHidden
+                        }.sortedBy { eblanApplicationInfo ->
+                            eblanApplicationInfo.label.lowercase()
+                        }.groupBy { eblanApplicationInfo ->
+                            eblanApplicationInfo.serialNumber
+                        }
+
+                    val groupedEblanAppWidgetProviderInfos =
+                        eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
+                            eblanAppWidgetProviderInfo.label.lowercase()
+                        }.groupBy { eblanAppWidgetProviderInfo ->
+                            EblanApplicationInfoGroup(
+                                serialNumber = eblanAppWidgetProviderInfo.serialNumber,
+                                packageName = eblanAppWidgetProviderInfo.packageName,
+                                icon = eblanAppWidgetProviderInfo.icon,
+                                label = eblanAppWidgetProviderInfo.label,
+                            )
+                        }
+
+                    val groupedEblanShortcutConfigs =
+                        eblanShortcutConfigs.filter { eblanShortcutConfig ->
+                            eblanShortcutConfig.applicationLabel.toString()
+                                .contains(
+                                    other = searchByLabel.label,
+                                    ignoreCase = true,
+                                )
+                        }.sortedBy { eblanShortcutConfig ->
+                            eblanShortcutConfig.applicationLabel?.lowercase()
+                        }.groupBy { eblanShortcutConfig ->
+                            eblanShortcutConfig.serialNumber
+                        }.mapValues { entry ->
+                            entry.value.groupBy { eblanShortcutConfig ->
+                                EblanApplicationInfoGroup(
+                                    serialNumber = eblanShortcutConfig.serialNumber,
+                                    packageName = eblanShortcutConfig.packageName,
+                                    icon = eblanShortcutConfig.applicationIcon,
+                                    label = eblanShortcutConfig.applicationLabel,
+                                )
+                            }
+                        }
+
+                    EblanApplicationComponent(
+                        eblanApplicationInfos = groupedEblanApplicationInfos,
+                        eblanAppWidgetProviderInfos = groupedEblanAppWidgetProviderInfos,
+                        eblanShortcutConfigs = groupedEblanShortcutConfigs,
+                    )
+                }
+
+                null -> {
+                    val groupedEblanApplicationInfos =
+                        eblanApplicationInfos.filterNot { eblanApplicationInfo ->
+                            eblanApplicationInfo.isHidden
+                        }.sortedBy { eblanApplicationInfo ->
+                            eblanApplicationInfo.label.lowercase()
+                        }.groupBy { eblanApplicationInfo ->
+                            eblanApplicationInfo.serialNumber
+                        }
+
+                    val groupedEblanAppWidgetProviderInfos =
+                        eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
+                            eblanAppWidgetProviderInfo.label.lowercase()
+                        }.groupBy { eblanAppWidgetProviderInfo ->
+                            EblanApplicationInfoGroup(
+                                serialNumber = eblanAppWidgetProviderInfo.serialNumber,
+                                packageName = eblanAppWidgetProviderInfo.packageName,
+                                icon = eblanAppWidgetProviderInfo.icon,
+                                label = eblanAppWidgetProviderInfo.label,
+                            )
+                        }
+
+                    val groupedEblanShortcutConfigs =
+                        eblanShortcutConfigs.sortedBy { eblanShortcutConfig ->
+                            eblanShortcutConfig.applicationLabel?.lowercase()
+                        }.groupBy { eblanShortcutConfig ->
+                            eblanShortcutConfig.serialNumber
+                        }.mapValues { entry ->
+                            entry.value.groupBy { eblanShortcutConfig ->
+                                EblanApplicationInfoGroup(
+                                    serialNumber = eblanShortcutConfig.serialNumber,
+                                    packageName = eblanShortcutConfig.packageName,
+                                    icon = eblanShortcutConfig.applicationIcon,
+                                    label = eblanShortcutConfig.applicationLabel,
+                                )
+                            }
+                        }
+
+                    EblanApplicationComponent(
+                        eblanApplicationInfos = groupedEblanApplicationInfos,
+                        eblanAppWidgetProviderInfos = groupedEblanAppWidgetProviderInfos,
+                        eblanShortcutConfigs = groupedEblanShortcutConfigs,
+                    )
+                }
+            }
         }.flowOn(defaultDispatcher)
     }
 }

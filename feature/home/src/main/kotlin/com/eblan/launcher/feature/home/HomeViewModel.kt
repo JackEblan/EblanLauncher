@@ -35,7 +35,10 @@ import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
+import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanAppWidgetProviderInfosUseCase
 import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanApplicationComponentUseCase
+import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanApplicationInfosUseCase
+import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutConfigsUseCase
 import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutInfosUseCase
 import com.eblan.launcher.domain.usecase.grid.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.GetFolderDataByIdUseCase
@@ -93,6 +96,9 @@ internal class HomeViewModel @Inject constructor(
     eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     getIconPackFilePathsUseCase: GetIconPackFilePathsUseCase,
     private val moveGridItemOutsideFolderUseCase: MoveGridItemOutsideFolderUseCase,
+    getEblanApplicationInfosUseCase: GetEblanApplicationInfosUseCase,
+    getEblanAppWidgetProviderInfosUseCase: GetEblanAppWidgetProviderInfosUseCase,
+    getEblanShortcutConfigsUseCase: GetEblanShortcutConfigsUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -134,13 +140,13 @@ internal class HomeViewModel @Inject constructor(
 
     val pinGridItem = _pinGridItem.asStateFlow()
 
-    val eblanShortcutInfos = getEblanShortcutInfosUseCase().stateIn(
+    val eblanShortcutInfosGroup = getEblanShortcutInfosUseCase().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = emptyMap(),
     )
 
-    val eblanAppWidgetProviderInfos =
+    val eblanAppWidgetProviderInfosGroup =
         eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
             eblanAppWidgetProviderInfos.groupBy { eblanAppWidgetProviderInfo ->
                 eblanAppWidgetProviderInfo.packageName
@@ -167,6 +173,33 @@ internal class HomeViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = EblanApplicationComponentUiState.Loading,
+        )
+
+    private val _eblanApplicationInfoLabel = MutableStateFlow("")
+
+    val eblanApplicationInfos =
+        getEblanApplicationInfosUseCase(labelFlow = _eblanApplicationInfoLabel).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyMap(),
+        )
+
+    private val _eblanAppWidgetProviderInfoLabel = MutableStateFlow("")
+
+    val eblanAppWidgetProviderInfos =
+        getEblanAppWidgetProviderInfosUseCase(labelFlow = _eblanAppWidgetProviderInfoLabel).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyMap(),
+        )
+
+    private val _eblanShortcutConfigLabel = MutableStateFlow("")
+
+    val eblanShortcutConfigs =
+        getEblanShortcutConfigsUseCase(labelFlow = _eblanShortcutConfigLabel).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyMap(),
         )
 
     fun moveGridItem(
@@ -534,8 +567,8 @@ internal class HomeViewModel @Inject constructor(
     }
 
     fun getEblanApplicationInfosByLabel(label: String) {
-        _searchByLabel.update {
-            SearchByLabel.EblanApplicationInfo(label = label)
+        _eblanApplicationInfoLabel.update {
+            label
         }
     }
 

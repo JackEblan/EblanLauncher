@@ -30,14 +30,12 @@ import com.eblan.launcher.domain.model.GridItemData.ShortcutInfo
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
+import com.eblan.launcher.domain.model.SearchByLabel
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
-import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanAppWidgetProviderInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanApplicationComponentUseCase
-import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanApplicationInfosByLabelUseCase
-import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutConfigByLabelUseCase
 import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutInfosUseCase
 import com.eblan.launcher.domain.usecase.grid.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.GetFolderDataByIdUseCase
@@ -57,18 +55,13 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -91,14 +84,11 @@ internal class HomeViewModel @Inject constructor(
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val moveFolderGridItemUseCase: MoveFolderGridItemUseCase,
     private val getFolderDataByIdUseCase: GetFolderDataByIdUseCase,
-    getEblanApplicationInfosByLabelUseCase: GetEblanApplicationInfosByLabelUseCase,
-    getEblanAppWidgetProviderInfosByLabelUseCase: GetEblanAppWidgetProviderInfosByLabelUseCase,
     getGridItemsCacheUseCase: GetGridItemsCacheUseCase,
     private val deleteGridItemUseCase: DeleteGridItemUseCase,
     private val getPinGridItemUseCase: GetPinGridItemUseCase,
     private val fileManager: FileManager,
     private val packageManagerWrapper: PackageManagerWrapper,
-    getEblanShortcutConfigByLabelUseCase: GetEblanShortcutConfigByLabelUseCase,
     getEblanShortcutInfosUseCase: GetEblanShortcutInfosUseCase,
     eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     getIconPackFilePathsUseCase: GetIconPackFilePathsUseCase,
@@ -109,14 +99,6 @@ internal class HomeViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = HomeUiState.Loading,
     )
-
-    val eblanApplicationComponentUiState =
-        getEblanApplicationComponentUseCase().map(EblanApplicationComponentUiState::Success)
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = EblanApplicationComponentUiState.Loading,
-            )
 
     private val _screen = MutableStateFlow(Screen.Pager)
 
@@ -137,44 +119,6 @@ internal class HomeViewModel @Inject constructor(
     private val _foldersDataById = MutableStateFlow(ArrayDeque<FolderDataById>())
 
     val foldersDataById = _foldersDataById.asStateFlow()
-
-    private val _eblanApplicationLabel = MutableStateFlow<String?>(null)
-
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val eblanApplicationInfosByLabel =
-        _eblanApplicationLabel.filterNotNull().debounce(defaultDelay).flatMapLatest { label ->
-            getEblanApplicationInfosByLabelUseCase(label = label)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList(),
-        )
-
-    private val _eblanAppWidgetProviderInfoLabel = MutableStateFlow<String?>(null)
-
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val eblanAppWidgetProviderInfosByLabel =
-        _eblanAppWidgetProviderInfoLabel.filterNotNull().debounce(defaultDelay)
-            .flatMapLatest { label ->
-                getEblanAppWidgetProviderInfosByLabelUseCase(label = label)
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyMap(),
-            )
-
-    private val _eblanShortcutConfigsLabel = MutableStateFlow<String?>(null)
-
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val eblanShortcutConfigsByLabel =
-        _eblanShortcutConfigsLabel.filterNotNull().debounce(defaultDelay)
-            .flatMapLatest { label ->
-                getEblanShortcutConfigByLabelUseCase(label = label)
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyMap(),
-            )
 
     val gridItemsCache = getGridItemsCacheUseCase().stateIn(
         scope = viewModelScope,
@@ -212,6 +156,17 @@ internal class HomeViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyMap(),
+        )
+
+    private val _searchByLabel = MutableStateFlow<SearchByLabel?>(null)
+
+    val eblanApplicationComponentUiState =
+        getEblanApplicationComponentUseCase(searchByLabel = _searchByLabel).map(
+            EblanApplicationComponentUiState::Success,
+        ).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = EblanApplicationComponentUiState.Loading,
         )
 
     fun moveGridItem(
@@ -579,20 +534,20 @@ internal class HomeViewModel @Inject constructor(
     }
 
     fun getEblanApplicationInfosByLabel(label: String) {
-        _eblanApplicationLabel.update {
-            label
+        _searchByLabel.update {
+            SearchByLabel.EblanApplicationInfo(label = label)
         }
     }
 
     fun getEblanAppWidgetProviderInfosByLabel(label: String) {
-        _eblanAppWidgetProviderInfoLabel.update {
-            label
+        _searchByLabel.update {
+            SearchByLabel.EblanAppWidgetProviderInfo(label = label)
         }
     }
 
     fun getEblanShortcutConfigsByLabel(label: String) {
-        _eblanShortcutConfigsLabel.update {
-            label
+        _searchByLabel.update {
+            SearchByLabel.EblanShortcutConfig(label = label)
         }
     }
 

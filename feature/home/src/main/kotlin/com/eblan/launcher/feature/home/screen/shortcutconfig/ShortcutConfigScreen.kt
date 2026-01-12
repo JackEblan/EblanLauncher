@@ -47,14 +47,12 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -99,6 +97,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
+import com.eblan.launcher.feature.home.component.searchbar.SearchBar
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -120,7 +119,6 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
     paddingValues: PaddingValues,
     drag: Drag,
     gridItemSettings: GridItemSettings,
-    eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     screenHeight: Int,
     isPressHome: Boolean,
     screen: Screen,
@@ -213,7 +211,6 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
                     paddingValues = paddingValues,
                     drag = drag,
                     gridItemSettings = gridItemSettings,
-                    eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
                     eblanShortcutConfigs = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutConfigs,
                     screen = screen,
                     onLongPressGridItem = onLongPressGridItem,
@@ -250,7 +247,6 @@ private fun SharedTransitionScope.Success(
     paddingValues: PaddingValues,
     drag: Drag,
     gridItemSettings: GridItemSettings,
-    eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     screen: Screen,
     onLongPressGridItem: (
@@ -267,8 +263,6 @@ private fun SharedTransitionScope.Success(
     onDragEnd: (Float) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-
     val horizontalPagerState = rememberPagerState(
         pageCount = {
             eblanShortcutConfigs.keys.size
@@ -284,22 +278,9 @@ private fun SharedTransitionScope.Success(
                 end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
             ),
     ) {
-        EblanShortcutConfigDockSearchBar(
-            modifier = modifier,
-            onQueryChange = onGetEblanShortcutConfigsByLabel,
-            eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
-            drag = drag,
-            screen = screen,
-            onUpdateGridItemOffset = { intOffset, intSize ->
-                onUpdateGridItemOffset(intOffset, intSize)
-
-                focusManager.clearFocus()
-            },
-            onLongPressGridItem = onLongPressGridItem,
-            currentPage = currentPage,
-            gridItemSettings = gridItemSettings,
-            onDraggingGridItem = onDraggingGridItem,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
+        SearchBar(
+            title = "Search Shortcuts",
+            onChangeLabel = onGetEblanShortcutConfigsByLabel,
         )
 
         if (eblanShortcutConfigs.keys.size > 1) {
@@ -345,74 +326,6 @@ private fun SharedTransitionScope.Success(
                 onDragEnd = onDragEnd,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
-@Composable
-private fun SharedTransitionScope.EblanShortcutConfigDockSearchBar(
-    modifier: Modifier = Modifier,
-    onQueryChange: (String) -> Unit,
-    eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
-    drag: Drag,
-    screen: Screen,
-    onUpdateGridItemOffset: (
-        intOffset: IntOffset,
-        intSize: IntSize,
-    ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
-    currentPage: Int,
-    gridItemSettings: GridItemSettings,
-    onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-) {
-    var query by remember { mutableStateOf("") }
-
-    var expanded by remember { mutableStateOf(false) }
-
-    DockedSearchBar(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        inputField = {
-            SearchBarDefaults.InputField(
-                modifier = Modifier.fillMaxWidth(),
-                query = query,
-                onQueryChange = { newQuery ->
-                    query = newQuery
-
-                    onQueryChange(newQuery)
-                },
-                onSearch = { expanded = false },
-                expanded = expanded,
-                onExpandedChange = { expanded = it },
-                placeholder = { Text("Search Shortcuts") },
-                leadingIcon = { Icon(EblanLauncherIcons.Search, contentDescription = null) },
-            )
-        },
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
-    ) {
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            items(eblanShortcutConfigsByLabel.keys.toList()) { eblanApplicationInfoGroup ->
-                EblanApplicationInfoItem(
-                    modifier = modifier,
-                    eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-                    eblanShortcutConfigs = eblanShortcutConfigsByLabel,
-                    drag = drag,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onLongPressGridItem = onLongPressGridItem,
-                    currentPage = currentPage,
-                    gridItemSettings = gridItemSettings,
-                    screen = screen,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
-            }
         }
     }
 }
@@ -655,6 +568,8 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
+
     val scope = rememberCoroutineScope()
 
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -699,6 +614,8 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                 detectTapGestures(
                     onLongPress = {
                         scope.launch {
+                            focusManager.clearFocus()
+
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)

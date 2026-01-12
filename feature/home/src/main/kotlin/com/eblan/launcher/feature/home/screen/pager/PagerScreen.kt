@@ -60,9 +60,7 @@ import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
-import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
-import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.ExperimentalSettings
@@ -106,13 +104,10 @@ internal fun SharedTransitionScope.PagerScreen(
     appDrawerSettings: AppDrawerSettings,
     gridItemSource: GridItemSource?,
     homeSettings: HomeSettings,
-    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
     statusBarNotifications: Map<String, Int>,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
@@ -442,7 +437,6 @@ internal fun SharedTransitionScope.PagerScreen(
             paddingValues = paddingValues,
             drag = drag,
             appDrawerSettings = appDrawerSettings,
-            eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
             screenHeight = screenHeight,
             eblanShortcutInfos = eblanShortcutInfos,
             hasShortcutHostPermission = hasShortcutHostPermission,
@@ -509,7 +503,6 @@ internal fun SharedTransitionScope.PagerScreen(
             paddingValues = paddingValues,
             drag = drag,
             appDrawerSettings = appDrawerSettings,
-            eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
             screenHeight = screenHeight,
             eblanShortcutInfos = eblanShortcutInfos,
             hasShortcutHostPermission = hasShortcutHostPermission,
@@ -570,7 +563,6 @@ internal fun SharedTransitionScope.PagerScreen(
             gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
             drag = drag,
-            eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
             screenHeight = screenHeight,
             isPressHome = isPressHome,
             screen = screen,
@@ -594,7 +586,6 @@ internal fun SharedTransitionScope.PagerScreen(
             paddingValues = paddingValues,
             drag = drag,
             gridItemSettings = homeSettings.gridItemSettings,
-            eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
             screenHeight = screenHeight,
             isPressHome = isPressHome,
             screen = screen,

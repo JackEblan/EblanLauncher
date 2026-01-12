@@ -21,6 +21,7 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.EblanApplicationComponent
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.SearchByLabel
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
@@ -36,15 +37,23 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(): Flow<EblanApplicationComponent> {
+    operator fun invoke(searchByLabel: Flow<SearchByLabel?>): Flow<EblanApplicationComponent> {
         return combine(
             eblanApplicationInfoRepository.eblanApplicationInfos,
             eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos,
             eblanShortcutConfigRepository.eblanShortcutConfigs,
-        ) { eblanApplicationInfos, eblanAppWidgetProviderInfos, eblanShortcutConfigs ->
+            searchByLabel,
+        ) { eblanApplicationInfos, eblanAppWidgetProviderInfos, eblanShortcutConfigs, searchByLabel ->
             val groupedEblanApplicationInfos =
                 eblanApplicationInfos.filterNot { eblanApplicationInfo ->
                     eblanApplicationInfo.isHidden
+                }.filter { eblanApplicationInfo ->
+                    searchByLabel == null || (
+                        searchByLabel is SearchByLabel.EblanApplicationInfo && eblanApplicationInfo.label.contains(
+                            searchByLabel.label,
+                            ignoreCase = true,
+                        )
+                        )
                 }.sortedBy { eblanApplicationInfo ->
                     eblanApplicationInfo.label.lowercase()
                 }.groupBy { eblanApplicationInfo ->
@@ -52,7 +61,14 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                 }
 
             val groupedEblanAppWidgetProviderInfos =
-                eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
+                eblanAppWidgetProviderInfos.filter { eblanAppWidgetProviderInfo ->
+                    searchByLabel == null || (
+                        searchByLabel is SearchByLabel.EblanAppWidgetProviderInfo && eblanAppWidgetProviderInfo.label.contains(
+                            other = searchByLabel.label,
+                            ignoreCase = true,
+                        )
+                        )
+                }.sortedBy { eblanAppWidgetProviderInfo ->
                     eblanAppWidgetProviderInfo.label.lowercase()
                 }.groupBy { eblanAppWidgetProviderInfo ->
                     EblanApplicationInfoGroup(
@@ -64,7 +80,15 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                 }
 
             val groupedEblanShortcutConfigs =
-                eblanShortcutConfigs.sortedBy { eblanShortcutConfig ->
+                eblanShortcutConfigs.filter { eblanShortcutConfig ->
+                    searchByLabel == null || (
+                        searchByLabel is SearchByLabel.EblanShortcutConfig && eblanShortcutConfig.applicationLabel.toString()
+                            .contains(
+                                other = searchByLabel.label,
+                                ignoreCase = true,
+                            )
+                        )
+                }.sortedBy { eblanShortcutConfig ->
                     eblanShortcutConfig.applicationLabel?.lowercase()
                 }.groupBy { eblanShortcutConfig ->
                     eblanShortcutConfig.serialNumber

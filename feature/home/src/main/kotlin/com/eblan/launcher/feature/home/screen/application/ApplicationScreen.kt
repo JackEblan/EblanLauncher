@@ -40,7 +40,6 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
@@ -57,14 +56,12 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -125,6 +122,7 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
+import com.eblan.launcher.feature.home.component.searchbar.SearchBar
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -155,7 +153,6 @@ internal fun SharedTransitionScope.ApplicationScreen(
     paddingValues: PaddingValues,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
-    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     gridItemSource: GridItemSource?,
     screenHeight: Int,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
@@ -213,7 +210,6 @@ internal fun SharedTransitionScope.ApplicationScreen(
                     paddingValues = paddingValues,
                     drag = drag,
                     appDrawerSettings = appDrawerSettings,
-                    eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     gridItemSource = gridItemSource,
                     eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
                     eblanShortcutInfos = eblanShortcutInfos,
@@ -249,7 +245,6 @@ private fun SharedTransitionScope.Success(
     paddingValues: PaddingValues,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
-    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     gridItemSource: GridItemSource?,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
@@ -338,33 +333,9 @@ private fun SharedTransitionScope.Success(
                 end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
             ),
     ) {
-        EblanApplicationInfoDockSearchBar(
-            currentPage = currentPage,
-            onQueryChange = onGetEblanApplicationInfosByLabel,
-            eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
-            drag = drag,
-            appDrawerSettings = appDrawerSettings,
-            iconPackFilePaths = iconPackFilePaths,
-            paddingValues = paddingValues,
-            isPressHome = isPressHome,
-            screen = screen,
-            textColor = textColor,
-            klwpIntegration = klwpIntegration,
-            onUpdateGridItemOffset = { intOffset, intSize ->
-                onUpdateGridItemOffset(intOffset, intSize)
-
-                popupIntOffset = intOffset
-
-                popupIntSize = intSize
-
-                focusManager.clearFocus()
-            },
-            onLongPressGridItem = onLongPressGridItem,
-            onUpdatePopupMenu = { newShowPopupApplicationMenu ->
-                showPopupApplicationMenu = newShowPopupApplicationMenu
-            },
-            onDraggingGridItem = onDraggingGridItem,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
+        SearchBar(
+            title = "Search Applications",
+            onChangeLabel = onGetEblanApplicationInfosByLabel,
         )
 
         if (eblanApplicationInfos.keys.size > 1) {
@@ -393,6 +364,8 @@ private fun SharedTransitionScope.Success(
                     klwpIntegration = klwpIntegration,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = { intOffset, intSize ->
+                        focusManager.clearFocus()
+
                         onUpdateGridItemOffset(intOffset, intSize)
 
                         popupIntOffset = intOffset
@@ -423,6 +396,8 @@ private fun SharedTransitionScope.Success(
                 klwpIntegration = klwpIntegration,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = { intOffset, intSize ->
+                    focusManager.clearFocus()
+
                     onUpdateGridItemOffset(intOffset, intSize)
 
                     popupIntOffset = intOffset
@@ -507,94 +482,6 @@ private fun SharedTransitionScope.Success(
             onDraggingGridItem = onDraggingGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
-@Composable
-private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
-    modifier: Modifier = Modifier,
-    currentPage: Int,
-    drag: Drag,
-    appDrawerSettings: AppDrawerSettings,
-    onQueryChange: (String) -> Unit,
-    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
-    paddingValues: PaddingValues,
-    iconPackFilePaths: Map<String, String>,
-    isPressHome: Boolean,
-    screen: Screen,
-    textColor: TextColor,
-    klwpIntegration: Boolean,
-    onUpdateGridItemOffset: (
-        intOffset: IntOffset,
-        intSize: IntSize,
-    ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
-    onUpdatePopupMenu: (Boolean) -> Unit,
-    onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-) {
-    var query by remember { mutableStateOf("") }
-
-    var expanded by remember { mutableStateOf(false) }
-
-    LaunchedEffect(key1 = isPressHome) {
-        if (isPressHome) {
-            expanded = false
-        }
-    }
-
-    DockedSearchBar(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        inputField = {
-            SearchBarDefaults.InputField(
-                modifier = Modifier.fillMaxWidth(),
-                query = query,
-                onQueryChange = { newQuery ->
-                    query = newQuery
-
-                    onQueryChange(newQuery)
-                },
-                onSearch = { expanded = false },
-                expanded = expanded,
-                onExpandedChange = { expanded = it },
-                placeholder = { Text("Search Applications") },
-                leadingIcon = { Icon(EblanLauncherIcons.Search, contentDescription = null) },
-            )
-        },
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
-    ) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            items(eblanApplicationInfosByLabel) { eblanApplicationInfo ->
-                key(eblanApplicationInfo.serialNumber, eblanApplicationInfo.componentName) {
-                    EblanApplicationInfoItem(
-                        currentPage = currentPage,
-                        drag = drag,
-                        eblanApplicationInfo = eblanApplicationInfo,
-                        appDrawerSettings = appDrawerSettings,
-                        paddingValues = paddingValues,
-                        iconPackFilePaths = iconPackFilePaths,
-                        screen = screen,
-                        textColor = textColor,
-                        klwpIntegration = klwpIntegration,
-                        onUpdateGridItemOffset = onUpdateGridItemOffset,
-                        onLongPressGridItem = onLongPressGridItem,
-                        onUpdatePopupMenu = onUpdatePopupMenu,
-                        onDraggingGridItem = onDraggingGridItem,
-                        onUpdateSharedElementKey = onUpdateSharedElementKey,
-                    )
-                }
-            }
-        }
     }
 }
 

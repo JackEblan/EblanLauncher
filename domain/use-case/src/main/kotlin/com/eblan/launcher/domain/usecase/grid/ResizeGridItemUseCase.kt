@@ -41,65 +41,63 @@ class ResizeGridItemUseCase @Inject constructor(
         columns: Int,
         rows: Int,
         lockMovement: Boolean,
-    ): MoveGridItemResult {
-        return withContext(defaultDispatcher) {
-            val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
-                isGridItemSpanWithinBounds(
-                    gridItem = gridItem,
-                    columns = columns,
-                    rows = rows,
-                ) && when (resizingGridItem.associate) {
-                    Associate.Grid -> {
-                        gridItem.page == resizingGridItem.page &&
-                            gridItem.associate == resizingGridItem.associate
-                    }
-
-                    Associate.Dock -> {
+    ): MoveGridItemResult = withContext(defaultDispatcher) {
+        val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
+            isGridItemSpanWithinBounds(
+                gridItem = gridItem,
+                columns = columns,
+                rows = rows,
+            ) && when (resizingGridItem.associate) {
+                Associate.Grid -> {
+                    gridItem.page == resizingGridItem.page &&
                         gridItem.associate == resizingGridItem.associate
-                    }
                 }
-            }.toMutableList()
 
-            val index =
-                gridItems.indexOfFirst { gridItem -> gridItem.id == resizingGridItem.id }
-
-            val oldGridItem = gridItems[index]
-
-            gridItems[index] = resizingGridItem
-
-            val gridItemBySpan = gridItems.find { gridItem ->
-                gridItem.id != resizingGridItem.id && rectanglesOverlap(
-                    moving = resizingGridItem,
-                    other = gridItem,
-                )
-            }
-
-            if (gridItemBySpan != null) {
-                val resolveDirection = getRelativeResolveDirection(
-                    moving = oldGridItem,
-                    other = gridItemBySpan,
-                )
-
-                val resolvedConflicts = resolveConflicts(
-                    gridItems = gridItems,
-                    resolveDirection = resolveDirection,
-                    movingGridItem = resizingGridItem,
-                    columns = columns,
-                    rows = rows,
-                )
-
-                if (resolvedConflicts && !lockMovement) {
-                    gridCacheRepository.upsertGridItems(gridItems = gridItems)
+                Associate.Dock -> {
+                    gridItem.associate == resizingGridItem.associate
                 }
-            } else {
-                gridCacheRepository.upsertGridItems(gridItems = gridItems)
             }
+        }.toMutableList()
 
-            MoveGridItemResult(
-                isSuccess = true,
-                movingGridItem = resizingGridItem,
-                conflictingGridItem = null,
+        val index =
+            gridItems.indexOfFirst { gridItem -> gridItem.id == resizingGridItem.id }
+
+        val oldGridItem = gridItems[index]
+
+        gridItems[index] = resizingGridItem
+
+        val gridItemBySpan = gridItems.find { gridItem ->
+            gridItem.id != resizingGridItem.id && rectanglesOverlap(
+                moving = resizingGridItem,
+                other = gridItem,
             )
         }
+
+        if (gridItemBySpan != null) {
+            val resolveDirection = getRelativeResolveDirection(
+                moving = oldGridItem,
+                other = gridItemBySpan,
+            )
+
+            val resolvedConflicts = resolveConflicts(
+                gridItems = gridItems,
+                resolveDirection = resolveDirection,
+                movingGridItem = resizingGridItem,
+                columns = columns,
+                rows = rows,
+            )
+
+            if (resolvedConflicts && !lockMovement) {
+                gridCacheRepository.upsertGridItems(gridItems = gridItems)
+            }
+        } else {
+            gridCacheRepository.upsertGridItems(gridItems = gridItems)
+        }
+
+        MoveGridItemResult(
+            isSuccess = true,
+            movingGridItem = resizingGridItem,
+            conflictingGridItem = null,
+        )
     }
 }

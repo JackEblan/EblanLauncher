@@ -28,8 +28,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class ActionViewModel @Inject constructor(eblanApplicationInfoRepository: EblanApplicationInfoRepository) :
-    ViewModel() {
+class ActionViewModel @Inject constructor(eblanApplicationInfoRepository: EblanApplicationInfoRepository) : ViewModel() {
     val actionUiState =
         eblanApplicationInfoRepository.eblanApplicationInfos.map { eblanApplicationInfos ->
             eblanApplicationInfos.sortedBy { eblanApplicationInfo ->

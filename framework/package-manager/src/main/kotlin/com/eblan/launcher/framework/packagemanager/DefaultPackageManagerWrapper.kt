@@ -37,37 +37,34 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
     private val androidByteArrayWrapper: AndroidByteArrayWrapper,
-) : PackageManagerWrapper, AndroidPackageManagerWrapper {
+) : PackageManagerWrapper,
+    AndroidPackageManagerWrapper {
 
     private val packageManager = context.packageManager
 
     override val hasSystemFeatureAppWidgets
         get() = packageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)
 
-    override suspend fun getApplicationIcon(packageName: String): ByteArray? {
-        return withContext(defaultDispatcher) {
-            try {
-                androidByteArrayWrapper.createByteArray(
-                    drawable = packageManager.getApplicationIcon(
-                        packageName,
-                    ),
-                )
-            } catch (_: PackageManager.NameNotFoundException) {
-                null
-            }
+    override suspend fun getApplicationIcon(packageName: String): ByteArray? = withContext(defaultDispatcher) {
+        try {
+            androidByteArrayWrapper.createByteArray(
+                drawable = packageManager.getApplicationIcon(
+                    packageName,
+                ),
+            )
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
         }
     }
 
-    override suspend fun getApplicationLabel(packageName: String): String? {
-        return withContext(defaultDispatcher) {
-            try {
-                val applicationInfo =
-                    packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+    override suspend fun getApplicationLabel(packageName: String): String? = withContext(defaultDispatcher) {
+        try {
+            val applicationInfo =
+                packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
 
-                packageManager.getApplicationLabel(applicationInfo).toString()
-            } catch (_: PackageManager.NameNotFoundException) {
-                null
-            }
+            packageManager.getApplicationLabel(applicationInfo).toString()
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
         }
     }
 
@@ -92,20 +89,18 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
     override suspend fun getActivityIcon(
         componentName: String,
         packageName: String,
-    ): ByteArray? {
-        return withContext(defaultDispatcher) {
-            try {
-                val drawable = ComponentName.unflattenFromString(componentName)
-                    ?.let(packageManager::getActivityIcon)
+    ): ByteArray? = withContext(defaultDispatcher) {
+        try {
+            val drawable = ComponentName.unflattenFromString(componentName)
+                ?.let(packageManager::getActivityIcon)
 
-                if (drawable != null) {
-                    androidByteArrayWrapper.createByteArray(drawable = drawable)
-                } else {
-                    null
-                }
-            } catch (_: PackageManager.NameNotFoundException) {
-                getApplicationIcon(packageName = packageName)
+            if (drawable != null) {
+                androidByteArrayWrapper.createByteArray(drawable = drawable)
+            } else {
+                null
             }
+        } catch (_: PackageManager.NameNotFoundException) {
+            getApplicationIcon(packageName = packageName)
         }
     }
 

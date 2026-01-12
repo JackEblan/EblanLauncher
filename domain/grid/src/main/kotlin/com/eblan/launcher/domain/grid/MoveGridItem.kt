@@ -68,28 +68,26 @@ private fun moveGridItem(
     conflicting: GridItem,
     columns: Int,
     rows: Int,
-): GridItem? {
-    return when (resolveDirection) {
-        ResolveDirection.Left -> {
-            moveGridItemToLeft(
-                moving = moving,
-                conflicting = conflicting,
-                columns = columns,
-                rows = rows,
-            )
-        }
-
-        ResolveDirection.Right -> {
-            moveGridItemToRight(
-                moving = moving,
-                conflicting = conflicting,
-                columns = columns,
-                rows = rows,
-            )
-        }
-
-        ResolveDirection.Center -> moving
+): GridItem? = when (resolveDirection) {
+    ResolveDirection.Left -> {
+        moveGridItemToLeft(
+            moving = moving,
+            conflicting = conflicting,
+            columns = columns,
+            rows = rows,
+        )
     }
+
+    ResolveDirection.Right -> {
+        moveGridItemToRight(
+            moving = moving,
+            conflicting = conflicting,
+            columns = columns,
+            rows = rows,
+        )
+    }
+
+    ResolveDirection.Center -> moving
 }
 
 private fun moveGridItemToRight(

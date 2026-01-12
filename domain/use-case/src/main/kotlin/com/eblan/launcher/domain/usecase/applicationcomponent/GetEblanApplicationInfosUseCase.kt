@@ -23,25 +23,29 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
+class GetEblanApplicationInfosUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(label: String): Flow<List<EblanApplicationInfo>> {
-        return eblanApplicationInfoRepository.eblanApplicationInfos.map { eblanApplicationInfos ->
-            eblanApplicationInfos
-                .filter { eblanApplicationInfo ->
-                    label.isNotBlank() &&
-                        eblanApplicationInfo.label.contains(
-                            other = label,
-                            ignoreCase = true,
-                        ) && !eblanApplicationInfo.isHidden
-                }
-                .sortedBy { eblanApplicationInfo -> eblanApplicationInfo.label }
-        }.flowOn(defaultDispatcher)
-    }
+    operator fun invoke(labelFlow: Flow<String>): Flow<Map<Long, List<EblanApplicationInfo>>> = combine(
+        eblanApplicationInfoRepository.eblanApplicationInfos,
+        labelFlow,
+    ) { eblanApplicationInfos, label ->
+        eblanApplicationInfos.filterNot { eblanApplicationInfo ->
+            eblanApplicationInfo.isHidden
+        }.filter { eblanApplicationInfo ->
+            eblanApplicationInfo.label.contains(
+                other = label,
+                ignoreCase = true,
+            )
+        }.sortedBy { eblanApplicationInfo ->
+            eblanApplicationInfo.label.lowercase()
+        }.groupBy { eblanApplicationInfo ->
+            eblanApplicationInfo.serialNumber
+        }
+    }.flowOn(defaultDispatcher)
 }

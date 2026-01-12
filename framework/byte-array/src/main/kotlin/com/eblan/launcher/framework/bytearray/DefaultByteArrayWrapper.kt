@@ -79,13 +79,11 @@ internal class DefaultByteArrayWrapper @Inject constructor(
         }
     }
 
-    override suspend fun createByteArray(bitmap: Bitmap?): ByteArray? {
-        return ByteArrayOutputStream().use { stream ->
-            withContext(defaultDispatcher) {
-                bitmap?.compress(Bitmap.CompressFormat.PNG, 100, stream)
+    override suspend fun createByteArray(bitmap: Bitmap?): ByteArray? = ByteArrayOutputStream().use { stream ->
+        withContext(defaultDispatcher) {
+            bitmap?.compress(Bitmap.CompressFormat.PNG, 100, stream)
 
-                stream.toByteArray()
-            }
+            stream.toByteArray()
         }
     }
 }

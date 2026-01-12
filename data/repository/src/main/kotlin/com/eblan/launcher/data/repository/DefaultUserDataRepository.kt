@@ -26,8 +26,7 @@ import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.repository.UserDataRepository
 import javax.inject.Inject
 
-internal class DefaultUserDataRepository @Inject constructor(private val userDataStore: UserDataStore) :
-    UserDataRepository {
+internal class DefaultUserDataRepository @Inject constructor(private val userDataStore: UserDataStore) : UserDataRepository {
     override val userData = userDataStore.userData
 
     override suspend fun updateHomeSettings(homeSettings: HomeSettings) {

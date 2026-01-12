@@ -91,7 +91,6 @@ import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
@@ -134,27 +133,25 @@ internal fun HomeRoute(
 
     val screen by viewModel.screen.collectAsStateWithLifecycle()
 
-    val eblanApplicationComponentUiState by viewModel.eblanApplicationComponentUiState.collectAsStateWithLifecycle()
-
     val movedGridItemResult by viewModel.movedGridItemResult.collectAsStateWithLifecycle()
 
     val pageItems by viewModel.pageItems.collectAsStateWithLifecycle()
 
     val folders by viewModel.foldersDataById.collectAsStateWithLifecycle()
 
-    val eblanApplicationInfosByLabel by viewModel.eblanApplicationInfosByLabel.collectAsStateWithLifecycle()
-
-    val eblanAppWidgetProviderInfosByLabel by viewModel.eblanAppWidgetProviderInfosByLabel.collectAsStateWithLifecycle()
-
     val gridItemsCache by viewModel.gridItemsCache.collectAsStateWithLifecycle()
 
     val pinGridItem by viewModel.pinGridItem.collectAsStateWithLifecycle()
 
-    val eblanShortcutInfos by viewModel.eblanShortcutInfos.collectAsStateWithLifecycle()
+    val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
 
-    val eblanShortcutConfigsByLabel by viewModel.eblanShortcutConfigsByLabel.collectAsStateWithLifecycle()
+    val eblanShortcutConfigs by viewModel.eblanShortcutConfigs.collectAsStateWithLifecycle()
 
     val eblanAppWidgetProviderInfos by viewModel.eblanAppWidgetProviderInfos.collectAsStateWithLifecycle()
+
+    val eblanShortcutInfosGroup by viewModel.eblanShortcutInfosGroup.collectAsStateWithLifecycle()
+
+    val eblanAppWidgetProviderInfosGroup by viewModel.eblanAppWidgetProviderInfosGroup.collectAsStateWithLifecycle()
 
     val iconPackFilePaths by viewModel.iconPackFilePaths.collectAsStateWithLifecycle()
 
@@ -162,18 +159,17 @@ internal fun HomeRoute(
         modifier = modifier,
         screen = screen,
         homeUiState = homeUiState,
-        eblanApplicationComponentUiState = eblanApplicationComponentUiState,
         movedGridItemResult = movedGridItemResult,
         pageItems = pageItems,
         foldersDataById = folders,
-        eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
-        eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
         gridItemsCache = gridItemsCache,
         pinGridItem = pinGridItem,
-        eblanShortcutInfos = eblanShortcutInfos,
-        eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
-        eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+        eblanShortcutInfosGroup = eblanShortcutInfosGroup,
+        eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
         iconPackFilePaths = iconPackFilePaths,
+        eblanApplicationInfos = eblanApplicationInfos,
+        eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+        eblanShortcutConfigs = eblanShortcutConfigs,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -215,18 +211,17 @@ internal fun HomeScreen(
     modifier: Modifier = Modifier,
     screen: Screen,
     homeUiState: HomeUiState,
-    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     movedGridItemResult: MoveGridItemResult?,
     pageItems: List<PageItem>,
     foldersDataById: ArrayDeque<FolderDataById>,
-    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
-    eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
-    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
+    eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
+    eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
+    eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -395,9 +390,7 @@ internal fun HomeScreen(
                 dragIntOffset = offset
             }
 
-            override fun onDrop(event: DragAndDropEvent): Boolean {
-                return true
-            }
+            override fun onDrop(event: DragAndDropEvent): Boolean = true
         }
     }
 
@@ -447,7 +440,6 @@ internal fun HomeScreen(
                 Success(
                     screen = screen,
                     homeData = homeUiState.homeData,
-                    eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                     pageItems = pageItems,
                     movedGridItemResult = movedGridItemResult,
                     screenWidth = screenIntSize.width,
@@ -456,14 +448,14 @@ internal fun HomeScreen(
                     dragIntOffset = dragIntOffset,
                     drag = drag,
                     foldersDataById = foldersDataById,
-                    eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
-                    eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
                     gridItemCache = gridItemsCache,
                     pinGridItem = pinGridItem,
-                    eblanShortcutInfos = eblanShortcutInfos,
-                    eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                    eblanShortcutInfosGroup = eblanShortcutInfosGroup,
+                    eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
                     iconPackFilePaths = iconPackFilePaths,
+                    eblanApplicationInfos = eblanApplicationInfos,
+                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                    eblanShortcutConfigs = eblanShortcutConfigs,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -534,7 +526,6 @@ private fun SharedTransitionScope.Success(
     modifier: Modifier = Modifier,
     screen: Screen,
     homeData: HomeData,
-    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     pageItems: List<PageItem>,
     movedGridItemResult: MoveGridItemResult?,
     screenWidth: Int,
@@ -543,14 +534,14 @@ private fun SharedTransitionScope.Success(
     dragIntOffset: IntOffset,
     drag: Drag,
     foldersDataById: ArrayDeque<FolderDataById>,
-    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     gridItemCache: GridItemCache,
     pinGridItem: GridItem?,
-    eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
-    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
+    eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
+    eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
+    eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -741,7 +732,6 @@ private fun SharedTransitionScope.Success(
                     drag = drag,
                     dockGridItems = homeData.dockGridItems,
                     textColor = homeData.textColor,
-                    eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     paddingValues = paddingValues,
@@ -751,18 +741,18 @@ private fun SharedTransitionScope.Success(
                     gestureSettings = homeData.userData.gestureSettings,
                     gridItemSource = gridItemSource,
                     homeSettings = homeData.userData.homeSettings,
-                    eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
-                    eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     currentPage = currentPage,
                     statusBarNotifications = statusBarNotifications,
-                    eblanShortcutInfos = eblanShortcutInfos,
-                    eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                    eblanShortcutInfosGroup = eblanShortcutInfosGroup,
+                    eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
                     iconPackFilePaths = iconPackFilePaths,
                     managedProfileResult = managedProfileResult,
                     screen = targetState,
                     experimentalSettings = homeData.userData.experimentalSettings,
+                    eblanApplicationInfos = eblanApplicationInfos,
+                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                    eblanShortcutConfigs = eblanShortcutConfigs,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(

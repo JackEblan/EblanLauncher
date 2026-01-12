@@ -26,38 +26,25 @@ import androidx.annotation.RequiresApi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-internal class DefaultUserManagerWrapper @Inject constructor(@param:ApplicationContext private val context: Context) :
-    AndroidUserManagerWrapper {
+internal class DefaultUserManagerWrapper @Inject constructor(@param:ApplicationContext private val context: Context) : AndroidUserManagerWrapper {
     private val userManager = context.getSystemService(USER_SERVICE) as UserManager
 
-    override fun getSerialNumberForUser(userHandle: UserHandle): Long {
-        return userManager.getSerialNumberForUser(userHandle)
-    }
+    override fun getSerialNumberForUser(userHandle: UserHandle): Long = userManager.getSerialNumberForUser(userHandle)
 
-    override fun getUserForSerialNumber(serialNumber: Long): UserHandle? {
-        return userManager.getUserForSerialNumber(serialNumber)
-    }
+    override fun getUserForSerialNumber(serialNumber: Long): UserHandle? = userManager.getUserForSerialNumber(serialNumber)
 
-    override fun isUserRunning(userHandle: UserHandle): Boolean {
-        return userManager.isUserRunning(userHandle)
-    }
+    override fun isUserRunning(userHandle: UserHandle): Boolean = userManager.isUserRunning(userHandle)
 
-    override fun isUserUnlocked(userHandle: UserHandle): Boolean {
-        return userManager.isUserUnlocked(userHandle)
-    }
+    override fun isUserUnlocked(userHandle: UserHandle): Boolean = userManager.isUserUnlocked(userHandle)
 
-    override fun isQuietModeEnabled(userHandle: UserHandle): Boolean {
-        return userManager.isQuietModeEnabled(userHandle)
-    }
+    override fun isQuietModeEnabled(userHandle: UserHandle): Boolean = userManager.isQuietModeEnabled(userHandle)
 
     @RequiresApi(Build.VERSION_CODES.P)
     override fun requestQuietModeEnabled(
         enableQuiteMode: Boolean,
         userHandle: UserHandle,
-    ): Boolean {
-        return userManager.requestQuietModeEnabled(
-            enableQuiteMode,
-            userHandle,
-        )
-    }
+    ): Boolean = userManager.requestQuietModeEnabled(
+        enableQuiteMode,
+        userHandle,
+    )
 }

@@ -71,124 +71,122 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
         maxResizeHeight: Int,
         rootWidth: Int,
         rootHeight: Int,
-    ): GridItem? {
-        return withContext(defaultDispatcher) {
-            val homeSettings = userDataRepository.userData.first().homeSettings
+    ): GridItem? = withContext(defaultDispatcher) {
+        val homeSettings = userDataRepository.userData.first().homeSettings
 
-            val columns = homeSettings.columns
+        val columns = homeSettings.columns
 
-            val rows = homeSettings.rows
+        val rows = homeSettings.rows
 
-            val pageCount = homeSettings.pageCount
+        val pageCount = homeSettings.pageCount
 
-            val initialPage = homeSettings.initialPage
+        val initialPage = homeSettings.initialPage
 
-            val dockHeight = homeSettings.dockHeight
+        val dockHeight = homeSettings.dockHeight
 
-            val gridItems = (
-                applicationInfoGridItemRepository.gridItems.first() +
-                    widgetGridItemRepository.gridItems.first() +
-                    shortcutInfoGridItemRepository.gridItems.first() +
-                    folderGridItemRepository.gridItems.first() +
-                    shortcutConfigGridItemRepository.gridItems.first()
-                ).filter { gridItem ->
-                gridItem.associate == Associate.Grid &&
-                    gridItem.folderId == null
-            }
-
-            val previewInferred = File(
-                fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                componentName.replace("/", "-"),
-            ).absolutePath
-
-            val label =
-                packageManagerWrapper.getApplicationLabel(packageName = packageName)
-
-            val icon =
-                packageManagerWrapper.getApplicationIcon(packageName = packageName)
-                    ?.let { byteArray ->
-                        fileManager.updateAndGetFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                            name = packageName,
-                            byteArray = byteArray,
-                        )
-                    }
-
-            val gridHeight = rootHeight - dockHeight
-
-            val cellWidth = rootWidth / columns
-
-            val cellHeight = gridHeight / rows
-
-            val (checkedColumnSpan, checkedRowSpan) = getWidgetGridItemSpan(
-                cellHeight = cellHeight,
-                cellWidth = cellWidth,
-                minHeight = minHeight,
-                minWidth = minWidth,
-                targetCellHeight = targetCellHeight,
-                targetCellWidth = targetCellWidth,
-            )
-
-            val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
-                columns = columns,
-                rows = rows,
-                gridWidth = rootWidth,
-                gridHeight = gridHeight,
-                minWidth = minWidth,
-                minHeight = minHeight,
-                targetCellWidth = targetCellWidth,
-                targetCellHeight = targetCellHeight,
-            )
-
-            val data = GridItemData.Widget(
-                appWidgetId = 0,
-                componentName = componentName,
-                packageName = packageName,
-                serialNumber = serialNumber,
-                configure = configure,
-                minWidth = checkedMinWidth,
-                minHeight = checkedMinHeight,
-                resizeMode = resizeMode,
-                minResizeWidth = minResizeWidth,
-                minResizeHeight = minResizeHeight,
-                maxResizeWidth = maxResizeWidth,
-                maxResizeHeight = maxResizeHeight,
-                targetCellHeight = targetCellHeight,
-                targetCellWidth = targetCellWidth,
-                preview = previewInferred,
-                label = label.toString(),
-                icon = icon,
-            )
-
-            val gridItem = GridItem(
-                id = Uuid.random().toHexString(),
-                folderId = null,
-                page = initialPage,
-                startColumn = 0,
-                startRow = 0,
-                columnSpan = checkedColumnSpan,
-                rowSpan = checkedRowSpan,
-                data = data,
-                associate = Associate.Grid,
-                override = false,
-                gridItemSettings = homeSettings.gridItemSettings,
-            )
-
-            val newGridItem = findAvailableRegionByPage(
-                gridItems = gridItems,
-                gridItem = gridItem,
-                pageCount = pageCount,
-                columns = columns,
-                rows = rows,
-            )
-
-            if (newGridItem != null) {
-                gridCacheRepository.insertGridItems(gridItems = gridItems)
-
-                gridCacheRepository.insertGridItem(gridItem = newGridItem)
-            }
-
-            newGridItem
+        val gridItems = (
+            applicationInfoGridItemRepository.gridItems.first() +
+                widgetGridItemRepository.gridItems.first() +
+                shortcutInfoGridItemRepository.gridItems.first() +
+                folderGridItemRepository.gridItems.first() +
+                shortcutConfigGridItemRepository.gridItems.first()
+            ).filter { gridItem ->
+            gridItem.associate == Associate.Grid &&
+                gridItem.folderId == null
         }
+
+        val previewInferred = File(
+            fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+            componentName.replace("/", "-"),
+        ).absolutePath
+
+        val label =
+            packageManagerWrapper.getApplicationLabel(packageName = packageName)
+
+        val icon =
+            packageManagerWrapper.getApplicationIcon(packageName = packageName)
+                ?.let { byteArray ->
+                    fileManager.updateAndGetFilePath(
+                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                        name = packageName,
+                        byteArray = byteArray,
+                    )
+                }
+
+        val gridHeight = rootHeight - dockHeight
+
+        val cellWidth = rootWidth / columns
+
+        val cellHeight = gridHeight / rows
+
+        val (checkedColumnSpan, checkedRowSpan) = getWidgetGridItemSpan(
+            cellHeight = cellHeight,
+            cellWidth = cellWidth,
+            minHeight = minHeight,
+            minWidth = minWidth,
+            targetCellHeight = targetCellHeight,
+            targetCellWidth = targetCellWidth,
+        )
+
+        val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
+            columns = columns,
+            rows = rows,
+            gridWidth = rootWidth,
+            gridHeight = gridHeight,
+            minWidth = minWidth,
+            minHeight = minHeight,
+            targetCellWidth = targetCellWidth,
+            targetCellHeight = targetCellHeight,
+        )
+
+        val data = GridItemData.Widget(
+            appWidgetId = 0,
+            componentName = componentName,
+            packageName = packageName,
+            serialNumber = serialNumber,
+            configure = configure,
+            minWidth = checkedMinWidth,
+            minHeight = checkedMinHeight,
+            resizeMode = resizeMode,
+            minResizeWidth = minResizeWidth,
+            minResizeHeight = minResizeHeight,
+            maxResizeWidth = maxResizeWidth,
+            maxResizeHeight = maxResizeHeight,
+            targetCellHeight = targetCellHeight,
+            targetCellWidth = targetCellWidth,
+            preview = previewInferred,
+            label = label.toString(),
+            icon = icon,
+        )
+
+        val gridItem = GridItem(
+            id = Uuid.random().toHexString(),
+            folderId = null,
+            page = initialPage,
+            startColumn = 0,
+            startRow = 0,
+            columnSpan = checkedColumnSpan,
+            rowSpan = checkedRowSpan,
+            data = data,
+            associate = Associate.Grid,
+            override = false,
+            gridItemSettings = homeSettings.gridItemSettings,
+        )
+
+        val newGridItem = findAvailableRegionByPage(
+            gridItems = gridItems,
+            gridItem = gridItem,
+            pageCount = pageCount,
+            columns = columns,
+            rows = rows,
+        )
+
+        if (newGridItem != null) {
+            gridCacheRepository.insertGridItems(gridItems = gridItems)
+
+            gridCacheRepository.insertGridItem(gridItem = newGridItem)
+        }
+
+        newGridItem
     }
 }

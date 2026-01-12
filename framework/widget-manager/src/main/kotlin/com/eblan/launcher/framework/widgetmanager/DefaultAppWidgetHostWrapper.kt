@@ -26,7 +26,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 internal class DefaultAppWidgetHostWrapper @Inject constructor(@param:ApplicationContext private val context: Context) :
-    AppWidgetHostWrapper, AndroidAppWidgetHostWrapper {
+    AppWidgetHostWrapper,
+    AndroidAppWidgetHostWrapper {
     private val appWidgetHost = LauncherAppWidgetHost(context, 2814)
 
     override fun startListening() {
@@ -37,17 +38,13 @@ internal class DefaultAppWidgetHostWrapper @Inject constructor(@param:Applicatio
         appWidgetHost.stopListening()
     }
 
-    override fun allocateAppWidgetId(): Int {
-        return appWidgetHost.allocateAppWidgetId()
-    }
+    override fun allocateAppWidgetId(): Int = appWidgetHost.allocateAppWidgetId()
 
     @Suppress("DEPRECATION")
     override fun createView(
         appWidgetId: Int,
         appWidgetProviderInfo: AppWidgetProviderInfo,
-    ): AppWidgetHostView {
-        return appWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo)
-    }
+    ): AppWidgetHostView = appWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo)
 
     override fun deleteAppWidgetId(appWidgetId: Int) {
         appWidgetHost.deleteAppWidgetId(appWidgetId)

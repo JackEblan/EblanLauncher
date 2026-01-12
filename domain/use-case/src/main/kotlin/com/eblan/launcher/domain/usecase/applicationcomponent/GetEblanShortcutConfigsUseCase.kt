@@ -24,31 +24,37 @@ import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetEblanShortcutConfigByLabelUseCase @Inject constructor(
+class GetEblanShortcutConfigsUseCase @Inject constructor(
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(label: String): Flow<Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>> {
-        return eblanShortcutConfigRepository.eblanShortcutConfigs.map { eblanShortcutConfigs ->
-            eblanShortcutConfigs.sortedBy { eblanShortcutConfig ->
-                eblanShortcutConfig.applicationLabel?.lowercase()
-            }.filter { eblanShortcutConfig ->
-                label.isNotBlank() && eblanShortcutConfig.applicationLabel.toString().contains(
+    operator fun invoke(labelFlow: Flow<String>): Flow<Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>> = combine(
+        eblanShortcutConfigRepository.eblanShortcutConfigs,
+        labelFlow,
+    ) { eblanShortcutConfigs, label ->
+        eblanShortcutConfigs.filter { eblanShortcutConfig ->
+            eblanShortcutConfig.applicationLabel.toString()
+                .contains(
                     other = label,
                     ignoreCase = true,
                 )
-            }.groupBy { eblanAppWidgetProviderInfo ->
+        }.sortedBy { eblanShortcutConfig ->
+            eblanShortcutConfig.applicationLabel?.lowercase()
+        }.groupBy { eblanShortcutConfig ->
+            eblanShortcutConfig.serialNumber
+        }.mapValues { entry ->
+            entry.value.groupBy { eblanShortcutConfig ->
                 EblanApplicationInfoGroup(
-                    serialNumber = eblanAppWidgetProviderInfo.serialNumber,
-                    packageName = eblanAppWidgetProviderInfo.packageName,
-                    icon = eblanAppWidgetProviderInfo.activityIcon,
-                    label = eblanAppWidgetProviderInfo.applicationLabel,
+                    serialNumber = eblanShortcutConfig.serialNumber,
+                    packageName = eblanShortcutConfig.packageName,
+                    icon = eblanShortcutConfig.applicationIcon,
+                    label = eblanShortcutConfig.applicationLabel,
                 )
             }
-        }.flowOn(defaultDispatcher)
-    }
+        }
+    }.flowOn(defaultDispatcher)
 }

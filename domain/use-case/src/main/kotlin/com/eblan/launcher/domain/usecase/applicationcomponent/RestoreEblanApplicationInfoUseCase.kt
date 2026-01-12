@@ -28,20 +28,18 @@ import javax.inject.Inject
 class RestoreEblanApplicationInfoUseCase @Inject constructor(
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(eblanApplicationInfo: EblanApplicationInfo): EblanApplicationInfo {
-        return withContext(ioDispatcher) {
-            eblanApplicationInfo.customIcon?.let { customIcon ->
-                val customIconFile = File(customIcon)
+    suspend operator fun invoke(eblanApplicationInfo: EblanApplicationInfo): EblanApplicationInfo = withContext(ioDispatcher) {
+        eblanApplicationInfo.customIcon?.let { customIcon ->
+            val customIconFile = File(customIcon)
 
-                if (customIconFile.exists()) {
-                    File(customIcon).delete()
-                }
+            if (customIconFile.exists()) {
+                File(customIcon).delete()
             }
-
-            eblanApplicationInfo.copy(
-                customIcon = null,
-                customLabel = null,
-            )
         }
+
+        eblanApplicationInfo.copy(
+            customIcon = null,
+            customLabel = null,
+        )
     }
 }

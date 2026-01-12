@@ -24,8 +24,7 @@ import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private val eblanAppWidgetProviderInfoDao: EblanAppWidgetProviderInfoDao) :
-    EblanAppWidgetProviderInfoRepository {
+class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private val eblanAppWidgetProviderInfoDao: EblanAppWidgetProviderInfoDao) : EblanAppWidgetProviderInfoRepository {
     override val eblanAppWidgetProviderInfos =
         eblanAppWidgetProviderInfoDao.getEblanAppWidgetProviderInfoEntities().map { entities ->
             entities.map { entity ->
@@ -49,12 +48,10 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         eblanAppWidgetProviderInfoDao.deleteEblanAppWidgetProviderInfoEntities(entities = entities)
     }
 
-    override suspend fun getEblanAppWidgetProviderInfosByPackageName(packageName: String): List<EblanAppWidgetProviderInfo> {
-        return eblanAppWidgetProviderInfoDao.getEblanAppWidgetProviderInfoEntitiesByPackageName(
-            packageName = packageName,
-        ).map { entity ->
-            entity.asModel()
-        }
+    override suspend fun getEblanAppWidgetProviderInfosByPackageName(packageName: String): List<EblanAppWidgetProviderInfo> = eblanAppWidgetProviderInfoDao.getEblanAppWidgetProviderInfoEntitiesByPackageName(
+        packageName = packageName,
+    ).map { entity ->
+        entity.asModel()
     }
 
     override suspend fun deleteEblanAppWidgetProviderInfoByPackageName(packageName: String) {
@@ -63,45 +60,41 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         )
     }
 
-    private fun EblanAppWidgetProviderInfo.asEntity(): EblanAppWidgetProviderInfoEntity {
-        return EblanAppWidgetProviderInfoEntity(
-            componentName = componentName,
-            serialNumber = serialNumber,
-            configure = configure,
-            packageName = packageName,
-            targetCellWidth = targetCellWidth,
-            targetCellHeight = targetCellHeight,
-            minWidth = minWidth,
-            minHeight = minHeight,
-            resizeMode = resizeMode,
-            minResizeWidth = minResizeWidth,
-            minResizeHeight = minResizeHeight,
-            maxResizeWidth = maxResizeWidth,
-            maxResizeHeight = maxResizeHeight,
-            preview = preview,
-            label = label,
-            icon = icon,
-        )
-    }
+    private fun EblanAppWidgetProviderInfo.asEntity(): EblanAppWidgetProviderInfoEntity = EblanAppWidgetProviderInfoEntity(
+        componentName = componentName,
+        serialNumber = serialNumber,
+        configure = configure,
+        packageName = packageName,
+        targetCellWidth = targetCellWidth,
+        targetCellHeight = targetCellHeight,
+        minWidth = minWidth,
+        minHeight = minHeight,
+        resizeMode = resizeMode,
+        minResizeWidth = minResizeWidth,
+        minResizeHeight = minResizeHeight,
+        maxResizeWidth = maxResizeWidth,
+        maxResizeHeight = maxResizeHeight,
+        preview = preview,
+        label = label,
+        icon = icon,
+    )
 
-    private fun EblanAppWidgetProviderInfoEntity.asModel(): EblanAppWidgetProviderInfo {
-        return EblanAppWidgetProviderInfo(
-            componentName = componentName,
-            serialNumber = serialNumber,
-            configure = configure,
-            packageName = packageName,
-            targetCellWidth = targetCellWidth,
-            targetCellHeight = targetCellHeight,
-            minWidth = minWidth,
-            minHeight = minHeight,
-            resizeMode = resizeMode,
-            minResizeWidth = minResizeWidth,
-            minResizeHeight = minResizeHeight,
-            maxResizeWidth = maxResizeWidth,
-            maxResizeHeight = maxResizeHeight,
-            preview = preview,
-            icon = icon,
-            label = label,
-        )
-    }
+    private fun EblanAppWidgetProviderInfoEntity.asModel(): EblanAppWidgetProviderInfo = EblanAppWidgetProviderInfo(
+        componentName = componentName,
+        serialNumber = serialNumber,
+        configure = configure,
+        packageName = packageName,
+        targetCellWidth = targetCellWidth,
+        targetCellHeight = targetCellHeight,
+        minWidth = minWidth,
+        minHeight = minHeight,
+        resizeMode = resizeMode,
+        minResizeWidth = minResizeWidth,
+        minResizeHeight = minResizeHeight,
+        maxResizeWidth = maxResizeWidth,
+        maxResizeHeight = maxResizeHeight,
+        preview = preview,
+        icon = icon,
+        label = label,
+    )
 }

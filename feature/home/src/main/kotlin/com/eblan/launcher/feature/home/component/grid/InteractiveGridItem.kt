@@ -269,10 +269,8 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging -> {
-                if (isLongPress) {
-                    onDraggingGridItem()
-                }
+            Drag.Dragging if isLongPress -> {
+                onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
@@ -417,10 +415,8 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging -> {
-                if (isLongPress) {
-                    onDraggingGridItem()
-                }
+            Drag.Dragging if isLongPress -> {
+                onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
@@ -561,10 +557,8 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging -> {
-                if (isLongPress) {
-                    onDraggingGridItem()
-                }
+            Drag.Dragging if isLongPress -> {
+                onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
@@ -720,10 +714,8 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging -> {
-                if (isLongPress) {
-                    onDraggingGridItem()
-                }
+            Drag.Dragging if isLongPress -> {
+                onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
@@ -878,10 +870,8 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging -> {
-                if (isLongPress) {
-                    onDraggingGridItem()
-                }
+            Drag.Dragging if isLongPress -> {
+                onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {

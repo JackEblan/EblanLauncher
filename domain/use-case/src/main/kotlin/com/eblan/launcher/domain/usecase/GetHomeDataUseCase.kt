@@ -116,34 +116,30 @@ class GetHomeDataUseCase @Inject constructor(
     private fun getTextColorFromWallpaperColors(
         theme: Theme,
         colorHints: Int?,
-    ): TextColor {
-        return if (colorHints != null) {
-            val hintSupportsDarkText =
-                colorHints.and(wallpaperManagerWrapper.hintSupportsDarkText) != 0
+    ): TextColor = if (colorHints != null) {
+        val hintSupportsDarkText =
+            colorHints.and(wallpaperManagerWrapper.hintSupportsDarkText) != 0
 
-            if (hintSupportsDarkText) {
-                TextColor.Dark
-            } else {
-                TextColor.Light
-            }
+        if (hintSupportsDarkText) {
+            TextColor.Dark
         } else {
-            getTextColorFromSystemTheme(theme = theme)
+            TextColor.Light
         }
+    } else {
+        getTextColorFromSystemTheme(theme = theme)
     }
 
-    private fun getTextColorFromSystemTheme(theme: Theme): TextColor {
-        return when (theme) {
-            Theme.System -> {
-                getTextColorFromSystemTheme(theme = resourcesWrapper.getSystemTheme())
-            }
+    private fun getTextColorFromSystemTheme(theme: Theme): TextColor = when (theme) {
+        Theme.System -> {
+            getTextColorFromSystemTheme(theme = resourcesWrapper.getSystemTheme())
+        }
 
-            Theme.Light -> {
-                TextColor.Light
-            }
+        Theme.Light -> {
+            TextColor.Light
+        }
 
-            Theme.Dark -> {
-                TextColor.Dark
-            }
+        Theme.Dark -> {
+            TextColor.Dark
         }
     }
 }

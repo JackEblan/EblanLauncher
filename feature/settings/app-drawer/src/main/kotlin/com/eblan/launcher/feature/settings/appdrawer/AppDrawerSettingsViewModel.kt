@@ -35,8 +35,7 @@ import javax.inject.Inject
 internal class AppDrawerSettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
-) :
-    ViewModel() {
+) : ViewModel() {
     val appDrawerSettingsUiState = combine(
         userDataRepository.userData,
         eblanApplicationInfoRepository.eblanApplicationInfos,

@@ -28,8 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-internal class DefaultWidgetGridItemRepository @Inject constructor(private val widgetGridItemDao: WidgetGridItemDao) :
-    WidgetGridItemRepository {
+internal class DefaultWidgetGridItemRepository @Inject constructor(private val widgetGridItemDao: WidgetGridItemDao) : WidgetGridItemRepository {
     override val gridItems =
         widgetGridItemDao.getWidgetGridItemEntities().map { entities ->
             entities.map { entity ->
@@ -70,12 +69,10 @@ internal class DefaultWidgetGridItemRepository @Inject constructor(private val w
         widgetGridItemDao.deleteWidgetGridItemEntity(entity = widgetGridItem.asEntity())
     }
 
-    override suspend fun getWidgetGridItems(packageName: String): List<WidgetGridItem> {
-        return widgetGridItemDao.getWidgetGridItemEntities(packageName = packageName)
-            .map { entity ->
-                entity.asModel()
-            }
-    }
+    override suspend fun getWidgetGridItems(packageName: String): List<WidgetGridItem> = widgetGridItemDao.getWidgetGridItemEntities(packageName = packageName)
+        .map { entity ->
+            entity.asModel()
+        }
 
     override suspend fun deleteWidgetGridItem(
         serialNumber: Long,

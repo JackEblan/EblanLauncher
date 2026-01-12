@@ -34,8 +34,7 @@ import javax.inject.Inject
 internal class GestureSettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     eblanApplicationInfoRepository: EblanApplicationInfoRepository,
-) :
-    ViewModel() {
+) : ViewModel() {
     val gesturesSettingsUiState = combine(
         userDataRepository.userData,
         eblanApplicationInfoRepository.eblanApplicationInfos,

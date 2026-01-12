@@ -40,51 +40,41 @@ internal object DaoModule {
 
     @Provides
     @Singleton
-    fun applicationInfoGridItemDao(eblanDatabase: EblanDatabase): ApplicationInfoGridItemDao =
-        eblanDatabase.applicationInfoGridItemDao()
+    fun applicationInfoGridItemDao(eblanDatabase: EblanDatabase): ApplicationInfoGridItemDao = eblanDatabase.applicationInfoGridItemDao()
 
     @Provides
     @Singleton
-    fun widgetGridItemDao(eblanDatabase: EblanDatabase): WidgetGridItemDao =
-        eblanDatabase.widgetGridItemDao()
+    fun widgetGridItemDao(eblanDatabase: EblanDatabase): WidgetGridItemDao = eblanDatabase.widgetGridItemDao()
 
     @Provides
     @Singleton
-    fun shortcutInfoGridItemDao(eblanDatabase: EblanDatabase): ShortcutInfoGridItemDao =
-        eblanDatabase.shortcutInfoGridItemDao()
+    fun shortcutInfoGridItemDao(eblanDatabase: EblanDatabase): ShortcutInfoGridItemDao = eblanDatabase.shortcutInfoGridItemDao()
 
     @Provides
     @Singleton
-    fun eblanApplicationInfoDao(eblanDatabase: EblanDatabase): EblanApplicationInfoDao =
-        eblanDatabase.eblanApplicationInfoDao()
+    fun eblanApplicationInfoDao(eblanDatabase: EblanDatabase): EblanApplicationInfoDao = eblanDatabase.eblanApplicationInfoDao()
 
     @Provides
     @Singleton
-    fun eblanAppWidgetProviderInfoDao(eblanDatabase: EblanDatabase): EblanAppWidgetProviderInfoDao =
-        eblanDatabase.eblanAppWidgetProviderInfoDao()
+    fun eblanAppWidgetProviderInfoDao(eblanDatabase: EblanDatabase): EblanAppWidgetProviderInfoDao = eblanDatabase.eblanAppWidgetProviderInfoDao()
 
     @Provides
     @Singleton
-    fun eblanShortcutInfoDao(eblanDatabase: EblanDatabase): EblanShortcutInfoDao =
-        eblanDatabase.eblanShortcutInfoDao()
+    fun eblanShortcutInfoDao(eblanDatabase: EblanDatabase): EblanShortcutInfoDao = eblanDatabase.eblanShortcutInfoDao()
 
     @Provides
     @Singleton
-    fun folderGridItemDao(eblanDatabase: EblanDatabase): FolderGridItemDao =
-        eblanDatabase.folderGridItemDao()
+    fun folderGridItemDao(eblanDatabase: EblanDatabase): FolderGridItemDao = eblanDatabase.folderGridItemDao()
 
     @Provides
     @Singleton
-    fun eblanIconPackInfoDao(eblanDatabase: EblanDatabase): EblanIconPackInfoDao =
-        eblanDatabase.eblanIconPackInfoDao()
+    fun eblanIconPackInfoDao(eblanDatabase: EblanDatabase): EblanIconPackInfoDao = eblanDatabase.eblanIconPackInfoDao()
 
     @Provides
     @Singleton
-    fun eblanShortcutConfigDao(eblanDatabase: EblanDatabase): EblanShortcutConfigDao =
-        eblanDatabase.eblanShortcutConfigDao()
+    fun eblanShortcutConfigDao(eblanDatabase: EblanDatabase): EblanShortcutConfigDao = eblanDatabase.eblanShortcutConfigDao()
 
     @Provides
     @Singleton
-    fun shortcutConfigGridItemDao(eblanDatabase: EblanDatabase): ShortcutConfigGridItemDao =
-        eblanDatabase.shortcutConfigGridItemDao()
+    fun shortcutConfigGridItemDao(eblanDatabase: EblanDatabase): ShortcutConfigGridItemDao = eblanDatabase.shortcutConfigGridItemDao()
 }

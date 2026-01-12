@@ -24,8 +24,7 @@ import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-internal class DefaultEblanShortcutConfigRepository @Inject constructor(private val eblanShortcutConfigDao: EblanShortcutConfigDao) :
-    EblanShortcutConfigRepository {
+internal class DefaultEblanShortcutConfigRepository @Inject constructor(private val eblanShortcutConfigDao: EblanShortcutConfigDao) : EblanShortcutConfigRepository {
     override val eblanShortcutConfigs =
         eblanShortcutConfigDao.getEblanShortcutConfigEntities().map { entities ->
             entities.map { entity ->
@@ -66,36 +65,30 @@ internal class DefaultEblanShortcutConfigRepository @Inject constructor(private 
     override suspend fun getEblanShortcutConfig(
         serialNumber: Long,
         packageName: String,
-    ): List<EblanShortcutConfig> {
-        return eblanShortcutConfigDao.getEblanShortcutConfigEntity(
-            serialNumber = serialNumber,
-            packageName = packageName,
-        ).map { entity ->
-            entity.asModel()
-        }
+    ): List<EblanShortcutConfig> = eblanShortcutConfigDao.getEblanShortcutConfigEntity(
+        serialNumber = serialNumber,
+        packageName = packageName,
+    ).map { entity ->
+        entity.asModel()
     }
 
-    private fun EblanShortcutConfig.asEntity(): EblanShortcutConfigEntity {
-        return EblanShortcutConfigEntity(
-            componentName = componentName,
-            serialNumber = serialNumber,
-            packageName = packageName,
-            activityIcon = activityIcon,
-            activityLabel = activityLabel,
-            applicationIcon = applicationIcon,
-            applicationLabel = applicationLabel,
-        )
-    }
+    private fun EblanShortcutConfig.asEntity(): EblanShortcutConfigEntity = EblanShortcutConfigEntity(
+        componentName = componentName,
+        serialNumber = serialNumber,
+        packageName = packageName,
+        activityIcon = activityIcon,
+        activityLabel = activityLabel,
+        applicationIcon = applicationIcon,
+        applicationLabel = applicationLabel,
+    )
 
-    private fun EblanShortcutConfigEntity.asModel(): EblanShortcutConfig {
-        return EblanShortcutConfig(
-            componentName = componentName,
-            packageName = packageName,
-            serialNumber = serialNumber,
-            activityIcon = activityIcon,
-            activityLabel = activityLabel,
-            applicationIcon = applicationIcon,
-            applicationLabel = applicationLabel,
-        )
-    }
+    private fun EblanShortcutConfigEntity.asModel(): EblanShortcutConfig = EblanShortcutConfig(
+        componentName = componentName,
+        packageName = packageName,
+        serialNumber = serialNumber,
+        activityIcon = activityIcon,
+        activityLabel = activityLabel,
+        applicationIcon = applicationIcon,
+        applicationLabel = applicationLabel,
+    )
 }

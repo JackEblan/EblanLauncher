@@ -29,8 +29,7 @@ import javax.inject.Inject
 
 internal class DefaultFolderGridCacheDataSource @Inject constructor(
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
-) :
-    FolderGridCacheDataSource {
+) : FolderGridCacheDataSource {
     private val _gridItemsCache = MutableStateFlow(emptyList<GridItem>())
 
     override val gridItemsCache = _gridItemsCache.asStateFlow()

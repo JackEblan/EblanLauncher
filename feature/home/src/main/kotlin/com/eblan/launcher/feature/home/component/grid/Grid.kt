@@ -96,13 +96,11 @@ private fun Modifier.gridItem(
     y: Int,
 ): Modifier = then(
     object : ParentDataModifier {
-        override fun Density.modifyParentData(parentData: Any?): Any {
-            return GridItemParentData(
-                width = width,
-                height = height,
-                x = x,
-                y = y,
-            )
-        }
+        override fun Density.modifyParentData(parentData: Any?): Any = GridItemParentData(
+            width = width,
+            height = height,
+            x = x,
+            y = y,
+        )
     },
 )

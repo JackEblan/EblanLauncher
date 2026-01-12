@@ -32,31 +32,29 @@ class GetEblanShortcutConfigsUseCase @Inject constructor(
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(labelFlow: Flow<String>): Flow<Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>> {
-        return combine(
-            eblanShortcutConfigRepository.eblanShortcutConfigs,
-            labelFlow,
-        ) { eblanShortcutConfigs, label ->
-            eblanShortcutConfigs.filter { eblanShortcutConfig ->
-                eblanShortcutConfig.applicationLabel.toString()
-                    .contains(
-                        other = label,
-                        ignoreCase = true,
-                    )
-            }.sortedBy { eblanShortcutConfig ->
-                eblanShortcutConfig.applicationLabel?.lowercase()
-            }.groupBy { eblanShortcutConfig ->
-                eblanShortcutConfig.serialNumber
-            }.mapValues { entry ->
-                entry.value.groupBy { eblanShortcutConfig ->
-                    EblanApplicationInfoGroup(
-                        serialNumber = eblanShortcutConfig.serialNumber,
-                        packageName = eblanShortcutConfig.packageName,
-                        icon = eblanShortcutConfig.applicationIcon,
-                        label = eblanShortcutConfig.applicationLabel,
-                    )
-                }
+    operator fun invoke(labelFlow: Flow<String>): Flow<Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>> = combine(
+        eblanShortcutConfigRepository.eblanShortcutConfigs,
+        labelFlow,
+    ) { eblanShortcutConfigs, label ->
+        eblanShortcutConfigs.filter { eblanShortcutConfig ->
+            eblanShortcutConfig.applicationLabel.toString()
+                .contains(
+                    other = label,
+                    ignoreCase = true,
+                )
+        }.sortedBy { eblanShortcutConfig ->
+            eblanShortcutConfig.applicationLabel?.lowercase()
+        }.groupBy { eblanShortcutConfig ->
+            eblanShortcutConfig.serialNumber
+        }.mapValues { entry ->
+            entry.value.groupBy { eblanShortcutConfig ->
+                EblanApplicationInfoGroup(
+                    serialNumber = eblanShortcutConfig.serialNumber,
+                    packageName = eblanShortcutConfig.packageName,
+                    icon = eblanShortcutConfig.applicationIcon,
+                    label = eblanShortcutConfig.applicationLabel,
+                )
             }
-        }.flowOn(defaultDispatcher)
-    }
+        }
+    }.flowOn(defaultDispatcher)
 }

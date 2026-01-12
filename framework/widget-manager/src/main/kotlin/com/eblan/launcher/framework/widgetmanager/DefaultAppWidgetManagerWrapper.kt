@@ -40,38 +40,30 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     private val androidByteArrayWrapper: AndroidByteArrayWrapper,
     private val userManagerWrapper: AndroidUserManagerWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
-) :
-    AppWidgetManagerWrapper, AndroidAppWidgetManagerWrapper {
+) : AppWidgetManagerWrapper,
+    AndroidAppWidgetManagerWrapper {
     private val appWidgetManager = AppWidgetManager.getInstance(context)
 
-    override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> {
-        return withContext(defaultDispatcher) {
-            appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
-                appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
-            }
+    override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> = withContext(defaultDispatcher) {
+        appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
+            appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
         }
     }
 
-    override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo? {
-        return appWidgetManager.getAppWidgetInfo(appWidgetId)
-    }
+    override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo? = appWidgetManager.getAppWidgetInfo(appWidgetId)
 
-    override fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean {
-        return appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)
-    }
+    override fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean = appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)
 
     override fun bindAppWidgetIdIfAllowed(
         appWidgetId: Int,
         userHandle: UserHandle,
         provider: ComponentName?,
-    ): Boolean {
-        return appWidgetManager.bindAppWidgetIdIfAllowed(
-            appWidgetId,
-            userHandle,
-            provider,
-            Bundle.EMPTY,
-        )
-    }
+    ): Boolean = appWidgetManager.bindAppWidgetIdIfAllowed(
+        appWidgetId,
+        userHandle,
+        provider,
+        Bundle.EMPTY,
+    )
 
     override fun updateAppWidgetOptions(appWidgetId: Int, options: Bundle) {
         appWidgetManager.updateAppWidgetOptions(appWidgetId, options)

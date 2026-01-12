@@ -428,8 +428,6 @@ internal fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-
     val scope = rememberCoroutineScope()
 
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -450,10 +448,8 @@ internal fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging -> {
-                if (isLongPress) {
-                    onDraggingGridItem()
-                }
+            Drag.Dragging if isLongPress -> {
+                onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
@@ -476,8 +472,6 @@ internal fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                 detectTapGestures(
                     onLongPress = {
                         scope.launch {
-                            focusManager.clearFocus()
-
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)

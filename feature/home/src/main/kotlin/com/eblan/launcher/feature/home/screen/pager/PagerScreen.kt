@@ -29,9 +29,12 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -51,6 +54,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -86,7 +90,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalLayoutApi::class)
 @Composable
 internal fun SharedTransitionScope.PagerScreen(
     modifier: Modifier = Modifier,
@@ -141,6 +145,8 @@ internal fun SharedTransitionScope.PagerScreen(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
+
     val context = LocalContext.current
 
     val density = LocalDensity.current
@@ -243,6 +249,8 @@ internal fun SharedTransitionScope.PagerScreen(
         }
     }
 
+    val isImeVisible = WindowInsets.isImeVisible
+
     LaunchedEffect(key1 = hasDoubleTap) {
         handleHasDoubleTap(
             hasDoubleTap = hasDoubleTap,
@@ -311,8 +319,16 @@ internal fun SharedTransitionScope.PagerScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.End || drag == Drag.Cancel) {
-            onResetOverlay()
+        when (drag) {
+            Drag.Start if isImeVisible -> {
+                focusManager.clearFocus()
+            }
+
+            Drag.End, Drag.Cancel -> {
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 

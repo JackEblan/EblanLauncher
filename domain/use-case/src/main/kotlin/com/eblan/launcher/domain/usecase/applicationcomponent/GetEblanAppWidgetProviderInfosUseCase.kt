@@ -32,26 +32,24 @@ class GetEblanAppWidgetProviderInfosUseCase @Inject constructor(
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(labelFlow: Flow<String>): Flow<Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>> {
-        return combine(
-            eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos,
-            labelFlow,
-        ) { eblanAppWidgetProviderInfos, label ->
-            eblanAppWidgetProviderInfos.filter { eblanAppWidgetProviderInfo ->
-                eblanAppWidgetProviderInfo.label.contains(
-                    other = label,
-                    ignoreCase = true,
-                )
-            }.sortedBy { eblanAppWidgetProviderInfo ->
-                eblanAppWidgetProviderInfo.label.lowercase()
-            }.groupBy { eblanAppWidgetProviderInfo ->
-                EblanApplicationInfoGroup(
-                    serialNumber = eblanAppWidgetProviderInfo.serialNumber,
-                    packageName = eblanAppWidgetProviderInfo.packageName,
-                    icon = eblanAppWidgetProviderInfo.icon,
-                    label = eblanAppWidgetProviderInfo.label,
-                )
-            }
-        }.flowOn(defaultDispatcher)
-    }
+    operator fun invoke(labelFlow: Flow<String>): Flow<Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>> = combine(
+        eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos,
+        labelFlow,
+    ) { eblanAppWidgetProviderInfos, label ->
+        eblanAppWidgetProviderInfos.filter { eblanAppWidgetProviderInfo ->
+            eblanAppWidgetProviderInfo.label.contains(
+                other = label,
+                ignoreCase = true,
+            )
+        }.sortedBy { eblanAppWidgetProviderInfo ->
+            eblanAppWidgetProviderInfo.label.lowercase()
+        }.groupBy { eblanAppWidgetProviderInfo ->
+            EblanApplicationInfoGroup(
+                serialNumber = eblanAppWidgetProviderInfo.serialNumber,
+                packageName = eblanAppWidgetProviderInfo.packageName,
+                icon = eblanAppWidgetProviderInfo.icon,
+                label = eblanAppWidgetProviderInfo.label,
+            )
+        }
+    }.flowOn(defaultDispatcher)
 }

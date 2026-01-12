@@ -43,9 +43,7 @@ class IconPackInfoService : Service() {
 
     private var iconPackInfoJob: Job? = null
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
+    override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val iconPackInfoPackageName =

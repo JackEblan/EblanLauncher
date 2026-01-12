@@ -28,8 +28,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class MainActivityViewModel @Inject constructor(getApplicationThemeUseCase: GetApplicationThemeUseCase) :
-    ViewModel() {
+class MainActivityViewModel @Inject constructor(getApplicationThemeUseCase: GetApplicationThemeUseCase) : ViewModel() {
     val activityUiState =
         getApplicationThemeUseCase().map(ActivityUiState::Success).stateIn(
             scope = viewModelScope,

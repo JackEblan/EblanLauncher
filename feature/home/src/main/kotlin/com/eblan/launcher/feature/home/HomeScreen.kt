@@ -390,9 +390,7 @@ internal fun HomeScreen(
                 dragIntOffset = offset
             }
 
-            override fun onDrop(event: DragAndDropEvent): Boolean {
-                return true
-            }
+            override fun onDrop(event: DragAndDropEvent): Boolean = true
         }
     }
 

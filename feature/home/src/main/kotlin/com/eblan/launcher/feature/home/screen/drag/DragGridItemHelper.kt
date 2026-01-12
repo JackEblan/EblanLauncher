@@ -287,32 +287,30 @@ private fun getMoveGridItem(
     gridY: Int,
     associate: Associate,
     gridItemSource: GridItemSource,
-): GridItem {
-    return when (gridItemSource) {
-        is GridItemSource.Existing -> {
-            gridItem.copy(
-                page = targetPage,
-                startColumn = gridX / cellWidth,
-                startRow = gridY / cellHeight,
-                associate = associate,
-            )
-        }
+): GridItem = when (gridItemSource) {
+    is GridItemSource.Existing -> {
+        gridItem.copy(
+            page = targetPage,
+            startColumn = gridX / cellWidth,
+            startRow = gridY / cellHeight,
+            associate = associate,
+        )
+    }
 
-        is GridItemSource.New, is GridItemSource.Pin -> {
-            getMoveNewGridItem(
-                targetPage = targetPage,
-                gridItem = gridItem,
-                cellHeight = cellHeight,
-                cellWidth = cellWidth,
-                columns = columns,
-                rows = rows,
-                gridWidth = gridWidth,
-                gridHeight = gridHeight,
-                gridX = gridX,
-                gridY = gridY,
-                associate = associate,
-            )
-        }
+    is GridItemSource.New, is GridItemSource.Pin -> {
+        getMoveNewGridItem(
+            targetPage = targetPage,
+            gridItem = gridItem,
+            cellHeight = cellHeight,
+            cellWidth = cellWidth,
+            columns = columns,
+            rows = rows,
+            gridWidth = gridWidth,
+            gridHeight = gridHeight,
+            gridX = gridX,
+            gridY = gridY,
+            associate = associate,
+        )
     }
 }
 
@@ -328,52 +326,50 @@ private fun getMoveNewGridItem(
     gridX: Int,
     gridY: Int,
     associate: Associate,
-): GridItem {
-    return when (val data = gridItem.data) {
-        is GridItemData.Widget -> {
-            val (checkedColumnSpan, checkedRowSpan) = getWidgetGridItemSpan(
-                cellWidth = cellWidth,
-                cellHeight = cellHeight,
-                minWidth = data.minWidth,
-                minHeight = data.minHeight,
-                targetCellWidth = data.targetCellWidth,
-                targetCellHeight = data.targetCellHeight,
-            )
+): GridItem = when (val data = gridItem.data) {
+    is GridItemData.Widget -> {
+        val (checkedColumnSpan, checkedRowSpan) = getWidgetGridItemSpan(
+            cellWidth = cellWidth,
+            cellHeight = cellHeight,
+            minWidth = data.minWidth,
+            minHeight = data.minHeight,
+            targetCellWidth = data.targetCellWidth,
+            targetCellHeight = data.targetCellHeight,
+        )
 
-            val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
-                columns = columns,
-                rows = rows,
-                gridWidth = gridWidth,
-                gridHeight = gridHeight,
-                minWidth = data.minWidth,
-                minHeight = data.minHeight,
-                targetCellWidth = data.targetCellWidth,
-                targetCellHeight = data.targetCellHeight,
-            )
+        val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
+            columns = columns,
+            rows = rows,
+            gridWidth = gridWidth,
+            gridHeight = gridHeight,
+            minWidth = data.minWidth,
+            minHeight = data.minHeight,
+            targetCellWidth = data.targetCellWidth,
+            targetCellHeight = data.targetCellHeight,
+        )
 
-            val newData = data.copy(
-                minWidth = checkedMinWidth,
-                minHeight = checkedMinHeight,
-            )
+        val newData = data.copy(
+            minWidth = checkedMinWidth,
+            minHeight = checkedMinHeight,
+        )
 
-            gridItem.copy(
-                page = targetPage,
-                startColumn = gridX / cellWidth,
-                startRow = gridY / cellHeight,
-                columnSpan = checkedColumnSpan.coerceIn(1, columns),
-                rowSpan = checkedRowSpan.coerceIn(1, rows),
-                data = newData,
-                associate = associate,
-            )
-        }
+        gridItem.copy(
+            page = targetPage,
+            startColumn = gridX / cellWidth,
+            startRow = gridY / cellHeight,
+            columnSpan = checkedColumnSpan.coerceIn(1, columns),
+            rowSpan = checkedRowSpan.coerceIn(1, rows),
+            data = newData,
+            associate = associate,
+        )
+    }
 
-        else -> {
-            gridItem.copy(
-                page = targetPage,
-                startColumn = gridX / cellWidth,
-                startRow = gridY / cellHeight,
-                associate = associate,
-            )
-        }
+    else -> {
+        gridItem.copy(
+            page = targetPage,
+            startColumn = gridX / cellWidth,
+            startRow = gridY / cellHeight,
+            associate = associate,
+        )
     }
 }

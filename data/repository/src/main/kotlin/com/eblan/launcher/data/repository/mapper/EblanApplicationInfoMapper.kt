@@ -20,28 +20,24 @@ package com.eblan.launcher.data.repository.mapper
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 
-fun EblanApplicationInfo.asEntity(): EblanApplicationInfoEntity {
-    return EblanApplicationInfoEntity(
-        componentName = componentName,
-        serialNumber = serialNumber,
-        packageName = packageName,
-        icon = icon,
-        label = label,
-        customIcon = customIcon,
-        customLabel = customLabel,
-        isHidden = isHidden,
-    )
-}
+fun EblanApplicationInfo.asEntity(): EblanApplicationInfoEntity = EblanApplicationInfoEntity(
+    componentName = componentName,
+    serialNumber = serialNumber,
+    packageName = packageName,
+    icon = icon,
+    label = label,
+    customIcon = customIcon,
+    customLabel = customLabel,
+    isHidden = isHidden,
+)
 
-fun EblanApplicationInfoEntity.asModel(): EblanApplicationInfo {
-    return EblanApplicationInfo(
-        componentName = componentName,
-        serialNumber = serialNumber,
-        packageName = packageName,
-        icon = icon,
-        label = label,
-        customIcon = customIcon,
-        customLabel = customLabel,
-        isHidden = isHidden,
-    )
-}
+fun EblanApplicationInfoEntity.asModel(): EblanApplicationInfo = EblanApplicationInfo(
+    componentName = componentName,
+    serialNumber = serialNumber,
+    packageName = packageName,
+    icon = icon,
+    label = label,
+    customIcon = customIcon,
+    customLabel = customLabel,
+    isHidden = isHidden,
+)

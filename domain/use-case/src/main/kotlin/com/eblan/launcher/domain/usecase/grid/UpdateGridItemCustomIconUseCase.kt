@@ -33,59 +33,57 @@ class UpdateGridItemCustomIconUseCase @Inject constructor(
     suspend operator fun invoke(
         gridItem: GridItem,
         byteArray: ByteArray,
-    ): GridItem {
-        return withContext(defaultDispatcher) {
-            when (val data = gridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    val customIcon = fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
-                        name = gridItem.id,
-                        byteArray = byteArray,
-                    )
+    ): GridItem = withContext(defaultDispatcher) {
+        when (val data = gridItem.data) {
+            is GridItemData.ApplicationInfo -> {
+                val customIcon = fileManager.updateAndGetFilePath(
+                    directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
+                    name = gridItem.id,
+                    byteArray = byteArray,
+                )
 
-                    val newData = data.copy(customIcon = customIcon)
+                val newData = data.copy(customIcon = customIcon)
 
-                    gridItem.copy(data = newData)
-                }
-
-                is GridItemData.Folder -> {
-                    val icon = fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
-                        name = gridItem.id,
-                        byteArray = byteArray,
-                    )
-
-                    val newData = data.copy(icon = icon)
-
-                    gridItem.copy(data = newData)
-                }
-
-                is GridItemData.ShortcutConfig -> {
-                    val customIcon = fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
-                        name = gridItem.id,
-                        byteArray = byteArray,
-                    )
-
-                    val newData = data.copy(customIcon = customIcon)
-
-                    gridItem.copy(data = newData)
-                }
-
-                is GridItemData.ShortcutInfo -> {
-                    val customIcon = fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
-                        name = gridItem.id,
-                        byteArray = byteArray,
-                    )
-
-                    val newData = data.copy(customIcon = customIcon)
-
-                    gridItem.copy(data = newData)
-                }
-
-                else -> gridItem
+                gridItem.copy(data = newData)
             }
+
+            is GridItemData.Folder -> {
+                val icon = fileManager.updateAndGetFilePath(
+                    directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
+                    name = gridItem.id,
+                    byteArray = byteArray,
+                )
+
+                val newData = data.copy(icon = icon)
+
+                gridItem.copy(data = newData)
+            }
+
+            is GridItemData.ShortcutConfig -> {
+                val customIcon = fileManager.updateAndGetFilePath(
+                    directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
+                    name = gridItem.id,
+                    byteArray = byteArray,
+                )
+
+                val newData = data.copy(customIcon = customIcon)
+
+                gridItem.copy(data = newData)
+            }
+
+            is GridItemData.ShortcutInfo -> {
+                val customIcon = fileManager.updateAndGetFilePath(
+                    directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
+                    name = gridItem.id,
+                    byteArray = byteArray,
+                )
+
+                val newData = data.copy(customIcon = customIcon)
+
+                gridItem.copy(data = newData)
+            }
+
+            else -> gridItem
         }
     }
 }

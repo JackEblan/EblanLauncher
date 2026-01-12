@@ -22,79 +22,73 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 
-internal fun ShortcutInfoGridItemEntity.asGridItem(): GridItem {
-    return GridItem(
-        id = id,
-        folderId = folderId,
-        page = page,
-        startColumn = startColumn,
-        startRow = startRow,
-        columnSpan = columnSpan,
-        rowSpan = rowSpan,
-        data = GridItemData.ShortcutInfo(
-            shortcutId = shortcutId,
-            packageName = packageName,
-            serialNumber = serialNumber,
-            shortLabel = shortLabel,
-            longLabel = longLabel,
-            icon = icon,
-            isEnabled = isEnabled,
-            eblanApplicationInfoIcon = eblanApplicationInfoIcon,
-            customIcon = customIcon,
-            customShortLabel = customShortLabel,
-        ),
-        associate = associate,
-        override = override,
-        gridItemSettings = gridItemSettings,
-    )
-}
-
-internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem {
-    return ShortcutInfoGridItem(
-        id = id,
-        folderId = folderId,
-        page = page,
-        startColumn = startColumn,
-        startRow = startRow,
-        columnSpan = columnSpan,
-        rowSpan = rowSpan,
-        associate = associate,
+internal fun ShortcutInfoGridItemEntity.asGridItem(): GridItem = GridItem(
+    id = id,
+    folderId = folderId,
+    page = page,
+    startColumn = startColumn,
+    startRow = startRow,
+    columnSpan = columnSpan,
+    rowSpan = rowSpan,
+    data = GridItemData.ShortcutInfo(
         shortcutId = shortcutId,
         packageName = packageName,
+        serialNumber = serialNumber,
         shortLabel = shortLabel,
         longLabel = longLabel,
         icon = icon,
-        override = override,
-        serialNumber = serialNumber,
-        isEnabled = isEnabled,
-        gridItemSettings = gridItemSettings,
-        customIcon = customIcon,
-        customShortLabel = customShortLabel,
-        eblanApplicationInfoIcon = eblanApplicationInfoIcon,
-    )
-}
-
-internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity {
-    return ShortcutInfoGridItemEntity(
-        id = id,
-        folderId = folderId,
-        page = page,
-        startColumn = startColumn,
-        startRow = startRow,
-        columnSpan = columnSpan,
-        rowSpan = rowSpan,
-        associate = associate,
-        shortcutId = shortcutId,
-        packageName = packageName,
-        shortLabel = shortLabel,
-        longLabel = longLabel,
-        icon = icon,
-        override = override,
-        serialNumber = serialNumber,
-        gridItemSettings = gridItemSettings,
         isEnabled = isEnabled,
         eblanApplicationInfoIcon = eblanApplicationInfoIcon,
         customIcon = customIcon,
         customShortLabel = customShortLabel,
-    )
-}
+    ),
+    associate = associate,
+    override = override,
+    gridItemSettings = gridItemSettings,
+)
+
+internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem = ShortcutInfoGridItem(
+    id = id,
+    folderId = folderId,
+    page = page,
+    startColumn = startColumn,
+    startRow = startRow,
+    columnSpan = columnSpan,
+    rowSpan = rowSpan,
+    associate = associate,
+    shortcutId = shortcutId,
+    packageName = packageName,
+    shortLabel = shortLabel,
+    longLabel = longLabel,
+    icon = icon,
+    override = override,
+    serialNumber = serialNumber,
+    isEnabled = isEnabled,
+    gridItemSettings = gridItemSettings,
+    customIcon = customIcon,
+    customShortLabel = customShortLabel,
+    eblanApplicationInfoIcon = eblanApplicationInfoIcon,
+)
+
+internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity = ShortcutInfoGridItemEntity(
+    id = id,
+    folderId = folderId,
+    page = page,
+    startColumn = startColumn,
+    startRow = startRow,
+    columnSpan = columnSpan,
+    rowSpan = rowSpan,
+    associate = associate,
+    shortcutId = shortcutId,
+    packageName = packageName,
+    shortLabel = shortLabel,
+    longLabel = longLabel,
+    icon = icon,
+    override = override,
+    serialNumber = serialNumber,
+    gridItemSettings = gridItemSettings,
+    isEnabled = isEnabled,
+    eblanApplicationInfoIcon = eblanApplicationInfoIcon,
+    customIcon = customIcon,
+    customShortLabel = customShortLabel,
+)

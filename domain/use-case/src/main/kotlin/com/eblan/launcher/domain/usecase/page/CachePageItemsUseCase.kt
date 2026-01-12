@@ -33,24 +33,22 @@ class CachePageItemsUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(gridItems: List<GridItem>): List<PageItem> {
-        return withContext(defaultDispatcher) {
-            val userData = userDataRepository.userData.first()
+    suspend operator fun invoke(gridItems: List<GridItem>): List<PageItem> = withContext(defaultDispatcher) {
+        val userData = userDataRepository.userData.first()
 
-            val gridItemsByPage = gridItems.filter { gridItem ->
-                isGridItemSpanWithinBounds(
-                    gridItem = gridItem,
-                    columns = userData.homeSettings.columns,
-                    rows = userData.homeSettings.rows,
-                ) && gridItem.associate == Associate.Grid
-            }.groupBy { gridItem -> gridItem.page }
+        val gridItemsByPage = gridItems.filter { gridItem ->
+            isGridItemSpanWithinBounds(
+                gridItem = gridItem,
+                columns = userData.homeSettings.columns,
+                rows = userData.homeSettings.rows,
+            ) && gridItem.associate == Associate.Grid
+        }.groupBy { gridItem -> gridItem.page }
 
-            (0 until userData.homeSettings.pageCount).map { page ->
-                PageItem(
-                    id = page,
-                    gridItems = gridItemsByPage[page] ?: emptyList(),
-                )
-            }
+        (0 until userData.homeSettings.pageCount).map { page ->
+            PageItem(
+                id = page,
+                gridItems = gridItemsByPage[page] ?: emptyList(),
+            )
         }
     }
 }

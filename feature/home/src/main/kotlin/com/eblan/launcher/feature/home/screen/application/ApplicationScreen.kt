@@ -354,8 +354,6 @@ private fun SharedTransitionScope.Success(
                     klwpIntegration = klwpIntegration,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = { intOffset, intSize ->
-                        focusManager.clearFocus()
-
                         onUpdateGridItemOffset(intOffset, intSize)
 
                         popupIntOffset = intOffset
@@ -386,8 +384,6 @@ private fun SharedTransitionScope.Success(
                 klwpIntegration = klwpIntegration,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = { intOffset, intSize ->
-                    focusManager.clearFocus()
-
                     onUpdateGridItemOffset(intOffset, intSize)
 
                     popupIntOffset = intOffset
@@ -559,12 +555,10 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging -> {
-                if (isLongPress) {
-                    onDraggingGridItem()
+            Drag.Dragging if isLongPress -> {
+                onDraggingGridItem()
 
-                    onUpdatePopupMenu(false)
-                }
+                onUpdatePopupMenu(false)
             }
 
             Drag.End, Drag.Cancel -> {

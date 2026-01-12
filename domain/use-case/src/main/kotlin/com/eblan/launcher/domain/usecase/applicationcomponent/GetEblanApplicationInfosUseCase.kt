@@ -31,23 +31,21 @@ class GetEblanApplicationInfosUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(labelFlow: Flow<String>): Flow<Map<Long, List<EblanApplicationInfo>>> {
-        return combine(
-            eblanApplicationInfoRepository.eblanApplicationInfos,
-            labelFlow,
-        ) { eblanApplicationInfos, label ->
-            eblanApplicationInfos.filterNot { eblanApplicationInfo ->
-                eblanApplicationInfo.isHidden
-            }.filter { eblanApplicationInfo ->
-                eblanApplicationInfo.label.contains(
-                    other = label,
-                    ignoreCase = true,
-                )
-            }.sortedBy { eblanApplicationInfo ->
-                eblanApplicationInfo.label.lowercase()
-            }.groupBy { eblanApplicationInfo ->
-                eblanApplicationInfo.serialNumber
-            }
-        }.flowOn(defaultDispatcher)
-    }
+    operator fun invoke(labelFlow: Flow<String>): Flow<Map<Long, List<EblanApplicationInfo>>> = combine(
+        eblanApplicationInfoRepository.eblanApplicationInfos,
+        labelFlow,
+    ) { eblanApplicationInfos, label ->
+        eblanApplicationInfos.filterNot { eblanApplicationInfo ->
+            eblanApplicationInfo.isHidden
+        }.filter { eblanApplicationInfo ->
+            eblanApplicationInfo.label.contains(
+                other = label,
+                ignoreCase = true,
+            )
+        }.sortedBy { eblanApplicationInfo ->
+            eblanApplicationInfo.label.lowercase()
+        }.groupBy { eblanApplicationInfo ->
+            eblanApplicationInfo.serialNumber
+        }
+    }.flowOn(defaultDispatcher)
 }

@@ -25,8 +25,7 @@ import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-internal class DefaultEblanIconPackInfoRepository @Inject constructor(private val eblanIconPackInfoDao: EblanIconPackInfoDao) :
-    EblanIconPackInfoRepository {
+internal class DefaultEblanIconPackInfoRepository @Inject constructor(private val eblanIconPackInfoDao: EblanIconPackInfoDao) : EblanIconPackInfoRepository {
     override val eblanIconPackInfos =
         eblanIconPackInfoDao.getEblanIconPackInfoEntities().map { entities ->
             entities.map { entity ->
@@ -34,15 +33,11 @@ internal class DefaultEblanIconPackInfoRepository @Inject constructor(private va
             }
         }
 
-    override suspend fun upsertEblanIconPackInfo(eblanIconPackInfo: EblanIconPackInfo): Long {
-        return eblanIconPackInfoDao.upsertEblanIconPackInfoEntity(entity = eblanIconPackInfo.asEntity())
-    }
+    override suspend fun upsertEblanIconPackInfo(eblanIconPackInfo: EblanIconPackInfo): Long = eblanIconPackInfoDao.upsertEblanIconPackInfoEntity(entity = eblanIconPackInfo.asEntity())
 
     override suspend fun deleteEblanIconPackInfo(eblanIconPackInfo: EblanIconPackInfo) {
         eblanIconPackInfoDao.deleteEblanIconPackInfoEntity(entity = eblanIconPackInfo.asEntity())
     }
 
-    override suspend fun getEblanIconPackInfo(packageName: String): EblanIconPackInfo? {
-        return eblanIconPackInfoDao.getEblanIconPackInfoEntity(packageName = packageName)?.asModel()
-    }
+    override suspend fun getEblanIconPackInfo(packageName: String): EblanIconPackInfo? = eblanIconPackInfoDao.getEblanIconPackInfoEntity(packageName = packageName)?.asModel()
 }

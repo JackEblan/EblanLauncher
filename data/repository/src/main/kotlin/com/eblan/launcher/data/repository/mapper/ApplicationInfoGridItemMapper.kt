@@ -22,70 +22,64 @@ import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 
-internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem {
-    return GridItem(
-        id = id,
-        folderId = folderId,
-        page = page,
-        startColumn = startColumn,
-        startRow = startRow,
-        columnSpan = columnSpan,
-        rowSpan = rowSpan,
-        data = GridItemData.ApplicationInfo(
-            serialNumber = serialNumber,
-            componentName = componentName,
-            packageName = packageName,
-            icon = icon,
-            label = label,
-            customIcon = customIcon,
-            customLabel = customLabel,
-        ),
-        associate = associate,
-        override = override,
-        gridItemSettings = gridItemSettings,
-    )
-}
-
-internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem {
-    return ApplicationInfoGridItem(
-        id = id,
-        folderId = folderId,
-        page = page,
-        startColumn = startColumn,
-        startRow = startRow,
-        columnSpan = columnSpan,
-        rowSpan = rowSpan,
-        associate = associate,
-        componentName = componentName,
-        packageName = packageName,
-        icon = icon,
-        label = label,
-        override = override,
+internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem = GridItem(
+    id = id,
+    folderId = folderId,
+    page = page,
+    startColumn = startColumn,
+    startRow = startRow,
+    columnSpan = columnSpan,
+    rowSpan = rowSpan,
+    data = GridItemData.ApplicationInfo(
         serialNumber = serialNumber,
-        customIcon = customIcon,
-        customLabel = customLabel,
-        gridItemSettings = gridItemSettings,
-    )
-}
-
-internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity {
-    return ApplicationInfoGridItemEntity(
-        id = id,
-        serialNumber = serialNumber,
-        folderId = folderId,
-        page = page,
-        startColumn = startColumn,
-        startRow = startRow,
-        columnSpan = columnSpan,
-        rowSpan = rowSpan,
-        associate = associate,
         componentName = componentName,
         packageName = packageName,
         icon = icon,
         label = label,
         customIcon = customIcon,
         customLabel = customLabel,
-        override = override,
-        gridItemSettings = gridItemSettings,
-    )
-}
+    ),
+    associate = associate,
+    override = override,
+    gridItemSettings = gridItemSettings,
+)
+
+internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem = ApplicationInfoGridItem(
+    id = id,
+    folderId = folderId,
+    page = page,
+    startColumn = startColumn,
+    startRow = startRow,
+    columnSpan = columnSpan,
+    rowSpan = rowSpan,
+    associate = associate,
+    componentName = componentName,
+    packageName = packageName,
+    icon = icon,
+    label = label,
+    override = override,
+    serialNumber = serialNumber,
+    customIcon = customIcon,
+    customLabel = customLabel,
+    gridItemSettings = gridItemSettings,
+)
+
+internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity = ApplicationInfoGridItemEntity(
+    id = id,
+    serialNumber = serialNumber,
+    folderId = folderId,
+    page = page,
+    startColumn = startColumn,
+    startRow = startRow,
+    columnSpan = columnSpan,
+    rowSpan = rowSpan,
+    associate = associate,
+    componentName = componentName,
+    packageName = packageName,
+    icon = icon,
+    label = label,
+    customIcon = customIcon,
+    customLabel = customLabel,
+    override = override,
+    gridItemSettings = gridItemSettings,
+)

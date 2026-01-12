@@ -31,7 +31,8 @@ import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
 internal class DefaultWallpaperManagerWrapper @Inject constructor(@param:ApplicationContext private val context: Context) :
-    WallpaperManagerWrapper, AndroidWallpaperManagerWrapper {
+    WallpaperManagerWrapper,
+    AndroidWallpaperManagerWrapper {
     private val wallpaperManager = WallpaperManager.getInstance(context)
 
     override val hintSupportsDarkText = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -46,30 +47,28 @@ internal class DefaultWallpaperManagerWrapper @Inject constructor(@param:Applica
         0
     }
 
-    override fun getColorsChanged(): Flow<Int?> {
-        return callbackFlow {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                send(wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)?.colorHints)
+    override fun getColorsChanged(): Flow<Int?> = callbackFlow {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            send(wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)?.colorHints)
 
-                val callback = WallpaperManager.OnColorsChangedListener { wallpaperColors, which ->
-                    if (which and WallpaperManager.FLAG_SYSTEM != 0) {
-                        trySend(wallpaperColors?.colorHints)
-                    }
+            val callback = WallpaperManager.OnColorsChangedListener { wallpaperColors, which ->
+                if (which and WallpaperManager.FLAG_SYSTEM != 0) {
+                    trySend(wallpaperColors?.colorHints)
                 }
-
-                wallpaperManager.addOnColorsChangedListener(
-                    callback,
-                    Handler(Looper.getMainLooper()),
-                )
-
-                awaitClose {
-                    wallpaperManager.removeOnColorsChangedListener(callback)
-                }
-            } else {
-                send(null)
-
-                awaitClose()
             }
+
+            wallpaperManager.addOnColorsChangedListener(
+                callback,
+                Handler(Looper.getMainLooper()),
+            )
+
+            awaitClose {
+                wallpaperManager.removeOnColorsChangedListener(callback)
+            }
+        } else {
+            send(null)
+
+            awaitClose()
         }
     }
 

@@ -26,12 +26,10 @@ fun isGridItemSpanWithinBounds(
     gridItem: GridItem,
     columns: Int,
     rows: Int,
-): Boolean {
-    return gridItem.startColumn in 0 until columns &&
-        gridItem.startRow in 0 until rows &&
-        gridItem.startColumn + gridItem.columnSpan <= columns &&
-        gridItem.startRow + gridItem.rowSpan <= rows
-}
+): Boolean = gridItem.startColumn in 0 until columns &&
+    gridItem.startRow in 0 until rows &&
+    gridItem.startColumn + gridItem.columnSpan <= columns &&
+    gridItem.startRow + gridItem.rowSpan <= rows
 
 fun rectanglesOverlap(
     moving: GridItem,
@@ -113,18 +111,12 @@ fun getGridItemByCoordinates(
 fun getRelativeResolveDirection(
     moving: GridItem,
     other: GridItem,
-): ResolveDirection {
-    return when {
-        moving.startColumn < other.startColumn -> ResolveDirection.Right
-
-        moving.startColumn > other.startColumn -> ResolveDirection.Left
-
-        moving.startRow > other.startRow -> ResolveDirection.Left
-
-        moving.startRow < other.startRow -> ResolveDirection.Right
-
-        else -> ResolveDirection.Center
-    }
+): ResolveDirection = when {
+    moving.startColumn < other.startColumn -> ResolveDirection.Right
+    moving.startColumn > other.startColumn -> ResolveDirection.Left
+    moving.startRow > other.startRow -> ResolveDirection.Left
+    moving.startRow < other.startRow -> ResolveDirection.Right
+    else -> ResolveDirection.Center
 }
 
 suspend fun findAvailableRegionByPage(

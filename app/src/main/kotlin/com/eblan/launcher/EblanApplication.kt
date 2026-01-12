@@ -31,7 +31,9 @@ import java.io.File
 import javax.inject.Inject
 
 @HiltAndroidApp
-class EblanApplication : Application(), Thread.UncaughtExceptionHandler {
+class EblanApplication :
+    Application(),
+    Thread.UncaughtExceptionHandler {
     @Inject
     lateinit var notificationManagerWrapper: AndroidNotificationManagerWrapper
 

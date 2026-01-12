@@ -21,12 +21,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.IBinder
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.PagerState
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
@@ -103,7 +97,7 @@ internal fun resetSwipeOffset(
     gestureSettings: GestureSettings,
     swipeYTarget: Float,
     screenHeight: Int,
-    onChangeTargetValue: (Float) -> Unit,
+    onUpdateSwipeY: (Float) -> Unit,
 ) {
     if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer ||
         gestureSettings.swipeDown is EblanAction.OpenAppDrawer
@@ -114,9 +108,9 @@ internal fun resetSwipeOffset(
             screenHeight.toFloat()
         }
 
-        onChangeTargetValue(targetValue)
+        onUpdateSwipeY(targetValue)
     } else {
-        onChangeTargetValue(screenHeight.toFloat())
+        onUpdateSwipeY(screenHeight.toFloat())
     }
 }
 
@@ -219,61 +213,23 @@ internal fun handleEblanActionIntent(
     }
 }
 
-internal fun handleApplyFlingTest(
-    offsetY: Float,
+internal fun handleApplyFling(
+    swipeY: Float,
     remaining: Float,
     screenHeight: Int,
     onDismiss: () -> Unit = {},
     onChangeTargetValue: (Float) -> Unit,
 ) {
-    if (offsetY <= 0f && remaining > 10000f) {
+    if (swipeY <= 0f && remaining > 10000f) {
         onChangeTargetValue(screenHeight.toFloat())
 
         onDismiss()
-    } else if (offsetY > 200f) {
+    } else if (swipeY > 200f) {
         onChangeTargetValue(screenHeight.toFloat())
 
         onDismiss()
     } else {
         onChangeTargetValue(0f)
-    }
-}
-
-
-internal suspend fun handleApplyFling(
-    offsetY: Animatable<Float, AnimationVector1D>,
-    remaining: Float,
-    screenHeight: Int,
-    onDismiss: () -> Unit = {},
-) {
-    if (offsetY.value <= 0f && remaining > 10000f) {
-        offsetY.animateTo(
-            targetValue = screenHeight.toFloat(),
-            initialVelocity = remaining,
-            animationSpec = tween(
-                easing = FastOutSlowInEasing,
-            ),
-        )
-
-        onDismiss()
-    } else if (offsetY.value > 200f) {
-        offsetY.animateTo(
-            targetValue = screenHeight.toFloat(),
-            animationSpec = tween(
-                easing = FastOutSlowInEasing,
-            ),
-        )
-
-        onDismiss()
-    } else {
-        offsetY.animateTo(
-            targetValue = 0f,
-            initialVelocity = remaining,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessLow,
-            ),
-        )
     }
 }
 

@@ -22,8 +22,7 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -64,6 +63,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -139,63 +139,54 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
 ) {
     val scope = rememberCoroutineScope()
 
-    val offsetY = remember { Animatable(screenHeight.toFloat()) }
+    var isDismiss by remember { mutableStateOf(false) }
+
+    var swipeYTarget by remember { mutableFloatStateOf(screenHeight.toFloat()) }
+
+    val swipeY by animateFloatAsState(targetValue = swipeYTarget)
 
     val alpha by remember {
         derivedStateOf {
-            ((screenHeight - offsetY.value) / (screenHeight / 2)).coerceIn(0f, 1f)
+            ((screenHeight - swipeY) / (screenHeight / 2)).coerceIn(0f, 1f)
         }
     }
 
     val cornerSize by remember {
         derivedStateOf {
-            val progress = offsetY.value.coerceAtLeast(0f) / screenHeight
+            val progress = swipeY.coerceAtLeast(0f) / screenHeight
 
             (20 * progress).dp
         }
     }
 
-    LaunchedEffect(key1 = Unit) {
-        offsetY.animateTo(
-            targetValue = 0f,
-            animationSpec = tween(
-                easing = FastOutSlowInEasing,
-            ),
-        )
-    }
-
-    LaunchedEffect(key1 = isPressHome) {
-        if (isPressHome) {
-            scope.launch {
-                offsetY.animateTo(
-                    targetValue = screenHeight.toFloat(),
-                    animationSpec = tween(
-                        easing = FastOutSlowInEasing,
-                    ),
-                )
-
+    LaunchedEffect(key1 = swipeY) {
+        if (swipeY == screenHeight.toFloat()) {
+            if (isDismiss) {
                 onDismiss()
+            } else {
+                swipeYTarget = 0f
             }
         }
     }
 
-    BackHandler {
-        scope.launch {
-            offsetY.animateTo(
-                targetValue = screenHeight.toFloat(),
-                animationSpec = tween(
-                    easing = FastOutSlowInEasing,
-                ),
-            )
+    LaunchedEffect(key1 = isPressHome) {
+        if (isPressHome) {
+            swipeYTarget = screenHeight.toFloat()
 
-            onDismiss()
+            isDismiss = true
         }
+    }
+
+    BackHandler {
+        swipeYTarget = screenHeight.toFloat()
+
+        isDismiss = true
     }
 
     Surface(
         modifier = modifier
             .offset {
-                IntOffset(x = 0, y = offsetY.value.roundToInt())
+                IntOffset(x = 0, y = swipeY.roundToInt())
             }
             .fillMaxSize()
             .clip(RoundedCornerShape(cornerSize))
@@ -221,17 +212,20 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
                     onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
                     onDraggingGridItem = onDraggingGridItem,
                     onVerticalDrag = { dragAmount ->
-                        scope.launch {
-                            offsetY.snapTo(offsetY.value + dragAmount)
-                        }
+                        swipeYTarget += dragAmount
                     },
                     onDragEnd = { remaining ->
                         scope.launch {
                             handleApplyFling(
-                                offsetY = offsetY,
+                                swipeY = swipeY,
                                 remaining = remaining,
                                 screenHeight = screenHeight,
-                                onDismiss = onDismiss,
+                                onDismiss = {
+                                    isDismiss = true
+                                },
+                                onChangeTargetValue = { swipeY ->
+                                    swipeYTarget = swipeY
+                                },
                             )
                         }
                     },

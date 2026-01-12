@@ -21,9 +21,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -45,8 +43,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -94,59 +96,45 @@ internal fun SharedTransitionScope.AppWidgetScreen(
 ) {
     val scope = rememberCoroutineScope()
 
-    val offsetY = remember { Animatable(screenHeight.toFloat()) }
+    var isDismiss by remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = Unit) {
-        offsetY.animateTo(
-            targetValue = 0f,
-            animationSpec = tween(
-                easing = FastOutSlowInEasing,
-            ),
-        )
-    }
+    var swipeYTarget by remember { mutableFloatStateOf(screenHeight.toFloat()) }
 
-    LaunchedEffect(key1 = isPressHome) {
-        if (isPressHome) {
-            scope.launch {
-                offsetY.animateTo(
-                    targetValue = screenHeight.toFloat(),
-                    animationSpec = tween(
-                        easing = FastOutSlowInEasing,
-                    ),
-                )
+    val swipeY by animateFloatAsState(targetValue = swipeYTarget)
 
+    LaunchedEffect(key1 = swipeY) {
+        if (swipeY == screenHeight.toFloat()) {
+            if (isDismiss) {
                 onDismiss()
+            } else {
+                swipeYTarget = 0f
             }
         }
     }
 
-    BackHandler {
-        scope.launch {
-            offsetY.animateTo(
-                targetValue = screenHeight.toFloat(),
-                animationSpec = tween(
-                    easing = FastOutSlowInEasing,
-                ),
-            )
+    LaunchedEffect(key1 = isPressHome) {
+        if (isPressHome) {
+            swipeYTarget = screenHeight.toFloat()
 
-            onDismiss()
+            isDismiss = true
         }
+    }
+
+    BackHandler {
+        swipeYTarget = screenHeight.toFloat()
+
+        isDismiss = true
     }
 
     Box(
         modifier = modifier
             .offset {
-                IntOffset(x = 0, y = offsetY.value.roundToInt())
+                IntOffset(x = 0, y = swipeY.roundToInt())
             }
             .pointerInput(key1 = Unit) {
                 detectTapGestures(onTap = {
                     scope.launch {
-                        offsetY.animateTo(
-                            targetValue = screenHeight.toFloat(),
-                            animationSpec = tween(
-                                easing = FastOutSlowInEasing,
-                            ),
-                        )
+                        swipeYTarget = screenHeight.toFloat()
 
                         onDismiss()
                     }
@@ -166,29 +154,32 @@ internal fun SharedTransitionScope.AppWidgetScreen(
                         .pointerInput(key1 = Unit) {
                             detectVerticalDragGestures(
                                 onVerticalDrag = { _, dragAmount ->
-                                    scope.launch {
-                                        offsetY.snapTo(
-                                            (offsetY.value + dragAmount).coerceAtLeast(0f),
-                                        )
-                                    }
+                                    swipeYTarget += dragAmount
                                 },
                                 onDragEnd = {
                                     scope.launch {
                                         handleApplyFling(
-                                            offsetY = offsetY,
+                                            swipeY = swipeY,
                                             remaining = 0f,
                                             screenHeight = screenHeight,
-                                            onDismiss = onDismiss,
+                                            onDismiss = {
+                                                isDismiss = true
+                                            },
+                                            onChangeTargetValue = { swipeY ->
+                                                swipeYTarget = swipeY
+                                            },
                                         )
                                     }
                                 },
                                 onDragCancel = {
                                     scope.launch {
                                         handleApplyFling(
-                                            offsetY = offsetY,
+                                            swipeY = swipeY,
                                             remaining = 0f,
                                             screenHeight = screenHeight,
-                                            onDismiss = onDismiss,
+                                            onChangeTargetValue = { swipeY ->
+                                                swipeYTarget = swipeY
+                                            },
                                         )
                                     }
                                 },

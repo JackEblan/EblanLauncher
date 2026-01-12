@@ -50,6 +50,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAction
@@ -175,27 +176,19 @@ internal fun SharedTransitionScope.PagerScreen(
 
     val gridHeight = screenHeight - verticalPadding
 
-    var swipeUpY by rememberSaveable { mutableFloatStateOf(screenHeight.toFloat()) }
-
-    var swipeDownY by rememberSaveable { mutableFloatStateOf(screenHeight.toFloat()) }
-
     val wallpaperManagerWrapper = LocalWallpaperManager.current
 
     val view = LocalView.current
 
     val activity = LocalActivity.current as ComponentActivity
 
+    var swipeUpY by rememberSaveable { mutableFloatStateOf(screenHeight.toFloat()) }
+
+    var swipeDownY by rememberSaveable { mutableFloatStateOf(screenHeight.toFloat()) }
+
     var swipeYTarget by rememberSaveable { mutableFloatStateOf(screenHeight.toFloat()) }
 
     val swipeY by animateFloatAsState(targetValue = swipeYTarget)
-
-    val alpha by remember {
-        derivedStateOf {
-            val threshold = screenHeight / 2
-
-            ((swipeY - threshold) / threshold).coerceIn(0f, 1f)
-        }
-    }
 
     var isPressHome by remember { mutableStateOf(false) }
 
@@ -204,6 +197,32 @@ internal fun SharedTransitionScope.PagerScreen(
     val isApplicationScreenVisible by remember {
         derivedStateOf {
             swipeY < screenHeight.toFloat()
+        }
+    }
+
+    val pagerAlpha by remember {
+        derivedStateOf {
+            val threshold = screenHeight / 2
+
+            ((swipeY - threshold) / threshold).coerceIn(0f, 1f)
+        }
+    }
+
+    val alpha by remember {
+        derivedStateOf {
+            if (experimentalSettings.klwpIntegration) {
+                1f
+            } else {
+                ((screenHeight - swipeY) / (screenHeight / 2)).coerceIn(0f, 1f)
+            }
+        }
+    }
+
+    val cornerSize by remember {
+        derivedStateOf {
+            val progress = swipeY.coerceAtLeast(0f) / screenHeight
+
+            (20 * progress).dp
         }
     }
 
@@ -301,11 +320,9 @@ internal fun SharedTransitionScope.PagerScreen(
             .pointerInput(Unit) {
                 detectVerticalDragGestures(
                     onVerticalDrag = { _, dragAmount ->
-                        scope.launch {
-                            swipeUpY += dragAmount
+                        swipeUpY += dragAmount
 
-                            swipeDownY -= dragAmount
-                        }
+                        swipeDownY -= dragAmount
                     },
                     onDragEnd = {
                         doEblanActions(
@@ -334,28 +351,26 @@ internal fun SharedTransitionScope.PagerScreen(
                                 gestureSettings = gestureSettings,
                                 swipeYTarget = swipeYTarget,
                                 screenHeight = screenHeight,
-                                onChangeTargetValue = {
-                                    swipeYTarget = it
+                                onUpdateSwipeY = { swipeY ->
+                                    swipeYTarget = swipeY
 
-                                    swipeUpY = it
+                                    swipeUpY = swipeY
 
-                                    swipeDownY = it
-                                }
+                                    swipeDownY = swipeY
+                                },
                             )
                         }
                     },
                     onDragCancel = {
-                        scope.launch {
-                            swipeYTarget = screenHeight.toFloat()
+                        swipeYTarget = screenHeight.toFloat()
 
-                            swipeUpY = screenHeight.toFloat()
+                        swipeUpY = screenHeight.toFloat()
 
-                            swipeDownY = screenHeight.toFloat()
-                        }
+                        swipeDownY = screenHeight.toFloat()
                     },
                 )
             }
-            .alpha(alpha),
+            .alpha(pagerAlpha),
         gridHorizontalPagerState = gridHorizontalPagerState,
         currentPage = currentPage,
         gridItems = gridItems,
@@ -403,9 +418,7 @@ internal fun SharedTransitionScope.PagerScreen(
     if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
         ApplicationScreen(
             currentPage = currentPage,
-            offsetY = {
-                swipeY
-            },
+            swipeY = swipeY,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             paddingValues = paddingValues,
             drag = drag,
@@ -425,32 +438,34 @@ internal fun SharedTransitionScope.PagerScreen(
             screen = screen,
             textColor = textColor,
             klwpIntegration = experimentalSettings.klwpIntegration,
+            alpha = alpha,
+            cornerSize = cornerSize,
             onDismiss = {
-                scope.launch {
-                    swipeYTarget = screenHeight.toFloat()
+                swipeYTarget = screenHeight.toFloat()
 
-                    isPressHome = false
-                }
+                swipeUpY = screenHeight.toFloat()
+
+                swipeDownY = screenHeight.toFloat()
+
+                isPressHome = false
             },
             onDraggingGridItem = onDraggingGridItem,
             onVerticalDrag = { dragAmount ->
-                scope.launch {
-                    swipeYTarget += dragAmount
-                }
+                swipeYTarget += dragAmount
             },
             onDragEnd = { remaining ->
                 scope.launch {
-                    handleApplyFlingTest(
-                        offsetY = swipeY,
+                    handleApplyFling(
+                        swipeY = swipeY,
                         remaining = remaining,
                         screenHeight = screenHeight,
-                        onChangeTargetValue = {
-                            swipeYTarget = it
+                        onChangeTargetValue = { swipeY ->
+                            swipeYTarget = swipeY
 
-                            swipeUpY = it
+                            swipeUpY = swipeY
 
-                            swipeDownY = it
-                        }
+                            swipeDownY = swipeY
+                        },
                     )
                 }
             },
@@ -459,77 +474,72 @@ internal fun SharedTransitionScope.PagerScreen(
         )
     }
 
-//    if (showAppDrawer) {
-//        LaunchedEffect(key1 = Unit) {
-//            swipeY.animateTo(
-//                targetValue = 0f,
-//                animationSpec = spring(
-//                    dampingRatio = Spring.DampingRatioNoBouncy,
-//                    stiffness = Spring.StiffnessLow,
-//                ),
-//            )
-//        }
-//
-//        ApplicationScreen(
-//            currentPage = currentPage,
-//            offsetY = {
-//                swipeY.value
-//            },
-//            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-//            paddingValues = paddingValues,
-//            drag = drag,
-//            appDrawerSettings = appDrawerSettings,
-//            eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
-//            screenHeight = screenHeight,
-//            eblanShortcutInfos = eblanShortcutInfos,
-//            hasShortcutHostPermission = hasShortcutHostPermission,
-//            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-//            iconPackFilePaths = iconPackFilePaths,
-//            managedProfileResult = managedProfileResult,
-//            screen = screen,
-//            onLongPressGridItem = onLongPressGridItem,
-//            onUpdateGridItemOffset = onUpdateGridItemOffset,
-//            onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-//            gridItemSource = gridItemSource,
-//            isPressHome = isPressHome,
-//            textColor = textColor,
-//            klwpIntegration = experimentalSettings.klwpIntegration,
-//            onDismiss = {
-//                scope.launch {
-//                    swipeY.animateTo(
-//                        targetValue = screenHeight.toFloat(),
-//                        animationSpec = tween(
-//                            easing = FastOutSlowInEasing,
-//                        ),
-//                    )
-//
-//                    showAppDrawer = false
-//
-//                    isPressHome = false
-//                }
-//            },
-//            onDraggingGridItem = onDraggingGridItem,
-//            onVerticalDrag = { dragAmount ->
-//                scope.launch {
-//                    swipeY.snapTo(swipeY.value + dragAmount)
-//                }
-//            },
-//            onDragEnd = { remaining ->
-//                scope.launch {
-//                    handleApplyFling(
-//                        offsetY = swipeY,
-//                        remaining = remaining,
-//                        screenHeight = screenHeight,
-//                        onDismiss = {
-//                            showAppDrawer = false
-//                        },
-//                    )
-//                }
-//            },
-//            onEditApplicationInfo = onEditApplicationInfo,
-//            onUpdateSharedElementKey = onUpdateSharedElementKey,
-//        )
-//    }
+    if (showAppDrawer) {
+        LaunchedEffect(key1 = Unit) {
+            swipeYTarget = 0f
+        }
+
+        ApplicationScreen(
+            currentPage = currentPage,
+            swipeY = swipeY,
+            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+            paddingValues = paddingValues,
+            drag = drag,
+            appDrawerSettings = appDrawerSettings,
+            eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+            screenHeight = screenHeight,
+            eblanShortcutInfos = eblanShortcutInfos,
+            hasShortcutHostPermission = hasShortcutHostPermission,
+            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+            iconPackFilePaths = iconPackFilePaths,
+            managedProfileResult = managedProfileResult,
+            screen = screen,
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+            gridItemSource = gridItemSource,
+            isPressHome = isPressHome,
+            textColor = textColor,
+            klwpIntegration = experimentalSettings.klwpIntegration,
+            alpha = alpha,
+            cornerSize = cornerSize,
+            onDismiss = {
+                scope.launch {
+                    swipeYTarget = screenHeight.toFloat()
+
+                    swipeUpY = screenHeight.toFloat()
+
+                    swipeDownY = screenHeight.toFloat()
+
+                    showAppDrawer = false
+
+                    isPressHome = false
+                }
+            },
+            onDraggingGridItem = onDraggingGridItem,
+            onVerticalDrag = { dragAmount ->
+                swipeYTarget += dragAmount
+            },
+            onDragEnd = { remaining ->
+                scope.launch {
+                    handleApplyFling(
+                        swipeY = swipeY,
+                        remaining = remaining,
+                        screenHeight = screenHeight,
+                        onChangeTargetValue = { swipeY ->
+                            swipeYTarget = swipeY
+
+                            swipeUpY = swipeY
+
+                            swipeDownY = swipeY
+                        },
+                    )
+                }
+            },
+            onEditApplicationInfo = onEditApplicationInfo,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
+        )
+    }
 
     if (showWidgets) {
         WidgetScreen(

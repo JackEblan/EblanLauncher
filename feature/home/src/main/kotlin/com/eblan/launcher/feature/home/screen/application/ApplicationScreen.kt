@@ -99,6 +99,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -149,7 +150,7 @@ import kotlin.uuid.Uuid
 internal fun SharedTransitionScope.ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    offsetY: () -> Float,
+    swipeY: Float,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     paddingValues: PaddingValues,
     drag: Drag,
@@ -166,6 +167,8 @@ internal fun SharedTransitionScope.ApplicationScreen(
     screen: Screen,
     textColor: TextColor,
     klwpIntegration: Boolean,
+    alpha: Float,
+    cornerSize: Dp,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -185,28 +188,10 @@ internal fun SharedTransitionScope.ApplicationScreen(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
-    val alpha by remember {
-        derivedStateOf {
-            if (klwpIntegration) {
-                1f
-            } else {
-                ((screenHeight - offsetY()) / (screenHeight / 2)).coerceIn(0f, 1f)
-            }
-        }
-    }
-
-    val cornerSize by remember {
-        derivedStateOf {
-            val progress = offsetY().coerceAtLeast(0f) / screenHeight
-
-            (20 * progress).dp
-        }
-    }
-
     Surface(
         modifier = modifier
             .offset {
-                IntOffset(x = 0, y = offsetY().roundToInt())
+                IntOffset(x = 0, y = swipeY.roundToInt())
             }
             .fillMaxSize()
             .clip(RoundedCornerShape(cornerSize))

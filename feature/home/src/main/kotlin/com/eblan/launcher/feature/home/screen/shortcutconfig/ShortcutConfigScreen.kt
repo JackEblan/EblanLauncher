@@ -135,6 +135,8 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
+
     val scope = rememberCoroutineScope()
 
     val offsetY = remember { Animatable(screenHeight.toFloat()) }
@@ -164,6 +166,8 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
 
     LaunchedEffect(key1 = isPressHome) {
         if (isPressHome) {
+            focusManager.clearFocus()
+
             scope.launch {
                 offsetY.animateTo(
                     targetValue = screenHeight.toFloat(),

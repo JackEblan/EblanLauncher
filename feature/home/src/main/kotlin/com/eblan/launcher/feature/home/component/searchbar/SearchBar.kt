@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
@@ -32,10 +33,13 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.onEach
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class, FlowPreview::class)
 @Composable
 internal fun SearchBar(
     modifier: Modifier = Modifier,
@@ -49,9 +53,11 @@ internal fun SearchBar(
     val textFieldState = rememberTextFieldState()
 
     LaunchedEffect(key1 = textFieldState) {
-        snapshotFlow { textFieldState.text }.onEach { text ->
-            onChangeLabel(text.toString())
-        }.collect()
+        snapshotFlow { textFieldState.text }
+            .debounce(500L)
+            .onEach { text ->
+                onChangeLabel(text.toString())
+            }.collect()
     }
 
     SearchBar(
@@ -63,6 +69,12 @@ internal fun SearchBar(
             SearchBarDefaults.InputField(
                 searchBarState = searchBarState,
                 textFieldState = textFieldState,
+                leadingIcon = {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Search,
+                        contentDescription = null,
+                    )
+                },
                 onSearch = { focusManager.clearFocus() },
                 placeholder = { Text(text = title) },
             )

@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Pages
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material.icons.filled.Work
@@ -68,4 +69,5 @@ object EblanLauncherIcons {
     val Handshake = Icons.Default.Handshake
     val Shortcut = Icons.AutoMirrored.Filled.Shortcut
     val Restore = Icons.Default.Restore
+    val Search = Icons.Default.Search
 }

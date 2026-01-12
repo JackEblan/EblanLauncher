@@ -73,7 +73,7 @@ internal fun SharedTransitionScope.AppWidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup?,
-    eblanAppWidgetProviderInfosByPackageName: Map<String, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
     drag: Drag,
@@ -197,7 +197,7 @@ internal fun SharedTransitionScope.AppWidgetScreen(
                         .fillMaxWidth()
                         .padding(paddingValues),
                     eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosByPackageName[eblanApplicationInfoGroup.packageName].orEmpty(),
+                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosGroup[eblanApplicationInfoGroup.packageName].orEmpty(),
                     drag = drag,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onLongPressGridItem = onLongPressGridItem,

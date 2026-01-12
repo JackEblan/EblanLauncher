@@ -62,6 +62,7 @@ import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.ExperimentalSettings
@@ -72,7 +73,6 @@ import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
@@ -95,7 +95,6 @@ internal fun SharedTransitionScope.PagerScreen(
     drag: Drag,
     dockGridItems: List<GridItem>,
     textColor: TextColor,
-    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     screenWidth: Int,
     screenHeight: Int,
     paddingValues: PaddingValues,
@@ -108,13 +107,15 @@ internal fun SharedTransitionScope.PagerScreen(
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
     statusBarNotifications: Map<String, Int>,
-    eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    eblanAppWidgetProviderInfosByPackageName: Map<String, List<EblanAppWidgetProviderInfo>>,
+    eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
     experimentalSettings: ExperimentalSettings,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
+    eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
+    eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEditGridItem: (String) -> Unit,
@@ -402,8 +403,8 @@ internal fun SharedTransitionScope.PagerScreen(
         gridItemSource = gridItemSource,
         homeSettings = homeSettings,
         statusBarNotifications = statusBarNotifications,
-        eblanShortcutInfos = eblanShortcutInfos,
-        eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosByPackageName,
+        eblanShortcutInfos = eblanShortcutInfosGroup,
+        eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosGroup,
         iconPackFilePaths = iconPackFilePaths,
         isPressHome = isPressHome,
         screen = screen,
@@ -440,9 +441,9 @@ internal fun SharedTransitionScope.PagerScreen(
             drag = drag,
             appDrawerSettings = appDrawerSettings,
             screenHeight = screenHeight,
-            eblanShortcutInfos = eblanShortcutInfos,
+            eblanShortcutInfosGroup = eblanShortcutInfosGroup,
             hasShortcutHostPermission = hasShortcutHostPermission,
-            eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfosByPackageName,
+            eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
             iconPackFilePaths = iconPackFilePaths,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
@@ -506,9 +507,9 @@ internal fun SharedTransitionScope.PagerScreen(
             drag = drag,
             appDrawerSettings = appDrawerSettings,
             screenHeight = screenHeight,
-            eblanShortcutInfos = eblanShortcutInfos,
+            eblanShortcutInfosGroup = eblanShortcutInfosGroup,
             hasShortcutHostPermission = hasShortcutHostPermission,
-            eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfosByPackageName,
+            eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
             iconPackFilePaths = iconPackFilePaths,
             managedProfileResult = managedProfileResult,
             screen = screen,
@@ -561,7 +562,7 @@ internal fun SharedTransitionScope.PagerScreen(
     if (showWidgets) {
         WidgetScreen(
             currentPage = currentPage,
-            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
             gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
             drag = drag,
@@ -584,7 +585,7 @@ internal fun SharedTransitionScope.PagerScreen(
     if (showShortcutConfigActivities) {
         ShortcutConfigScreen(
             currentPage = currentPage,
-            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+            eblanShortcutConfigs = eblanShortcutConfigs,
             paddingValues = paddingValues,
             drag = drag,
             gridItemSettings = homeSettings.gridItemSettings,
@@ -608,7 +609,7 @@ internal fun SharedTransitionScope.PagerScreen(
         AppWidgetScreen(
             currentPage = currentPage,
             eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-            eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfosByPackageName,
+            eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
             gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
             drag = drag,

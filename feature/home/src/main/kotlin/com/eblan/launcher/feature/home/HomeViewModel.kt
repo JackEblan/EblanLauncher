@@ -30,13 +30,11 @@ import com.eblan.launcher.domain.model.GridItemData.ShortcutInfo
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
-import com.eblan.launcher.domain.model.SearchByLabel
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanAppWidgetProviderInfosUseCase
-import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanApplicationInfosUseCase
 import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutConfigsUseCase
 import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutInfosUseCase
@@ -54,7 +52,6 @@ import com.eblan.launcher.domain.usecase.iconpack.GetIconPackFilePathsUseCase
 import com.eblan.launcher.domain.usecase.page.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.page.UpdatePageItemsUseCase
 import com.eblan.launcher.domain.usecase.pin.GetPinGridItemUseCase
-import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -78,7 +75,6 @@ internal class HomeViewModel @Inject constructor(
     private val folderGridCacheRepository: FolderGridCacheRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
-    getEblanApplicationComponentUseCase: GetEblanApplicationComponentUseCase,
     private val cachePageItemsUseCase: CachePageItemsUseCase,
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
@@ -162,17 +158,6 @@ internal class HomeViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyMap(),
-        )
-
-    private val _searchByLabel = MutableStateFlow<SearchByLabel?>(null)
-
-    val eblanApplicationComponentUiState =
-        getEblanApplicationComponentUseCase(searchByLabel = _searchByLabel).map(
-            EblanApplicationComponentUiState::Success,
-        ).stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = EblanApplicationComponentUiState.Loading,
         )
 
     private val _eblanApplicationInfoLabel = MutableStateFlow("")
@@ -573,14 +558,14 @@ internal class HomeViewModel @Inject constructor(
     }
 
     fun getEblanAppWidgetProviderInfosByLabel(label: String) {
-        _searchByLabel.update {
-            SearchByLabel.EblanAppWidgetProviderInfo(label = label)
+        _eblanAppWidgetProviderInfoLabel.update {
+            label
         }
     }
 
     fun getEblanShortcutConfigsByLabel(label: String) {
-        _searchByLabel.update {
-            SearchByLabel.EblanShortcutConfig(label = label)
+        _eblanShortcutConfigLabel.update {
+            label
         }
     }
 

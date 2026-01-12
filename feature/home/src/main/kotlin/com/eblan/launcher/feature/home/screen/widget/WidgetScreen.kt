@@ -87,11 +87,9 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnec
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.component.searchbar.SearchBar
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -103,7 +101,7 @@ import kotlin.uuid.Uuid
 internal fun SharedTransitionScope.WidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
+    eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
     drag: Drag,
@@ -191,42 +189,34 @@ internal fun SharedTransitionScope.WidgetScreen(
             .clip(RoundedCornerShape(cornerSize))
             .alpha(alpha),
     ) {
-        when (eblanApplicationComponentUiState) {
-            EblanApplicationComponentUiState.Loading -> {
-                LoadingScreen()
-            }
-
-            is EblanApplicationComponentUiState.Success -> {
-                Success(
-                    currentPage = currentPage,
-                    eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
-                    gridItemSettings = gridItemSettings,
-                    paddingValues = paddingValues,
-                    drag = drag,
-                    screen = screen,
-                    onLongPressGridItem = onLongPressGridItem,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onVerticalDrag = { dragAmount ->
-                        scope.launch {
-                            offsetY.snapTo(offsetY.value + dragAmount)
-                        }
-                    },
-                    onDragEnd = { remaining ->
-                        scope.launch {
-                            handleApplyFling(
-                                offsetY = offsetY,
-                                remaining = remaining,
-                                screenHeight = screenHeight,
-                                onDismiss = onDismiss,
-                            )
-                        }
-                    },
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
-            }
-        }
+        Success(
+            currentPage = currentPage,
+            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+            gridItemSettings = gridItemSettings,
+            paddingValues = paddingValues,
+            drag = drag,
+            screen = screen,
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+            onDraggingGridItem = onDraggingGridItem,
+            onVerticalDrag = { dragAmount ->
+                scope.launch {
+                    offsetY.snapTo(offsetY.value + dragAmount)
+                }
+            },
+            onDragEnd = { remaining ->
+                scope.launch {
+                    handleApplyFling(
+                        offsetY = offsetY,
+                        remaining = remaining,
+                        screenHeight = screenHeight,
+                        onDismiss = onDismiss,
+                    )
+                }
+            },
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
+        )
     }
 }
 

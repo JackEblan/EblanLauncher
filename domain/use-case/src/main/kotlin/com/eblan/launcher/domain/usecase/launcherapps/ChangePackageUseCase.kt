@@ -20,7 +20,6 @@ package com.eblan.launcher.domain.usecase.launcherapps
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
@@ -55,7 +54,6 @@ import javax.inject.Inject
 class ChangePackageUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
-    private val fileManager: FileManager,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val updateIconPackInfoByPackageNameUseCase: UpdateIconPackInfoByPackageNameUseCase,
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
@@ -172,17 +170,6 @@ class ChangePackageUseCase @Inject constructor(
             appWidgetManagerAppWidgetProviderInfos.filter { appWidgetManagerAppWidgetProviderInfo ->
                 appWidgetManagerAppWidgetProviderInfo.packageName == packageName
             }.map { appWidgetManagerAppWidgetProviderInfo ->
-                val preview = appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                        name = appWidgetManagerAppWidgetProviderInfo.componentName.replace(
-                            "/",
-                            "-",
-                        ),
-                        byteArray = byteArray,
-                    )
-                }
-
                 EblanAppWidgetProviderInfo(
                     componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
                     serialNumber = serialNumber,
@@ -197,7 +184,7 @@ class ChangePackageUseCase @Inject constructor(
                     minResizeHeight = appWidgetManagerAppWidgetProviderInfo.minResizeHeight,
                     maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
                     maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
-                    preview = preview,
+                    preview = appWidgetManagerAppWidgetProviderInfo.preview,
                     icon = icon,
                     label = label,
                 )
@@ -255,21 +242,13 @@ class ChangePackageUseCase @Inject constructor(
         )?.map { launcherAppsShortcutInfo ->
             currentCoroutineContext().ensureActive()
 
-            val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                    name = launcherAppsShortcutInfo.shortcutId,
-                    byteArray = byteArray,
-                )
-            }
-
             EblanShortcutInfo(
                 shortcutId = launcherAppsShortcutInfo.shortcutId,
                 serialNumber = launcherAppsShortcutInfo.serialNumber,
                 packageName = launcherAppsShortcutInfo.packageName,
                 shortLabel = launcherAppsShortcutInfo.shortLabel,
                 longLabel = launcherAppsShortcutInfo.longLabel,
-                icon = icon,
+                icon = launcherAppsShortcutInfo.icon,
                 shortcutQueryFlag = launcherAppsShortcutInfo.shortcutQueryFlag,
                 isEnabled = launcherAppsShortcutInfo.isEnabled,
             )
@@ -421,21 +400,13 @@ class ChangePackageUseCase @Inject constructor(
                     }
 
                 if (launcherAppsShortcutInfo != null) {
-                    val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                        fileManager.updateAndGetFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                            name = launcherAppsShortcutInfo.shortcutId,
-                            byteArray = byteArray,
-                        )
-                    }
-
                     updateShortcutInfoGridItems.add(
                         UpdateShortcutInfoGridItem(
                             id = shortcutInfoGridItem.id,
                             shortLabel = launcherAppsShortcutInfo.shortLabel,
                             longLabel = launcherAppsShortcutInfo.longLabel,
                             isEnabled = launcherAppsShortcutInfo.isEnabled,
-                            icon = icon,
+                            icon = launcherAppsShortcutInfo.icon,
                         ),
                     )
                 } else {
@@ -484,7 +455,10 @@ class ChangePackageUseCase @Inject constructor(
                         activityIcon = launcherAppsActivityInfo.activityIcon,
                         activityLabel = launcherAppsActivityInfo.activityLabel,
                         applicationIcon = packageManagerWrapper.getApplicationIcon(
-                            componentName = launcherAppsActivityInfo.componentName.replace("/", "-"),
+                            componentName = launcherAppsActivityInfo.componentName.replace(
+                                "/",
+                                "-",
+                            ),
                             packageName = launcherAppsActivityInfo.packageName,
                         ),
                         applicationLabel = packageManagerWrapper.getApplicationLabel(

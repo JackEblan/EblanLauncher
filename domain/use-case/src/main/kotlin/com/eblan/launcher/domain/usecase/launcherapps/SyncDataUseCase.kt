@@ -441,17 +441,6 @@ class SyncDataUseCase @Inject constructor(
             appWidgetManagerAppWidgetProviderInfos.map { appWidgetManagerAppWidgetProviderInfo ->
                 currentCoroutineContext().ensureActive()
 
-                val preview = appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                        name = appWidgetManagerAppWidgetProviderInfo.componentName.replace(
-                            "/",
-                            "-",
-                        ),
-                        byteArray = byteArray,
-                    )
-                }
-
                 EblanAppWidgetProviderInfo(
                     componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
                     serialNumber = appWidgetManagerAppWidgetProviderInfo.serialNumber,
@@ -466,9 +455,12 @@ class SyncDataUseCase @Inject constructor(
                     minResizeHeight = appWidgetManagerAppWidgetProviderInfo.minResizeHeight,
                     maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
                     maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
-                    preview = preview,
+                    preview = appWidgetManagerAppWidgetProviderInfo.preview,
                     icon = packageManagerWrapper.getApplicationIcon(
-                        componentName = appWidgetManagerAppWidgetProviderInfo.componentName.replace("/", "-"),
+                        componentName = appWidgetManagerAppWidgetProviderInfo.componentName.replace(
+                            "/",
+                            "-",
+                        ),
                         packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
                     ),
                     label = packageManagerWrapper.getApplicationLabel(
@@ -519,21 +511,13 @@ class SyncDataUseCase @Inject constructor(
         val newEblanShortcutInfos = launcherAppsShortcutInfos?.map { launcherAppsShortcutInfo ->
             currentCoroutineContext().ensureActive()
 
-            val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                    name = launcherAppsShortcutInfo.shortcutId,
-                    byteArray = byteArray,
-                )
-            }
-
             EblanShortcutInfo(
                 shortcutId = launcherAppsShortcutInfo.shortcutId,
                 serialNumber = launcherAppsShortcutInfo.serialNumber,
                 packageName = launcherAppsShortcutInfo.packageName,
                 shortLabel = launcherAppsShortcutInfo.shortLabel,
                 longLabel = launcherAppsShortcutInfo.longLabel,
-                icon = icon,
+                icon = launcherAppsShortcutInfo.icon,
                 shortcutQueryFlag = launcherAppsShortcutInfo.shortcutQueryFlag,
                 isEnabled = launcherAppsShortcutInfo.isEnabled,
             )
@@ -677,21 +661,13 @@ class SyncDataUseCase @Inject constructor(
                     }
 
                 if (launcherAppsShortcutInfo != null) {
-                    val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                        fileManager.updateAndGetFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                            name = launcherAppsShortcutInfo.shortcutId,
-                            byteArray = byteArray,
-                        )
-                    }
-
                     updateShortcutInfoGridItems.add(
                         UpdateShortcutInfoGridItem(
                             id = shortcutInfoGridItem.id,
                             shortLabel = launcherAppsShortcutInfo.shortLabel,
                             longLabel = launcherAppsShortcutInfo.longLabel,
                             isEnabled = launcherAppsShortcutInfo.isEnabled,
-                            icon = icon,
+                            icon = launcherAppsShortcutInfo.icon,
                         ),
                     )
                 } else {

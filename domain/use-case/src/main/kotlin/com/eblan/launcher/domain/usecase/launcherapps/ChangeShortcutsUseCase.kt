@@ -19,7 +19,6 @@ package com.eblan.launcher.domain.usecase.launcherapps
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
@@ -35,7 +34,6 @@ import javax.inject.Inject
 class ChangeShortcutsUseCase @Inject constructor(
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
-    private val fileManager: FileManager,
     private val userDataRepository: UserDataRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
@@ -52,21 +50,13 @@ class ChangeShortcutsUseCase @Inject constructor(
             val newEblanShortcutInfos = launcherAppsShortcutInfos.map { launcherAppsShortcutInfo ->
                 ensureActive()
 
-                val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                        name = launcherAppsShortcutInfo.shortcutId,
-                        byteArray = byteArray,
-                    )
-                }
-
                 EblanShortcutInfo(
                     shortcutId = launcherAppsShortcutInfo.shortcutId,
                     serialNumber = launcherAppsShortcutInfo.serialNumber,
                     packageName = launcherAppsShortcutInfo.packageName,
                     shortLabel = launcherAppsShortcutInfo.shortLabel,
                     longLabel = launcherAppsShortcutInfo.longLabel,
-                    icon = icon,
+                    icon = launcherAppsShortcutInfo.icon,
                     shortcutQueryFlag = launcherAppsShortcutInfo.shortcutQueryFlag,
                     isEnabled = launcherAppsShortcutInfo.isEnabled,
                 )

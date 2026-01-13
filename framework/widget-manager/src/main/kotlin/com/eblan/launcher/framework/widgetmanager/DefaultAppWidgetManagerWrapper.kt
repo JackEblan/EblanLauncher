@@ -27,32 +27,38 @@ import android.os.UserHandle
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val androidByteArrayWrapper: AndroidByteArrayWrapper,
     private val userManagerWrapper: AndroidUserManagerWrapper,
+    private val fileManager: FileManager,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : AppWidgetManagerWrapper,
     AndroidAppWidgetManagerWrapper {
     private val appWidgetManager = AppWidgetManager.getInstance(context)
 
-    override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> = withContext(defaultDispatcher) {
-        appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
-            appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
+    override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> =
+        withContext(defaultDispatcher) {
+            appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
+                appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
+            }
         }
-    }
 
-    override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo? = appWidgetManager.getAppWidgetInfo(appWidgetId)
+    override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo? =
+        appWidgetManager.getAppWidgetInfo(appWidgetId)
 
-    override fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean = appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)
+    override fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean =
+        appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)
 
     override fun bindAppWidgetIdIfAllowed(
         appWidgetId: Int,
@@ -73,7 +79,19 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
         val serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = profile)
 
         val preview = loadPreviewImage(context, 0)?.let { drawable ->
-            androidByteArrayWrapper.createByteArray(drawable = drawable)
+            val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+            val file = File(
+                directory,
+                provider.flattenToString().replace(
+                    "/",
+                    "-",
+                ),
+            )
+
+            androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+
+            file.absolutePath
         }
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

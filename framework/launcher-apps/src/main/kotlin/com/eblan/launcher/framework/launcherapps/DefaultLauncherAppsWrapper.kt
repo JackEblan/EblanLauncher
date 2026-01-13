@@ -438,7 +438,16 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     private suspend fun ShortcutInfo.toLauncherAppsShortcutInfo(): LauncherAppsShortcutInfo {
         val icon = getShortcutIconDrawable(this, 0)?.let { drawable ->
-            androidByteArrayWrapper.createByteArray(drawable = drawable)
+            val directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR)
+
+            val file = File(
+                directory,
+                id,
+            )
+
+            androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+
+            file.absolutePath
         }
 
         val shortcutQueryFlag = when {

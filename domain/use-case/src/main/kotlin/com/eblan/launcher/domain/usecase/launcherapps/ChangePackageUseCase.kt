@@ -20,6 +20,7 @@ package com.eblan.launcher.domain.usecase.launcherapps
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
@@ -65,6 +66,7 @@ class ChangePackageUseCase @Inject constructor(
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
+    private val fileManager: FileManager,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -448,19 +450,29 @@ class ChangePackageUseCase @Inject constructor(
             }
 
             if (launcherAppsActivityInfo != null) {
+                val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                val file = File(
+                    directory,
+                    launcherAppsActivityInfo.componentName.replace("/", "-"),
+                )
+
+                val applicationIcon = if (file.exists()) {
+                    file.absolutePath
+                } else {
+                    packageManagerWrapper.getApplicationIcon(
+                        packageName = launcherAppsActivityInfo.packageName,
+                        file = file,
+                    )
+                }
+
                 updateShortcutConfigGridItems.add(
                     UpdateShortcutConfigGridItem(
                         id = shortcutConfigGridItem.id,
                         componentName = launcherAppsActivityInfo.componentName,
                         activityIcon = launcherAppsActivityInfo.activityIcon,
                         activityLabel = launcherAppsActivityInfo.activityLabel,
-                        applicationIcon = packageManagerWrapper.getApplicationIcon(
-                            componentName = launcherAppsActivityInfo.componentName.replace(
-                                "/",
-                                "-",
-                            ),
-                            packageName = launcherAppsActivityInfo.packageName,
-                        ),
+                        applicationIcon = applicationIcon,
                         applicationLabel = packageManagerWrapper.getApplicationLabel(
                             packageName = launcherAppsActivityInfo.packageName,
                         ),
@@ -505,16 +517,29 @@ class ChangePackageUseCase @Inject constructor(
         ).map { launcherAppsActivityInfo ->
             currentCoroutineContext().ensureActive()
 
+            val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+            val file = File(
+                directory,
+                launcherAppsActivityInfo.componentName.replace("/", "-"),
+            )
+
+            val applicationIcon = if (file.exists()) {
+                file.absolutePath
+            } else {
+                packageManagerWrapper.getApplicationIcon(
+                    packageName = launcherAppsActivityInfo.packageName,
+                    file = file,
+                )
+            }
+
             EblanShortcutConfig(
                 componentName = launcherAppsActivityInfo.componentName,
                 packageName = launcherAppsActivityInfo.packageName,
                 serialNumber = launcherAppsActivityInfo.serialNumber,
                 activityIcon = launcherAppsActivityInfo.activityIcon,
                 activityLabel = launcherAppsActivityInfo.activityLabel,
-                applicationIcon = packageManagerWrapper.getApplicationIcon(
-                    componentName = launcherAppsActivityInfo.componentName.replace("/", "-"),
-                    packageName = launcherAppsActivityInfo.packageName,
-                ),
+                applicationIcon = applicationIcon,
                 applicationLabel = packageManagerWrapper.getApplicationLabel(
                     packageName = launcherAppsActivityInfo.packageName,
                 ),

@@ -47,18 +47,15 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     AndroidAppWidgetManagerWrapper {
     private val appWidgetManager = AppWidgetManager.getInstance(context)
 
-    override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> =
-        withContext(defaultDispatcher) {
-            appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
-                appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
-            }
+    override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> = withContext(defaultDispatcher) {
+        appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
+            appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
         }
+    }
 
-    override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo? =
-        appWidgetManager.getAppWidgetInfo(appWidgetId)
+    override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo? = appWidgetManager.getAppWidgetInfo(appWidgetId)
 
-    override fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean =
-        appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)
+    override fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean = appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)
 
     override fun bindAppWidgetIdIfAllowed(
         appWidgetId: Int,
@@ -79,7 +76,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
         val serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = profile)
 
         val preview = loadPreviewImage(context, 0)?.let { drawable ->
-            val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+            val directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR)
 
             val file = File(
                 directory,

@@ -84,21 +84,35 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
         val dockHeight = homeSettings.dockHeight
 
-        val gridItems = (
-                applicationInfoGridItemRepository.gridItems.first() +
-                        widgetGridItemRepository.gridItems.first() +
-                        shortcutInfoGridItemRepository.gridItems.first() +
-                        folderGridItemRepository.gridItems.first() +
-                        shortcutConfigGridItemRepository.gridItems.first()
-                ).filter { gridItem ->
-                gridItem.associate == Associate.Grid &&
-                        gridItem.folderId == null
+        val gridItems =
+            (applicationInfoGridItemRepository.gridItems.first() + widgetGridItemRepository.gridItems.first() + shortcutInfoGridItemRepository.gridItems.first() + folderGridItemRepository.gridItems.first() + shortcutConfigGridItemRepository.gridItems.first()).filter { gridItem ->
+                gridItem.associate == Associate.Grid && gridItem.folderId == null
             }
 
         val previewInferred = File(
             fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
             componentName.replace("/", "-"),
         ).absolutePath
+
+        val applicationIcon =
+            packageManagerWrapper.getComponentName(packageName = packageName)
+                ?.let { componentName ->
+                    val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                    val file = File(
+                        directory,
+                        componentName.replace("/", "-"),
+                    )
+
+                    if (file.exists()) {
+                        file.absolutePath
+                    } else {
+                        packageManagerWrapper.getApplicationIcon(
+                            packageName = packageName,
+                            file = file,
+                        )
+                    }
+                }
 
         val gridHeight = rootHeight - dockHeight
 
@@ -143,10 +157,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             targetCellWidth = targetCellWidth,
             preview = previewInferred,
             label = packageManagerWrapper.getApplicationLabel(packageName = packageName).toString(),
-            icon = packageManagerWrapper.getApplicationIcon(
-                componentName = componentName.replace("/", "-"),
-                packageName = packageName,
-            ),
+            icon = applicationIcon,
         )
 
         val gridItem = GridItem(

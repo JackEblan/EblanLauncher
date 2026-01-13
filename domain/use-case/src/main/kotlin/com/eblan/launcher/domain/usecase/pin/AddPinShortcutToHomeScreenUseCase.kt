@@ -35,6 +35,7 @@ import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 class AddPinShortcutToHomeScreenUseCase @Inject constructor(
@@ -69,15 +70,15 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
         val initialPage = homeSettings.initialPage
 
         val gridItems = (
-                applicationInfoGridItemRepository.gridItems.first() +
-                        widgetGridItemRepository.gridItems.first() +
-                        shortcutInfoGridItemRepository.gridItems.first() +
-                        folderGridItemRepository.gridItems.first() +
-                        shortcutConfigGridItemRepository.gridItems.first()
-                ).filter { gridItem ->
-                gridItem.associate == Associate.Grid &&
-                        gridItem.folderId == null
-            }
+            applicationInfoGridItemRepository.gridItems.first() +
+                widgetGridItemRepository.gridItems.first() +
+                shortcutInfoGridItemRepository.gridItems.first() +
+                folderGridItemRepository.gridItems.first() +
+                shortcutConfigGridItemRepository.gridItems.first()
+            ).filter { gridItem ->
+            gridItem.associate == Associate.Grid &&
+                gridItem.folderId == null
+        }
 
         val icon = byteArray?.let { currentByteArray ->
             fileManager.updateAndGetFilePath(
@@ -90,10 +91,21 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
         val eblanApplicationInfoIcon =
             packageManagerWrapper.getComponentName(packageName = packageName)
                 ?.let { componentName ->
-                    packageManagerWrapper.getApplicationIcon(
-                        componentName = componentName.replace("/", "-"),
-                        packageName = packageName,
+                    val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                    val file = File(
+                        directory,
+                        componentName.replace("/", "-"),
                     )
+
+                    if (file.exists()) {
+                        file.absolutePath
+                    } else {
+                        packageManagerWrapper.getApplicationIcon(
+                            packageName = packageName,
+                            file = file,
+                        )
+                    }
                 }
 
         val data = GridItemData.ShortcutInfo(

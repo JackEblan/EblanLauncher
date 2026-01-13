@@ -151,35 +151,19 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }.flowOn(defaultDispatcher)
 
-    override suspend fun getActivityList(): List<LauncherAppsActivityInfo> =
-        withContext(defaultDispatcher) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                launcherApps.profiles.flatMap { userHandle ->
-                    currentCoroutineContext().ensureActive()
+    override suspend fun getActivityList(): List<LauncherAppsActivityInfo> = withContext(defaultDispatcher) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            launcherApps.profiles.flatMap { userHandle ->
+                currentCoroutineContext().ensureActive()
 
-                    launcherApps.getActivityList(null, userHandle).map { launcherActivityInfo ->
-                        currentCoroutineContext().ensureActive()
-
-                        launcherActivityInfo.toEblanLauncherActivityInfo()
-                    }
-                }
-            } else {
-                launcherApps.getActivityList(null, myUserHandle()).map { launcherActivityInfo ->
+                launcherApps.getActivityList(null, userHandle).map { launcherActivityInfo ->
                     currentCoroutineContext().ensureActive()
 
                     launcherActivityInfo.toEblanLauncherActivityInfo()
                 }
             }
-        }
-
-    override suspend fun getActivityList(
-        serialNumber: Long,
-        packageName: String,
-    ): List<LauncherAppsActivityInfo> {
-        return withContext(defaultDispatcher) {
-            val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
-
-            launcherApps.getActivityList(packageName, userHandle).map { launcherActivityInfo ->
+        } else {
+            launcherApps.getActivityList(null, myUserHandle()).map { launcherActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
                 launcherActivityInfo.toEblanLauncherActivityInfo()
@@ -187,40 +171,52 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
-    override suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>? =
-        withContext(defaultDispatcher) {
-            if (hasShortcutHostPermission) {
-                val shortcutQuery = LauncherApps.ShortcutQuery().apply {
-                    setQueryFlags(
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
-                    )
-                }
+    override suspend fun getActivityList(
+        serialNumber: Long,
+        packageName: String,
+    ): List<LauncherAppsActivityInfo> = withContext(defaultDispatcher) {
+        val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    launcherApps.profiles.filter { userHandle ->
-                        userManagerWrapper.isUserRunning(userHandle = userHandle) && userManagerWrapper.isUserUnlocked(
-                            userHandle = userHandle,
-                        ) && !userManagerWrapper.isQuietModeEnabled(userHandle = userHandle)
-                    }.flatMap { userHandle ->
-                        currentCoroutineContext().ensureActive()
+        launcherApps.getActivityList(packageName, userHandle).map { launcherActivityInfo ->
+            currentCoroutineContext().ensureActive()
 
-                        launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
-                            currentCoroutineContext().ensureActive()
+            launcherActivityInfo.toEblanLauncherActivityInfo()
+        }
+    }
 
-                            shortcutInfo.toLauncherAppsShortcutInfo()
-                        } ?: emptyList()
-                    }
-                } else {
-                    launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
+    override suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>? = withContext(defaultDispatcher) {
+        if (hasShortcutHostPermission) {
+            val shortcutQuery = LauncherApps.ShortcutQuery().apply {
+                setQueryFlags(
+                    LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                )
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                launcherApps.profiles.filter { userHandle ->
+                    userManagerWrapper.isUserRunning(userHandle = userHandle) && userManagerWrapper.isUserUnlocked(
+                        userHandle = userHandle,
+                    ) && !userManagerWrapper.isQuietModeEnabled(userHandle = userHandle)
+                }.flatMap { userHandle ->
+                    currentCoroutineContext().ensureActive()
+
+                    launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
                         currentCoroutineContext().ensureActive()
 
                         shortcutInfo.toLauncherAppsShortcutInfo()
-                    }
+                    } ?: emptyList()
                 }
             } else {
-                null
+                launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
+                    currentCoroutineContext().ensureActive()
+
+                    shortcutInfo.toLauncherAppsShortcutInfo()
+                }
             }
+        } else {
+            null
         }
+    }
 
     override suspend fun getShortcutsByPackageName(
         serialNumber: Long,
@@ -311,8 +307,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun getPinItemRequest(intent: Intent): LauncherApps.PinItemRequest =
-        launcherApps.getPinItemRequest(intent)
+    override fun getPinItemRequest(intent: Intent): LauncherApps.PinItemRequest = launcherApps.getPinItemRequest(intent)
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     override fun startShortcut(
@@ -411,29 +406,27 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
-    private suspend fun LauncherActivityInfo.toEblanLauncherActivityInfo(): LauncherAppsActivityInfo {
-        return LauncherAppsActivityInfo(
-            serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
-            componentName = componentName.flattenToString(),
-            packageName = applicationInfo.packageName,
-            activityIcon = getIcon(0).let { drawable ->
-                val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+    private suspend fun LauncherActivityInfo.toEblanLauncherActivityInfo(): LauncherAppsActivityInfo = LauncherAppsActivityInfo(
+        serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
+        componentName = componentName.flattenToString(),
+        packageName = applicationInfo.packageName,
+        activityIcon = getIcon(0).let { drawable ->
+            val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
 
-                val file = File(
-                    directory,
-                    componentName.flattenToString().replace(
-                        "/",
-                        "-",
-                    ),
-                )
+            val file = File(
+                directory,
+                componentName.flattenToString().replace(
+                    "/",
+                    "-",
+                ),
+            )
 
-                androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+            androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
 
-                file.absolutePath
-            },
-            activityLabel = label.toString(),
-        )
-    }
+            file.absolutePath
+        },
+        activityLabel = label.toString(),
+    )
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     private suspend fun ShortcutInfo.toLauncherAppsShortcutInfo(): LauncherAppsShortcutInfo {

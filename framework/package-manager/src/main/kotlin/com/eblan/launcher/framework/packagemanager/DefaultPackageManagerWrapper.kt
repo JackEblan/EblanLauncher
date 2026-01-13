@@ -25,7 +25,6 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
@@ -38,7 +37,6 @@ import javax.inject.Inject
 internal class DefaultPackageManagerWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val androidByteArrayWrapper: AndroidByteArrayWrapper,
-    private val fileManager: FileManager,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : PackageManagerWrapper,
     AndroidPackageManagerWrapper {
@@ -48,42 +46,31 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         get() = packageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)
 
     override suspend fun getApplicationIcon(
-        componentName: String,
         packageName: String,
-    ): String? {
-        return withContext(defaultDispatcher) {
-            val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
-
-            val file = File(
-                directory,
-                componentName,
+        file: File,
+    ): String? = withContext(defaultDispatcher) {
+        try {
+            androidByteArrayWrapper.createDrawablePath(
+                drawable = packageManager.getApplicationIcon(
+                    packageName,
+                ),
+                file = file,
             )
 
-            try {
-                androidByteArrayWrapper.createDrawablePath(
-                    drawable = packageManager.getApplicationIcon(
-                        packageName,
-                    ),
-                    file = file,
-                )
-
-                file.absolutePath
-            } catch (_: PackageManager.NameNotFoundException) {
-                null
-            }
+            file.absolutePath
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
         }
     }
 
-    override suspend fun getApplicationLabel(packageName: String): String? {
-        return withContext(defaultDispatcher) {
-            try {
-                val applicationInfo =
-                    packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+    override suspend fun getApplicationLabel(packageName: String): String? = withContext(defaultDispatcher) {
+        try {
+            val applicationInfo =
+                packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
 
-                packageManager.getApplicationLabel(applicationInfo).toString()
-            } catch (_: PackageManager.NameNotFoundException) {
-                null
-            }
+            packageManager.getApplicationLabel(applicationInfo).toString()
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
         }
     }
 

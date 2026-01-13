@@ -54,11 +54,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import kotlin.system.measureTimeMillis
 import kotlin.uuid.ExperimentalUuidApi
@@ -83,75 +81,48 @@ class SyncDataUseCase @Inject constructor(
 ) {
     suspend operator fun invoke() {
         withContext(ioDispatcher) {
-            val bigText = StringBuilder()
+            launch {
+                notificationManagerWrapper.notifySyncData(contentText = "This may take a while")
 
-            val completed = AtomicInteger(0)
+                measureTimeMillis {
+                    val userData = userDataRepository.userData.first()
 
-            joinAll(
-                launch {
-                    measureTimeMillis {
-                        val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
+                    val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
 
-                        val userData = userDataRepository.userData.first()
+                    updateEblanApplicationInfos(
+                        launcherAppsActivityInfos = launcherAppsActivityInfos,
+                        iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+                    )
 
-                        updateEblanApplicationInfos(
-                            launcherAppsActivityInfos = launcherAppsActivityInfos,
-                            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                        )
+                    insertApplicationInfoGridItems(
+                        launcherAppsActivityInfos = launcherAppsActivityInfos,
+                        experimentalSettings = userData.experimentalSettings,
+                        homeSettings = userData.homeSettings,
+                    )
 
-                        insertApplicationInfoGridItems(
-                            launcherAppsActivityInfos = launcherAppsActivityInfos,
-                            experimentalSettings = userData.experimentalSettings,
-                            homeSettings = userData.homeSettings,
-                        )
+                    updateApplicationInfoGridItems(launcherAppsActivityInfos = launcherAppsActivityInfos)
 
-                        updateApplicationInfoGridItems(launcherAppsActivityInfos = launcherAppsActivityInfos)
+                    val appWidgetManagerAppWidgetProviderInfos =
+                        appWidgetManagerWrapper.getInstalledProviders()
 
-                        updateIconPackInfos(
-                            launcherAppsActivityInfos = launcherAppsActivityInfos,
-                            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                        )
-                    }.also { ms ->
-                        notificationManagerWrapper.notifySyncData(
-                            max = 3,
-                            progress = completed.incrementAndGet(),
-                            bigText = bigText.append("Syncing applications took $ms ms\n")
-                                .toString(),
-                        )
-                    }
-                },
-                launch {
-                    measureTimeMillis {
-                        val appWidgetManagerAppWidgetProviderInfos =
-                            appWidgetManagerWrapper.getInstalledProviders()
+                    updateEblanAppWidgetProviderInfos(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
 
-                        updateEblanAppWidgetProviderInfos(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
+                    updateWidgetGridItems(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
 
-                        updateWidgetGridItems(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
-                    }.also { ms ->
-                        notificationManagerWrapper.notifySyncData(
-                            max = 3,
-                            progress = completed.incrementAndGet(),
-                            bigText = bigText.append("Syncing widgets took $ms ms\n").toString(),
-                        )
-                    }
-                },
-                launch {
-                    measureTimeMillis {
-                        val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcuts()
+                    val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcuts()
 
-                        updateEblanShortcutInfos(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
+                    updateEblanShortcutInfos(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
 
-                        updateShortcutInfoGridItems(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
-                    }.also { ms ->
-                        notificationManagerWrapper.notifySyncData(
-                            max = 3,
-                            progress = completed.incrementAndGet(),
-                            bigText = bigText.append("Syncing shortcuts took $ms ms\n").toString(),
-                        )
-                    }
-                },
-            )
+                    updateShortcutInfoGridItems(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
+
+                    updateIconPackInfos(
+                        launcherAppsActivityInfos = launcherAppsActivityInfos,
+                        iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+                    )
+                }.also { ms ->
+                    notificationManagerWrapper.notifySyncData(contentText = "Syncing data took $ms ms\n")
+                }
+            }
         }
     }
 
@@ -253,23 +224,21 @@ class SyncDataUseCase @Inject constructor(
         packageName: String,
         icon: String?,
         label: String?,
-    ): List<EblanShortcutConfig> {
-        return launcherAppsWrapper.getShortcutConfigActivityList(
-            serialNumber = serialNumber,
-            packageName = packageName,
-        ).map { launcherAppsActivityInfo ->
-            currentCoroutineContext().ensureActive()
+    ): List<EblanShortcutConfig> = launcherAppsWrapper.getShortcutConfigActivityList(
+        serialNumber = serialNumber,
+        packageName = packageName,
+    ).map { launcherAppsActivityInfo ->
+        currentCoroutineContext().ensureActive()
 
-            EblanShortcutConfig(
-                componentName = launcherAppsActivityInfo.componentName,
-                packageName = launcherAppsActivityInfo.packageName,
-                serialNumber = launcherAppsActivityInfo.serialNumber,
-                activityIcon = launcherAppsActivityInfo.activityIcon,
-                activityLabel = launcherAppsActivityInfo.activityLabel,
-                applicationIcon = icon,
-                applicationLabel = label,
-            )
-        }
+        EblanShortcutConfig(
+            componentName = launcherAppsActivityInfo.componentName,
+            packageName = launcherAppsActivityInfo.packageName,
+            serialNumber = launcherAppsActivityInfo.serialNumber,
+            activityIcon = launcherAppsActivityInfo.activityIcon,
+            activityLabel = launcherAppsActivityInfo.activityLabel,
+            applicationIcon = icon,
+            applicationLabel = label,
+        )
     }
 
     private suspend fun updateEblanShortcutConfigs(
@@ -441,6 +410,37 @@ class SyncDataUseCase @Inject constructor(
             appWidgetManagerAppWidgetProviderInfos.map { appWidgetManagerAppWidgetProviderInfo ->
                 currentCoroutineContext().ensureActive()
 
+                val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                val componentName =
+                    packageManagerWrapper.getComponentName(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
+
+                val icon = if (componentName != null) {
+                    val file = File(
+                        directory,
+                        componentName.replace("/", "-"),
+                    )
+
+                    if (file.exists()) {
+                        file.absolutePath
+                    } else {
+                        packageManagerWrapper.getApplicationIcon(
+                            packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                            file = file,
+                        )
+                    }
+                } else {
+                    val file = File(
+                        directory,
+                        appWidgetManagerAppWidgetProviderInfo.packageName,
+                    )
+
+                    packageManagerWrapper.getApplicationIcon(
+                        packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                        file = file,
+                    )
+                }
+
                 EblanAppWidgetProviderInfo(
                     componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
                     serialNumber = appWidgetManagerAppWidgetProviderInfo.serialNumber,
@@ -456,13 +456,7 @@ class SyncDataUseCase @Inject constructor(
                     maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
                     maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
                     preview = appWidgetManagerAppWidgetProviderInfo.preview,
-                    icon = packageManagerWrapper.getApplicationIcon(
-                        componentName = appWidgetManagerAppWidgetProviderInfo.componentName.replace(
-                            "/",
-                            "-",
-                        ),
-                        packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
-                    ),
+                    icon = icon,
                     label = packageManagerWrapper.getApplicationLabel(
                         packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
                     ).toString(),

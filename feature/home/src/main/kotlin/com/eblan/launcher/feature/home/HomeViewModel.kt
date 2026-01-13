@@ -66,6 +66,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -607,10 +608,21 @@ internal class HomeViewModel @Inject constructor(
             val eblanApplicationInfoIcon =
                 packageManagerWrapper.getComponentName(packageName = pinItemRequestType.packageName)
                     ?.let { componentName ->
-                        packageManagerWrapper.getApplicationIcon(
-                            componentName = componentName.replace("/", "-"),
-                            packageName = pinItemRequestType.packageName,
+                        val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                        val file = File(
+                            directory,
+                            componentName.replace("/", "-"),
                         )
+
+                        if (file.exists()) {
+                            file.absolutePath
+                        } else {
+                            packageManagerWrapper.getApplicationIcon(
+                                packageName = pinItemRequestType.packageName,
+                                file = file,
+                            )
+                        }
                     }
 
             val data = ShortcutInfo(

@@ -18,13 +18,14 @@
 package com.eblan.launcher.domain.framework
 
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
+import java.io.File
 
 interface PackageManagerWrapper {
     val hasSystemFeatureAppWidgets: Boolean
 
     suspend fun getApplicationIcon(
-        componentName: String,
         packageName: String,
+        file: File,
     ): String?
 
     suspend fun getApplicationLabel(packageName: String): String?

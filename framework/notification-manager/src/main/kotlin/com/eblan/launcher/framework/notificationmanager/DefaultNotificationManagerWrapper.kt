@@ -56,22 +56,14 @@ internal class DefaultNotificationManagerWrapper @Inject constructor(@param:Appl
         }
     }
 
-    override fun notifySyncData(
-        max: Int,
-        progress: Int,
-        bigText: String,
-    ) {
+    override fun notifySyncData(contentText: String) {
         if (!notificationManager.areNotificationsEnabled()) return
 
         val notification =
             NotificationCompat.Builder(context, AndroidNotificationManagerWrapper.CHANNEL_ID)
                 .setSmallIcon(R.drawable.baseline_cached_24)
-                .setProgress(max, progress, false)
                 .setContentTitle("Syncing data")
-                .setStyle(
-                    NotificationCompat.BigTextStyle()
-                        .bigText(bigText),
-                )
+                .setContentText(contentText)
                 .build()
 
         notificationManager.notify(

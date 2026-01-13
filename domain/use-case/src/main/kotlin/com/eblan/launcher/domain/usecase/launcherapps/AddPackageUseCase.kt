@@ -20,6 +20,7 @@ package com.eblan.launcher.domain.usecase.launcherapps
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
@@ -37,6 +38,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 class AddPackageUseCase @Inject constructor(
@@ -49,6 +51,7 @@ class AddPackageUseCase @Inject constructor(
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
+    private val fileManager: FileManager,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -73,8 +76,6 @@ class AddPackageUseCase @Inject constructor(
                 addEblanAppWidgetProviderInfos(
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     packageName = launcherAppsActivityInfo.packageName,
-                    icon = launcherAppsActivityInfo.activityIcon,
-                    label = launcherAppsActivityInfo.activityLabel,
                 )
 
                 updateIconPackInfoByPackageNameUseCase(
@@ -116,14 +117,44 @@ class AddPackageUseCase @Inject constructor(
     private suspend fun addEblanAppWidgetProviderInfos(
         serialNumber: Long,
         packageName: String,
-        icon: String?,
-        label: String,
     ) {
         val eblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProviders()
             .filter { appWidgetManagerAppWidgetProviderInfo ->
-                appWidgetManagerAppWidgetProviderInfo.packageName == packageName
+                appWidgetManagerAppWidgetProviderInfo.serialNumber == serialNumber &&
+                    appWidgetManagerAppWidgetProviderInfo.packageName == packageName
             }.map { appWidgetManagerAppWidgetProviderInfo ->
                 currentCoroutineContext().ensureActive()
+
+                val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                val componentName =
+                    packageManagerWrapper.getComponentName(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
+
+                val icon = if (componentName != null) {
+                    val file = File(
+                        directory,
+                        componentName.replace("/", "-"),
+                    )
+
+                    if (file.exists()) {
+                        file.absolutePath
+                    } else {
+                        packageManagerWrapper.getApplicationIcon(
+                            packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                            file = file,
+                        )
+                    }
+                } else {
+                    val file = File(
+                        directory,
+                        appWidgetManagerAppWidgetProviderInfo.packageName,
+                    )
+
+                    packageManagerWrapper.getApplicationIcon(
+                        packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                        file = file,
+                    )
+                }
 
                 EblanAppWidgetProviderInfo(
                     componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
@@ -141,7 +172,9 @@ class AddPackageUseCase @Inject constructor(
                     maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
                     preview = appWidgetManagerAppWidgetProviderInfo.preview,
                     icon = icon,
-                    label = label,
+                    label = packageManagerWrapper.getApplicationLabel(
+                        packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                    ).toString(),
                 )
             }
 
@@ -182,16 +215,29 @@ class AddPackageUseCase @Inject constructor(
             serialNumber = serialNumber,
             packageName = packageName,
         ).map { launcherAppsActivityInfo ->
+            val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+            val file = File(
+                directory,
+                launcherAppsActivityInfo.componentName.replace("/", "-"),
+            )
+
+            val applicationIcon = if (file.exists()) {
+                file.absolutePath
+            } else {
+                packageManagerWrapper.getApplicationIcon(
+                    packageName = launcherAppsActivityInfo.packageName,
+                    file = file,
+                )
+            }
+
             EblanShortcutConfig(
                 componentName = launcherAppsActivityInfo.componentName,
                 packageName = launcherAppsActivityInfo.packageName,
                 serialNumber = launcherAppsActivityInfo.serialNumber,
                 activityIcon = launcherAppsActivityInfo.activityIcon,
                 activityLabel = launcherAppsActivityInfo.activityLabel,
-                applicationIcon = packageManagerWrapper.getApplicationIcon(
-                    componentName = launcherAppsActivityInfo.componentName.replace("/", "-"),
-                    packageName = launcherAppsActivityInfo.packageName,
-                ),
+                applicationIcon = applicationIcon,
                 applicationLabel = packageManagerWrapper.getApplicationLabel(
                     packageName = launcherAppsActivityInfo.packageName,
                 ),

@@ -136,14 +136,7 @@ class AddPackageUseCase @Inject constructor(
                         componentName.replace("/", "-"),
                     )
 
-                    if (file.exists()) {
-                        file.absolutePath
-                    } else {
-                        packageManagerWrapper.getApplicationIcon(
-                            packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
-                            file = file,
-                        )
-                    }
+                    file.absolutePath
                 } else {
                     val file = File(
                         directory,
@@ -222,14 +215,7 @@ class AddPackageUseCase @Inject constructor(
                 launcherAppsActivityInfo.componentName.replace("/", "-"),
             )
 
-            val applicationIcon = if (file.exists()) {
-                file.absolutePath
-            } else {
-                packageManagerWrapper.getApplicationIcon(
-                    packageName = launcherAppsActivityInfo.packageName,
-                    file = file,
-                )
-            }
+            val applicationIcon = file.absolutePath
 
             EblanShortcutConfig(
                 componentName = launcherAppsActivityInfo.componentName,

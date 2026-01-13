@@ -30,6 +30,7 @@ import android.os.Bundle
 import android.os.Process
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
@@ -41,6 +42,7 @@ import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
+import java.io.File
 
 internal suspend fun handleDropGridItem(
     moveGridItemResult: MoveGridItemResult?,
@@ -319,6 +321,7 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
     userManagerWrapper: AndroidUserManagerWrapper,
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
     byteArrayWrapper: AndroidByteArrayWrapper,
+    fileManager: FileManager,
     gridItemSource: GridItemSource,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateShortcutConfigIntoShortcutInfoGridItem: (
@@ -354,6 +357,22 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
         pinItemRequest.isValid &&
         pinItemRequest.accept()
     ) {
+        val icon = launcherAppsWrapper.getShortcutIconDrawable(
+            shortcutInfo = shortcutInfo,
+            density = 0,
+        )?.let { drawable ->
+            val directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR)
+
+            val file = File(
+                directory,
+                shortcutInfo.id,
+            )
+
+            byteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+
+            file.absolutePath
+        }
+
         val pinItemRequestType = PinItemRequestType.ShortcutInfo(
             serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = shortcutInfo.userHandle),
             shortcutId = shortcutInfo.id,
@@ -362,12 +381,7 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
             longLabel = shortcutInfo.longLabel.toString(),
             isEnabled = shortcutInfo.isEnabled,
             disabledMessage = shortcutInfo.disabledMessage?.toString(),
-            icon = launcherAppsWrapper.getShortcutIconDrawable(
-                shortcutInfo = shortcutInfo,
-                density = 0,
-            )?.let {
-                byteArrayWrapper.createByteArray(drawable = it)
-            },
+            icon = icon,
         )
 
         onUpdateShortcutConfigIntoShortcutInfoGridItem(

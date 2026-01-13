@@ -60,7 +60,7 @@ class PinScreenViewModel @Inject constructor(
         shortLabel: String,
         longLabel: String,
         isEnabled: Boolean,
-        byteArray: ByteArray?,
+        icon: String?,
     ) {
         viewModelScope.launch {
             _gridItem.update {
@@ -71,7 +71,7 @@ class PinScreenViewModel @Inject constructor(
                     shortLabel = shortLabel,
                     longLabel = longLabel,
                     isEnabled = isEnabled,
-                    byteArray = byteArray,
+                    icon = icon,
                 )
             }
         }

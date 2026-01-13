@@ -68,14 +68,17 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalByteArray
+import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalUserManager
 import kotlinx.coroutines.launch
+import java.io.File
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -141,7 +144,7 @@ private fun PinShortcutScreen(
         shortLabel: String,
         longLabel: String,
         isEnabled: Boolean,
-        byteArray: ByteArray?,
+        icon: String?,
     ) -> Unit,
     onDeleteShortcutGridItem: (GridItem) -> Unit,
     onUpdateGridItems: () -> Unit,
@@ -155,6 +158,8 @@ private fun PinShortcutScreen(
     val shortcutInfo = pinItemRequest.shortcutInfo
 
     val userManager = LocalUserManager.current
+
+    val fileManager = LocalFileManager.current
 
     val context = LocalContext.current
 
@@ -205,6 +210,22 @@ private fun PinShortcutScreen(
                     icon = icon,
                     onAdd = {
                         scope.launch {
+                            val icon = launcherApps.getShortcutIconDrawable(
+                                shortcutInfo = shortcutInfo,
+                                density = 0,
+                            )?.let { drawable ->
+                                val directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR)
+
+                                val file = File(
+                                    directory,
+                                    shortcutInfo.id,
+                                )
+
+                                byteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+
+                                file.absolutePath
+                            }
+
                             onAddPinShortcutToHomeScreen(
                                 userManager.getSerialNumberForUser(userHandle = shortcutInfo.userHandle),
                                 shortcutInfo.id,
@@ -212,9 +233,7 @@ private fun PinShortcutScreen(
                                 shortcutInfo.shortLabel.toString(),
                                 shortcutInfo.longLabel.toString(),
                                 shortcutInfo.isEnabled,
-                                icon?.let {
-                                    byteArrayWrapper.createByteArray(drawable = it)
-                                },
+                                icon,
                             )
                         }
                     },

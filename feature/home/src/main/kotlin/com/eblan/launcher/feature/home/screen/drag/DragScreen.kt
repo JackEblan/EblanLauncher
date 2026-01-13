@@ -70,6 +70,7 @@ import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalByteArray
+import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -149,6 +150,8 @@ internal fun SharedTransitionScope.DragScreen(
 
     val byteArray = LocalByteArray.current
 
+    val fileManager = LocalFileManager.current
+
     val view = LocalView.current
 
     val scope = rememberCoroutineScope()
@@ -224,6 +227,7 @@ internal fun SharedTransitionScope.DragScreen(
                 userManagerWrapper = userManager,
                 launcherAppsWrapper = launcherApps,
                 byteArrayWrapper = byteArray,
+                fileManager = fileManager,
                 gridItemSource = gridItemSource,
                 onDeleteGridItemCache = onDeleteGridItemCache,
                 onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,

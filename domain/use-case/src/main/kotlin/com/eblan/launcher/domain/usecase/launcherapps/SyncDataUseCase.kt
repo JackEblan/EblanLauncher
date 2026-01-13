@@ -149,13 +149,23 @@ class SyncDataUseCase @Inject constructor(
                 currentCoroutineContext().ensureActive()
 
                 newEblanShortcutConfigs.addAll(
-                    getEblanShortcutConfigs(
-                        launcherAppsWrapper = launcherAppsWrapper,
+                    launcherAppsWrapper.getShortcutConfigActivityList(
                         serialNumber = launcherAppsActivityInfo.serialNumber,
                         packageName = launcherAppsActivityInfo.packageName,
-                        icon = launcherAppsActivityInfo.activityIcon,
-                        label = launcherAppsActivityInfo.activityLabel,
-                    ),
+                    )
+                        .map { launcherAppsActivityInfo ->
+                            currentCoroutineContext().ensureActive()
+
+                            EblanShortcutConfig(
+                                componentName = launcherAppsActivityInfo.componentName,
+                                packageName = launcherAppsActivityInfo.packageName,
+                                serialNumber = launcherAppsActivityInfo.serialNumber,
+                                activityIcon = launcherAppsActivityInfo.activityIcon,
+                                activityLabel = launcherAppsActivityInfo.activityLabel,
+                                applicationIcon = launcherAppsActivityInfo.activityIcon,
+                                applicationLabel = launcherAppsActivityInfo.activityLabel,
+                            )
+                        },
                 )
 
                 SyncEblanApplicationInfo(
@@ -215,29 +225,6 @@ class SyncDataUseCase @Inject constructor(
         updateEblanShortcutConfigs(
             eblanShortcutConfigRepository = eblanShortcutConfigRepository,
             newEblanShortcutConfigs = newEblanShortcutConfigs,
-        )
-    }
-
-    private suspend fun getEblanShortcutConfigs(
-        launcherAppsWrapper: LauncherAppsWrapper,
-        serialNumber: Long,
-        packageName: String,
-        icon: String?,
-        label: String?,
-    ): List<EblanShortcutConfig> = launcherAppsWrapper.getShortcutConfigActivityList(
-        serialNumber = serialNumber,
-        packageName = packageName,
-    ).map { launcherAppsActivityInfo ->
-        currentCoroutineContext().ensureActive()
-
-        EblanShortcutConfig(
-            componentName = launcherAppsActivityInfo.componentName,
-            packageName = launcherAppsActivityInfo.packageName,
-            serialNumber = launcherAppsActivityInfo.serialNumber,
-            activityIcon = launcherAppsActivityInfo.activityIcon,
-            activityLabel = launcherAppsActivityInfo.activityLabel,
-            applicationIcon = icon,
-            applicationLabel = label,
         )
     }
 
@@ -421,14 +408,7 @@ class SyncDataUseCase @Inject constructor(
                         componentName.replace("/", "-"),
                     )
 
-                    if (file.exists()) {
-                        file.absolutePath
-                    } else {
-                        packageManagerWrapper.getApplicationIcon(
-                            packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
-                            file = file,
-                        )
-                    }
+                    file.absolutePath
                 } else {
                     val file = File(
                         directory,

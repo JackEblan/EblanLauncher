@@ -91,8 +91,6 @@ class ChangePackageUseCase @Inject constructor(
                 updateEblanAppWidgetProviderInfosByPackageName(
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     packageName = launcherAppsActivityInfo.packageName,
-                    icon = launcherAppsActivityInfo.activityIcon,
-                    label = launcherAppsActivityInfo.activityLabel,
                 )
 
                 updateShortcutConfigGridItemsByPackageName(
@@ -156,8 +154,6 @@ class ChangePackageUseCase @Inject constructor(
     private suspend fun updateEblanAppWidgetProviderInfosByPackageName(
         serialNumber: Long,
         packageName: String,
-        icon: String?,
-        label: String,
     ) {
         if (!packageManagerWrapper.hasSystemFeatureAppWidgets) return
 
@@ -172,6 +168,30 @@ class ChangePackageUseCase @Inject constructor(
             appWidgetManagerAppWidgetProviderInfos.filter { appWidgetManagerAppWidgetProviderInfo ->
                 appWidgetManagerAppWidgetProviderInfo.packageName == packageName
             }.map { appWidgetManagerAppWidgetProviderInfo ->
+                val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                val componentName =
+                    packageManagerWrapper.getComponentName(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
+
+                val icon = if (componentName != null) {
+                    val file = File(
+                        directory,
+                        componentName.replace("/", "-"),
+                    )
+
+                    file.absolutePath
+                } else {
+                    val file = File(
+                        directory,
+                        appWidgetManagerAppWidgetProviderInfo.packageName,
+                    )
+
+                    packageManagerWrapper.getApplicationIcon(
+                        packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                        file = file,
+                    )
+                }
+
                 EblanAppWidgetProviderInfo(
                     componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
                     serialNumber = serialNumber,
@@ -188,7 +208,9 @@ class ChangePackageUseCase @Inject constructor(
                     maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
                     preview = appWidgetManagerAppWidgetProviderInfo.preview,
                     icon = icon,
-                    label = label,
+                    label = packageManagerWrapper.getApplicationLabel(
+                        packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                    ).toString(),
                 )
             }
 

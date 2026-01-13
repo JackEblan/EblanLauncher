@@ -28,6 +28,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.feature.pin.PinScreen
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
@@ -39,6 +40,7 @@ import com.eblan.launcher.model.ActivityUiState
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalByteArray
+import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -66,6 +68,9 @@ class PinActivity : ComponentActivity() {
     @Inject
     lateinit var androidUserManagerWrapper: AndroidUserManagerWrapper
 
+    @Inject
+    lateinit var fileManager: FileManager
+
     private val viewModel: PinActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +93,7 @@ class PinActivity : ComponentActivity() {
                     LocalLauncherApps provides androidLauncherAppsWrapper,
                     LocalByteArray provides androidByteArrayWrapper,
                     LocalUserManager provides androidUserManagerWrapper,
+                    LocalFileManager provides fileManager,
                 ) {
                     val activityUiState by viewModel.activityUiState.collectAsStateWithLifecycle()
 

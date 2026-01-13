@@ -49,14 +49,6 @@ class GetPinGridItemUseCase @Inject constructor(
 
         when (pinItemRequestType) {
             is PinItemRequestType.Widget -> {
-                val preview = pinItemRequestType.preview?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                        name = pinItemRequestType.componentName.replace("/", "-"),
-                        byteArray = byteArray,
-                    )
-                }
-
                 val icon =
                     packageManagerWrapper.getComponentName(packageName = pinItemRequestType.packageName)
                         ?.let { componentName ->
@@ -67,14 +59,7 @@ class GetPinGridItemUseCase @Inject constructor(
                                 componentName.replace("/", "-"),
                             )
 
-                            if (file.exists()) {
-                                file.absolutePath
-                            } else {
-                                packageManagerWrapper.getApplicationIcon(
-                                    packageName = pinItemRequestType.packageName,
-                                    file = file,
-                                )
-                            }
+                            file.absolutePath
                         }
 
                 val data = Widget(
@@ -92,7 +77,7 @@ class GetPinGridItemUseCase @Inject constructor(
                     maxResizeHeight = pinItemRequestType.maxResizeHeight,
                     targetCellHeight = pinItemRequestType.targetCellHeight,
                     targetCellWidth = pinItemRequestType.targetCellWidth,
-                    preview = preview,
+                    preview = pinItemRequestType.preview,
                     label = packageManagerWrapper.getApplicationLabel(packageName = pinItemRequestType.packageName)
                         .toString(),
                     icon = icon,
@@ -115,14 +100,6 @@ class GetPinGridItemUseCase @Inject constructor(
             }
 
             is PinItemRequestType.ShortcutInfo -> {
-                val icon = pinItemRequestType.icon?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                        name = pinItemRequestType.shortcutId,
-                        byteArray = byteArray,
-                    )
-                }
-
                 val eblanApplicationInfoIcon =
                     packageManagerWrapper.getComponentName(packageName = pinItemRequestType.packageName)
                         ?.let { componentName ->
@@ -133,14 +110,7 @@ class GetPinGridItemUseCase @Inject constructor(
                                 componentName.replace("/", "-"),
                             )
 
-                            if (file.exists()) {
-                                file.absolutePath
-                            } else {
-                                packageManagerWrapper.getApplicationIcon(
-                                    packageName = pinItemRequestType.packageName,
-                                    file = file,
-                                )
-                            }
+                            file.absolutePath
                         }
 
                 val data = ShortcutInfo(
@@ -149,7 +119,7 @@ class GetPinGridItemUseCase @Inject constructor(
                     serialNumber = pinItemRequestType.serialNumber,
                     shortLabel = pinItemRequestType.shortLabel,
                     longLabel = pinItemRequestType.longLabel,
-                    icon = icon,
+                    icon = pinItemRequestType.icon,
                     isEnabled = pinItemRequestType.isEnabled,
                     eblanApplicationInfoIcon = eblanApplicationInfoIcon,
                     customIcon = null,

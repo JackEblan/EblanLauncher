@@ -597,14 +597,6 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             gridCacheRepository.deleteGridItem(gridItem = moveGridItemResult.movingGridItem)
 
-            val icon = pinItemRequestType.icon?.let { byteArray ->
-                fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                    name = pinItemRequestType.shortcutId,
-                    byteArray = byteArray,
-                )
-            }
-
             val eblanApplicationInfoIcon =
                 packageManagerWrapper.getComponentName(packageName = pinItemRequestType.packageName)
                     ?.let { componentName ->
@@ -615,14 +607,7 @@ internal class HomeViewModel @Inject constructor(
                             componentName.replace("/", "-"),
                         )
 
-                        if (file.exists()) {
-                            file.absolutePath
-                        } else {
-                            packageManagerWrapper.getApplicationIcon(
-                                packageName = pinItemRequestType.packageName,
-                                file = file,
-                            )
-                        }
+                        file.absolutePath
                     }
 
             val data = ShortcutInfo(
@@ -631,7 +616,7 @@ internal class HomeViewModel @Inject constructor(
                 serialNumber = pinItemRequestType.serialNumber,
                 shortLabel = pinItemRequestType.shortLabel,
                 longLabel = pinItemRequestType.longLabel,
-                icon = icon,
+                icon = pinItemRequestType.icon,
                 isEnabled = pinItemRequestType.isEnabled,
                 eblanApplicationInfoIcon = eblanApplicationInfoIcon,
                 customIcon = null,

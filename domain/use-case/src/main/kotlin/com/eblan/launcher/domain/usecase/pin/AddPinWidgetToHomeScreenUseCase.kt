@@ -104,14 +104,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                         componentName.replace("/", "-"),
                     )
 
-                    if (file.exists()) {
-                        file.absolutePath
-                    } else {
-                        packageManagerWrapper.getApplicationIcon(
-                            packageName = packageName,
-                            file = file,
-                        )
-                    }
+                    file.absolutePath
                 }
 
         val gridHeight = rootHeight - dockHeight

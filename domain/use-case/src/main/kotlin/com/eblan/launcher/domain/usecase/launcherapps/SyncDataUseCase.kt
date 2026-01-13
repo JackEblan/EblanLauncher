@@ -57,7 +57,9 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
+import kotlin.system.measureTimeMillis
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -80,11 +82,25 @@ class SyncDataUseCase @Inject constructor(
 ) {
     suspend operator fun invoke() {
         withContext(ioDispatcher) {
-            try {
-                notificationManagerWrapper.notifySyncData()
+            val bigText = StringBuilder()
 
-                joinAll(
-                    launch {
+            val totalJobs = 3
+
+            val completed = AtomicInteger(0)
+
+            fun notifyProgress(text: String) {
+                val progress = completed.incrementAndGet()
+
+                notificationManagerWrapper.notifySyncData(
+                    max = totalJobs,
+                    progress = progress,
+                    bigText = bigText.append(text).toString(),
+                )
+            }
+
+            joinAll(
+                launch {
+                    measureTimeMillis {
                         val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
 
                         val userData = userDataRepository.userData.first()
@@ -106,26 +122,34 @@ class SyncDataUseCase @Inject constructor(
                             launcherAppsActivityInfos = launcherAppsActivityInfos,
                             iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
                         )
-                    },
-                    launch {
+                    }.also { ms ->
+                        notifyProgress("Syncing applications took $ms ms\n")
+                    }
+                },
+                launch {
+                    measureTimeMillis {
                         val appWidgetManagerAppWidgetProviderInfos =
                             appWidgetManagerWrapper.getInstalledProviders()
 
                         updateEblanAppWidgetProviderInfos(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
 
                         updateWidgetGridItems(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
-                    },
-                    launch {
+                    }.also { ms ->
+                        notifyProgress("Syncing widgets took $ms ms\n")
+                    }
+                },
+                launch {
+                    measureTimeMillis {
                         val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcuts()
 
                         updateEblanShortcutInfos(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
 
                         updateShortcutInfoGridItems(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
-                    },
-                )
-            } finally {
-                notificationManagerWrapper.cancelSyncData()
-            }
+                    }.also { ms ->
+                        notifyProgress("Syncing shortcuts took $ms ms\n")
+                    }
+                },
+            )
         }
     }
 

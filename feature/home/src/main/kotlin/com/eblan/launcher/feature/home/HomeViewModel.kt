@@ -34,10 +34,10 @@ import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
-import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanAppWidgetProviderInfosUseCase
-import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanApplicationInfosUseCase
-import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutConfigsUseCase
-import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutInfosUseCase
+import com.eblan.launcher.domain.usecase.application.GetEblanAppWidgetProviderInfosUseCase
+import com.eblan.launcher.domain.usecase.application.GetEblanApplicationInfosUseCase
+import com.eblan.launcher.domain.usecase.application.GetEblanShortcutConfigsUseCase
+import com.eblan.launcher.domain.usecase.application.GetEblanShortcutInfosUseCase
 import com.eblan.launcher.domain.usecase.grid.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase

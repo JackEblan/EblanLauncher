@@ -71,6 +71,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
         maxResizeHeight: Int,
         rootWidth: Int,
         rootHeight: Int,
+        preview: String?,
     ): GridItem? = withContext(defaultDispatcher) {
         val homeSettings = userDataRepository.userData.first().homeSettings
 
@@ -88,11 +89,6 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             (applicationInfoGridItemRepository.gridItems.first() + widgetGridItemRepository.gridItems.first() + shortcutInfoGridItemRepository.gridItems.first() + folderGridItemRepository.gridItems.first() + shortcutConfigGridItemRepository.gridItems.first()).filter { gridItem ->
                 gridItem.associate == Associate.Grid && gridItem.folderId == null
             }
-
-        val previewInferred = File(
-            fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-            componentName.replace("/", "-"),
-        ).absolutePath
 
         val applicationIcon =
             packageManagerWrapper.getComponentName(packageName = packageName)
@@ -148,7 +144,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             maxResizeHeight = maxResizeHeight,
             targetCellHeight = targetCellHeight,
             targetCellWidth = targetCellWidth,
-            preview = previewInferred,
+            preview = preview,
             label = packageManagerWrapper.getApplicationLabel(packageName = packageName).toString(),
             icon = applicationIcon,
         )

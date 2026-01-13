@@ -42,10 +42,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
+import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.ui.local.LocalByteArray
+import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalIconPackManager
 import kotlinx.coroutines.launch
+import java.io.File
 
 @Composable
 fun IconPackInfoFilesDialog(
@@ -53,12 +57,15 @@ fun IconPackInfoFilesDialog(
     iconPackInfoComponents: List<IconPackInfoComponent>,
     iconPackInfoPackageName: String?,
     iconPackInfoLabel: String?,
+    iconName: String,
     onDismissRequest: () -> Unit,
-    onUpdateByteArray: (ByteArray) -> Unit,
+    onUpdateIcon: (String?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
     val byteArray = LocalByteArray.current
+
+    val fileManager = LocalFileManager.current
 
     val iconPackManager = LocalIconPackManager.current
 
@@ -103,14 +110,26 @@ fun IconPackInfoFilesDialog(
                                 modifier = Modifier
                                     .clickable {
                                         scope.launch {
-                                            val byteArray = drawable?.let { currentDrawable ->
-                                                byteArray.createByteArray(
-                                                    drawable = currentDrawable,
+                                            val icon = drawable?.let { currentDrawable ->
+                                                val directory = fileManager.getFilesDirectory(
+                                                    FileManager.CUSTOM_ICONS_DIR,
                                                 )
+
+                                                val file = File(
+                                                    directory,
+                                                    iconName,
+                                                )
+
+                                                byteArray.createDrawablePath(
+                                                    drawable = currentDrawable,
+                                                    file = file,
+                                                )
+
+                                                file.absolutePath
                                             }
 
-                                            if (byteArray != null) {
-                                                onUpdateByteArray(byteArray)
+                                            if (icon != null) {
+                                                onUpdateIcon(icon)
                                             }
 
                                             onDismissRequest()

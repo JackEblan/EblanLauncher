@@ -214,14 +214,18 @@ private fun PinShortcutScreen(
                                 shortcutInfo = shortcutInfo,
                                 density = 0,
                             )?.let { drawable ->
-                                val directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR)
+                                val directory =
+                                    fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR)
 
                                 val file = File(
                                     directory,
                                     shortcutInfo.id,
                                 )
 
-                                byteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+                                byteArrayWrapper.createDrawablePath(
+                                    drawable = drawable,
+                                    file = file,
+                                )
 
                                 file.absolutePath
                             }
@@ -279,6 +283,7 @@ private fun PinWidgetScreen(
         maxResizeHeight: Int,
         rootWidth: Int,
         rootHeight: Int,
+        preview: String?,
     ) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateGridItemCache: (GridItem) -> Unit,
@@ -293,6 +298,8 @@ private fun PinWidgetScreen(
     val userManager = LocalUserManager.current
 
     val context = LocalContext.current
+
+    val fileManager = LocalFileManager.current
 
     val paddingValues = WindowInsets.safeDrawing.asPaddingValues()
 
@@ -376,10 +383,22 @@ private fun PinWidgetScreen(
                 label = appWidgetProviderInfo.loadLabel(context.packageManager),
                 icon = icon,
                 onAdd = {
+                    val componentName = appWidgetProviderInfo.provider.flattenToString()
+
+                    val directory =
+                        fileManager.getFilesDirectory(FileManager.WIDGETS_DIR)
+
+                    val file = File(
+                        directory,
+                        componentName.replace("/", "-"),
+                    )
+
+                    val preview = file.absolutePath
+
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         onAddPinWidgetToHomeScreen(
                             userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
-                            appWidgetProviderInfo.provider.flattenToString(),
+                            componentName,
                             appWidgetProviderInfo.configure.flattenToString(),
                             appWidgetProviderInfo.provider.packageName,
                             appWidgetProviderInfo.targetCellHeight,
@@ -393,6 +412,7 @@ private fun PinWidgetScreen(
                             appWidgetProviderInfo.maxResizeHeight,
                             this@BoxWithConstraints.constraints.maxWidth,
                             this@BoxWithConstraints.constraints.maxHeight,
+                            preview,
                         )
                     } else {
                         onAddPinWidgetToHomeScreen(
@@ -411,6 +431,7 @@ private fun PinWidgetScreen(
                             0,
                             constraints.maxWidth,
                             constraints.maxHeight,
+                            preview,
                         )
                     }
                 },

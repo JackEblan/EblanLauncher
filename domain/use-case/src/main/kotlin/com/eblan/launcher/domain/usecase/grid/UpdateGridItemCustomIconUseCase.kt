@@ -27,57 +27,32 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UpdateGridItemCustomIconUseCase @Inject constructor(
-    private val fileManager: FileManager,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         gridItem: GridItem,
-        byteArray: ByteArray,
+        customIcon: String?,
     ): GridItem = withContext(defaultDispatcher) {
         when (val data = gridItem.data) {
             is GridItemData.ApplicationInfo -> {
-                val customIcon = fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
-                    name = gridItem.id,
-                    byteArray = byteArray,
-                )
-
                 val newData = data.copy(customIcon = customIcon)
 
                 gridItem.copy(data = newData)
             }
 
             is GridItemData.Folder -> {
-                val icon = fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
-                    name = gridItem.id,
-                    byteArray = byteArray,
-                )
-
-                val newData = data.copy(icon = icon)
+                val newData = data.copy(icon = customIcon)
 
                 gridItem.copy(data = newData)
             }
 
             is GridItemData.ShortcutConfig -> {
-                val customIcon = fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
-                    name = gridItem.id,
-                    byteArray = byteArray,
-                )
-
                 val newData = data.copy(customIcon = customIcon)
 
                 gridItem.copy(data = newData)
             }
 
             is GridItemData.ShortcutInfo -> {
-                val customIcon = fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
-                    name = gridItem.id,
-                    byteArray = byteArray,
-                )
-
                 val newData = data.copy(customIcon = customIcon)
 
                 gridItem.copy(data = newData)

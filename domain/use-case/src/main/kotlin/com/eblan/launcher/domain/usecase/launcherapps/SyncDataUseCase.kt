@@ -153,15 +153,15 @@ class SyncDataUseCase @Inject constructor(
                         serialNumber = launcherAppsActivityInfo.serialNumber,
                         packageName = launcherAppsActivityInfo.packageName,
                     )
-                        .map { launcherAppsActivityInfo ->
+                        .map { shortcutConfigActivity ->
                             currentCoroutineContext().ensureActive()
 
                             EblanShortcutConfig(
-                                componentName = launcherAppsActivityInfo.componentName,
-                                packageName = launcherAppsActivityInfo.packageName,
-                                serialNumber = launcherAppsActivityInfo.serialNumber,
-                                activityIcon = launcherAppsActivityInfo.activityIcon,
-                                activityLabel = launcherAppsActivityInfo.activityLabel,
+                                componentName = shortcutConfigActivity.componentName,
+                                packageName = shortcutConfigActivity.packageName,
+                                serialNumber = shortcutConfigActivity.serialNumber,
+                                activityIcon = shortcutConfigActivity.activityIcon,
+                                activityLabel = shortcutConfigActivity.activityLabel,
                                 applicationIcon = launcherAppsActivityInfo.activityIcon,
                                 applicationLabel = launcherAppsActivityInfo.activityLabel,
                             )

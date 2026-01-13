@@ -21,7 +21,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -48,7 +47,6 @@ internal class EditApplicationInfoViewModel @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val iconPackManager: IconPackManager,
     packageManagerWrapper: PackageManagerWrapper,
-    private val fileManager: FileManager,
     private val restoreEblanApplicationInfoUseCase: RestoreEblanApplicationInfoUseCase,
 ) : ViewModel() {
     private val editApplicationInfoRouteData =
@@ -112,16 +110,10 @@ internal class EditApplicationInfoViewModel @Inject constructor(
     }
 
     fun updateEblanApplicationInfoCustomIcon(
-        byteArray: ByteArray,
+        customIcon: String?,
         eblanApplicationInfo: EblanApplicationInfo,
     ) {
         viewModelScope.launch {
-            val customIcon = fileManager.updateAndGetFilePath(
-                directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
-                name = eblanApplicationInfo.packageName,
-                byteArray = byteArray,
-            )
-
             updateEblanApplicationInfo(
                 eblanApplicationInfo = eblanApplicationInfo.copy(
                     customIcon = customIcon,

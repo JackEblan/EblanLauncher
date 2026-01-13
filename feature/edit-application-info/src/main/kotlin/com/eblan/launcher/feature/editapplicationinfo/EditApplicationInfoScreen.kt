@@ -89,7 +89,7 @@ internal fun EditApplicationInfoScreen(
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
     onUpdateGridItemCustomIcon: (
-        byteArray: ByteArray,
+        customIcon: String?,
         eblanApplicationInfo: EblanApplicationInfo,
     ) -> Unit,
 ) {
@@ -111,9 +111,11 @@ internal fun EditApplicationInfoScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = {
-                            onRestoreEblanApplicationInfo(editApplicationInfoUiState.eblanApplicationInfo)
-                        }) {
+                        IconButton(
+                            onClick = {
+                                onRestoreEblanApplicationInfo(editApplicationInfoUiState.eblanApplicationInfo)
+                            },
+                        ) {
                             Icon(
                                 imageVector = EblanLauncherIcons.Restore,
                                 contentDescription = null,
@@ -152,7 +154,7 @@ private fun Success(
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
     onUpdateGridItemCustomIcon: (
-        byteArray: ByteArray,
+        customIcon: String?,
         eblanApplicationInfo: EblanApplicationInfo,
     ) -> Unit,
 ) {
@@ -212,14 +214,15 @@ private fun Success(
                 iconPackInfoComponents = iconPackInfoComponents,
                 iconPackInfoPackageName = iconPackInfoPackageName,
                 iconPackInfoLabel = iconPackInfoLabel,
+                iconName = eblanApplicationInfo.packageName,
                 onDismissRequest = {
                     onResetIconPackInfoPackageName()
 
                     showCustomIconDialog = false
                 },
-                onUpdateByteArray = { byteArray ->
+                onUpdateIcon = { icon ->
                     onUpdateGridItemCustomIcon(
-                        byteArray,
+                        icon,
                         eblanApplicationInfo,
                     )
                 },

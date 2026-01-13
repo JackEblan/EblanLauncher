@@ -34,4 +34,5 @@ data class EblanAppWidgetProviderInfo(
     val preview: String?,
     val icon: String?,
     val label: String,
+    val lastUpdateTime: Long,
 )

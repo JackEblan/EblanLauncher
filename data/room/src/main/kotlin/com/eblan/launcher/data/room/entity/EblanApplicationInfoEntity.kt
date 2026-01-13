@@ -31,4 +31,5 @@ data class EblanApplicationInfoEntity(
     val customLabel: String?,
     @ColumnInfo(defaultValue = "0")
     val isHidden: Boolean,
+    val lastUpdateTime: Long,
 )

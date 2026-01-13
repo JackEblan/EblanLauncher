@@ -43,19 +43,21 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     private val userManagerWrapper: AndroidUserManagerWrapper,
     private val fileManager: FileManager,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
-) : AppWidgetManagerWrapper,
-    AndroidAppWidgetManagerWrapper {
+) : AppWidgetManagerWrapper, AndroidAppWidgetManagerWrapper {
     private val appWidgetManager = AppWidgetManager.getInstance(context)
 
-    override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> = withContext(defaultDispatcher) {
-        appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
-            appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
+    override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> =
+        withContext(defaultDispatcher) {
+            appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
+                appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
+            }
         }
-    }
 
-    override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo? = appWidgetManager.getAppWidgetInfo(appWidgetId)
+    override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo? =
+        appWidgetManager.getAppWidgetInfo(appWidgetId)
 
-    override fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean = appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)
+    override fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean =
+        appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)
 
     override fun bindAppWidgetIdIfAllowed(
         appWidgetId: Int,
@@ -86,9 +88,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
                 ),
             )
 
-            if (!file.exists()) {
-                androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
-            }
+            androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
 
             file.absolutePath
         }

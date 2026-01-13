@@ -26,4 +26,5 @@ data class EblanShortcutInfo(
     val icon: String?,
     val shortcutQueryFlag: ShortcutQueryFlag,
     val isEnabled: Boolean,
+    val lastUpdateTime: Long,
 )

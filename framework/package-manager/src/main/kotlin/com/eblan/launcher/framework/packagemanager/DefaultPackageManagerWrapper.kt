@@ -25,46 +25,65 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 internal class DefaultPackageManagerWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
     private val androidByteArrayWrapper: AndroidByteArrayWrapper,
+    private val fileManager: FileManager,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : PackageManagerWrapper,
     AndroidPackageManagerWrapper {
-
     private val packageManager = context.packageManager
 
     override val hasSystemFeatureAppWidgets
         get() = packageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)
 
-    override suspend fun getApplicationIcon(packageName: String): ByteArray? = withContext(defaultDispatcher) {
-        try {
-            androidByteArrayWrapper.createByteArray(
-                drawable = packageManager.getApplicationIcon(
-                    packageName,
-                ),
+    override suspend fun getApplicationIcon(
+        componentName: String,
+        packageName: String,
+    ): String? {
+        return withContext(defaultDispatcher) {
+            val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+            val file = File(
+                directory,
+                componentName,
             )
-        } catch (_: PackageManager.NameNotFoundException) {
-            null
+
+            try {
+                androidByteArrayWrapper.createDrawablePath(
+                    drawable = packageManager.getApplicationIcon(
+                        packageName,
+                    ),
+                    file = file,
+                )
+
+                file.absolutePath
+            } catch (_: PackageManager.NameNotFoundException) {
+                null
+            }
         }
     }
 
-    override suspend fun getApplicationLabel(packageName: String): String? = withContext(defaultDispatcher) {
-        try {
-            val applicationInfo =
-                packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+    override suspend fun getApplicationLabel(packageName: String): String? {
+        return withContext(defaultDispatcher) {
+            try {
+                val applicationInfo =
+                    packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
 
-            packageManager.getApplicationLabel(applicationInfo).toString()
-        } catch (_: PackageManager.NameNotFoundException) {
-            null
+                packageManager.getApplicationLabel(applicationInfo).toString()
+            } catch (_: PackageManager.NameNotFoundException) {
+                null
+            }
         }
     }
 
@@ -84,24 +103,6 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         val defaultLauncherPackage = resolveInfo?.activityInfo?.packageName
 
         return defaultLauncherPackage == context.packageName
-    }
-
-    override suspend fun getActivityIcon(
-        componentName: String,
-        packageName: String,
-    ): ByteArray? = withContext(defaultDispatcher) {
-        try {
-            val drawable = ComponentName.unflattenFromString(componentName)
-                ?.let(packageManager::getActivityIcon)
-
-            if (drawable != null) {
-                androidByteArrayWrapper.createByteArray(drawable = drawable)
-            } else {
-                null
-            }
-        } catch (_: PackageManager.NameNotFoundException) {
-            getApplicationIcon(packageName = packageName)
-        }
     }
 
     override suspend fun getIconPackInfos(): List<PackageManagerIconPackInfo> {

@@ -22,16 +22,14 @@ import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 interface PackageManagerWrapper {
     val hasSystemFeatureAppWidgets: Boolean
 
-    suspend fun getApplicationIcon(packageName: String): ByteArray?
+    suspend fun getApplicationIcon(
+        componentName: String,
+        packageName: String,
+    ): String?
 
     suspend fun getApplicationLabel(packageName: String): String?
 
     fun getComponentName(packageName: String): String?
-
-    suspend fun getActivityIcon(
-        componentName: String,
-        packageName: String,
-    ): ByteArray?
 
     suspend fun getIconPackInfos(): List<PackageManagerIconPackInfo>
 }

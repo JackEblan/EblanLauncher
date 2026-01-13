@@ -605,12 +605,11 @@ internal class HomeViewModel @Inject constructor(
             }
 
             val eblanApplicationInfoIcon =
-                packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
-                    ?.let { byteArray ->
-                        fileManager.updateAndGetFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                            name = pinItemRequestType.packageName,
-                            byteArray = byteArray,
+                packageManagerWrapper.getComponentName(packageName = pinItemRequestType.packageName)
+                    ?.let { componentName ->
+                        packageManagerWrapper.getApplicationIcon(
+                            componentName = componentName.replace("/", "-"),
+                            packageName = pinItemRequestType.packageName,
                         )
                     }
 

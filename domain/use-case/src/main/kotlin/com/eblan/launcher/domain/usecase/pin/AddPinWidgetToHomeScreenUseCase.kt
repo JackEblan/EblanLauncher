@@ -85,33 +85,20 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
         val dockHeight = homeSettings.dockHeight
 
         val gridItems = (
-            applicationInfoGridItemRepository.gridItems.first() +
-                widgetGridItemRepository.gridItems.first() +
-                shortcutInfoGridItemRepository.gridItems.first() +
-                folderGridItemRepository.gridItems.first() +
-                shortcutConfigGridItemRepository.gridItems.first()
-            ).filter { gridItem ->
-            gridItem.associate == Associate.Grid &&
-                gridItem.folderId == null
-        }
+                applicationInfoGridItemRepository.gridItems.first() +
+                        widgetGridItemRepository.gridItems.first() +
+                        shortcutInfoGridItemRepository.gridItems.first() +
+                        folderGridItemRepository.gridItems.first() +
+                        shortcutConfigGridItemRepository.gridItems.first()
+                ).filter { gridItem ->
+                gridItem.associate == Associate.Grid &&
+                        gridItem.folderId == null
+            }
 
         val previewInferred = File(
             fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
             componentName.replace("/", "-"),
         ).absolutePath
-
-        val label =
-            packageManagerWrapper.getApplicationLabel(packageName = packageName)
-
-        val icon =
-            packageManagerWrapper.getApplicationIcon(packageName = packageName)
-                ?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        name = packageName,
-                        byteArray = byteArray,
-                    )
-                }
 
         val gridHeight = rootHeight - dockHeight
 
@@ -155,8 +142,11 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             targetCellHeight = targetCellHeight,
             targetCellWidth = targetCellWidth,
             preview = previewInferred,
-            label = label.toString(),
-            icon = icon,
+            label = packageManagerWrapper.getApplicationLabel(packageName = packageName).toString(),
+            icon = packageManagerWrapper.getApplicationIcon(
+                componentName = componentName.replace("/", "-"),
+                packageName = packageName,
+            ),
         )
 
         val gridItem = GridItem(

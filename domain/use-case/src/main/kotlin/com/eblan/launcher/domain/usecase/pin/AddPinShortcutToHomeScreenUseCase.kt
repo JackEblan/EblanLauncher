@@ -69,15 +69,15 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
         val initialPage = homeSettings.initialPage
 
         val gridItems = (
-            applicationInfoGridItemRepository.gridItems.first() +
-                widgetGridItemRepository.gridItems.first() +
-                shortcutInfoGridItemRepository.gridItems.first() +
-                folderGridItemRepository.gridItems.first() +
-                shortcutConfigGridItemRepository.gridItems.first()
-            ).filter { gridItem ->
-            gridItem.associate == Associate.Grid &&
-                gridItem.folderId == null
-        }
+                applicationInfoGridItemRepository.gridItems.first() +
+                        widgetGridItemRepository.gridItems.first() +
+                        shortcutInfoGridItemRepository.gridItems.first() +
+                        folderGridItemRepository.gridItems.first() +
+                        shortcutConfigGridItemRepository.gridItems.first()
+                ).filter { gridItem ->
+                gridItem.associate == Associate.Grid &&
+                        gridItem.folderId == null
+            }
 
         val icon = byteArray?.let { currentByteArray ->
             fileManager.updateAndGetFilePath(
@@ -88,12 +88,11 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
         }
 
         val eblanApplicationInfoIcon =
-            packageManagerWrapper.getApplicationIcon(packageName = packageName)
-                ?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        name = packageName,
-                        byteArray = byteArray,
+            packageManagerWrapper.getComponentName(packageName = packageName)
+                ?.let { componentName ->
+                    packageManagerWrapper.getApplicationIcon(
+                        componentName = componentName.replace("/", "-"),
+                        packageName = packageName,
                     )
                 }
 

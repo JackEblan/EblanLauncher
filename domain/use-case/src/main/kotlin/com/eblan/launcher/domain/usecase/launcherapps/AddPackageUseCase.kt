@@ -64,33 +64,19 @@ class AddPackageUseCase @Inject constructor(
                 serialNumber = serialNumber,
                 packageName = packageName,
             ).forEach { launcherAppsActivityInfo ->
-                val launcherAppsActivityInfoIcon = launcherAppsActivityInfo.activityIcon
-                    ?: launcherAppsActivityInfo.applicationIcon
-
-                val icon = launcherAppsActivityInfoIcon?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        name = launcherAppsActivityInfo.componentName.replace(
-                            "/",
-                            "-",
-                        ),
-                        byteArray = byteArray,
-                    )
-                }
-
                 addEblanApplicationInfo(
                     componentName = launcherAppsActivityInfo.componentName,
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     packageName = launcherAppsActivityInfo.packageName,
-                    icon = icon,
-                    label = launcherAppsActivityInfo.label,
+                    icon = launcherAppsActivityInfo.activityIcon,
+                    label = launcherAppsActivityInfo.activityLabel,
                 )
 
                 addEblanAppWidgetProviderInfos(
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     packageName = launcherAppsActivityInfo.packageName,
-                    icon = icon,
-                    label = launcherAppsActivityInfo.label,
+                    icon = launcherAppsActivityInfo.activityIcon,
+                    label = launcherAppsActivityInfo.activityLabel,
                 )
 
                 updateIconPackInfoByPackageNameUseCase(
@@ -218,34 +204,19 @@ class AddPackageUseCase @Inject constructor(
             serialNumber = serialNumber,
             packageName = packageName,
         ).map { launcherAppsActivityInfo ->
-            val activityIcon = launcherAppsActivityInfo.activityIcon?.let { byteArray ->
-                fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIGS_DIR),
-                    name = launcherAppsActivityInfo.componentName.replace("/", "-"),
-                    byteArray = byteArray,
-                )
-            }
-
-            val applicationIcon =
-                launcherAppsActivityInfo.applicationIcon?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        name = launcherAppsActivityInfo.packageName,
-                        byteArray = byteArray,
-                    )
-                }
-
-            val applicationLabel =
-                packageManagerWrapper.getApplicationLabel(packageName = packageName)
-
             EblanShortcutConfig(
                 componentName = launcherAppsActivityInfo.componentName,
                 packageName = launcherAppsActivityInfo.packageName,
                 serialNumber = launcherAppsActivityInfo.serialNumber,
-                activityIcon = activityIcon,
-                activityLabel = launcherAppsActivityInfo.label,
-                applicationIcon = applicationIcon,
-                applicationLabel = applicationLabel,
+                activityIcon = launcherAppsActivityInfo.activityIcon,
+                activityLabel = launcherAppsActivityInfo.activityLabel,
+                applicationIcon = packageManagerWrapper.getApplicationIcon(
+                    componentName = launcherAppsActivityInfo.componentName.replace("/", "-"),
+                    packageName = launcherAppsActivityInfo.packageName,
+                ),
+                applicationLabel = packageManagerWrapper.getApplicationLabel(
+                    packageName = launcherAppsActivityInfo.packageName,
+                ),
             )
         }
 

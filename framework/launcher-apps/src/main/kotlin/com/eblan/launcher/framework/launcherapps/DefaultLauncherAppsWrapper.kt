@@ -159,14 +159,14 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
                 launcherApps.getActivityList(null, userHandle).map { launcherActivityInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    launcherActivityInfo.toEblanLauncherActivityInfo()
+                    launcherActivityInfo.toLauncherAppsActivityInfo()
                 }
             }
         } else {
             launcherApps.getActivityList(null, myUserHandle()).map { launcherActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
-                launcherActivityInfo.toEblanLauncherActivityInfo()
+                launcherActivityInfo.toLauncherAppsActivityInfo()
             }
         }
     }
@@ -180,7 +180,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         launcherApps.getActivityList(packageName, userHandle).map { launcherActivityInfo ->
             currentCoroutineContext().ensureActive()
 
-            launcherActivityInfo.toEblanLauncherActivityInfo()
+            launcherActivityInfo.toLauncherAppsActivityInfo()
         }
     }
 
@@ -254,7 +254,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
                 .map { launcherActivityInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    launcherActivityInfo.toEblanLauncherActivityInfo()
+                    launcherActivityInfo.toShortcutConfigActivityInfo()
                 }
         } else {
             emptyList()
@@ -406,7 +406,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
-    private suspend fun LauncherActivityInfo.toEblanLauncherActivityInfo(): LauncherAppsActivityInfo = LauncherAppsActivityInfo(
+    private suspend fun LauncherActivityInfo.toLauncherAppsActivityInfo(): LauncherAppsActivityInfo = LauncherAppsActivityInfo(
         serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
         componentName = componentName.flattenToString(),
         packageName = applicationInfo.packageName,
@@ -422,6 +422,30 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             )
 
             androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+
+            file.absolutePath
+        },
+        activityLabel = label.toString(),
+    )
+
+    private suspend fun LauncherActivityInfo.toShortcutConfigActivityInfo(): LauncherAppsActivityInfo = LauncherAppsActivityInfo(
+        serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
+        componentName = componentName.flattenToString(),
+        packageName = applicationInfo.packageName,
+        activityIcon = getIcon(0).let { drawable ->
+            val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+            val file = File(
+                directory,
+                componentName.flattenToString().replace(
+                    "/",
+                    "-",
+                ),
+            )
+
+            if (!file.exists()) {
+                androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+            }
 
             file.absolutePath
         },

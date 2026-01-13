@@ -86,7 +86,9 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
                 ),
             )
 
-            androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+            if (!file.exists()) {
+                androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+            }
 
             file.absolutePath
         }

@@ -54,6 +54,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -81,47 +82,51 @@ class SyncDataUseCase @Inject constructor(
 ) {
     suspend operator fun invoke() {
         withContext(ioDispatcher) {
-            launch {
-                notificationManagerWrapper.notifySyncData(contentText = "This may take a while")
+            notificationManagerWrapper.notifySyncData(contentText = "This may take a while")
 
-                measureTimeMillis {
-                    val userData = userDataRepository.userData.first()
+            measureTimeMillis {
+                joinAll(
+                    launch {
+                        val userData = userDataRepository.userData.first()
 
-                    val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
+                        val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
 
-                    updateEblanApplicationInfos(
-                        launcherAppsActivityInfos = launcherAppsActivityInfos,
-                        iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                    )
+                        updateEblanApplicationInfos(
+                            launcherAppsActivityInfos = launcherAppsActivityInfos,
+                            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+                        )
 
-                    insertApplicationInfoGridItems(
-                        launcherAppsActivityInfos = launcherAppsActivityInfos,
-                        experimentalSettings = userData.experimentalSettings,
-                        homeSettings = userData.homeSettings,
-                    )
+                        insertApplicationInfoGridItems(
+                            launcherAppsActivityInfos = launcherAppsActivityInfos,
+                            experimentalSettings = userData.experimentalSettings,
+                            homeSettings = userData.homeSettings,
+                        )
 
-                    updateApplicationInfoGridItems(launcherAppsActivityInfos = launcherAppsActivityInfos)
+                        updateApplicationInfoGridItems(launcherAppsActivityInfos = launcherAppsActivityInfos)
 
-                    val appWidgetManagerAppWidgetProviderInfos =
-                        appWidgetManagerWrapper.getInstalledProviders()
+                        updateIconPackInfos(
+                            launcherAppsActivityInfos = launcherAppsActivityInfos,
+                            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+                        )
+                    },
+                    launch {
+                        val appWidgetManagerAppWidgetProviderInfos =
+                            appWidgetManagerWrapper.getInstalledProviders()
 
-                    updateEblanAppWidgetProviderInfos(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
+                        updateEblanAppWidgetProviderInfos(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
 
-                    updateWidgetGridItems(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
+                        updateWidgetGridItems(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
+                    },
+                    launch {
+                        val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcuts()
 
-                    val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcuts()
+                        updateEblanShortcutInfos(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
 
-                    updateEblanShortcutInfos(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
-
-                    updateShortcutInfoGridItems(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
-
-                    updateIconPackInfos(
-                        launcherAppsActivityInfos = launcherAppsActivityInfos,
-                        iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                    )
-                }.also { ms ->
-                    notificationManagerWrapper.notifySyncData(contentText = "Syncing data took $ms ms\n")
-                }
+                        updateShortcutInfoGridItems(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
+                    },
+                )
+            }.also { ms ->
+                notificationManagerWrapper.notifySyncData(contentText = "Syncing data took $ms ms")
             }
         }
     }

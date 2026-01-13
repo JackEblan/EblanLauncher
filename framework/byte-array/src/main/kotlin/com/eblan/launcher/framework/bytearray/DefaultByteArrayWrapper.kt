@@ -33,6 +33,7 @@ import javax.inject.Inject
 
 internal class DefaultByteArrayWrapper @Inject constructor(
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : AndroidByteArrayWrapper {
     override suspend fun createByteArray(drawable: Drawable): ByteArray? = withContext(defaultDispatcher) {
         if (drawable is BitmapDrawable) {
@@ -89,7 +90,7 @@ internal class DefaultByteArrayWrapper @Inject constructor(
         drawable: Drawable,
         file: File,
     ) {
-        withContext(defaultDispatcher) {
+        withContext(ioDispatcher) {
             if (drawable is BitmapDrawable) {
                 FileOutputStream(file).use { stream ->
                     drawable.bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)

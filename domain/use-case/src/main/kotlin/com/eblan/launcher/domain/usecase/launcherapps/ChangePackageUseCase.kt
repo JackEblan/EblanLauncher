@@ -25,6 +25,7 @@ import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.ShortcutConfigGridItem
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
@@ -539,5 +540,87 @@ class ChangePackageUseCase @Inject constructor(
         shortcutConfigGridItemRepository.deleteShortcutConfigGridItems(
             shortcutConfigGridItems = shortcutConfigGridItems,
         )
+    }
+
+    private suspend fun updateEblanShortcutConfigs(
+        launcherAppsWrapper: LauncherAppsWrapper,
+        fileManager: FileManager,
+        eblanShortcutConfigRepository: EblanShortcutConfigRepository,
+        serialNumber: Long,
+        packageName: String,
+        icon: String?,
+        label: String?,
+    ) {
+        val oldEblanShortcutConfigs = eblanShortcutConfigRepository.getEblanShortcutConfig(
+            serialNumber = serialNumber,
+            packageName = packageName,
+        )
+
+        val newEblanShortcutConfigs = launcherAppsWrapper.getShortcutConfigActivityList(
+            serialNumber = serialNumber,
+            packageName = packageName,
+        ).map { launcherAppsActivityInfo ->
+            currentCoroutineContext().ensureActive()
+
+            val activityIcon = launcherAppsActivityInfo.activityIcon?.let { byteArray ->
+                fileManager.updateAndGetFilePath(
+                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIGS_DIR),
+                    name = launcherAppsActivityInfo.componentName.replace(
+                        "/",
+                        "-",
+                    ),
+                    byteArray = byteArray,
+                )
+            }
+
+            EblanShortcutConfig(
+                componentName = launcherAppsActivityInfo.componentName,
+                packageName = launcherAppsActivityInfo.packageName,
+                serialNumber = launcherAppsActivityInfo.serialNumber,
+                activityIcon = activityIcon,
+                activityLabel = launcherAppsActivityInfo.label,
+                applicationIcon = icon,
+                applicationLabel = label,
+            )
+        }
+
+        if (oldEblanShortcutConfigs != newEblanShortcutConfigs) {
+            val eblanShortcutConfigsToDelete =
+                oldEblanShortcutConfigs - newEblanShortcutConfigs.toSet()
+
+            eblanShortcutConfigRepository.upsertEblanShortcutConfigs(
+                eblanShortcutConfigs = newEblanShortcutConfigs,
+            )
+
+            eblanShortcutConfigRepository.deleteEblanShortcutConfigs(
+                eblanShortcutConfigs = eblanShortcutConfigsToDelete,
+            )
+
+            eblanShortcutConfigsToDelete.forEach { eblanShortcutConfigToDelete ->
+                currentCoroutineContext().ensureActive()
+
+                val isUnique = newEblanShortcutConfigs.none { newEblanShortcutConfig ->
+                    newEblanShortcutConfig.packageName == eblanShortcutConfigToDelete.packageName && newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber
+                }
+
+                if (isUnique) {
+                    eblanShortcutConfigToDelete.activityIcon?.let { activityIcon ->
+                        val activityIconFile = File(activityIcon)
+
+                        if (activityIconFile.exists()) {
+                            activityIconFile.delete()
+                        }
+
+                        eblanShortcutConfigToDelete.applicationIcon?.let { applicationIcon ->
+                            val applicationIconFile = File(applicationIcon)
+
+                            if (applicationIconFile.exists()) {
+                                applicationIconFile.delete()
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

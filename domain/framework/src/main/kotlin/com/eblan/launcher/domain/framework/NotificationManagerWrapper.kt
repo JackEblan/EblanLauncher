@@ -18,7 +18,9 @@
 package com.eblan.launcher.domain.framework
 
 interface NotificationManagerWrapper {
-    fun notifySyncData()
-
-    fun cancelSyncData()
+    fun notifySyncData(
+        max: Int,
+        progress: Int,
+        bigText: String,
+    )
 }

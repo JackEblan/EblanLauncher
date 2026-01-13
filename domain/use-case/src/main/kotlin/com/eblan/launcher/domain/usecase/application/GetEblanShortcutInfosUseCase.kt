@@ -15,37 +15,32 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.usecase.applicationcomponent
+package com.eblan.launcher.domain.usecase.application
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.model.EblanShortcutInfo
+import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
+import com.eblan.launcher.domain.model.ShortcutQueryFlag
+import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetEblanApplicationInfosUseCase @Inject constructor(
-    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
+class GetEblanShortcutInfosUseCase @Inject constructor(
+    private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(labelFlow: Flow<String>): Flow<Map<Long, List<EblanApplicationInfo>>> = combine(
-        eblanApplicationInfoRepository.eblanApplicationInfos,
-        labelFlow,
-    ) { eblanApplicationInfos, label ->
-        eblanApplicationInfos.filterNot { eblanApplicationInfo ->
-            eblanApplicationInfo.isHidden
-        }.filter { eblanApplicationInfo ->
-            eblanApplicationInfo.label.contains(
-                other = label,
-                ignoreCase = true,
+    operator fun invoke(): Flow<Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>> = eblanShortcutInfoRepository.eblanShortcutInfos.map { eblanShortcutInfos ->
+        eblanShortcutInfos.filter { eblanShortcutInfo ->
+            eblanShortcutInfo.shortcutQueryFlag != ShortcutQueryFlag.Pinned
+        }.groupBy { eblanShortcutInfo ->
+            EblanShortcutInfoByGroup(
+                serialNumber = eblanShortcutInfo.serialNumber,
+                packageName = eblanShortcutInfo.packageName,
             )
-        }.sortedBy { eblanApplicationInfo ->
-            eblanApplicationInfo.label.lowercase()
-        }.groupBy { eblanApplicationInfo ->
-            eblanApplicationInfo.serialNumber
         }
     }.flowOn(defaultDispatcher)
 }

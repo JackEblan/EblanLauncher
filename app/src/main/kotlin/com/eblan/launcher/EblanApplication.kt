@@ -48,7 +48,7 @@ class EblanApplication :
             notificationManagerWrapper.createNotificationChannel(
                 channelId = AndroidNotificationManagerWrapper.CHANNEL_ID,
                 name = getString(R.string.einstein_launcher_service),
-                importance = NotificationManager.IMPORTANCE_DEFAULT,
+                importance = NotificationManager.IMPORTANCE_LOW,
             )
         }
     }

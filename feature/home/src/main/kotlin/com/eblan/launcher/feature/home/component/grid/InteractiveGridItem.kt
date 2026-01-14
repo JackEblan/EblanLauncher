@@ -352,7 +352,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                                 screen = screen,
                             ),
                         ),
-                        visible = !isScrollInProgress,
+                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                     )
                     .drawWithContent {
                         graphicsLayer.record {
@@ -442,7 +442,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                         screen = screen,
                     ),
                 ),
-                visible = !isScrollInProgress,
+                visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
             )
             .drawWithContent {
                 graphicsLayer.record {
@@ -642,7 +642,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                                 screen = screen,
                             ),
                         ),
-                        visible = !isScrollInProgress,
+                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                     )
                     .drawWithContent {
                         graphicsLayer.record {
@@ -797,7 +797,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                                 screen = screen,
                             ),
                         ),
-                        visible = !isScrollInProgress,
+                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                     )
                     .drawWithContent {
                         graphicsLayer.record {
@@ -953,7 +953,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                                 screen = screen,
                             ),
                         ),
-                        visible = !isScrollInProgress,
+                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                     )
                     .drawWithContent {
                         graphicsLayer.record {

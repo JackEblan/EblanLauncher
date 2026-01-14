@@ -43,15 +43,12 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest.Builder
-import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -203,8 +200,6 @@ internal fun ApplicationInfoGridItemContent(
     statusBarNotifications: Map<String, Int>,
     iconPackFilePaths: Map<String, String>,
 ) {
-    val context = LocalContext.current
-
     val settings = LocalSettings.current
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
@@ -216,8 +211,7 @@ internal fun ApplicationInfoGridItemContent(
 
     Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
         AsyncImage(
-            model = Builder(context).data(data.customIcon ?: icon)
-                .addLastModifiedToFileCacheKey(true).build(),
+            model = data.customIcon ?: icon,
             contentDescription = null,
             modifier = modifier.matchParentSize(),
         )
@@ -319,8 +313,6 @@ internal fun SharedTransitionScope.FolderGridItemContent(
     screen: Screen,
     drag: Drag,
 ) {
-    val context = LocalContext.current
-
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     if (data.gridItems.isNotEmpty()) {
@@ -357,8 +349,7 @@ internal fun SharedTransitionScope.FolderGridItemContent(
                                 iconPackFilePaths[currentData.componentName] ?: currentData.icon
 
                             AsyncImage(
-                                model = Builder(context).data(currentData.customIcon ?: icon)
-                                    .addLastModifiedToFileCacheKey(true).build(),
+                                model = currentData.customIcon ?: icon,
                                 contentDescription = null,
                                 modifier = folderGridItemModifier,
                             )
@@ -447,8 +438,6 @@ internal fun ShortcutConfigGridItemContent(
     textColor: Color,
     gridItemSettings: GridItemSettings,
 ) {
-    val context = LocalContext.current
-
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     val icon = when {
@@ -465,8 +454,7 @@ internal fun ShortcutConfigGridItemContent(
 
     Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
         AsyncImage(
-            model = Builder(context).data(data.customIcon ?: icon)
-                .addLastModifiedToFileCacheKey(true).build(),
+            model = data.customIcon ?: icon,
             contentDescription = null,
             modifier = modifier.matchParentSize(),
         )

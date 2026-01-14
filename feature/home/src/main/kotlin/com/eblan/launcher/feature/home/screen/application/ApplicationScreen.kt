@@ -91,7 +91,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
@@ -104,8 +103,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
@@ -506,8 +503,6 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     val scope = rememberCoroutineScope()
 
-    val context = LocalContext.current
-
     val density = LocalDensity.current
 
     val launcherApps = LocalLauncherApps.current
@@ -679,9 +674,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                 modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(eblanApplicationInfo.customIcon ?: icon)
-                        .addLastModifiedToFileCacheKey(true).build(),
+                    model = eblanApplicationInfo.customIcon ?: icon,
                     contentDescription = null,
                     modifier = Modifier
                         .sharedElementWithCallerManagedVisibility(
@@ -828,10 +821,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
-                packageManager.isDefaultLauncher() && serialNumber > 0 &&
-                userHandle != null
-            ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && packageManager.isDefaultLauncher() && serialNumber > 0 && userHandle != null) {
                 FloatingActionButton(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -893,20 +883,19 @@ private fun QuiteModeScreen(
             textAlign = TextAlign.Center,
         )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
-            packageManager.isDefaultLauncher() &&
-            userHandle != null
-        ) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && packageManager.isDefaultLauncher() && userHandle != null) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            OutlinedButton(onClick = {
-                userManager.requestQuietModeEnabled(
-                    enableQuiteMode = false,
-                    userHandle = userHandle,
-                )
+            OutlinedButton(
+                onClick = {
+                    userManager.requestQuietModeEnabled(
+                        enableQuiteMode = false,
+                        userHandle = userHandle,
+                    )
 
-                onUpdateRequestQuietModeEnabled(userManager.isQuietModeEnabled(userHandle = userHandle))
-            }) {
+                    onUpdateRequestQuietModeEnabled(userManager.isQuietModeEnabled(userHandle = userHandle))
+                },
+            ) {
                 Text(text = "Unpause")
             }
         }

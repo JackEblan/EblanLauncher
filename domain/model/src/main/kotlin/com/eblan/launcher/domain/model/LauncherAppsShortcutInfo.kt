@@ -26,4 +26,5 @@ data class LauncherAppsShortcutInfo(
     val isEnabled: Boolean,
     val icon: String?,
     val shortcutQueryFlag: ShortcutQueryFlag,
+    val lastUpdateTime: Long,
 )

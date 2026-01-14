@@ -80,6 +80,7 @@ internal class DefaultEblanShortcutConfigRepository @Inject constructor(private 
         activityLabel = activityLabel,
         applicationIcon = applicationIcon,
         applicationLabel = applicationLabel,
+        lastUpdateTime = lastUpdateTime,
     )
 
     private fun EblanShortcutConfigEntity.asModel(): EblanShortcutConfig = EblanShortcutConfig(
@@ -90,5 +91,6 @@ internal class DefaultEblanShortcutConfigRepository @Inject constructor(private 
         activityLabel = activityLabel,
         applicationIcon = applicationIcon,
         applicationLabel = applicationLabel,
+        lastUpdateTime = lastUpdateTime,
     )
 }

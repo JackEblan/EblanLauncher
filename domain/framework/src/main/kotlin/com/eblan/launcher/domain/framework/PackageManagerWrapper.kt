@@ -33,4 +33,6 @@ interface PackageManagerWrapper {
     fun getComponentName(packageName: String): String?
 
     suspend fun getIconPackInfos(): List<PackageManagerIconPackInfo>
+
+    fun getLastUpdateTime(packageName: String): Long
 }

@@ -211,6 +211,7 @@ class ChangePackageUseCase @Inject constructor(
                     label = packageManagerWrapper.getApplicationLabel(
                         packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
                     ).toString(),
+                    lastUpdateTime = appWidgetManagerAppWidgetProviderInfo.lastUpdateTime,
                 )
             }
 
@@ -275,6 +276,7 @@ class ChangePackageUseCase @Inject constructor(
                 icon = launcherAppsShortcutInfo.icon,
                 shortcutQueryFlag = launcherAppsShortcutInfo.shortcutQueryFlag,
                 isEnabled = launcherAppsShortcutInfo.isEnabled,
+                lastUpdateTime = launcherAppsShortcutInfo.lastUpdateTime,
             )
         }
 
@@ -565,6 +567,7 @@ class ChangePackageUseCase @Inject constructor(
                 applicationLabel = packageManagerWrapper.getApplicationLabel(
                     packageName = launcherAppsActivityInfo.packageName,
                 ),
+                lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
             )
         }
 

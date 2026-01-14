@@ -128,6 +128,12 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         }
     }
 
+    override fun getLastUpdateTime(packageName: String): Long = try {
+        packageManager.getPackageInfo(packageName, 0).lastUpdateTime
+    } catch (_: PackageManager.NameNotFoundException) {
+        0L
+    }
+
     override fun isComponentExported(componentName: ComponentName): Boolean {
         val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
             component = componentName

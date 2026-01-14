@@ -32,6 +32,9 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.ExperimentalSettings
+import com.eblan.launcher.domain.model.FastAppWidgetManagerAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.FastLauncherAppsActivityInfo
+import com.eblan.launcher.domain.model.FastLauncherAppsShortcutInfo
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
@@ -87,48 +90,100 @@ class SyncDataUseCase @Inject constructor(
             measureTimeMillis {
                 joinAll(
                     launch {
-                        val userData = userDataRepository.userData.first()
-
-                        val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
-
-                        updateEblanApplicationInfos(
-                            launcherAppsActivityInfos = launcherAppsActivityInfos,
-                            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                        )
-
-                        insertApplicationInfoGridItems(
-                            launcherAppsActivityInfos = launcherAppsActivityInfos,
-                            experimentalSettings = userData.experimentalSettings,
-                            homeSettings = userData.homeSettings,
-                        )
-
-                        updateApplicationInfoGridItems(launcherAppsActivityInfos = launcherAppsActivityInfos)
-
-                        updateIconPackInfos(
-                            launcherAppsActivityInfos = launcherAppsActivityInfos,
-                            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                        )
+                        updateEblanLauncherAppsActivityInfos()
                     },
                     launch {
-                        val appWidgetManagerAppWidgetProviderInfos =
-                            appWidgetManagerWrapper.getInstalledProviders()
-
-                        updateEblanAppWidgetProviderInfos(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
-
-                        updateWidgetGridItems(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
+                        updateAppWidgetManagerAppWidgetProviderInfos()
                     },
                     launch {
-                        val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcuts()
-
-                        updateEblanShortcutInfos(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
-
-                        updateShortcutInfoGridItems(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
+                        updateEblanLauncherShortcutInfos()
                     },
                 )
             }.also { ms ->
                 notificationManagerWrapper.notifySyncData(contentText = "Syncing data took $ms ms")
             }
         }
+    }
+
+    private suspend fun updateEblanLauncherShortcutInfos() {
+        val oldFastLauncherAppsShortcutInfos =
+            eblanShortcutInfoRepository.eblanShortcutInfos.first().map { eblanShortcutInfo ->
+                FastLauncherAppsShortcutInfo(
+                    packageName = eblanShortcutInfo.packageName,
+                    serialNumber = eblanShortcutInfo.serialNumber,
+                    lastUpdateTime = eblanShortcutInfo.lastUpdateTime,
+                )
+            }
+        val newFastLauncherAppsShortcutInfos = launcherAppsWrapper.getFastShortcuts()
+
+        if (oldFastLauncherAppsShortcutInfos == newFastLauncherAppsShortcutInfos) return
+
+        val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcuts()
+
+        updateEblanShortcutInfos(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
+
+        updateShortcutInfoGridItems(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
+    }
+
+    private suspend fun updateEblanLauncherAppsActivityInfos() {
+        val oldFastEblanLauncherAppsActivityInfo =
+            eblanApplicationInfoRepository.eblanApplicationInfos.first()
+                .map { eblanApplicationInfo ->
+                    FastLauncherAppsActivityInfo(
+                        serialNumber = eblanApplicationInfo.serialNumber,
+                        packageName = eblanApplicationInfo.packageName,
+                        lastUpdateTime = eblanApplicationInfo.lastUpdateTime,
+                    )
+                }
+
+        val newFastLauncherAppsActivityInfo = launcherAppsWrapper.getFastActivityList()
+
+        if (oldFastEblanLauncherAppsActivityInfo == newFastLauncherAppsActivityInfo) return
+
+        val userData = userDataRepository.userData.first()
+
+        val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
+
+        updateEblanApplicationInfos(
+            launcherAppsActivityInfos = launcherAppsActivityInfos,
+            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+        )
+
+        insertApplicationInfoGridItems(
+            launcherAppsActivityInfos = launcherAppsActivityInfos,
+            experimentalSettings = userData.experimentalSettings,
+            homeSettings = userData.homeSettings,
+        )
+
+        updateApplicationInfoGridItems(launcherAppsActivityInfos = launcherAppsActivityInfos)
+
+        updateIconPackInfos(
+            launcherAppsActivityInfos = launcherAppsActivityInfos,
+            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+        )
+    }
+
+    private suspend fun updateAppWidgetManagerAppWidgetProviderInfos() {
+        val oldFastAppWidgetManagerAppWidgetProviderInfos =
+            eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.first()
+                .map { eblanAppWidgetProviderInfo ->
+                    FastAppWidgetManagerAppWidgetProviderInfo(
+                        serialNumber = eblanAppWidgetProviderInfo.serialNumber,
+                        packageName = eblanAppWidgetProviderInfo.packageName,
+                        lastUpdateTime = eblanAppWidgetProviderInfo.lastUpdateTime,
+                    )
+                }
+        val newFastAppWidgetManagerAppWidgetProviderInfos =
+            appWidgetManagerWrapper.getFastInstalledProviders()
+
+        if (oldFastAppWidgetManagerAppWidgetProviderInfos == newFastAppWidgetManagerAppWidgetProviderInfos) return
+
+        val appWidgetManagerAppWidgetProviderInfos =
+            appWidgetManagerWrapper.getInstalledProviders()
+
+        updateEblanAppWidgetProviderInfos(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
+
+        updateWidgetGridItems(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
     }
 
     private suspend fun updateEblanApplicationInfos(
@@ -144,6 +199,7 @@ class SyncDataUseCase @Inject constructor(
                         packageName = eblanApplicationInfo.packageName,
                         icon = eblanApplicationInfo.icon,
                         label = eblanApplicationInfo.label,
+                        lastUpdateTime = eblanApplicationInfo.lastUpdateTime,
                     )
                 }
 
@@ -169,6 +225,7 @@ class SyncDataUseCase @Inject constructor(
                                 activityLabel = shortcutConfigActivity.activityLabel,
                                 applicationIcon = launcherAppsActivityInfo.activityIcon,
                                 applicationLabel = launcherAppsActivityInfo.activityLabel,
+                                lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
                             )
                         },
                 )
@@ -179,6 +236,7 @@ class SyncDataUseCase @Inject constructor(
                     packageName = launcherAppsActivityInfo.packageName,
                     icon = launcherAppsActivityInfo.activityIcon,
                     label = launcherAppsActivityInfo.activityLabel,
+                    lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
                 )
             }
 
@@ -445,6 +503,7 @@ class SyncDataUseCase @Inject constructor(
                     label = packageManagerWrapper.getApplicationLabel(
                         packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
                     ).toString(),
+                    lastUpdateTime = appWidgetManagerAppWidgetProviderInfo.lastUpdateTime,
                 )
             }
 
@@ -499,6 +558,7 @@ class SyncDataUseCase @Inject constructor(
                 icon = launcherAppsShortcutInfo.icon,
                 shortcutQueryFlag = launcherAppsShortcutInfo.shortcutQueryFlag,
                 isEnabled = launcherAppsShortcutInfo.isEnabled,
+                lastUpdateTime = launcherAppsShortcutInfo.lastUpdateTime,
             )
         }
 

@@ -50,9 +50,20 @@ class Migration6To7Test {
             // EblanApplicationInfoEntity
             execSQL(
                 """
-                INSERT INTO `EblanApplicationInfoEntity`
-                (packageName, serialNumber, componentName, icon, label) 
-                VALUES ('com.example.app', 1, 'com.example.app/.MainActivity', '/path/icon.png', 'Original App')
+                INSERT INTO `EblanApplicationInfoEntity` (
+        componentName,
+        serialNumber,
+        packageName,
+        label,
+        customIcon,
+        customLabel
+    ) 
+    VALUES('com.example.app/.MainActivity', 
+     1, 
+     'com.example.app',   
+     'Example App',  
+      NULL,               
+       NULL)
                 """.trimIndent(),
             )
 
@@ -82,8 +93,7 @@ class Migration6To7Test {
                     NULL,        
                     'Clock',     
                      NULL,        
-                     'Example App'
-    )
+                     'Example App')
                 """.trimIndent(),
             )
 
@@ -102,9 +112,9 @@ class Migration6To7Test {
         'Clock Shortcut',
         NULL,
         0,
-        1,
+        1
     )
-    """.trimIndent(),
+                """.trimIndent(),
             )
 
             close()
@@ -121,7 +131,7 @@ class Migration6To7Test {
         // EblanApplicationInfoEntity
         dbV7.query(
             """
-            SELECT componentName, serialNumber, packageName, label, customIcon, customLabel, isHidden
+            SELECT componentName, serialNumber, packageName, label, customIcon, customLabel, isHidden, lastUpdateTime
             FROM `EblanApplicationInfoEntity`
             ORDER BY serialNumber
             """.trimIndent(),
@@ -132,7 +142,7 @@ class Migration6To7Test {
             assertEquals("com.example.app/.MainActivity", cursor.getString(0))
             assertEquals(1, cursor.getInt(1))
             assertEquals("com.example.app", cursor.getString(2))
-            assertEquals("Original App", cursor.getString(3))
+            assertEquals("Example App", cursor.getString(3))
             assertNull(cursor.getString(4))
             assertNull(cursor.getString(5))
             assertEquals(0, cursor.getInt(6))
@@ -147,7 +157,7 @@ class Migration6To7Test {
            maxResizeWidth, maxResizeHeight, label, lastUpdateTime
     FROM `EblanAppWidgetProviderInfoEntity`
     ORDER BY serialNumber
-    """.trimIndent(),
+            """.trimIndent(),
         ).use { cursor ->
             assertTrue(cursor.moveToFirst())
 
@@ -174,7 +184,7 @@ class Migration6To7Test {
            activityIcon, activityLabel, applicationIcon, applicationLabel, lastUpdateTime
     FROM `EblanShortcutConfigEntity`
     ORDER BY serialNumber
-    """.trimIndent(),
+            """.trimIndent(),
         ).use { cursor ->
             assertTrue(cursor.moveToFirst())
 
@@ -196,7 +206,7 @@ class Migration6To7Test {
            shortcutQueryFlag, isEnabled, lastUpdateTime
     FROM `EblanShortcutInfoEntity`
     ORDER BY serialNumber
-    """.trimIndent(),
+            """.trimIndent(),
         ).use { cursor ->
             assertTrue(cursor.moveToFirst())
 

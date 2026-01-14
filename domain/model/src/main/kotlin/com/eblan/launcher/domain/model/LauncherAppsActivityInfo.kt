@@ -23,4 +23,5 @@ data class LauncherAppsActivityInfo(
     val packageName: String,
     val activityIcon: String?,
     val activityLabel: String,
+    val lastUpdateTime: Long,
 )

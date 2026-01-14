@@ -71,6 +71,7 @@ class AddPackageUseCase @Inject constructor(
                     packageName = launcherAppsActivityInfo.packageName,
                     icon = launcherAppsActivityInfo.activityIcon,
                     label = launcherAppsActivityInfo.activityLabel,
+                    lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
                 )
 
                 addEblanAppWidgetProviderInfos(
@@ -99,6 +100,7 @@ class AddPackageUseCase @Inject constructor(
         packageName: String,
         icon: String?,
         label: String,
+        lastUpdateTime: Long,
     ) {
         eblanApplicationInfoRepository.upsertEblanApplicationInfo(
             eblanApplicationInfo = EblanApplicationInfo(
@@ -110,6 +112,7 @@ class AddPackageUseCase @Inject constructor(
                 customIcon = null,
                 customLabel = null,
                 isHidden = false,
+                lastUpdateTime = lastUpdateTime,
             ),
         )
     }
@@ -168,6 +171,7 @@ class AddPackageUseCase @Inject constructor(
                     label = packageManagerWrapper.getApplicationLabel(
                         packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
                     ).toString(),
+                    lastUpdateTime = appWidgetManagerAppWidgetProviderInfo.lastUpdateTime,
                 )
             }
 
@@ -190,6 +194,7 @@ class AddPackageUseCase @Inject constructor(
                     icon = launcherAppsShortcutInfo.icon,
                     shortcutQueryFlag = launcherAppsShortcutInfo.shortcutQueryFlag,
                     isEnabled = launcherAppsShortcutInfo.isEnabled,
+                    lastUpdateTime = launcherAppsShortcutInfo.lastUpdateTime,
                 )
             }
 
@@ -227,6 +232,7 @@ class AddPackageUseCase @Inject constructor(
                 applicationLabel = packageManagerWrapper.getApplicationLabel(
                     packageName = launcherAppsActivityInfo.packageName,
                 ),
+                lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
             )
         }
 

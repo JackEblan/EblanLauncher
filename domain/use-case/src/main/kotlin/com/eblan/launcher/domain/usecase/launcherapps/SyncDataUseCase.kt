@@ -23,7 +23,6 @@ import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
-import com.eblan.launcher.domain.framework.NotificationManagerWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
@@ -58,18 +57,15 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
-import kotlin.system.measureTimeMillis
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class SyncDataUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
-    private val notificationManagerWrapper: NotificationManagerWrapper,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val fileManager: FileManager,
@@ -86,29 +82,24 @@ class SyncDataUseCase @Inject constructor(
 ) {
     suspend operator fun invoke() {
         withContext(ioDispatcher) {
-            notificationManagerWrapper.notifySyncData(contentText = "This may take a while")
-
             val userData = userDataRepository.userData.first()
 
-            measureTimeMillis {
-                joinAll(
-                    launch {
-                        updateEblanLauncherAppsActivityInfos(userData = userData)
-                    },
-                    launch {
-                        updateAppWidgetManagerAppWidgetProviderInfos()
-                    },
-                    launch {
-                        updateEblanLauncherShortcutInfos()
-                    },
-                    launch {
-                        updateIconPackInfos(
-                            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                        )
-                    },
+            launch {
+                updateEblanLauncherAppsActivityInfos(userData = userData)
+            }
+
+            launch {
+                updateAppWidgetManagerAppWidgetProviderInfos()
+            }
+
+            launch {
+                updateEblanLauncherShortcutInfos()
+            }
+
+            launch {
+                updateIconPackInfos(
+                    iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
                 )
-            }.also { ms ->
-                notificationManagerWrapper.notifySyncData(contentText = "Syncing data took $ms ms")
             }
         }
     }

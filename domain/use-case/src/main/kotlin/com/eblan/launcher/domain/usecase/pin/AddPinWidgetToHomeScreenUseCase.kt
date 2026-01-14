@@ -172,9 +172,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
         )
 
         if (newGridItem != null) {
-            gridCacheRepository.insertGridItems(gridItems = gridItems)
-
-            gridCacheRepository.insertGridItem(gridItem = newGridItem)
+            gridCacheRepository.insertGridItems(gridItems = gridItems + newGridItem)
         }
 
         newGridItem

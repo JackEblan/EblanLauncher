@@ -23,12 +23,13 @@ import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterPinUseCase
+import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsUseCase
 import com.eblan.launcher.domain.usecase.pin.AddPinShortcutToHomeScreenUseCase
 import com.eblan.launcher.domain.usecase.pin.AddPinWidgetToHomeScreenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,7 +40,7 @@ class PinScreenViewModel @Inject constructor(
     private val addPinShortcutToHomeScreenUseCase: AddPinShortcutToHomeScreenUseCase,
     private val addPinWidgetToHomeScreenUseCase: AddPinWidgetToHomeScreenUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
-    private val updateGridItemsAfterPinUseCase: UpdateGridItemsAfterPinUseCase,
+    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
 ) : ViewModel() {
     private val _gridItem = MutableStateFlow<GridItem?>(null)
 
@@ -151,7 +152,7 @@ class PinScreenViewModel @Inject constructor(
 
     fun updateGridItems() {
         viewModelScope.launch {
-            updateGridItemsAfterPinUseCase()
+            updateGridItemsUseCase(gridItems = gridCacheRepository.gridItemsCache.first())
 
             _isFinished.update {
                 true

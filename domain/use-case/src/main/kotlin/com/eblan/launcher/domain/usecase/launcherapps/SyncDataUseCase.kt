@@ -43,6 +43,7 @@ import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
 import com.eblan.launcher.domain.model.UpdateShortcutInfoGridItem
 import com.eblan.launcher.domain.model.UpdateWidgetGridItem
+import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
@@ -87,10 +88,12 @@ class SyncDataUseCase @Inject constructor(
         withContext(ioDispatcher) {
             notificationManagerWrapper.notifySyncData(contentText = "This may take a while")
 
+            val userData = userDataRepository.userData.first()
+
             measureTimeMillis {
                 joinAll(
                     launch {
-                        updateEblanLauncherAppsActivityInfos()
+                        updateEblanLauncherAppsActivityInfos(userData = userData)
                     },
                     launch {
                         updateAppWidgetManagerAppWidgetProviderInfos()
@@ -98,6 +101,11 @@ class SyncDataUseCase @Inject constructor(
                     launch {
                         updateEblanLauncherShortcutInfos()
                     },
+                    launch {
+                        updateIconPackInfos(
+                            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+                        )
+                    }
                 )
             }.also { ms ->
                 notificationManagerWrapper.notifySyncData(contentText = "Syncing data took $ms ms")
@@ -114,6 +122,7 @@ class SyncDataUseCase @Inject constructor(
                     lastUpdateTime = eblanShortcutInfo.lastUpdateTime,
                 )
             }
+
         val newFastLauncherAppsShortcutInfos = launcherAppsWrapper.getFastShortcuts()
 
         if (oldFastLauncherAppsShortcutInfos == newFastLauncherAppsShortcutInfos) return
@@ -125,7 +134,7 @@ class SyncDataUseCase @Inject constructor(
         updateShortcutInfoGridItems(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
     }
 
-    private suspend fun updateEblanLauncherAppsActivityInfos() {
+    private suspend fun updateEblanLauncherAppsActivityInfos(userData: UserData) {
         val oldFastEblanLauncherAppsActivityInfo =
             eblanApplicationInfoRepository.eblanApplicationInfos.first()
                 .map { eblanApplicationInfo ->
@@ -139,8 +148,6 @@ class SyncDataUseCase @Inject constructor(
         val newFastLauncherAppsActivityInfo = launcherAppsWrapper.getFastActivityList()
 
         if (oldFastEblanLauncherAppsActivityInfo == newFastLauncherAppsActivityInfo) return
-
-        val userData = userDataRepository.userData.first()
 
         val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
 
@@ -156,11 +163,6 @@ class SyncDataUseCase @Inject constructor(
         )
 
         updateApplicationInfoGridItems(launcherAppsActivityInfos = launcherAppsActivityInfos)
-
-        updateIconPackInfos(
-            launcherAppsActivityInfos = launcherAppsActivityInfos,
-            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-        )
     }
 
     private suspend fun updateAppWidgetManagerAppWidgetProviderInfos() {
@@ -173,6 +175,7 @@ class SyncDataUseCase @Inject constructor(
                         lastUpdateTime = eblanAppWidgetProviderInfo.lastUpdateTime,
                     )
                 }
+
         val newFastAppWidgetManagerAppWidgetProviderInfos =
             appWidgetManagerWrapper.getFastInstalledProviders()
 
@@ -407,11 +410,10 @@ class SyncDataUseCase @Inject constructor(
         )
     }
 
-    private suspend fun updateIconPackInfos(
-        launcherAppsActivityInfos: List<LauncherAppsActivityInfo>,
-        iconPackInfoPackageName: String,
-    ) {
+    private suspend fun updateIconPackInfos(iconPackInfoPackageName: String) {
         if (iconPackInfoPackageName.isNotEmpty()) {
+            val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
+
             val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 
             val iconPackDirectory = File(

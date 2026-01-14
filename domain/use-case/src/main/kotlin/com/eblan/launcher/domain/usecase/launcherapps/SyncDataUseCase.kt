@@ -216,21 +216,20 @@ class SyncDataUseCase @Inject constructor(
                     launcherAppsWrapper.getShortcutConfigActivityList(
                         serialNumber = launcherAppsActivityInfo.serialNumber,
                         packageName = launcherAppsActivityInfo.packageName,
-                    )
-                        .map { shortcutConfigActivity ->
-                            currentCoroutineContext().ensureActive()
+                    ).map { shortcutConfigActivity ->
+                        currentCoroutineContext().ensureActive()
 
-                            EblanShortcutConfig(
-                                componentName = shortcutConfigActivity.componentName,
-                                packageName = shortcutConfigActivity.packageName,
-                                serialNumber = shortcutConfigActivity.serialNumber,
-                                activityIcon = shortcutConfigActivity.activityIcon,
-                                activityLabel = shortcutConfigActivity.activityLabel,
-                                applicationIcon = launcherAppsActivityInfo.activityIcon,
-                                applicationLabel = launcherAppsActivityInfo.activityLabel,
-                                lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
-                            )
-                        },
+                        EblanShortcutConfig(
+                            componentName = shortcutConfigActivity.componentName,
+                            packageName = shortcutConfigActivity.packageName,
+                            serialNumber = shortcutConfigActivity.serialNumber,
+                            activityIcon = shortcutConfigActivity.activityIcon,
+                            activityLabel = shortcutConfigActivity.activityLabel,
+                            applicationIcon = launcherAppsActivityInfo.activityIcon,
+                            applicationLabel = launcherAppsActivityInfo.activityLabel,
+                            lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
+                        )
+                    },
                 )
 
                 SyncEblanApplicationInfo(
@@ -259,6 +258,8 @@ class SyncDataUseCase @Inject constructor(
                 currentCoroutineContext().ensureActive()
 
                 val isUnique = newSyncEblanApplicationInfos.none { newEblanApplicationInfo ->
+                    currentCoroutineContext().ensureActive()
+
                     newEblanApplicationInfo.packageName == eblanApplicationInfoToDelete.packageName && newEblanApplicationInfo.serialNumber != eblanApplicationInfoToDelete.serialNumber
                 }
 
@@ -316,6 +317,8 @@ class SyncDataUseCase @Inject constructor(
                 currentCoroutineContext().ensureActive()
 
                 val isUnique = newEblanShortcutConfigs.none { newEblanShortcutConfig ->
+                    currentCoroutineContext().ensureActive()
+
                     newEblanShortcutConfig.packageName == eblanShortcutConfigToDelete.packageName && newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber
                 }
 

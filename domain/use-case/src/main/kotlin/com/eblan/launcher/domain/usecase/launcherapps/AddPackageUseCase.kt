@@ -65,6 +65,8 @@ class AddPackageUseCase @Inject constructor(
                 serialNumber = serialNumber,
                 packageName = packageName,
             ).forEach { launcherAppsActivityInfo ->
+                currentCoroutineContext().ensureActive()
+
                 addEblanApplicationInfo(
                     componentName = launcherAppsActivityInfo.componentName,
                     serialNumber = launcherAppsActivityInfo.serialNumber,
@@ -213,6 +215,8 @@ class AddPackageUseCase @Inject constructor(
             serialNumber = serialNumber,
             packageName = packageName,
         ).map { launcherAppsActivityInfo ->
+            currentCoroutineContext().ensureActive()
+
             val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
 
             val file = File(

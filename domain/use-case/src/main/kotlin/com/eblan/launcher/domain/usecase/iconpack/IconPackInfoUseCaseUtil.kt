@@ -19,6 +19,8 @@ package com.eblan.launcher.domain.usecase.iconpack
 
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.IconPackInfoComponent
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import java.io.File
 
 internal suspend fun cacheIconPackFile(
@@ -30,6 +32,8 @@ internal suspend fun cacheIconPackFile(
     packageName: String,
 ) {
     appFilter.find { iconPackInfoComponent ->
+        currentCoroutineContext().ensureActive()
+
         iconPackInfoComponent.component.contains(componentName) ||
             iconPackInfoComponent.component.contains(packageName)
     }?.let { iconPackInfoComponent ->

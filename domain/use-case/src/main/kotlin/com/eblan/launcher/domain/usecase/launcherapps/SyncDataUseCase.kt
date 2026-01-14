@@ -105,7 +105,7 @@ class SyncDataUseCase @Inject constructor(
                         updateIconPackInfos(
                             iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
                         )
-                    }
+                    },
                 )
             }.also { ms ->
                 notificationManagerWrapper.notifySyncData(contentText = "Syncing data took $ms ms")
@@ -427,10 +427,9 @@ class SyncDataUseCase @Inject constructor(
 
                     cacheIconPackFile(
                         iconPackManager = iconPackManager,
-                        fileManager = fileManager,
                         appFilter = appFilter,
                         iconPackInfoPackageName = iconPackInfoPackageName,
-                        iconPackDirectory = iconPackDirectory,
+                        iconPackInfoDirectory = iconPackDirectory,
                         componentName = launcherAppsActivityInfo.componentName,
                         packageName = launcherAppsActivityInfo.packageName,
                     )

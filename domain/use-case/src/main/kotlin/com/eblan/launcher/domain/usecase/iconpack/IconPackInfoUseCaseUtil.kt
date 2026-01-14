@@ -17,17 +17,15 @@
  */
 package com.eblan.launcher.domain.usecase.iconpack
 
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import java.io.File
 
 internal suspend fun cacheIconPackFile(
     iconPackManager: IconPackManager,
-    fileManager: FileManager,
     appFilter: List<IconPackInfoComponent>,
     iconPackInfoPackageName: String,
-    iconPackDirectory: File,
+    iconPackInfoDirectory: File,
     componentName: String,
     packageName: String,
 ) {
@@ -35,18 +33,10 @@ internal suspend fun cacheIconPackFile(
         iconPackInfoComponent.component.contains(componentName) ||
             iconPackInfoComponent.component.contains(packageName)
     }?.let { iconPackInfoComponent ->
-        iconPackManager.loadByteArrayFromIconPack(
+        iconPackManager.createIconPackInfoPath(
             packageName = iconPackInfoPackageName,
-            drawableName = iconPackInfoComponent.drawable,
-        )?.let { byteArray ->
-            fileManager.updateAndGetFilePath(
-                directory = iconPackDirectory,
-                name = componentName.replace(
-                    "/",
-                    "-",
-                ),
-                byteArray = byteArray,
-            )
-        }
+            iconPackInfoComponent = iconPackInfoComponent,
+            iconPackInfoDirectory = iconPackInfoDirectory,
+        )
     }
 }

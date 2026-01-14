@@ -32,14 +32,15 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
+import java.io.File
 import java.io.InputStream
 import javax.inject.Inject
 
 @SuppressLint("DiscouragedApi")
 internal class DefaultIconPackManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     private val androidByteArrayWrapper: AndroidByteArrayWrapper,
+    @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : IconPackManager,
     AndroidIconPackManager {
     override suspend fun parseAppFilter(packageName: String): List<IconPackInfoComponent> = withContext(ioDispatcher) {
@@ -109,24 +110,35 @@ internal class DefaultIconPackManager @Inject constructor(
         }
     }
 
-    override suspend fun loadByteArrayFromIconPack(
+    override suspend fun createIconPackInfoPath(
         packageName: String,
-        drawableName: String,
-    ): ByteArray? = withContext(ioDispatcher) {
+        iconPackInfoComponent: IconPackInfoComponent,
+        iconPackInfoDirectory: File,
+    ): String? = withContext(ioDispatcher) {
         val packageContext =
             context.createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY)
 
         val resources = packageContext.resources
 
-        val id = resources.getIdentifier(drawableName, "drawable", packageName)
+        val id = resources.getIdentifier(iconPackInfoComponent.drawable, "drawable", packageName)
 
         if (id > 0) {
-            androidByteArrayWrapper.createByteArray(
-                drawable = resources.getDrawable(
-                    id,
-                    packageContext.theme,
-                ),
-            )
+            resources.getDrawable(
+                id,
+                packageContext.theme,
+            ).let { drawable ->
+                val file = File(
+                    iconPackInfoDirectory,
+                    iconPackInfoComponent.component.replace(
+                        "/",
+                        "-",
+                    ),
+                )
+
+                androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+
+                file.absolutePath
+            }
         } else {
             null
         }

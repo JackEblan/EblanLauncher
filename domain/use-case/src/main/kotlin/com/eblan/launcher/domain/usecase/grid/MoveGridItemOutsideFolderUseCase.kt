@@ -37,27 +37,29 @@ class MoveGridItemOutsideFolderUseCase @Inject constructor(
         folderId: String,
         movingGridItem: GridItem,
         gridItems: List<GridItem>,
-    ) = withContext(defaultDispatcher) {
-        val folderGridItems =
-            folderGridCacheRepository.gridItemsCache.first().toMutableList().apply {
-                removeIf { gridItem ->
-                    gridItem.id == movingGridItem.id
+    ) {
+        withContext(defaultDispatcher) {
+            val folderGridItems =
+                folderGridCacheRepository.gridItemsCache.first().toMutableList().apply {
+                    removeIf { gridItem ->
+                        gridItem.id == movingGridItem.id
+                    }
                 }
+
+            val folderGridItem = gridItems.find { gridItem ->
+                gridItem.id == folderId && gridItem.data is GridItemData.Folder
             }
 
-        val folderGridItem = gridItems.find { gridItem ->
-            gridItem.id == folderId && gridItem.data is GridItemData.Folder
-        }
+            if (folderGridItem != null) {
+                val data = folderGridItem.data as GridItemData.Folder
 
-        if (folderGridItem != null) {
-            val data = folderGridItem.data as GridItemData.Folder
+                gridCacheRepository.insertGridItems(gridItems = gridItems)
 
-            gridCacheRepository.insertGridItems(gridItems = gridItems)
-
-            gridCacheRepository.updateGridItemData(
-                id = folderId,
-                data = data.copy(gridItems = folderGridItems),
-            )
+                gridCacheRepository.updateGridItemData(
+                    id = folderId,
+                    data = data.copy(gridItems = folderGridItems),
+                )
+            }
         }
     }
 }

@@ -36,7 +36,11 @@ import android.os.UserHandle
 import androidx.annotation.RequiresApi
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
+import com.eblan.launcher.domain.model.FastLauncherAppsActivityInfo
+import com.eblan.launcher.domain.model.FastLauncherAppsShortcutInfo
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
@@ -53,12 +57,15 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 internal class DefaultLauncherAppsWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val androidByteArrayWrapper: AndroidByteArrayWrapper,
     private val userManagerWrapper: AndroidUserManagerWrapper,
+    private val fileManager: FileManager,
+    private val packageManagerWrapper: PackageManagerWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : LauncherAppsWrapper,
     AndroidLauncherAppsWrapper {
@@ -156,28 +163,46 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
                 launcherApps.getActivityList(null, userHandle).map { launcherActivityInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    launcherActivityInfo.toEblanLauncherActivityInfo()
+                    launcherActivityInfo.toLauncherAppsActivityInfo()
                 }
             }
         } else {
             launcherApps.getActivityList(null, myUserHandle()).map { launcherActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
-                launcherActivityInfo.toEblanLauncherActivityInfo()
+                launcherActivityInfo.toLauncherAppsActivityInfo()
             }
+        }
+    }
+
+    override suspend fun getFastActivityList(): List<FastLauncherAppsActivityInfo> = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        launcherApps.profiles.flatMap { userHandle ->
+            currentCoroutineContext().ensureActive()
+
+            launcherApps.getActivityList(null, userHandle).map { launcherActivityInfo ->
+                currentCoroutineContext().ensureActive()
+
+                launcherActivityInfo.toFastLauncherAppsActivityInfo()
+            }
+        }
+    } else {
+        launcherApps.getActivityList(null, myUserHandle()).map { launcherActivityInfo ->
+            currentCoroutineContext().ensureActive()
+
+            launcherActivityInfo.toFastLauncherAppsActivityInfo()
         }
     }
 
     override suspend fun getActivityList(
         serialNumber: Long,
         packageName: String,
-    ): List<LauncherAppsActivityInfo> {
+    ): List<LauncherAppsActivityInfo> = withContext(defaultDispatcher) {
         val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
 
-        return launcherApps.getActivityList(packageName, userHandle).map { launcherActivityInfo ->
+        launcherApps.getActivityList(packageName, userHandle).map { launcherActivityInfo ->
             currentCoroutineContext().ensureActive()
 
-            launcherActivityInfo.toEblanLauncherActivityInfo()
+            launcherActivityInfo.toLauncherAppsActivityInfo()
         }
     }
 
@@ -213,6 +238,38 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         } else {
             null
         }
+    }
+
+    override suspend fun getFastShortcuts(): List<FastLauncherAppsShortcutInfo>? = if (hasShortcutHostPermission) {
+        val shortcutQuery = LauncherApps.ShortcutQuery().apply {
+            setQueryFlags(
+                LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+            )
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            launcherApps.profiles.filter { userHandle ->
+                userManagerWrapper.isUserRunning(userHandle = userHandle) && userManagerWrapper.isUserUnlocked(
+                    userHandle = userHandle,
+                ) && !userManagerWrapper.isQuietModeEnabled(userHandle = userHandle)
+            }.flatMap { userHandle ->
+                currentCoroutineContext().ensureActive()
+
+                launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
+                    currentCoroutineContext().ensureActive()
+
+                    shortcutInfo.toFastLauncherAppsShortcutInfo()
+                } ?: emptyList()
+            }
+        } else {
+            launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
+                currentCoroutineContext().ensureActive()
+
+                shortcutInfo.toFastLauncherAppsShortcutInfo()
+            }
+        }
+    } else {
+        null
     }
 
     override suspend fun getShortcutsByPackageName(
@@ -251,7 +308,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
                 .map { launcherActivityInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    launcherActivityInfo.toEblanLauncherActivityInfo()
+                    launcherActivityInfo.toLauncherAppsActivityInfo()
                 }
         } else {
             emptyList()
@@ -403,23 +460,52 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
-    private suspend fun LauncherActivityInfo.toEblanLauncherActivityInfo(): LauncherAppsActivityInfo = LauncherAppsActivityInfo(
+    private suspend fun LauncherActivityInfo.toLauncherAppsActivityInfo(): LauncherAppsActivityInfo {
+        val activityIcon = getIcon(0).let { drawable ->
+            val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+            val file = File(
+                directory,
+                componentName.flattenToString().replace(
+                    "/",
+                    "-",
+                ),
+            )
+
+            androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+
+            file.absolutePath
+        }
+
+        return LauncherAppsActivityInfo(
+            serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
+            componentName = componentName.flattenToString(),
+            packageName = applicationInfo.packageName,
+            activityIcon = activityIcon,
+            activityLabel = label.toString(),
+            lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = applicationInfo.packageName),
+        )
+    }
+
+    private fun LauncherActivityInfo.toFastLauncherAppsActivityInfo(): FastLauncherAppsActivityInfo = FastLauncherAppsActivityInfo(
         serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
-        componentName = componentName.flattenToString(),
         packageName = applicationInfo.packageName,
-        activityIcon = getIcon(0).let { drawable ->
-            androidByteArrayWrapper.createByteArray(drawable = drawable)
-        },
-        applicationIcon = applicationInfo.loadIcon(context.packageManager).let { drawable ->
-            androidByteArrayWrapper.createByteArray(drawable = drawable)
-        },
-        label = label.toString(),
+        lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = applicationInfo.packageName),
     )
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     private suspend fun ShortcutInfo.toLauncherAppsShortcutInfo(): LauncherAppsShortcutInfo {
         val icon = getShortcutIconDrawable(this, 0)?.let { drawable ->
-            androidByteArrayWrapper.createByteArray(drawable = drawable)
+            val directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR)
+
+            val file = File(
+                directory,
+                id,
+            )
+
+            androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+
+            file.absolutePath
         }
 
         val shortcutQueryFlag = when {
@@ -445,6 +531,14 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             isEnabled = isEnabled,
             icon = icon,
             shortcutQueryFlag = shortcutQueryFlag,
+            lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = `package`),
         )
     }
+
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    private fun ShortcutInfo.toFastLauncherAppsShortcutInfo(): FastLauncherAppsShortcutInfo = FastLauncherAppsShortcutInfo(
+        packageName = `package`,
+        serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = userHandle),
+        lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = `package`),
+    )
 }

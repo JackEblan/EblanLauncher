@@ -22,10 +22,24 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 class Migration6To7 : Migration(6, 7) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        updateEblanApplicationInfoEntities(db = db)
-    }
+        db.execSQL(
+            """
+        ALTER TABLE EblanApplicationInfoEntity
+        ADD COLUMN isHidden INTEGER NOT NULL DEFAULT 0
+            """.trimIndent(),
+        )
 
-    private fun updateEblanApplicationInfoEntities(db: SupportSQLiteDatabase) {
-        db.execSQL("ALTER TABLE `EblanApplicationInfoEntity` ADD COLUMN `isHidden` INTEGER NOT NULL DEFAULT 0")
+        db.execSQL(
+            """
+        ALTER TABLE EblanApplicationInfoEntity
+        ADD COLUMN lastUpdateTime INTEGER NOT NULL DEFAULT 0
+            """.trimIndent(),
+        )
+
+        db.execSQL("ALTER TABLE `EblanAppWidgetProviderInfoEntity` ADD COLUMN `lastUpdateTime` INTEGER NOT NULL DEFAULT 0")
+
+        db.execSQL("ALTER TABLE `EblanShortcutConfigEntity` ADD COLUMN `lastUpdateTime` INTEGER NOT NULL DEFAULT 0")
+
+        db.execSQL("ALTER TABLE `EblanShortcutInfoEntity` ADD COLUMN `lastUpdateTime` INTEGER NOT NULL DEFAULT 0")
     }
 }

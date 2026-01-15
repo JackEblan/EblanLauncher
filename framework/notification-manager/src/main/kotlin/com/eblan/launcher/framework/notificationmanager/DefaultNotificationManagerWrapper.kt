@@ -30,10 +30,36 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 internal class DefaultNotificationManagerWrapper @Inject constructor(@param:ApplicationContext private val context: Context) :
-    AndroidNotificationManagerWrapper,
-    NotificationManagerWrapper {
+    NotificationManagerWrapper,
+    AndroidNotificationManagerWrapper {
     private val notificationManager =
         context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+    override fun notifySyncData() {
+        if (!notificationManager.areNotificationsEnabled()) return
+
+        val notification =
+            NotificationCompat.Builder(context, AndroidNotificationManagerWrapper.CHANNEL_ID)
+                .setSmallIcon(R.drawable.baseline_cached_24)
+                .setContentTitle("Syncing data")
+                .setContentText("This may take a while")
+                .setOngoing(true)
+                .setProgress(0, 0, true)
+                .setWhen(System.currentTimeMillis())
+                .setUsesChronometer(true)
+                .build()
+
+        notificationManager.notify(
+            AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,
+            notification,
+        )
+    }
+
+    override fun cancelNotifySyncData() {
+        if (notificationManager.areNotificationsEnabled()) {
+            notificationManager.cancel(AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID)
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun createNotificationChannel(
@@ -54,29 +80,5 @@ internal class DefaultNotificationManagerWrapper @Inject constructor(@param:Appl
         if (notificationManager.areNotificationsEnabled()) {
             notificationManager.notify(id, notification)
         }
-    }
-
-    override fun notifySyncData(
-        max: Int,
-        progress: Int,
-        bigText: String,
-    ) {
-        if (!notificationManager.areNotificationsEnabled()) return
-
-        val notification =
-            NotificationCompat.Builder(context, AndroidNotificationManagerWrapper.CHANNEL_ID)
-                .setSmallIcon(R.drawable.baseline_cached_24)
-                .setProgress(max, progress, false)
-                .setContentTitle("Syncing data")
-                .setStyle(
-                    NotificationCompat.BigTextStyle()
-                        .bigText(bigText),
-                )
-                .build()
-
-        notificationManager.notify(
-            AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,
-            notification,
-        )
     }
 }

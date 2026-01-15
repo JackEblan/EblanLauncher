@@ -160,6 +160,8 @@ class RemovePackageUseCase @Inject constructor(
             serialNumber = serialNumber,
             packageName = packageName,
         ).forEach { applicationInfoGridItem ->
+            currentCoroutineContext().ensureActive()
+
             applicationInfoGridItem.customIcon?.let { customIcon ->
                 val customIconFile = File(customIcon)
 
@@ -229,6 +231,8 @@ class RemovePackageUseCase @Inject constructor(
             serialNumber = serialNumber,
             packageName = packageName,
         ).forEach { shortcutInfoGridItem ->
+            currentCoroutineContext().ensureActive()
+
             shortcutInfoGridItem.customIcon?.let { customIcon ->
                 val customIconFile = File(customIcon)
 
@@ -282,6 +286,8 @@ class RemovePackageUseCase @Inject constructor(
             serialNumber = serialNumber,
             packageName = packageName,
         ).forEach { shortcutConfigGridItem ->
+            currentCoroutineContext().ensureActive()
+
             shortcutConfigGridItem.shortcutIntentIcon?.let { shortcutIntentIcon ->
                 val shortcutIntentIconFile = File(shortcutIntentIcon)
 

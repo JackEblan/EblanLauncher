@@ -77,6 +77,7 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
         icon = icon,
         shortcutQueryFlag = shortcutQueryFlag,
         isEnabled = isEnabled,
+        lastUpdateTime = lastUpdateTime,
     )
 
     private fun EblanShortcutInfoEntity.asModel(): EblanShortcutInfo = EblanShortcutInfo(
@@ -88,5 +89,6 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
         icon = icon,
         shortcutQueryFlag = shortcutQueryFlag,
         isEnabled = isEnabled,
+        lastUpdateTime = lastUpdateTime,
     )
 }

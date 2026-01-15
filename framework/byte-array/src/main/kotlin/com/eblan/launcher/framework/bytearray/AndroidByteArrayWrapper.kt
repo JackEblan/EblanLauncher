@@ -19,9 +19,15 @@ package com.eblan.launcher.framework.bytearray
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import java.io.File
 
 interface AndroidByteArrayWrapper {
     suspend fun createByteArray(drawable: Drawable): ByteArray?
 
     suspend fun createByteArray(bitmap: Bitmap?): ByteArray?
+
+    suspend fun createDrawablePath(
+        drawable: Drawable,
+        file: File,
+    )
 }

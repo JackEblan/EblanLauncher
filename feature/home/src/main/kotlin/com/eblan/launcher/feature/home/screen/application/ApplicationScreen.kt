@@ -506,8 +506,6 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     val scope = rememberCoroutineScope()
 
-    val context = LocalContext.current
-
     val density = LocalDensity.current
 
     val launcherApps = LocalLauncherApps.current
@@ -549,7 +547,11 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+    val isDragging by remember(key1 = drag) {
+        derivedStateOf {
+            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+        }
+    }
 
     val id = remember { Uuid.random().toHexString() }
 
@@ -679,7 +681,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                 modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
-                    model = ImageRequest.Builder(context)
+                    model = ImageRequest.Builder(LocalContext.current)
                         .data(eblanApplicationInfo.customIcon ?: icon)
                         .addLastModifiedToFileCacheKey(true).build(),
                     contentDescription = null,
@@ -828,10 +830,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
-                packageManager.isDefaultLauncher() && serialNumber > 0 &&
-                userHandle != null
-            ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && packageManager.isDefaultLauncher() && serialNumber > 0 && userHandle != null) {
                 FloatingActionButton(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -893,20 +892,19 @@ private fun QuiteModeScreen(
             textAlign = TextAlign.Center,
         )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
-            packageManager.isDefaultLauncher() &&
-            userHandle != null
-        ) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && packageManager.isDefaultLauncher() && userHandle != null) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            OutlinedButton(onClick = {
-                userManager.requestQuietModeEnabled(
-                    enableQuiteMode = false,
-                    userHandle = userHandle,
-                )
+            OutlinedButton(
+                onClick = {
+                    userManager.requestQuietModeEnabled(
+                        enableQuiteMode = false,
+                        userHandle = userHandle,
+                    )
 
-                onUpdateRequestQuietModeEnabled(userManager.isQuietModeEnabled(userHandle = userHandle))
-            }) {
+                    onUpdateRequestQuietModeEnabled(userManager.isQuietModeEnabled(userHandle = userHandle))
+                },
+            ) {
                 Text(text = "Unpause")
             }
         }

@@ -66,6 +66,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -596,22 +597,17 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             gridCacheRepository.deleteGridItem(gridItem = moveGridItemResult.movingGridItem)
 
-            val icon = pinItemRequestType.icon?.let { byteArray ->
-                fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                    name = pinItemRequestType.shortcutId,
-                    byteArray = byteArray,
-                )
-            }
-
             val eblanApplicationInfoIcon =
-                packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
-                    ?.let { byteArray ->
-                        fileManager.updateAndGetFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                            name = pinItemRequestType.packageName,
-                            byteArray = byteArray,
+                packageManagerWrapper.getComponentName(packageName = pinItemRequestType.packageName)
+                    ?.let { componentName ->
+                        val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                        val file = File(
+                            directory,
+                            componentName.replace("/", "-"),
                         )
+
+                        file.absolutePath
                     }
 
             val data = ShortcutInfo(
@@ -620,7 +616,7 @@ internal class HomeViewModel @Inject constructor(
                 serialNumber = pinItemRequestType.serialNumber,
                 shortLabel = pinItemRequestType.shortLabel,
                 longLabel = pinItemRequestType.longLabel,
-                icon = icon,
+                icon = pinItemRequestType.icon,
                 isEnabled = pinItemRequestType.isEnabled,
                 eblanApplicationInfoIcon = eblanApplicationInfoIcon,
                 customIcon = null,

@@ -27,18 +27,24 @@ import android.os.UserHandle
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
+import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.FastAppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val androidByteArrayWrapper: AndroidByteArrayWrapper,
     private val userManagerWrapper: AndroidUserManagerWrapper,
+    private val fileManager: FileManager,
+    private val packageManagerWrapper: PackageManagerWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : AppWidgetManagerWrapper,
     AndroidAppWidgetManagerWrapper {
@@ -48,6 +54,10 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
         appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
             appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
         }
+    }
+
+    override suspend fun getFastInstalledProviders(): List<FastAppWidgetManagerAppWidgetProviderInfo> = appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
+        appWidgetProviderInfo.toFastEblanAppWidgetProviderInfo()
     }
 
     override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo? = appWidgetManager.getAppWidgetInfo(appWidgetId)
@@ -73,7 +83,19 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
         val serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = profile)
 
         val preview = loadPreviewImage(context, 0)?.let { drawable ->
-            androidByteArrayWrapper.createByteArray(drawable = drawable)
+            val directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR)
+
+            val file = File(
+                directory,
+                provider.flattenToString().replace(
+                    "/",
+                    "-",
+                ),
+            )
+
+            androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+
+            file.absolutePath
         }
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -92,6 +114,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
                 maxResizeWidth = maxResizeWidth,
                 maxResizeHeight = maxResizeHeight,
                 preview = preview,
+                lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = provider.packageName),
             )
         } else {
             AppWidgetManagerAppWidgetProviderInfo(
@@ -109,6 +132,25 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
                 maxResizeWidth = 0,
                 maxResizeHeight = 0,
                 preview = preview,
+                lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = provider.packageName),
+            )
+        }
+    }
+
+    private fun AppWidgetProviderInfo.toFastEblanAppWidgetProviderInfo(): FastAppWidgetManagerAppWidgetProviderInfo {
+        val serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = profile)
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            FastAppWidgetManagerAppWidgetProviderInfo(
+                serialNumber = serialNumber,
+                packageName = provider.packageName,
+                lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = provider.packageName),
+            )
+        } else {
+            FastAppWidgetManagerAppWidgetProviderInfo(
+                serialNumber = serialNumber,
+                packageName = provider.packageName,
+                lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = provider.packageName),
             )
         }
     }

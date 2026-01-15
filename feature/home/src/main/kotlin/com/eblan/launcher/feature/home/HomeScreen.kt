@@ -109,6 +109,7 @@ import com.eblan.launcher.service.SyncDataService
 import com.eblan.launcher.ui.dialog.TextDialog
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalByteArray
+import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -331,6 +332,8 @@ internal fun HomeScreen(
 
     val userManager = LocalUserManager.current
 
+    val fileManager = LocalFileManager.current
+
     val scope = rememberCoroutineScope()
 
     val touchSlop = with(density) {
@@ -363,6 +366,7 @@ internal fun HomeScreen(
                         launcherAppsWrapper = launcherApps,
                         byteArrayWrapper = byteArrayWrapper,
                         userManager = userManager,
+                        fileManager = fileManager,
                         onGetPinGridItem = onGetPinGridItem,
                     )
                 }

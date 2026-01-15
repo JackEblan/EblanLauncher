@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.feature.home.model.Klwp
 import com.eblan.launcher.feature.home.model.Screen
@@ -31,6 +32,7 @@ import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_VALUE
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
+import java.io.File
 
 internal suspend fun handlePinItemRequest(
     pinItemRequest: PinItemRequest?,
@@ -38,6 +40,7 @@ internal suspend fun handlePinItemRequest(
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
     byteArrayWrapper: AndroidByteArrayWrapper,
     userManager: AndroidUserManagerWrapper,
+    fileManager: FileManager,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
@@ -47,15 +50,27 @@ internal suspend fun handlePinItemRequest(
                     pinItemRequest.getAppWidgetProviderInfo(context)
 
                 if (appWidgetProviderInfo != null) {
-                    val preview = appWidgetProviderInfo.loadPreviewImage(context, 0)?.let {
-                        byteArrayWrapper.createByteArray(drawable = it)
-                    }
+                    val componentName = appWidgetProviderInfo.provider.flattenToString()
+
+                    val preview =
+                        appWidgetProviderInfo.loadPreviewImage(context, 0)?.let { drawable ->
+                            val directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR)
+
+                            val file = File(
+                                directory,
+                                componentName.replace("/", "-"),
+                            )
+
+                            byteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+
+                            file.absolutePath
+                        }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         onGetPinGridItem(
                             PinItemRequestType.Widget(
                                 appWidgetId = 0,
-                                componentName = appWidgetProviderInfo.provider.flattenToString(),
+                                componentName = componentName,
                                 packageName = appWidgetProviderInfo.provider.packageName,
                                 serialNumber = userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
                                 configure = appWidgetProviderInfo.configure.flattenToString(),
@@ -99,6 +114,22 @@ internal suspend fun handlePinItemRequest(
                 val shortcutInfo = pinItemRequest.shortcutInfo
 
                 if (shortcutInfo != null) {
+                    val icon = launcherAppsWrapper.getShortcutIconDrawable(
+                        shortcutInfo = shortcutInfo,
+                        density = 0,
+                    )?.let { drawable ->
+                        val directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR)
+
+                        val file = File(
+                            directory,
+                            shortcutInfo.id,
+                        )
+
+                        byteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+
+                        file.absolutePath
+                    }
+
                     onGetPinGridItem(
                         PinItemRequestType.ShortcutInfo(
                             serialNumber = userManager.getSerialNumberForUser(userHandle = shortcutInfo.userHandle),
@@ -108,12 +139,7 @@ internal suspend fun handlePinItemRequest(
                             longLabel = shortcutInfo.longLabel.toString(),
                             isEnabled = shortcutInfo.isEnabled,
                             disabledMessage = shortcutInfo.disabledMessage?.toString(),
-                            icon = launcherAppsWrapper.getShortcutIconDrawable(
-                                shortcutInfo = shortcutInfo,
-                                density = 0,
-                            )?.let {
-                                byteArrayWrapper.createByteArray(drawable = it)
-                            },
+                            icon = icon,
                         ),
                     )
                 }

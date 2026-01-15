@@ -18,6 +18,7 @@
 package com.eblan.launcher.framework.bytearray
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -27,55 +28,54 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 
 internal class DefaultByteArrayWrapper @Inject constructor(
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : AndroidByteArrayWrapper {
-    override suspend fun createByteArray(drawable: Drawable): ByteArray? {
+    override suspend fun createByteArray(drawable: Drawable): ByteArray? = withContext(defaultDispatcher) {
         if (drawable is BitmapDrawable) {
-            return ByteArrayOutputStream().use { stream ->
-                withContext(defaultDispatcher) {
-                    drawable.bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-
-                    stream.toByteArray()
-                }
-            }
-        }
-
-        val width = if (!drawable.bounds.isEmpty) {
-            drawable.bounds.width()
-        } else {
-            drawable.intrinsicWidth
-        }
-
-        val height = if (!drawable.bounds.isEmpty) {
-            drawable.bounds.height()
-        } else {
-            drawable.intrinsicHeight
-        }
-
-        return if (width > 0 && height > 0) {
-            val bitmap = createBitmap(
-                width = width,
-                height = height,
-            )
-
-            val canvas = Canvas(bitmap)
-
-            drawable.setBounds(0, 0, canvas.width, canvas.height)
-
-            drawable.draw(canvas)
-
             ByteArrayOutputStream().use { stream ->
-                withContext(defaultDispatcher) {
+                drawable.bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+
+                stream.toByteArray()
+            }
+        } else {
+            val width = if (!drawable.bounds.isEmpty) {
+                drawable.bounds.width()
+            } else {
+                drawable.intrinsicWidth
+            }
+
+            val height = if (!drawable.bounds.isEmpty) {
+                drawable.bounds.height()
+            } else {
+                drawable.intrinsicHeight
+            }
+
+            if (width > 0 && height > 0) {
+                val bitmap = createBitmap(
+                    width = width,
+                    height = height,
+                )
+
+                val canvas = Canvas(bitmap)
+
+                drawable.setBounds(0, 0, canvas.width, canvas.height)
+
+                drawable.draw(canvas)
+
+                ByteArrayOutputStream().use { stream ->
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
 
                     stream.toByteArray()
                 }
+            } else {
+                null
             }
-        } else {
-            null
         }
     }
 
@@ -84,6 +84,55 @@ internal class DefaultByteArrayWrapper @Inject constructor(
             bitmap?.compress(Bitmap.CompressFormat.PNG, 100, stream)
 
             stream.toByteArray()
+        }
+    }
+
+    override suspend fun createDrawablePath(
+        drawable: Drawable,
+        file: File,
+    ) {
+        withContext(ioDispatcher) {
+            val bitmap: Bitmap = when (drawable) {
+                is BitmapDrawable -> drawable.bitmap
+
+                else -> {
+                    val width = if (!drawable.bounds.isEmpty) {
+                        drawable.bounds.width()
+                    } else {
+                        drawable.intrinsicWidth
+                    }
+
+                    val height = if (!drawable.bounds.isEmpty) {
+                        drawable.bounds.height()
+                    } else {
+                        drawable.intrinsicHeight
+                    }
+
+                    if (width <= 0 || height <= 0) return@withContext
+
+                    val bitmap = createBitmap(width, height)
+
+                    val canvas = Canvas(bitmap)
+
+                    drawable.setBounds(0, 0, canvas.width, canvas.height)
+
+                    drawable.draw(canvas)
+
+                    bitmap
+                }
+            }
+
+            if (file.exists()) {
+                val old = BitmapFactory.decodeFile(file.path)
+
+                if (old != null && bitmap.sameAs(old)) {
+                    return@withContext
+                }
+            }
+
+            FileOutputStream(file).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            }
         }
     }
 }

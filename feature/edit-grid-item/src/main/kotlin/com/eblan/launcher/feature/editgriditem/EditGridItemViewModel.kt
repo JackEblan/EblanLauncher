@@ -28,7 +28,6 @@ import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.grid.RestoreGridItemUseCase
-import com.eblan.launcher.domain.usecase.grid.UpdateGridItemCustomIconUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemUseCase
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.feature.editgriditem.navigation.EditGridItemRouteData
@@ -52,7 +51,6 @@ internal class EditGridItemViewModel @Inject constructor(
     private val iconPackManager: IconPackManager,
     packageManagerWrapper: PackageManagerWrapper,
     private val restoreGridItemUseCase: RestoreGridItemUseCase,
-    private val updateGridItemCustomIconUseCase: UpdateGridItemCustomIconUseCase,
 ) : ViewModel() {
     private val editGridItemRouteData = savedStateHandle.toRoute<EditGridItemRouteData>()
 
@@ -118,20 +116,6 @@ internal class EditGridItemViewModel @Inject constructor(
 
         _iconPackInfoComponents.update {
             emptyList()
-        }
-    }
-
-    fun updateGridItemCustomIcon(
-        byteArray: ByteArray,
-        gridItem: GridItem,
-    ) {
-        viewModelScope.launch {
-            updateGridItem(
-                gridItem = updateGridItemCustomIconUseCase(
-                    gridItem = gridItem,
-                    byteArray = byteArray,
-                ),
-            )
         }
     }
 

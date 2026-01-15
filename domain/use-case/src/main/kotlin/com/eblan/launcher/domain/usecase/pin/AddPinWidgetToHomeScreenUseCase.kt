@@ -71,6 +71,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
         maxResizeHeight: Int,
         rootWidth: Int,
         rootHeight: Int,
+        preview: String?,
     ): GridItem? = withContext(defaultDispatcher) {
         val homeSettings = userDataRepository.userData.first().homeSettings
 
@@ -84,33 +85,22 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
         val dockHeight = homeSettings.dockHeight
 
-        val gridItems = (
-            applicationInfoGridItemRepository.gridItems.first() +
-                widgetGridItemRepository.gridItems.first() +
-                shortcutInfoGridItemRepository.gridItems.first() +
-                folderGridItemRepository.gridItems.first() +
-                shortcutConfigGridItemRepository.gridItems.first()
-            ).filter { gridItem ->
-            gridItem.associate == Associate.Grid &&
-                gridItem.folderId == null
-        }
+        val gridItems =
+            (applicationInfoGridItemRepository.gridItems.first() + widgetGridItemRepository.gridItems.first() + shortcutInfoGridItemRepository.gridItems.first() + folderGridItemRepository.gridItems.first() + shortcutConfigGridItemRepository.gridItems.first()).filter { gridItem ->
+                gridItem.associate == Associate.Grid && gridItem.folderId == null
+            }
 
-        val previewInferred = File(
-            fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-            componentName.replace("/", "-"),
-        ).absolutePath
+        val applicationIcon =
+            packageManagerWrapper.getComponentName(packageName = packageName)
+                ?.let { componentName ->
+                    val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
 
-        val label =
-            packageManagerWrapper.getApplicationLabel(packageName = packageName)
-
-        val icon =
-            packageManagerWrapper.getApplicationIcon(packageName = packageName)
-                ?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        name = packageName,
-                        byteArray = byteArray,
+                    val file = File(
+                        directory,
+                        componentName.replace("/", "-"),
                     )
+
+                    file.absolutePath
                 }
 
         val gridHeight = rootHeight - dockHeight
@@ -154,9 +144,9 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             maxResizeHeight = maxResizeHeight,
             targetCellHeight = targetCellHeight,
             targetCellWidth = targetCellWidth,
-            preview = previewInferred,
-            label = label.toString(),
-            icon = icon,
+            preview = preview,
+            label = packageManagerWrapper.getApplicationLabel(packageName = packageName).toString(),
+            icon = applicationIcon,
         )
 
         val gridItem = GridItem(
@@ -182,9 +172,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
         )
 
         if (newGridItem != null) {
-            gridCacheRepository.insertGridItems(gridItems = gridItems)
-
-            gridCacheRepository.insertGridItem(gridItem = newGridItem)
+            gridCacheRepository.insertGridItems(gridItems = gridItems + newGridItem)
         }
 
         newGridItem

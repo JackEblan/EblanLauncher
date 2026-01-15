@@ -17,6 +17,8 @@
  */
 package com.eblan.launcher.domain.framework
 
+import com.eblan.launcher.domain.model.FastLauncherAppsActivityInfo
+import com.eblan.launcher.domain.model.FastLauncherAppsShortcutInfo
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
@@ -29,12 +31,16 @@ interface LauncherAppsWrapper {
 
     suspend fun getActivityList(): List<LauncherAppsActivityInfo>
 
+    suspend fun getFastActivityList(): List<FastLauncherAppsActivityInfo>
+
     suspend fun getActivityList(
         serialNumber: Long,
         packageName: String,
     ): List<LauncherAppsActivityInfo>
 
     suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>?
+
+    suspend fun getFastShortcuts(): List<FastLauncherAppsShortcutInfo>?
 
     suspend fun getShortcutsByPackageName(
         serialNumber: Long,

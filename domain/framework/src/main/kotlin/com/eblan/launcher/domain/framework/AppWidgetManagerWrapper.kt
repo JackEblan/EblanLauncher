@@ -18,7 +18,10 @@
 package com.eblan.launcher.domain.framework
 
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.FastAppWidgetManagerAppWidgetProviderInfo
 
 interface AppWidgetManagerWrapper {
     suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo>
+
+    suspend fun getFastInstalledProviders(): List<FastAppWidgetManagerAppWidgetProviderInfo>
 }

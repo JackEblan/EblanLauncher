@@ -15,21 +15,10 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.data.room.entity
+package com.eblan.launcher.domain.model
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-
-@Entity(primaryKeys = ["componentName", "serialNumber"])
-data class EblanApplicationInfoEntity(
-    val componentName: String,
+data class FastLauncherAppsActivityInfo(
     val serialNumber: Long,
     val packageName: String,
-    val icon: String?,
-    val label: String,
-    val customIcon: String?,
-    val customLabel: String?,
-    @ColumnInfo(defaultValue = "0")
-    val isHidden: Boolean,
     val lastUpdateTime: Long,
 )

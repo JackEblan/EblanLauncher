@@ -31,27 +31,33 @@ import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 internal class DefaultPackageManagerWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
     private val androidByteArrayWrapper: AndroidByteArrayWrapper,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : PackageManagerWrapper,
     AndroidPackageManagerWrapper {
-
     private val packageManager = context.packageManager
 
     override val hasSystemFeatureAppWidgets
         get() = packageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)
 
-    override suspend fun getApplicationIcon(packageName: String): ByteArray? = withContext(defaultDispatcher) {
+    override suspend fun getApplicationIcon(
+        packageName: String,
+        file: File,
+    ): String? = withContext(defaultDispatcher) {
         try {
-            androidByteArrayWrapper.createByteArray(
+            androidByteArrayWrapper.createDrawablePath(
                 drawable = packageManager.getApplicationIcon(
                     packageName,
                 ),
+                file = file,
             )
+
+            file.absolutePath
         } catch (_: PackageManager.NameNotFoundException) {
             null
         }
@@ -84,24 +90,6 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         val defaultLauncherPackage = resolveInfo?.activityInfo?.packageName
 
         return defaultLauncherPackage == context.packageName
-    }
-
-    override suspend fun getActivityIcon(
-        componentName: String,
-        packageName: String,
-    ): ByteArray? = withContext(defaultDispatcher) {
-        try {
-            val drawable = ComponentName.unflattenFromString(componentName)
-                ?.let(packageManager::getActivityIcon)
-
-            if (drawable != null) {
-                androidByteArrayWrapper.createByteArray(drawable = drawable)
-            } else {
-                null
-            }
-        } catch (_: PackageManager.NameNotFoundException) {
-            getApplicationIcon(packageName = packageName)
-        }
     }
 
     override suspend fun getIconPackInfos(): List<PackageManagerIconPackInfo> {
@@ -138,6 +126,12 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
                 )
             }.distinct()
         }
+    }
+
+    override fun getLastUpdateTime(packageName: String): Long = try {
+        packageManager.getPackageInfo(packageName, 0).lastUpdateTime
+    } catch (_: PackageManager.NameNotFoundException) {
+        0L
     }
 
     override fun isComponentExported(componentName: ComponentName): Boolean {

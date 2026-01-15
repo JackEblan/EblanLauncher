@@ -35,6 +35,7 @@ import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 class AddPinShortcutToHomeScreenUseCase @Inject constructor(
@@ -56,7 +57,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
         shortLabel: String,
         longLabel: String,
         isEnabled: Boolean,
-        byteArray: ByteArray?,
+        icon: String?,
     ): GridItem? = withContext(defaultDispatcher) {
         val homeSettings = userDataRepository.userData.first().homeSettings
 
@@ -79,22 +80,17 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 gridItem.folderId == null
         }
 
-        val icon = byteArray?.let { currentByteArray ->
-            fileManager.updateAndGetFilePath(
-                directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                name = shortcutId,
-                byteArray = currentByteArray,
-            )
-        }
-
         val eblanApplicationInfoIcon =
-            packageManagerWrapper.getApplicationIcon(packageName = packageName)
-                ?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        name = packageName,
-                        byteArray = byteArray,
+            packageManagerWrapper.getComponentName(packageName = packageName)
+                ?.let { componentName ->
+                    val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                    val file = File(
+                        directory,
+                        componentName.replace("/", "-"),
                     )
+
+                    file.absolutePath
                 }
 
         val data = GridItemData.ShortcutInfo(
@@ -133,9 +129,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
         )
 
         if (newGridItem != null) {
-            gridCacheRepository.insertGridItems(gridItems = gridItems)
-
-            gridCacheRepository.insertGridItem(gridItem = newGridItem)
+            gridCacheRepository.insertGridItems(gridItems = gridItems + newGridItem)
         }
 
         newGridItem

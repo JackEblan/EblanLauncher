@@ -30,6 +30,7 @@ import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -48,25 +49,17 @@ class GetPinGridItemUseCase @Inject constructor(
 
         when (pinItemRequestType) {
             is PinItemRequestType.Widget -> {
-                val preview = pinItemRequestType.preview?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                        name = pinItemRequestType.componentName.replace("/", "-"),
-                        byteArray = byteArray,
-                    )
-                }
-
-                val label =
-                    packageManagerWrapper.getApplicationLabel(packageName = pinItemRequestType.packageName)
-
                 val icon =
-                    packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
-                        ?.let { byteArray ->
-                            fileManager.updateAndGetFilePath(
-                                directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                                name = pinItemRequestType.packageName,
-                                byteArray = byteArray,
+                    packageManagerWrapper.getComponentName(packageName = pinItemRequestType.packageName)
+                        ?.let { componentName ->
+                            val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                            val file = File(
+                                directory,
+                                componentName.replace("/", "-"),
                             )
+
+                            file.absolutePath
                         }
 
                 val data = Widget(
@@ -84,8 +77,9 @@ class GetPinGridItemUseCase @Inject constructor(
                     maxResizeHeight = pinItemRequestType.maxResizeHeight,
                     targetCellHeight = pinItemRequestType.targetCellHeight,
                     targetCellWidth = pinItemRequestType.targetCellWidth,
-                    preview = preview,
-                    label = label.toString(),
+                    preview = pinItemRequestType.preview,
+                    label = packageManagerWrapper.getApplicationLabel(packageName = pinItemRequestType.packageName)
+                        .toString(),
                     icon = icon,
                 )
 
@@ -106,22 +100,17 @@ class GetPinGridItemUseCase @Inject constructor(
             }
 
             is PinItemRequestType.ShortcutInfo -> {
-                val icon = pinItemRequestType.icon?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                        name = pinItemRequestType.shortcutId,
-                        byteArray = byteArray,
-                    )
-                }
-
                 val eblanApplicationInfoIcon =
-                    packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
-                        ?.let { byteArray ->
-                            fileManager.updateAndGetFilePath(
-                                directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                                name = pinItemRequestType.packageName,
-                                byteArray = byteArray,
+                    packageManagerWrapper.getComponentName(packageName = pinItemRequestType.packageName)
+                        ?.let { componentName ->
+                            val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                            val file = File(
+                                directory,
+                                componentName.replace("/", "-"),
                             )
+
+                            file.absolutePath
                         }
 
                 val data = ShortcutInfo(
@@ -130,7 +119,7 @@ class GetPinGridItemUseCase @Inject constructor(
                     serialNumber = pinItemRequestType.serialNumber,
                     shortLabel = pinItemRequestType.shortLabel,
                     longLabel = pinItemRequestType.longLabel,
-                    icon = icon,
+                    icon = pinItemRequestType.icon,
                     isEnabled = pinItemRequestType.isEnabled,
                     eblanApplicationInfoIcon = eblanApplicationInfoIcon,
                     customIcon = null,

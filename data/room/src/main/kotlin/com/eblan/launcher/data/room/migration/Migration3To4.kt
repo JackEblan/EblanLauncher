@@ -86,7 +86,6 @@ class Migration3To4 : Migration(3, 4) {
             """.trimIndent(),
         )
 
-        // Migrate data: use componentName as new PK, assign serialNumber = 0 (or generate if needed)
         db.execSQL(
             """
                     INSERT INTO `EblanAppWidgetProviderInfoEntity_new` (

@@ -20,7 +20,6 @@ package com.eblan.launcher.data.room
 import androidx.room.testing.MigrationTestHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.eblan.launcher.data.room.migration.Migration6To7
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -125,7 +124,6 @@ class Migration6To7Test {
             testDatabase,
             7,
             true,
-            Migration6To7(),
         )
 
         // EblanApplicationInfoEntity

@@ -1038,14 +1038,12 @@ private fun LifecycleEffect(
         var isEblanNotificationListenerServiceBound = false
 
         val syncDataServiceConnection = object : ServiceConnection {
-            private var listener: SyncDataService? = null
-
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
-                listener = (service as SyncDataService.LocalBinder).getService()
+                val listener = (service as SyncDataService.LocalBinder).getService()
 
                 scope.launch {
                     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        listener?.managedProfileResult?.collect {
+                        listener.managedProfileResult.collect {
                             onManagedProfileResultChange(it)
                         }
                     }
@@ -1055,20 +1053,17 @@ private fun LifecycleEffect(
             }
 
             override fun onServiceDisconnected(name: ComponentName) {
-                listener = null
                 isSyncDataServiceBound = false
             }
         }
 
         val eblanNotificationListenerServiceConnection = object : ServiceConnection {
-            private var listener: EblanNotificationListenerService? = null
-
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
-                listener = (service as EblanNotificationListenerService.LocalBinder).getService()
+                val listener = (service as EblanNotificationListenerService.LocalBinder).getService()
 
                 scope.launch {
                     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        listener?.statusBarNotifications?.collect {
+                        listener.statusBarNotifications.collect {
                             onStatusBarNotificationsChange(it)
                         }
                     }
@@ -1078,8 +1073,6 @@ private fun LifecycleEffect(
             }
 
             override fun onServiceDisconnected(name: ComponentName) {
-                listener = null
-
                 isEblanNotificationListenerServiceBound = false
             }
         }
@@ -1128,6 +1121,10 @@ private fun LifecycleEffect(
         lifecycleOwner.lifecycle.addObserver(lifecycleEventObserver)
 
         onDispose {
+            isSyncDataServiceBound = false
+
+            isEblanNotificationListenerServiceBound = false
+
             lifecycleOwner.lifecycle.removeObserver(lifecycleEventObserver)
         }
     }

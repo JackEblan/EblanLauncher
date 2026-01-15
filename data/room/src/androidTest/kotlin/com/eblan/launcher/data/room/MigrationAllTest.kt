@@ -22,8 +22,6 @@ import androidx.room.testing.MigrationTestHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.eblan.launcher.data.room.migration.Migration3To4
-import com.eblan.launcher.data.room.migration.Migration4To5
-import com.eblan.launcher.data.room.migration.Migration6To7
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,21 +40,16 @@ class MigrationAllTest {
     @Test
     @Throws(IOException::class)
     fun migrateAll() {
-        // Create earliest version of the database.
         helper.createDatabase(testDatabase, 1).apply {
             close()
         }
 
-        // Open latest version of the database. Room validates the schema
-        // once all migrations execute.
         Room.databaseBuilder(
             InstrumentationRegistry.getInstrumentation().targetContext,
             EblanDatabase::class.java,
             testDatabase,
         ).addMigrations(
             Migration3To4(),
-            Migration4To5(),
-            Migration6To7(),
         ).fallbackToDestructiveMigrationFrom(
             dropAllTables = true,
             1,

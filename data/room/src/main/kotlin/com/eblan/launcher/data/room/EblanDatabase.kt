@@ -67,7 +67,6 @@ import com.eblan.launcher.data.room.migration.AutoMigration5To6
             to = 6,
             spec = AutoMigration5To6::class,
         ),
-        AutoMigration(from = 6, to = 7),
     ],
 )
 internal abstract class EblanDatabase : RoomDatabase() {

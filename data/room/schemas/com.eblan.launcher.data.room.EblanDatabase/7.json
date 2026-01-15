@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 7,
-    "identityHash": "b131bca7668fb731232aa39e408ff265",
+    "identityHash": "917168b2e1176aa8991ebe7f6095ae54",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`componentName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT NOT NULL, `customIcon` TEXT, `customLabel` TEXT, `isHidden` INTEGER NOT NULL DEFAULT 0, `lastUpdateTime` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`componentName`, `serialNumber`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`componentName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT NOT NULL, `customIcon` TEXT, `customLabel` TEXT, `isHidden` INTEGER NOT NULL DEFAULT 0, `lastUpdateTime` INTEGER NOT NULL, PRIMARY KEY(`componentName`, `serialNumber`))",
         "fields": [
           {
             "fieldPath": "componentName",
@@ -58,8 +58,7 @@
             "fieldPath": "lastUpdateTime",
             "columnName": "lastUpdateTime",
             "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -72,7 +71,7 @@
       },
       {
         "tableName": "EblanAppWidgetProviderInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`componentName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `configure` TEXT, `packageName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `label` TEXT NOT NULL, `icon` TEXT, `lastUpdateTime` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`componentName`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`componentName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `configure` TEXT, `packageName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `label` TEXT NOT NULL, `icon` TEXT, `lastUpdateTime` INTEGER NOT NULL, PRIMARY KEY(`componentName`))",
         "fields": [
           {
             "fieldPath": "componentName",
@@ -171,8 +170,7 @@
             "fieldPath": "lastUpdateTime",
             "columnName": "lastUpdateTime",
             "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -184,7 +182,7 @@
       },
       {
         "tableName": "EblanShortcutInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shortcutId` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `shortLabel` TEXT NOT NULL, `longLabel` TEXT NOT NULL, `icon` TEXT, `shortcutQueryFlag` TEXT NOT NULL, `isEnabled` INTEGER NOT NULL, `lastUpdateTime` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`shortcutId`, `serialNumber`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shortcutId` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `shortLabel` TEXT NOT NULL, `longLabel` TEXT NOT NULL, `icon` TEXT, `shortcutQueryFlag` TEXT NOT NULL, `isEnabled` INTEGER NOT NULL, `lastUpdateTime` INTEGER NOT NULL, PRIMARY KEY(`shortcutId`, `serialNumber`))",
         "fields": [
           {
             "fieldPath": "shortcutId",
@@ -237,8 +235,7 @@
             "fieldPath": "lastUpdateTime",
             "columnName": "lastUpdateTime",
             "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -918,7 +915,7 @@
       },
       {
         "tableName": "EblanShortcutConfigEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`componentName` TEXT NOT NULL, `packageName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `activityIcon` TEXT, `activityLabel` TEXT, `applicationIcon` TEXT, `applicationLabel` TEXT, `lastUpdateTime` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`componentName`, `serialNumber`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`componentName` TEXT NOT NULL, `packageName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `activityIcon` TEXT, `activityLabel` TEXT, `applicationIcon` TEXT, `applicationLabel` TEXT, `lastUpdateTime` INTEGER NOT NULL, PRIMARY KEY(`componentName`, `serialNumber`))",
         "fields": [
           {
             "fieldPath": "componentName",
@@ -962,8 +959,7 @@
             "fieldPath": "lastUpdateTime",
             "columnName": "lastUpdateTime",
             "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -1147,7 +1143,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b131bca7668fb731232aa39e408ff265')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '917168b2e1176aa8991ebe7f6095ae54')"
     ]
   }
 }

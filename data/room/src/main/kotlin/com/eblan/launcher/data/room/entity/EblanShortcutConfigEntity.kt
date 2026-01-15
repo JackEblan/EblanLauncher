@@ -29,6 +29,5 @@ data class EblanShortcutConfigEntity(
     val activityLabel: String?,
     val applicationIcon: String?,
     val applicationLabel: String?,
-    @ColumnInfo(defaultValue = "0")
     val lastUpdateTime: Long,
 )

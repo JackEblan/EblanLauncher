@@ -210,7 +210,7 @@ internal fun ApplicationInfoGridItemContent(
     val icon = iconPackFilePaths[data.componentName] ?: data.icon
 
     val hasNotifications = statusBarNotifications[data.packageName] != null &&
-        statusBarNotifications[data.packageName]!! > 0
+        (statusBarNotifications[data.packageName] ?: 0) > 0
 
     Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
         AsyncImage(

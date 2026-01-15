@@ -34,7 +34,21 @@ class EblanNotificationListenerService : NotificationListenerService() {
 
     private val binder = LocalBinder()
 
-    override fun onBind(intent: Intent?): IBinder = binder
+    private var isListenerConnected = false
+
+    override fun onBind(intent: Intent?): IBinder? = if (intent?.action == SERVICE_INTERFACE) {
+        super.onBind(intent)
+    } else {
+        binder
+    }
+
+    override fun onListenerConnected() {
+        isListenerConnected = true
+    }
+
+    override fun onListenerDisconnected() {
+        isListenerConnected = false
+    }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         updateStatusBarNotifications()
@@ -45,11 +59,13 @@ class EblanNotificationListenerService : NotificationListenerService() {
     }
 
     private fun updateStatusBarNotifications() {
-        _statusBarNotifications.update {
-            activeNotifications
-                ?.groupingBy { it.packageName }
-                ?.eachCount()
-                ?: emptyMap()
+        if (isListenerConnected) {
+            _statusBarNotifications.update {
+                activeNotifications
+                    ?.groupingBy { it.packageName }
+                    ?.eachCount()
+                    ?: emptyMap()
+            }
         }
     }
 

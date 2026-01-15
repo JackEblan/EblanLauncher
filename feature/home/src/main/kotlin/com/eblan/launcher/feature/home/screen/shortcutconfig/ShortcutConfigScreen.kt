@@ -574,7 +574,11 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+    val isDragging by remember(key1 = drag) {
+        derivedStateOf {
+            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+        }
+    }
 
     val id = remember { Uuid.random().toHexString() }
 

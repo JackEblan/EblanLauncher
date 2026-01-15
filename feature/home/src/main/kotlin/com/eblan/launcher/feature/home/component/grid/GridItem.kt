@@ -43,12 +43,15 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -207,11 +210,12 @@ internal fun ApplicationInfoGridItemContent(
     val icon = iconPackFilePaths[data.componentName] ?: data.icon
 
     val hasNotifications = statusBarNotifications[data.packageName] != null &&
-        statusBarNotifications[data.packageName]!! > 0
+            statusBarNotifications[data.packageName]!! > 0
 
     Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
         AsyncImage(
-            model = data.customIcon ?: icon,
+            model = ImageRequest.Builder(LocalContext.current).data(data.customIcon ?: icon)
+                .addLastModifiedToFileCacheKey(true).build(),
             contentDescription = null,
             modifier = modifier.matchParentSize(),
         )
@@ -349,7 +353,9 @@ internal fun SharedTransitionScope.FolderGridItemContent(
                                 iconPackFilePaths[currentData.componentName] ?: currentData.icon
 
                             AsyncImage(
-                                model = currentData.customIcon ?: icon,
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(currentData.customIcon ?: icon)
+                                    .addLastModifiedToFileCacheKey(true).build(),
                                 contentDescription = null,
                                 modifier = folderGridItemModifier,
                             )
@@ -396,7 +402,9 @@ internal fun SharedTransitionScope.FolderGridItemContent(
                             }
 
                             AsyncImage(
-                                model = currentData.customIcon ?: icon,
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(currentData.customIcon ?: icon)
+                                    .addLastModifiedToFileCacheKey(true).build(),
                                 contentDescription = null,
                                 modifier = folderGridItemModifier,
                             )
@@ -454,7 +462,8 @@ internal fun ShortcutConfigGridItemContent(
 
     Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
         AsyncImage(
-            model = data.customIcon ?: icon,
+            model = ImageRequest.Builder(LocalContext.current).data(data.customIcon ?: icon)
+                .addLastModifiedToFileCacheKey(true).build(),
             contentDescription = null,
             modifier = modifier.matchParentSize(),
         )

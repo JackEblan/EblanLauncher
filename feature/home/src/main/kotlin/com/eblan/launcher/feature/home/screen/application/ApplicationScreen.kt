@@ -91,6 +91,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
@@ -103,6 +104,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
@@ -544,7 +547,11 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+    val isDragging by remember(key1 = drag) {
+        derivedStateOf {
+            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+        }
+    }
 
     val id = remember { Uuid.random().toHexString() }
 
@@ -674,7 +681,9 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                 modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
-                    model = eblanApplicationInfo.customIcon ?: icon,
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(eblanApplicationInfo.customIcon ?: icon)
+                        .addLastModifiedToFileCacheKey(true).build(),
                     contentDescription = null,
                     modifier = Modifier
                         .sharedElementWithCallerManagedVisibility(

@@ -1033,9 +1033,9 @@ private fun LifecycleEffect(
         val eblanNotificationListenerIntent =
             Intent(context, EblanNotificationListenerService::class.java)
 
-        var isSyncDataServiceBound = false
+        var shouldUnbindSyncDataService = false
 
-        var isEblanNotificationListenerServiceBound = false
+        var shouldUnbindEblanNotificationListenerService = false
 
         val syncDataServiceConnection = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -1048,18 +1048,15 @@ private fun LifecycleEffect(
                         }
                     }
                 }
-
-                isSyncDataServiceBound = true
             }
 
-            override fun onServiceDisconnected(name: ComponentName) {
-                isSyncDataServiceBound = false
-            }
+            override fun onServiceDisconnected(name: ComponentName) {}
         }
 
         val eblanNotificationListenerServiceConnection = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
-                val listener = (service as EblanNotificationListenerService.LocalBinder).getService()
+                val listener =
+                    (service as EblanNotificationListenerService.LocalBinder).getService()
 
                 scope.launch {
                     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -1068,13 +1065,9 @@ private fun LifecycleEffect(
                         }
                     }
                 }
-
-                isEblanNotificationListenerServiceBound = true
             }
 
-            override fun onServiceDisconnected(name: ComponentName) {
-                isEblanNotificationListenerServiceBound = false
-            }
+            override fun onServiceDisconnected(name: ComponentName) {}
         }
 
         val lifecycleEventObserver = LifecycleEventObserver { _, event ->
@@ -1082,13 +1075,14 @@ private fun LifecycleEffect(
                 Lifecycle.Event.ON_START -> {
                     if (syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
                         context.startService(launcherAppsIntent)
-                        context.bindService(
+
+                        shouldUnbindSyncDataService = context.bindService(
                             syncDataIntent,
                             syncDataServiceConnection,
                             Context.BIND_AUTO_CREATE,
                         )
 
-                        context.bindService(
+                        shouldUnbindEblanNotificationListenerService = context.bindService(
                             eblanNotificationListenerIntent,
                             eblanNotificationListenerServiceConnection,
                             Context.BIND_AUTO_CREATE,
@@ -1100,11 +1094,11 @@ private fun LifecycleEffect(
 
                 Lifecycle.Event.ON_STOP -> {
                     if (syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
-                        if (isSyncDataServiceBound) {
+                        if (shouldUnbindSyncDataService) {
                             context.unbindService(syncDataServiceConnection)
                         }
 
-                        if (isEblanNotificationListenerServiceBound) {
+                        if (shouldUnbindEblanNotificationListenerService) {
                             context.unbindService(eblanNotificationListenerServiceConnection)
                         }
 
@@ -1121,10 +1115,6 @@ private fun LifecycleEffect(
         lifecycleOwner.lifecycle.addObserver(lifecycleEventObserver)
 
         onDispose {
-            isSyncDataServiceBound = false
-
-            isEblanNotificationListenerServiceBound = false
-
             lifecycleOwner.lifecycle.removeObserver(lifecycleEventObserver)
         }
     }

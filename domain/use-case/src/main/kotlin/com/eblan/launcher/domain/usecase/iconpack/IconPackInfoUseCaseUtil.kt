@@ -39,7 +39,8 @@ internal suspend fun cacheIconPackFile(
     }?.let { iconPackInfoComponent ->
         iconPackManager.createIconPackInfoPath(
             packageName = iconPackInfoPackageName,
-            iconPackInfoComponent = iconPackInfoComponent,
+            componentName = componentName,
+            drawable = iconPackInfoComponent.drawable,
             iconPackInfoDirectory = iconPackInfoDirectory,
         )
     }

@@ -112,7 +112,8 @@ internal class DefaultIconPackManager @Inject constructor(
 
     override suspend fun createIconPackInfoPath(
         packageName: String,
-        iconPackInfoComponent: IconPackInfoComponent,
+        componentName: String,
+        drawable: String,
         iconPackInfoDirectory: File,
     ): String? = withContext(ioDispatcher) {
         val packageContext =
@@ -120,7 +121,7 @@ internal class DefaultIconPackManager @Inject constructor(
 
         val resources = packageContext.resources
 
-        val id = resources.getIdentifier(iconPackInfoComponent.drawable, "drawable", packageName)
+        val id = resources.getIdentifier(drawable, "drawable", packageName)
 
         if (id > 0) {
             resources.getDrawable(
@@ -129,7 +130,7 @@ internal class DefaultIconPackManager @Inject constructor(
             ).let { drawable ->
                 val file = File(
                     iconPackInfoDirectory,
-                    iconPackInfoComponent.component.replace(
+                    componentName.replace(
                         "/",
                         "-",
                     ),

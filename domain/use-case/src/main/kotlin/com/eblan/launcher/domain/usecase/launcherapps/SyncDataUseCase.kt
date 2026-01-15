@@ -23,6 +23,7 @@ import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
+import com.eblan.launcher.domain.framework.NotificationManagerWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
@@ -57,6 +58,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -78,28 +80,34 @@ class SyncDataUseCase @Inject constructor(
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
     private val iconPackManager: IconPackManager,
+    private val notificationManagerWrapper: NotificationManagerWrapper,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
         withContext(ioDispatcher) {
             val userData = userDataRepository.userData.first()
 
-            launch {
-                updateEblanLauncherAppsActivityInfos(userData = userData)
-            }
+            try {
+                notificationManagerWrapper.notifySyncData()
 
-            launch {
-                updateAppWidgetManagerAppWidgetProviderInfos()
-            }
-
-            launch {
-                updateEblanLauncherShortcutInfos()
-            }
-
-            launch {
-                updateIconPackInfos(
-                    iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+                joinAll(
+                    launch {
+                        updateEblanLauncherAppsActivityInfos(userData = userData)
+                    },
+                    launch {
+                        updateAppWidgetManagerAppWidgetProviderInfos()
+                    },
+                    launch {
+                        updateEblanLauncherShortcutInfos()
+                    },
+                    launch {
+                        updateIconPackInfos(
+                            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+                        )
+                    },
                 )
+            } finally {
+                notificationManagerWrapper.cancelNotifySyncData()
             }
         }
     }

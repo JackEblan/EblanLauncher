@@ -15,19 +15,19 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.framework.bytearray
+package com.eblan.launcher.framework.imageserializer
 
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
-import java.io.File
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-interface AndroidByteArrayWrapper {
-    suspend fun createByteArray(drawable: Drawable): ByteArray?
+@Module
+@InstallIn(SingletonComponent::class)
+internal interface ByteArrayModule {
 
-    suspend fun createByteArray(bitmap: Bitmap?): ByteArray?
-
-    suspend fun createDrawablePath(
-        drawable: Drawable,
-        file: File,
-    )
+    @Binds
+    @Singleton
+    fun androidImageSerializer(impl: DefaultImageSerializer): AndroidImageSerializer
 }

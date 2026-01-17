@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.framework.bytearray
+package com.eblan.launcher.framework.imageserializer
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -32,10 +32,10 @@ import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 
-internal class DefaultByteArrayWrapper @Inject constructor(
+internal class DefaultImageSerializer @Inject constructor(
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
-) : AndroidByteArrayWrapper {
+) : AndroidImageSerializer {
     override suspend fun createByteArray(drawable: Drawable): ByteArray? = withContext(defaultDispatcher) {
         if (drawable is BitmapDrawable) {
             ByteArrayOutputStream().use { stream ->

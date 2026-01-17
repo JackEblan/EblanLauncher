@@ -30,7 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.feature.pin.PinScreen
-import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
+import com.eblan.launcher.framework.imageserializer.AndroidImageSerializer
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
@@ -39,8 +39,8 @@ import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import com.eblan.launcher.model.ActivityUiState
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
-import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalFileManager
+import com.eblan.launcher.ui.local.LocalImageSerializer
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -63,7 +63,7 @@ class PinActivity : ComponentActivity() {
     lateinit var pinItemRequestWrapper: PinItemRequestWrapper
 
     @Inject
-    lateinit var androidByteArrayWrapper: AndroidByteArrayWrapper
+    lateinit var imageSerializer: AndroidImageSerializer
 
     @Inject
     lateinit var androidUserManagerWrapper: AndroidUserManagerWrapper
@@ -91,7 +91,7 @@ class PinActivity : ComponentActivity() {
                     LocalAppWidgetManager provides androidAppWidgetManagerWrapper,
                     LocalPinItemRequest provides pinItemRequestWrapper,
                     LocalLauncherApps provides androidLauncherAppsWrapper,
-                    LocalByteArray provides androidByteArrayWrapper,
+                    LocalImageSerializer provides imageSerializer,
                     LocalUserManager provides androidUserManagerWrapper,
                     LocalFileManager provides fileManager,
                 ) {

@@ -72,8 +72,8 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
-import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalFileManager
+import com.eblan.launcher.ui.local.LocalImageSerializer
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -153,7 +153,7 @@ private fun PinShortcutScreen(
 
     val launcherApps = LocalLauncherApps.current
 
-    val byteArrayWrapper = LocalByteArray.current
+    val imageSerializer = LocalImageSerializer.current
 
     val shortcutInfo = pinItemRequest.shortcutInfo
 
@@ -219,10 +219,10 @@ private fun PinShortcutScreen(
 
                                 val file = File(
                                     directory,
-                                    shortcutInfo.id,
+                                    shortcutInfo.id.hashCode().toString(),
                                 )
 
-                                byteArrayWrapper.createDrawablePath(
+                                imageSerializer.createDrawablePath(
                                     drawable = drawable,
                                     file = file,
                                 )
@@ -390,7 +390,7 @@ private fun PinWidgetScreen(
 
                     val file = File(
                         directory,
-                        componentName.replace("/", "-"),
+                        componentName.hashCode().toString(),
                     )
 
                     val preview = file.absolutePath

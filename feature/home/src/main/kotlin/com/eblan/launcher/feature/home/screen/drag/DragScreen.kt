@@ -69,8 +69,8 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
-import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalFileManager
+import com.eblan.launcher.ui.local.LocalImageSerializer
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -148,7 +148,7 @@ internal fun SharedTransitionScope.DragScreen(
 
     val launcherApps = LocalLauncherApps.current
 
-    val byteArray = LocalByteArray.current
+    val imageSerializer = LocalImageSerializer.current
 
     val fileManager = LocalFileManager.current
 
@@ -207,7 +207,7 @@ internal fun SharedTransitionScope.DragScreen(
     ) { result ->
         scope.launch {
             handleShortcutConfigLauncherResult(
-                androidByteArrayWrapper = byteArray,
+                imageSerializer = imageSerializer,
                 moveGridItemResult = moveGridItemResult,
                 result = result,
                 gridItemSource = gridItemSource,
@@ -226,7 +226,7 @@ internal fun SharedTransitionScope.DragScreen(
                 result = result,
                 userManagerWrapper = userManager,
                 launcherAppsWrapper = launcherApps,
-                byteArrayWrapper = byteArray,
+                imageSerializer = imageSerializer,
                 fileManager = fileManager,
                 gridItemSource = gridItemSource,
                 onDeleteGridItemCache = onDeleteGridItemCache,

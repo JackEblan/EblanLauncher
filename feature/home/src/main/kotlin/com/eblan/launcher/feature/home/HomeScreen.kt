@@ -108,8 +108,8 @@ import com.eblan.launcher.service.LauncherAppsService
 import com.eblan.launcher.service.SyncDataService
 import com.eblan.launcher.ui.dialog.TextDialog
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
-import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalFileManager
+import com.eblan.launcher.ui.local.LocalImageSerializer
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -328,7 +328,7 @@ internal fun HomeScreen(
 
     val launcherApps = LocalLauncherApps.current
 
-    val byteArrayWrapper = LocalByteArray.current
+    val imageSerializer = LocalImageSerializer.current
 
     val userManager = LocalUserManager.current
 
@@ -364,7 +364,7 @@ internal fun HomeScreen(
                         pinItemRequest = pinItemRequest,
                         context = context,
                         launcherAppsWrapper = launcherApps,
-                        byteArrayWrapper = byteArrayWrapper,
+                        imageSerializer = imageSerializer,
                         userManager = userManager,
                         fileManager = fileManager,
                         onGetPinGridItem = onGetPinGridItem,

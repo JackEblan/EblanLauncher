@@ -15,16 +15,19 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.framework.imageserializer
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.hilt)
-}
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
+import java.io.File
 
-android {
-    namespace = "com.eblan.launcher.framework.bytearray"
-}
+interface AndroidImageSerializer {
+    suspend fun createByteArray(drawable: Drawable): ByteArray?
 
-dependencies {
-    implementation(projects.domain.common)
+    suspend fun createByteArray(bitmap: Bitmap?): ByteArray?
+
+    suspend fun createDrawablePath(
+        drawable: Drawable,
+        file: File,
+    )
 }

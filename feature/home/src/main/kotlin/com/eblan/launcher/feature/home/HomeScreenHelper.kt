@@ -29,7 +29,7 @@ import com.eblan.launcher.feature.home.util.KUSTOM_ACTION
 import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_EXT_NAME
 import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_NAME
 import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_VALUE
-import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
+import com.eblan.launcher.framework.imageserializer.AndroidImageSerializer
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import java.io.File
@@ -38,7 +38,7 @@ internal suspend fun handlePinItemRequest(
     pinItemRequest: PinItemRequest?,
     context: Context,
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
-    byteArrayWrapper: AndroidByteArrayWrapper,
+    imageSerializer: AndroidImageSerializer,
     userManager: AndroidUserManagerWrapper,
     fileManager: FileManager,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
@@ -58,10 +58,10 @@ internal suspend fun handlePinItemRequest(
 
                             val file = File(
                                 directory,
-                                componentName.replace("/", "-"),
+                                componentName.hashCode().toString(),
                             )
 
-                            byteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+                            imageSerializer.createDrawablePath(drawable = drawable, file = file)
 
                             file.absolutePath
                         }
@@ -122,10 +122,10 @@ internal suspend fun handlePinItemRequest(
 
                         val file = File(
                             directory,
-                            shortcutInfo.id,
+                            shortcutInfo.id.hashCode().toString(),
                         )
 
-                        byteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+                        imageSerializer.createDrawablePath(drawable = drawable, file = file)
 
                         file.absolutePath
                     }

@@ -27,7 +27,7 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
-import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
+import com.eblan.launcher.framework.imageserializer.AndroidImageSerializer
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -36,7 +36,7 @@ import javax.inject.Inject
 
 internal class DefaultPackageManagerWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val androidByteArrayWrapper: AndroidByteArrayWrapper,
+    private val imageSerializer: AndroidImageSerializer,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : PackageManagerWrapper,
     AndroidPackageManagerWrapper {
@@ -50,7 +50,7 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         file: File,
     ): String? = withContext(defaultDispatcher) {
         try {
-            androidByteArrayWrapper.createDrawablePath(
+            imageSerializer.createDrawablePath(
                 drawable = packageManager.getApplicationIcon(
                     packageName,
                 ),
@@ -117,7 +117,7 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
                     packageName = resolveInfo.activityInfo.applicationInfo.packageName,
                     icon = resolveInfo.activityInfo.applicationInfo.loadIcon(packageManager)
                         .let { drawable ->
-                            androidByteArrayWrapper.createByteArray(
+                            imageSerializer.createByteArray(
                                 drawable = drawable,
                             )
                         },

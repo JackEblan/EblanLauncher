@@ -28,12 +28,6 @@ interface FileManager {
         byteArray: ByteArray,
     ): String?
 
-    suspend fun getFilePath(
-        directory: File,
-        name: String,
-        byteArray: ByteArray,
-    ): String?
-
     companion object {
         const val ICONS_DIR = "icons"
 

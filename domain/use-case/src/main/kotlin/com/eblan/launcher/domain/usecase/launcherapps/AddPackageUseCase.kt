@@ -138,14 +138,14 @@ class AddPackageUseCase @Inject constructor(
                 val icon = if (componentName != null) {
                     val file = File(
                         directory,
-                        componentName.replace("/", "-"),
+                        componentName.hashCode().toString(),
                     )
 
                     file.absolutePath
                 } else {
                     val file = File(
                         directory,
-                        appWidgetManagerAppWidgetProviderInfo.packageName,
+                        appWidgetManagerAppWidgetProviderInfo.packageName.hashCode().toString(),
                     )
 
                     packageManagerWrapper.getApplicationIcon(
@@ -221,7 +221,7 @@ class AddPackageUseCase @Inject constructor(
 
             val file = File(
                 directory,
-                launcherAppsActivityInfo.componentName.replace("/", "-"),
+                launcherAppsActivityInfo.componentName.hashCode().toString(),
             )
 
             val applicationIcon = file.absolutePath

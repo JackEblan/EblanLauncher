@@ -31,7 +31,7 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.FastAppWidgetManagerAppWidgetProviderInfo
-import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
+import com.eblan.launcher.framework.imageserializer.AndroidImageSerializer
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -41,7 +41,7 @@ import javax.inject.Inject
 
 internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val androidByteArrayWrapper: AndroidByteArrayWrapper,
+    private val imageSerializer: AndroidImageSerializer,
     private val userManagerWrapper: AndroidUserManagerWrapper,
     private val fileManager: FileManager,
     private val packageManagerWrapper: PackageManagerWrapper,
@@ -87,13 +87,10 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
 
             val file = File(
                 directory,
-                provider.flattenToString().replace(
-                    "/",
-                    "-",
-                ),
+                provider.flattenToString().hashCode().toString(),
             )
 
-            androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+            imageSerializer.createDrawablePath(drawable = drawable, file = file)
 
             file.absolutePath
         }

@@ -44,9 +44,9 @@ import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.IconPackInfoComponent
-import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalIconPackManager
+import com.eblan.launcher.ui.local.LocalImageSerializer
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -62,7 +62,7 @@ fun IconPackInfoFilesDialog(
 ) {
     val scope = rememberCoroutineScope()
 
-    val byteArray = LocalByteArray.current
+    val byteArray = LocalImageSerializer.current
 
     val fileManager = LocalFileManager.current
 
@@ -116,7 +116,7 @@ fun IconPackInfoFilesDialog(
 
                                                 val file = File(
                                                     directory,
-                                                    iconName,
+                                                    iconName.hashCode().toString(),
                                                 )
 
                                                 byteArray.createDrawablePath(

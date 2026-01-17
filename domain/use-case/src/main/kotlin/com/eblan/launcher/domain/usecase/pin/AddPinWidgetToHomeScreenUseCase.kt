@@ -97,7 +97,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
                     val file = File(
                         directory,
-                        componentName.replace("/", "-"),
+                        componentName.hashCode().toString(),
                     )
 
                     file.absolutePath

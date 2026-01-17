@@ -51,6 +51,7 @@
       <module name="EblanLauncher.framework.window-metrics" target="21" />
       <module name="EblanLauncher.service" target="21" />
       <module name="EblanLauncher.ui" target="21" />
+      <module name="EinsteinLauncher.framework.byte-array" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

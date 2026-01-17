@@ -56,7 +56,7 @@ class GetPinGridItemUseCase @Inject constructor(
 
                             val file = File(
                                 directory,
-                                componentName.replace("/", "-"),
+                                componentName.hashCode().toString(),
                             )
 
                             file.absolutePath
@@ -107,7 +107,7 @@ class GetPinGridItemUseCase @Inject constructor(
 
                             val file = File(
                                 directory,
-                                componentName.replace("/", "-"),
+                                componentName.hashCode().toString(),
                             )
 
                             file.absolutePath

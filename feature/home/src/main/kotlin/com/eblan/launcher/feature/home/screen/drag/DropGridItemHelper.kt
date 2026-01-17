@@ -36,7 +36,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
+import com.eblan.launcher.framework.imageserializer.AndroidImageSerializer
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
@@ -254,7 +254,7 @@ internal fun handleBoundWidget(
 
 @Suppress("DEPRECATION")
 internal suspend fun handleShortcutConfigLauncherResult(
-    androidByteArrayWrapper: AndroidByteArrayWrapper,
+    imageSerializer: AndroidImageSerializer,
     moveGridItemResult: MoveGridItemResult?,
     result: ActivityResult,
     gridItemSource: GridItemSource,
@@ -286,7 +286,7 @@ internal suspend fun handleShortcutConfigLauncherResult(
             intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON)
         }
     }?.let { bitmap ->
-        androidByteArrayWrapper.createByteArray(bitmap = bitmap)
+        imageSerializer.createByteArray(bitmap = bitmap)
     }
 
     val shortcutIntentUri = result.data?.let { intent ->
@@ -320,7 +320,7 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
     result: ActivityResult,
     userManagerWrapper: AndroidUserManagerWrapper,
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
-    byteArrayWrapper: AndroidByteArrayWrapper,
+    imageSerializer: AndroidImageSerializer,
     fileManager: FileManager,
     gridItemSource: GridItemSource,
     onDeleteGridItemCache: (GridItem) -> Unit,
@@ -365,10 +365,10 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
 
             val file = File(
                 directory,
-                shortcutInfo.id,
+                shortcutInfo.id.hashCode().toString(),
             )
 
-            byteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+            imageSerializer.createDrawablePath(drawable = drawable, file = file)
 
             file.absolutePath
         }

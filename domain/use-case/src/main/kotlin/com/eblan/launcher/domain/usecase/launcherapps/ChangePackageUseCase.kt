@@ -180,14 +180,14 @@ class ChangePackageUseCase @Inject constructor(
                 val icon = if (componentName != null) {
                     val file = File(
                         directory,
-                        componentName.replace("/", "-"),
+                        componentName.hashCode().toString(),
                     )
 
                     file.absolutePath
                 } else {
                     val file = File(
                         directory,
-                        appWidgetManagerAppWidgetProviderInfo.packageName,
+                        appWidgetManagerAppWidgetProviderInfo.packageName.hashCode().toString(),
                     )
 
                     packageManagerWrapper.getApplicationIcon(
@@ -492,7 +492,7 @@ class ChangePackageUseCase @Inject constructor(
 
                 val file = File(
                     directory,
-                    launcherAppsActivityInfo.componentName.replace("/", "-"),
+                    launcherAppsActivityInfo.componentName.hashCode().toString(),
                 )
 
                 val applicationIcon = if (file.exists()) {
@@ -561,7 +561,7 @@ class ChangePackageUseCase @Inject constructor(
 
             val file = File(
                 directory,
-                launcherAppsActivityInfo.componentName.replace("/", "-"),
+                launcherAppsActivityInfo.componentName.hashCode().toString(),
             )
 
             val applicationIcon = if (file.exists()) {

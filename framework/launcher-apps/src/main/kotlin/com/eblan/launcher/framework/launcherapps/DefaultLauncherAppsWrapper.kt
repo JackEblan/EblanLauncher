@@ -45,7 +45,7 @@ import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
 import com.eblan.launcher.domain.model.ShortcutQueryFlag
-import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
+import com.eblan.launcher.framework.imageserializer.AndroidImageSerializer
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -62,7 +62,7 @@ import javax.inject.Inject
 
 internal class DefaultLauncherAppsWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val androidByteArrayWrapper: AndroidByteArrayWrapper,
+    private val imageSerializer: AndroidImageSerializer,
     private val userManagerWrapper: AndroidUserManagerWrapper,
     private val fileManager: FileManager,
     private val packageManagerWrapper: PackageManagerWrapper,
@@ -466,13 +466,10 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
             val file = File(
                 directory,
-                componentName.flattenToString().replace(
-                    "/",
-                    "-",
-                ),
+                componentName.flattenToString().hashCode().toString(),
             )
 
-            androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+            imageSerializer.createDrawablePath(drawable = drawable, file = file)
 
             file.absolutePath
         }
@@ -500,10 +497,10 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
             val file = File(
                 directory,
-                id,
+                id.hashCode().toString(),
             )
 
-            androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+            imageSerializer.createDrawablePath(drawable = drawable, file = file)
 
             file.absolutePath
         }

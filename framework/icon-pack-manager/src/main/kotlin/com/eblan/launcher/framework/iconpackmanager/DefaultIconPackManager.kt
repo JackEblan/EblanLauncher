@@ -25,7 +25,7 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.IconPackInfoComponent
-import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
+import com.eblan.launcher.framework.imageserializer.AndroidImageSerializer
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.isActive
@@ -39,7 +39,7 @@ import javax.inject.Inject
 @SuppressLint("DiscouragedApi")
 internal class DefaultIconPackManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val androidByteArrayWrapper: AndroidByteArrayWrapper,
+    private val imageSerializer: AndroidImageSerializer,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : IconPackManager,
     AndroidIconPackManager {
@@ -130,13 +130,10 @@ internal class DefaultIconPackManager @Inject constructor(
             ).let { drawable ->
                 val file = File(
                     iconPackInfoDirectory,
-                    componentName.replace(
-                        "/",
-                        "-",
-                    ),
+                    componentName.hashCode().toString(),
                 )
 
-                androidByteArrayWrapper.createDrawablePath(drawable = drawable, file = file)
+                imageSerializer.createDrawablePath(drawable = drawable, file = file)
 
                 file.absolutePath
             }

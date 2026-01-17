@@ -44,6 +44,7 @@ import com.eblan.launcher.domain.model.FastLauncherAppsShortcutInfo
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
+import com.eblan.launcher.domain.model.ShortcutConfigActivityInfo
 import com.eblan.launcher.domain.model.ShortcutQueryFlag
 import com.eblan.launcher.framework.imageserializer.AndroidImageSerializer
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
@@ -300,7 +301,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     override suspend fun getShortcutConfigActivityList(
         serialNumber: Long,
         packageName: String,
-    ): List<LauncherAppsActivityInfo> = withContext(defaultDispatcher) {
+    ): List<ShortcutConfigActivityInfo> = withContext(defaultDispatcher) {
         val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && userHandle != null) {

@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-01-17T06:05:34.685567686Z">
+        <DropdownSelection timestamp="2026-01-17T20:29:52.696464902Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=07314251BG101942" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/home/jack115/.android/avd/Pixel_6a.avd" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -20,6 +20,9 @@
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="migrateAll()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="migrate6To7()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

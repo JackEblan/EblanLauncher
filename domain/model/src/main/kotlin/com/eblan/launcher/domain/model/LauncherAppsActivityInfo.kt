@@ -17,6 +17,8 @@
  */
 package com.eblan.launcher.domain.model
 
+typealias ShortcutConfigActivityInfo = LauncherAppsActivityInfo
+
 data class LauncherAppsActivityInfo(
     val serialNumber: Long,
     val componentName: String,

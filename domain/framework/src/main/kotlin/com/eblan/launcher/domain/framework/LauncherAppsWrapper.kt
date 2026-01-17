@@ -22,6 +22,7 @@ import com.eblan.launcher.domain.model.FastLauncherAppsShortcutInfo
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
+import com.eblan.launcher.domain.model.ShortcutConfigActivityInfo
 import kotlinx.coroutines.flow.Flow
 
 interface LauncherAppsWrapper {
@@ -50,5 +51,5 @@ interface LauncherAppsWrapper {
     suspend fun getShortcutConfigActivityList(
         serialNumber: Long,
         packageName: String,
-    ): List<LauncherAppsActivityInfo>
+    ): List<ShortcutConfigActivityInfo>
 }

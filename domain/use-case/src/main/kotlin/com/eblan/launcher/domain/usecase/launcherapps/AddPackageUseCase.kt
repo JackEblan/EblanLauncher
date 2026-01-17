@@ -214,29 +214,44 @@ class AddPackageUseCase @Inject constructor(
         val eblanShortcutConfigs = launcherAppsWrapper.getShortcutConfigActivityList(
             serialNumber = serialNumber,
             packageName = packageName,
-        ).map { launcherAppsActivityInfo ->
+        ).map { shortcutConfigActivityInfo ->
             currentCoroutineContext().ensureActive()
 
             val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
 
-            val file = File(
-                directory,
-                launcherAppsActivityInfo.componentName.hashCode().toString(),
-            )
+            val componentName =
+                packageManagerWrapper.getComponentName(packageName = shortcutConfigActivityInfo.packageName)
 
-            val applicationIcon = file.absolutePath
+            val applicationIcon = if (componentName != null) {
+                val file = File(
+                    directory,
+                    componentName.hashCode().toString(),
+                )
+
+                file.absolutePath
+            } else {
+                val file = File(
+                    directory,
+                    shortcutConfigActivityInfo.packageName.hashCode().toString(),
+                )
+
+                packageManagerWrapper.getApplicationIcon(
+                    packageName = shortcutConfigActivityInfo.packageName,
+                    file = file,
+                )
+            }
 
             EblanShortcutConfig(
-                componentName = launcherAppsActivityInfo.componentName,
-                packageName = launcherAppsActivityInfo.packageName,
-                serialNumber = launcherAppsActivityInfo.serialNumber,
-                activityIcon = launcherAppsActivityInfo.activityIcon,
-                activityLabel = launcherAppsActivityInfo.activityLabel,
+                componentName = shortcutConfigActivityInfo.componentName,
+                packageName = shortcutConfigActivityInfo.packageName,
+                serialNumber = shortcutConfigActivityInfo.serialNumber,
+                activityIcon = shortcutConfigActivityInfo.activityIcon,
+                activityLabel = shortcutConfigActivityInfo.activityLabel,
                 applicationIcon = applicationIcon,
                 applicationLabel = packageManagerWrapper.getApplicationLabel(
-                    packageName = launcherAppsActivityInfo.packageName,
+                    packageName = shortcutConfigActivityInfo.packageName,
                 ),
-                lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
+                lastUpdateTime = shortcutConfigActivityInfo.lastUpdateTime,
             )
         }
 

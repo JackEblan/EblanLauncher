@@ -38,9 +38,12 @@ import com.eblan.launcher.domain.model.FastLauncherAppsShortcutInfo
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
+import com.eblan.launcher.domain.model.ShortcutConfigActivityInfo
+import com.eblan.launcher.domain.model.ShortcutConfigGridItem
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
+import com.eblan.launcher.domain.model.UpdateShortcutConfigGridItem
 import com.eblan.launcher.domain.model.UpdateShortcutInfoGridItem
 import com.eblan.launcher.domain.model.UpdateWidgetGridItem
 import com.eblan.launcher.domain.model.UserData
@@ -50,6 +53,7 @@ import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
+import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -81,6 +85,7 @@ class SyncDataUseCase @Inject constructor(
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
     private val iconPackManager: IconPackManager,
     private val notificationManagerWrapper: NotificationManagerWrapper,
+    private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
@@ -292,6 +297,8 @@ class SyncDataUseCase @Inject constructor(
             eblanShortcutConfigRepository = eblanShortcutConfigRepository,
             newEblanShortcutConfigs = newEblanShortcutConfigs,
         )
+
+        updateShortcutConfigGridItems(shortcutConfigActivityInfos = launcherAppsActivityInfos)
     }
 
     private suspend fun updateEblanShortcutConfigs(
@@ -630,6 +637,63 @@ class SyncDataUseCase @Inject constructor(
         )
     }
 
+    private suspend fun updateShortcutConfigGridItems(shortcutConfigActivityInfos: List<ShortcutConfigActivityInfo>) {
+        val updateShortcutConfigGridItems = mutableListOf<UpdateShortcutConfigGridItem>()
+
+        val deleteShortcutConfigGridItems = mutableListOf<ShortcutConfigGridItem>()
+
+        val shortcutConfigGridItems =
+            shortcutConfigGridItemRepository.shortcutConfigGridItems.first()
+
+        shortcutConfigGridItems.filterNot { shortcutConfigGridItem ->
+            shortcutConfigGridItem.override
+        }.forEach { shortcutConfigGridItem ->
+            currentCoroutineContext().ensureActive()
+
+            val shortcutConfigActivityInfo =
+                shortcutConfigActivityInfos.find { shortcutConfigActivityInfo ->
+                    currentCoroutineContext().ensureActive()
+
+                    shortcutConfigActivityInfo.packageName == shortcutConfigGridItem.packageName && shortcutConfigActivityInfo.serialNumber == shortcutConfigGridItem.serialNumber
+                }
+
+            if (shortcutConfigActivityInfo != null) {
+                val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                val componentName =
+                    packageManagerWrapper.getComponentName(packageName = shortcutConfigActivityInfo.packageName)
+
+                val file = File(
+                    directory,
+                    componentName.hashCode().toString(),
+                )
+
+                updateShortcutConfigGridItems.add(
+                    UpdateShortcutConfigGridItem(
+                        id = shortcutConfigGridItem.id,
+                        componentName = shortcutConfigActivityInfo.componentName,
+                        activityLabel = shortcutConfigActivityInfo.activityLabel,
+                        activityIcon = shortcutConfigActivityInfo.activityIcon,
+                        applicationLabel = packageManagerWrapper.getApplicationLabel(
+                            packageName = shortcutConfigActivityInfo.packageName,
+                        ).toString(),
+                        applicationIcon = file.absolutePath,
+                    ),
+                )
+            } else {
+                deleteShortcutConfigGridItems.add(shortcutConfigGridItem)
+            }
+        }
+
+        shortcutConfigGridItemRepository.updateShortcutConfigGridItems(
+            updateShortcutConfigGridItems = updateShortcutConfigGridItems,
+        )
+
+        shortcutConfigGridItemRepository.deleteShortcutConfigGridItems(
+            shortcutConfigGridItems = deleteShortcutConfigGridItems,
+        )
+    }
+
     private suspend fun updateWidgetGridItems(appWidgetManagerAppWidgetProviderInfos: List<AppWidgetManagerAppWidgetProviderInfo>) {
         if (!packageManagerWrapper.hasSystemFeatureAppWidgets) return
 
@@ -652,6 +716,30 @@ class SyncDataUseCase @Inject constructor(
                 }
 
             if (appWidgetManagerAppWidgetProviderInfo != null) {
+                val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                val componentName =
+                    packageManagerWrapper.getComponentName(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
+
+                val icon = if (componentName != null) {
+                    val file = File(
+                        directory,
+                        componentName.hashCode().toString(),
+                    )
+
+                    file.absolutePath
+                } else {
+                    val file = File(
+                        directory,
+                        appWidgetManagerAppWidgetProviderInfo.packageName.hashCode().toString(),
+                    )
+
+                    packageManagerWrapper.getApplicationIcon(
+                        packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                        file = file,
+                    )
+                }
+
                 updateWidgetGridItems.add(
                     UpdateWidgetGridItem(
                         id = widgetGridItem.id,
@@ -666,6 +754,10 @@ class SyncDataUseCase @Inject constructor(
                         maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
                         targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
                         targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
+                        icon = icon,
+                        label = packageManagerWrapper.getApplicationLabel(
+                            packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                        ).toString(),
                     ),
                 )
             } else {

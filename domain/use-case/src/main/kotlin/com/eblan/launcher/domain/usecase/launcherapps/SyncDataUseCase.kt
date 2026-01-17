@@ -793,6 +793,30 @@ class SyncDataUseCase @Inject constructor(
                     }
 
                 if (launcherAppsShortcutInfo != null) {
+                    val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                    val componentName =
+                        packageManagerWrapper.getComponentName(packageName = launcherAppsShortcutInfo.packageName)
+
+                    val eblanApplicationInfoIcon = if (componentName != null) {
+                        val file = File(
+                            directory,
+                            componentName.hashCode().toString(),
+                        )
+
+                        file.absolutePath
+                    } else {
+                        val file = File(
+                            directory,
+                            launcherAppsShortcutInfo.packageName.hashCode().toString(),
+                        )
+
+                        packageManagerWrapper.getApplicationIcon(
+                            packageName = launcherAppsShortcutInfo.packageName,
+                            file = file,
+                        )
+                    }
+
                     updateShortcutInfoGridItems.add(
                         UpdateShortcutInfoGridItem(
                             id = shortcutInfoGridItem.id,
@@ -800,6 +824,7 @@ class SyncDataUseCase @Inject constructor(
                             longLabel = launcherAppsShortcutInfo.longLabel,
                             isEnabled = launcherAppsShortcutInfo.isEnabled,
                             icon = launcherAppsShortcutInfo.icon,
+                            eblanApplicationInfoIcon = eblanApplicationInfoIcon,
                         ),
                     )
                 } else {

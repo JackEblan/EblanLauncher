@@ -469,6 +469,30 @@ class ChangePackageUseCase @Inject constructor(
                     }
 
                 if (launcherAppsShortcutInfo != null) {
+                    val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                    val componentName =
+                        packageManagerWrapper.getComponentName(packageName = launcherAppsShortcutInfo.packageName)
+
+                    val eblanApplicationInfoIcon = if (componentName != null) {
+                        val file = File(
+                            directory,
+                            componentName.hashCode().toString(),
+                        )
+
+                        file.absolutePath
+                    } else {
+                        val file = File(
+                            directory,
+                            launcherAppsShortcutInfo.packageName.hashCode().toString(),
+                        )
+
+                        packageManagerWrapper.getApplicationIcon(
+                            packageName = launcherAppsShortcutInfo.packageName,
+                            file = file,
+                        )
+                    }
+
                     updateShortcutInfoGridItems.add(
                         UpdateShortcutInfoGridItem(
                             id = shortcutInfoGridItem.id,
@@ -476,6 +500,7 @@ class ChangePackageUseCase @Inject constructor(
                             longLabel = launcherAppsShortcutInfo.longLabel,
                             isEnabled = launcherAppsShortcutInfo.isEnabled,
                             icon = launcherAppsShortcutInfo.icon,
+                            eblanApplicationInfoIcon = eblanApplicationInfoIcon,
                         ),
                     )
                 } else {
@@ -514,9 +539,10 @@ class ChangePackageUseCase @Inject constructor(
         }.forEach { shortcutConfigGridItem ->
             currentCoroutineContext().ensureActive()
 
-            val launcherAppsActivityInfo = shortcutConfigActivityInfos.find { shortcutConfigActivityInfo ->
-                shortcutConfigActivityInfo.componentName == shortcutConfigGridItem.componentName && shortcutConfigActivityInfo.serialNumber == shortcutConfigGridItem.serialNumber
-            }
+            val launcherAppsActivityInfo =
+                shortcutConfigActivityInfos.find { shortcutConfigActivityInfo ->
+                    shortcutConfigActivityInfo.componentName == shortcutConfigGridItem.componentName && shortcutConfigActivityInfo.serialNumber == shortcutConfigGridItem.serialNumber
+                }
 
             if (launcherAppsActivityInfo != null) {
                 val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)

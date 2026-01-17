@@ -65,22 +65,6 @@ internal class DefaultFileManager @Inject constructor(
         }
     }
 
-    override suspend fun getFilePath(
-        directory: File,
-        name: String,
-        byteArray: ByteArray,
-    ): String? = withContext(ioDispatcher) {
-        val file = File(directory, name)
-
-        val oldFile = readFileBytes(file = file)
-
-        if (oldFile.contentEquals(byteArray)) {
-            file.absolutePath
-        } else {
-            null
-        }
-    }
-
     private fun readFileBytes(file: File): ByteArray? = if (file.exists()) {
         try {
             FileInputStream(file).use { fis ->

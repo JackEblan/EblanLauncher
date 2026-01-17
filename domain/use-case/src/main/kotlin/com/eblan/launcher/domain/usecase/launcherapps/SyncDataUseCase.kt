@@ -438,10 +438,7 @@ class SyncDataUseCase @Inject constructor(
                 }.map { launcherAppsActivityInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    launcherAppsActivityInfo.componentName.replace(
-                        "/",
-                        "-",
-                    )
+                    launcherAppsActivityInfo.componentName.hashCode().toString()
                 }
 
             iconPackDirectory.listFiles()?.filter { it.isFile && it.name !in installedPackageNames }

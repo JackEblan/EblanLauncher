@@ -54,7 +54,6 @@ class MigrationAllTest {
             dropAllTables = true,
             1,
             2,
-            6,
         ).build().apply {
             openHelper.writableDatabase.close()
         }

@@ -612,6 +612,7 @@ class SyncDataUseCase @Inject constructor(
                     UpdateApplicationInfoGridItem(
                         id = applicationInfoGridItem.id,
                         componentName = launcherAppsActivityInfo.componentName,
+                        icon = launcherAppsActivityInfo.activityIcon,
                         label = launcherAppsActivityInfo.activityLabel,
                     ),
                 )

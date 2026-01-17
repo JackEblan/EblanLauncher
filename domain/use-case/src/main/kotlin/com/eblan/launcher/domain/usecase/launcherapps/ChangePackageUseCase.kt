@@ -148,6 +148,7 @@ class ChangePackageUseCase @Inject constructor(
                 serialNumber = serialNumber,
                 packageName = packageName,
                 componentName = componentName,
+                icon = icon,
                 label = label,
             )
         }
@@ -324,6 +325,7 @@ class ChangePackageUseCase @Inject constructor(
         serialNumber: Long,
         packageName: String,
         componentName: String?,
+        icon: String?,
         label: String?,
     ) {
         val updateApplicationInfoGridItems =
@@ -339,6 +341,7 @@ class ChangePackageUseCase @Inject constructor(
                     UpdateApplicationInfoGridItem(
                         id = applicationInfoGridItem.id,
                         componentName = componentName,
+                        icon = icon,
                         label = label,
                     )
                 } else {

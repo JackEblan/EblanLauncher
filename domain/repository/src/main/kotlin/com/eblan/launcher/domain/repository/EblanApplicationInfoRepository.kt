@@ -46,5 +46,5 @@ interface EblanApplicationInfoRepository {
 
     suspend fun updateEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo)
 
-    suspend fun restoreEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo): EblanApplicationInfo
+    suspend fun restoreEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo)
 }

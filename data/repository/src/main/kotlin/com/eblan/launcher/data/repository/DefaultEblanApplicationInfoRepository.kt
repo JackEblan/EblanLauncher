@@ -20,15 +20,21 @@ package com.eblan.launcher.data.repository
 import com.eblan.launcher.data.repository.mapper.asEntity
 import com.eblan.launcher.data.repository.mapper.asModel
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-internal class DefaultEblanApplicationInfoRepository @Inject constructor(private val eblanApplicationInfoDao: EblanApplicationInfoDao) :
-    EblanApplicationInfoRepository {
+internal class DefaultEblanApplicationInfoRepository @Inject constructor(
+    private val eblanApplicationInfoDao: EblanApplicationInfoDao,
+    @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+) : EblanApplicationInfoRepository {
     override val eblanApplicationInfos =
         eblanApplicationInfoDao.getEblanApplicationInfoEntities().map { entities ->
             entities.map { entity ->
@@ -40,11 +46,10 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
         eblanApplicationInfoDao.upsertEblanApplicationInfoEntity(entity = eblanApplicationInfo.asEntity())
     }
 
-    override suspend fun getEblanApplicationInfosByPackageName(packageName: String): List<EblanApplicationInfo> =
-        eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByPackageName(packageName = packageName)
-            .map { entity ->
-                entity.asModel()
-            }
+    override suspend fun getEblanApplicationInfosByPackageName(packageName: String): List<EblanApplicationInfo> = eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByPackageName(packageName = packageName)
+        .map { entity ->
+            entity.asModel()
+        }
 
     override suspend fun deleteEblanApplicationInfo(
         serialNumber: Long,
@@ -84,18 +89,22 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
         eblanApplicationInfoDao.updateEblanApplicationInfoEntity(entity = eblanApplicationInfo.asEntity())
     }
 
-    override suspend fun restoreEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo): EblanApplicationInfo {
-        eblanApplicationInfo.customIcon?.let { customIcon ->
-            val customIconFile = File(customIcon)
+    override suspend fun restoreEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
+        withContext(ioDispatcher) {
+            eblanApplicationInfo.customIcon?.let { customIcon ->
+                val customIconFile = File(customIcon)
 
-            if (customIconFile.exists()) {
-                File(customIcon).delete()
+                if (customIconFile.exists()) {
+                    File(customIcon).delete()
+                }
             }
-        }
 
-        return eblanApplicationInfo.copy(
-            customIcon = null,
-            customLabel = null,
-        )
+            updateEblanApplicationInfo(
+                eblanApplicationInfo = eblanApplicationInfo.copy(
+                    customIcon = null,
+                    customLabel = null,
+                ),
+            )
+        }
     }
 }

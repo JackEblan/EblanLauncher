@@ -1,3 +1,20 @@
+/*
+ *
+ *   Copyright 2023 Einstein Blanco
+ *
+ *   Licensed under the GNU General Public License v3.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       https://www.gnu.org/licenses/gpl-3.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package com.eblan.launcher.data.repository
 
 import com.eblan.launcher.data.repository.mapper.asApplicationInfo
@@ -5,6 +22,8 @@ import com.eblan.launcher.data.repository.mapper.asFolderGridItem
 import com.eblan.launcher.data.repository.mapper.asShortcutConfigGridItem
 import com.eblan.launcher.data.repository.mapper.asShortcutInfoGridItem
 import com.eblan.launcher.data.repository.mapper.asWidgetGridItem
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.FolderGridItem
@@ -20,6 +39,8 @@ import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
@@ -31,6 +52,7 @@ internal class DefaultGridRepository @Inject constructor(
     private val folderGridItemRepository: FolderGridItemRepository,
     private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
+    @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : GridRepository {
     override suspend fun updateGridItem(gridItem: GridItem) {
         when (val data = gridItem.data) {
@@ -66,75 +88,79 @@ internal class DefaultGridRepository @Inject constructor(
         }
     }
 
-    override suspend fun restoreGridItem(gridItem: GridItem): GridItem {
-        return when (val data = gridItem.data) {
-            is GridItemData.ApplicationInfo -> {
-                data.customIcon?.let { customIcon ->
-                    val customIconFile = File(customIcon)
+    override suspend fun restoreGridItem(gridItem: GridItem) {
+        withContext(ioDispatcher) {
+            val gridItem = when (val data = gridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    data.customIcon?.let { customIcon ->
+                        val customIconFile = File(customIcon)
 
-                    if (customIconFile.exists()) {
-                        File(customIcon).delete()
+                        if (customIconFile.exists()) {
+                            File(customIcon).delete()
+                        }
                     }
-                }
 
-                val eblanApplicationInfo =
-                    eblanApplicationInfoRepository.getEblanApplicationInfo(
-                        serialNumber = data.serialNumber,
-                        packageName = data.packageName,
+                    val eblanApplicationInfo =
+                        eblanApplicationInfoRepository.getEblanApplicationInfo(
+                            serialNumber = data.serialNumber,
+                            packageName = data.packageName,
+                        )
+
+                    if (eblanApplicationInfo != null) {
+                        eblanApplicationInfoRepository.updateEblanApplicationInfo(
+                            eblanApplicationInfo = eblanApplicationInfo.copy(
+                                customIcon = null,
+                                customLabel = null,
+                            ),
+                        )
+                    }
+
+                    val newData = data.copy(
+                        customIcon = null,
+                        customLabel = null,
                     )
 
-                if (eblanApplicationInfo != null) {
-                    eblanApplicationInfoRepository.updateEblanApplicationInfo(
-                        eblanApplicationInfo = eblanApplicationInfo.copy(
-                            customIcon = null,
-                            customLabel = null,
-                        ),
+                    gridItem.copy(data = newData)
+                }
+
+                is GridItemData.ShortcutConfig -> {
+                    data.customIcon?.let { customIcon ->
+                        val customIconFile = File(customIcon)
+
+                        if (customIconFile.exists()) {
+                            File(customIcon).delete()
+                        }
+                    }
+
+                    val newData = data.copy(
+                        customIcon = null,
+                        customLabel = null,
                     )
+
+                    gridItem.copy(data = newData)
                 }
 
-                val newData = data.copy(
-                    customIcon = null,
-                    customLabel = null,
-                )
+                is GridItemData.ShortcutInfo -> {
+                    data.customIcon?.let { customIcon ->
+                        val customIconFile = File(customIcon)
 
-                gridItem.copy(data = newData)
-            }
-
-            is GridItemData.ShortcutConfig -> {
-                data.customIcon?.let { customIcon ->
-                    val customIconFile = File(customIcon)
-
-                    if (customIconFile.exists()) {
-                        File(customIcon).delete()
+                        if (customIconFile.exists()) {
+                            File(customIcon).delete()
+                        }
                     }
+
+                    val newData = data.copy(
+                        customIcon = null,
+                        customShortLabel = null,
+                    )
+
+                    gridItem.copy(data = newData)
                 }
 
-                val newData = data.copy(
-                    customIcon = null,
-                    customLabel = null,
-                )
-
-                gridItem.copy(data = newData)
+                else -> gridItem
             }
 
-            is GridItemData.ShortcutInfo -> {
-                data.customIcon?.let { customIcon ->
-                    val customIconFile = File(customIcon)
-
-                    if (customIconFile.exists()) {
-                        File(customIcon).delete()
-                    }
-                }
-
-                val newData = data.copy(
-                    customIcon = null,
-                    customShortLabel = null,
-                )
-
-                gridItem.copy(data = newData)
-            }
-
-            else -> gridItem
+            updateGridItem(gridItem = gridItem)
         }
     }
 
@@ -264,25 +290,7 @@ internal class DefaultGridRepository @Inject constructor(
         when (val data = gridItem.data) {
             is GridItemData.ApplicationInfo -> {
                 applicationInfoGridItemRepository.deleteApplicationInfoGridItem(
-                    applicationInfoGridItem = ApplicationInfoGridItem(
-                        id = gridItem.id,
-                        folderId = gridItem.folderId,
-                        page = gridItem.page,
-                        startColumn = gridItem.startColumn,
-                        startRow = gridItem.startRow,
-                        columnSpan = gridItem.columnSpan,
-                        rowSpan = gridItem.rowSpan,
-                        associate = gridItem.associate,
-                        componentName = data.componentName,
-                        packageName = data.packageName,
-                        icon = data.icon,
-                        label = data.label,
-                        override = gridItem.override,
-                        serialNumber = data.serialNumber,
-                        customIcon = data.customIcon,
-                        customLabel = data.customLabel,
-                        gridItemSettings = gridItem.gridItemSettings,
-                    ),
+                    applicationInfoGridItem = gridItem.asApplicationInfo(data = data),
                 )
             }
 
@@ -293,48 +301,13 @@ internal class DefaultGridRepository @Inject constructor(
                     }
 
                 folderGridItemRepository.deleteFolderGridItem(
-                    folderGridItem = FolderGridItem(
-                        id = gridItem.id,
-                        folderId = gridItem.folderId,
-                        page = gridItem.page,
-                        startColumn = gridItem.startColumn,
-                        startRow = gridItem.startRow,
-                        columnSpan = gridItem.columnSpan,
-                        rowSpan = gridItem.rowSpan,
-                        associate = gridItem.associate,
-                        label = data.label,
-                        override = gridItem.override,
-                        pageCount = data.pageCount,
-                        icon = data.icon,
-                        gridItemSettings = gridItem.gridItemSettings,
-                    ),
+                    folderGridItem = gridItem.asFolderGridItem(data = data),
                 )
             }
 
             is GridItemData.ShortcutInfo -> {
                 shortcutInfoGridItemRepository.deleteShortcutInfoGridItem(
-                    shortcutInfoGridItem = ShortcutInfoGridItem(
-                        id = gridItem.id,
-                        folderId = gridItem.folderId,
-                        page = gridItem.page,
-                        startColumn = gridItem.startColumn,
-                        startRow = gridItem.startRow,
-                        columnSpan = gridItem.columnSpan,
-                        rowSpan = gridItem.rowSpan,
-                        associate = gridItem.associate,
-                        shortcutId = data.shortcutId,
-                        packageName = data.packageName,
-                        shortLabel = data.shortLabel,
-                        longLabel = data.longLabel,
-                        icon = data.icon,
-                        override = gridItem.override,
-                        serialNumber = data.serialNumber,
-                        isEnabled = data.isEnabled,
-                        customIcon = data.customIcon,
-                        customShortLabel = data.customShortLabel,
-                        eblanApplicationInfoIcon = data.eblanApplicationInfoIcon,
-                        gridItemSettings = gridItem.gridItemSettings,
-                    ),
+                    shortcutInfoGridItem = gridItem.asShortcutInfoGridItem(data = data),
                 )
             }
 
@@ -342,64 +315,13 @@ internal class DefaultGridRepository @Inject constructor(
                 appWidgetHostWrapper.deleteAppWidgetId(appWidgetId = data.appWidgetId)
 
                 widgetGridItemRepository.deleteWidgetGridItem(
-                    widgetGridItem = WidgetGridItem(
-                        id = gridItem.id,
-                        folderId = gridItem.folderId,
-                        page = gridItem.page,
-                        startColumn = gridItem.startColumn,
-                        startRow = gridItem.startRow,
-                        columnSpan = gridItem.columnSpan,
-                        rowSpan = gridItem.rowSpan,
-                        associate = gridItem.associate,
-                        appWidgetId = data.appWidgetId,
-                        packageName = data.packageName,
-                        componentName = data.componentName,
-                        configure = data.configure,
-                        minWidth = data.minWidth,
-                        minHeight = data.minHeight,
-                        resizeMode = data.resizeMode,
-                        minResizeWidth = data.minResizeWidth,
-                        minResizeHeight = data.minResizeHeight,
-                        maxResizeWidth = data.maxResizeWidth,
-                        maxResizeHeight = data.maxResizeHeight,
-                        targetCellHeight = data.targetCellHeight,
-                        targetCellWidth = data.targetCellWidth,
-                        preview = data.preview,
-                        label = data.label,
-                        icon = data.icon,
-                        override = gridItem.override,
-                        serialNumber = data.serialNumber,
-                        gridItemSettings = gridItem.gridItemSettings,
-                    ),
+                    widgetGridItem = gridItem.asWidgetGridItem(data = data),
                 )
             }
 
             is GridItemData.ShortcutConfig -> {
                 shortcutConfigGridItemRepository.deleteShortcutConfigGridItem(
-                    shortcutConfigGridItem = ShortcutConfigGridItem(
-                        id = gridItem.id,
-                        folderId = gridItem.folderId,
-                        page = gridItem.page,
-                        startColumn = gridItem.startColumn,
-                        startRow = gridItem.startRow,
-                        columnSpan = gridItem.columnSpan,
-                        rowSpan = gridItem.rowSpan,
-                        associate = gridItem.associate,
-                        componentName = data.componentName,
-                        packageName = data.packageName,
-                        activityIcon = data.activityIcon,
-                        activityLabel = data.activityLabel,
-                        applicationIcon = data.applicationIcon,
-                        applicationLabel = data.applicationLabel,
-                        override = gridItem.override,
-                        serialNumber = data.serialNumber,
-                        shortcutIntentName = data.shortcutIntentName,
-                        shortcutIntentIcon = data.shortcutIntentIcon,
-                        shortcutIntentUri = data.shortcutIntentUri,
-                        customIcon = data.customIcon,
-                        customLabel = data.customLabel,
-                        gridItemSettings = gridItem.gridItemSettings,
-                    ),
+                    shortcutConfigGridItem = gridItem.asShortcutConfigGridItem(data = data),
                 )
             }
         }

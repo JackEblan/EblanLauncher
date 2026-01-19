@@ -82,7 +82,7 @@ internal class EditApplicationInfoViewModel @Inject constructor(
 
     fun updateEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
         viewModelScope.launch {
-            eblanApplicationInfoRepository.upsertEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
+            eblanApplicationInfoRepository.updateEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
 
             getApplicationInfo()
         }
@@ -122,11 +122,11 @@ internal class EditApplicationInfoViewModel @Inject constructor(
 
     fun restoreEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
         viewModelScope.launch {
-            updateEblanApplicationInfo(
-                eblanApplicationInfo = eblanApplicationInfoRepository.restoreEblanApplicationInfo(
-                    eblanApplicationInfo = eblanApplicationInfo,
-                ),
+            eblanApplicationInfoRepository.restoreEblanApplicationInfo(
+                eblanApplicationInfo = eblanApplicationInfo,
             )
+
+            getApplicationInfo()
         }
     }
 

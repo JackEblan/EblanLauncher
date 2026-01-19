@@ -46,7 +46,6 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -56,7 +55,6 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberOverscrollEffect
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -1086,7 +1084,6 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                 lazyGridState = lazyGridState,
                 appDrawerSettings = appDrawerSettings,
                 paddingValues = paddingValues,
-                eblanApplicationInfos = getEblanApplicationInfos.eblanApplicationInfos[eblanUser].orEmpty(),
                 onScrollToItem = lazyGridState::scrollToItem,
             )
         }
@@ -1260,7 +1257,6 @@ private fun ScrollBarThumb(
     lazyGridState: LazyGridState,
     appDrawerSettings: AppDrawerSettings,
     paddingValues: PaddingValues,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
     onScrollToItem: suspend (Int) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -1328,37 +1324,7 @@ private fun ScrollBarThumb(
         targetValue = if (lazyGridState.isScrollInProgress || isDraggingThumb) 1f else 0.2f,
     )
 
-    val firstVisibleItem by remember(key1 = lazyGridState, key2 = eblanApplicationInfos) {
-        derivedStateOf {
-            if (isDraggingThumb && lazyGridState.firstVisibleItemIndex in eblanApplicationInfos.indices) {
-                eblanApplicationInfos[lazyGridState.firstVisibleItemIndex].label
-            } else {
-                null
-            }
-        }
-    }
-
     Row(modifier = modifier) {
-        if (isDraggingThumb) {
-            Box(
-                modifier = Modifier
-                    .offset {
-                        IntOffset(x = 0, y = thumbY.roundToInt())
-                    }
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = CircleShape,
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    modifier = Modifier.padding(10.dp),
-                    text = firstVisibleItem.orEmpty(),
-                )
-            }
-            Spacer(modifier = Modifier.width(10.dp))
-        }
-
         Box(
             modifier = Modifier
                 .offset {
@@ -1403,7 +1369,7 @@ private fun ScrollBarThumb(
 
                             val targetIndex =
                                 (targetRow * appDrawerSettings.appDrawerColumns).roundToInt()
-                                    .coerceIn(0, eblanApplicationInfos.lastIndex)
+                                    .coerceIn(0, lazyGridState.layoutInfo.totalItemsCount)
 
                             scope.launch {
                                 onScrollToItem(targetIndex)

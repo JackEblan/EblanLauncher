@@ -23,6 +23,7 @@ import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.FolderDataById
+import com.eblan.launcher.domain.model.GetEblanApplicationInfos
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemData
@@ -163,11 +164,15 @@ internal class HomeViewModel @Inject constructor(
 
     private val _eblanApplicationInfoLabel = MutableStateFlow("")
 
-    val eblanApplicationInfos =
+    val getEblanApplicationInfos =
         getEblanApplicationInfosUseCase(labelFlow = _eblanApplicationInfoLabel).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyMap(),
+            initialValue = GetEblanApplicationInfos(
+                eblanApplicationInfos = emptyMap(),
+                privateEblanUser = null,
+                privateEblanApplicationInfos = emptyList(),
+            ),
         )
 
     private val _eblanAppWidgetProviderInfoLabel = MutableStateFlow("")

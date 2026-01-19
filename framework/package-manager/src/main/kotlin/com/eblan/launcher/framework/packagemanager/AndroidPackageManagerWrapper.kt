@@ -18,9 +18,12 @@
 package com.eblan.launcher.framework.packagemanager
 
 import android.content.ComponentName
+import android.os.UserHandle
 
 interface AndroidPackageManagerWrapper {
     fun isDefaultLauncher(): Boolean
 
     fun isComponentExported(componentName: ComponentName): Boolean
+
+    fun getUserBadgedLabel(label: CharSequence, userHandle: UserHandle): CharSequence
 }

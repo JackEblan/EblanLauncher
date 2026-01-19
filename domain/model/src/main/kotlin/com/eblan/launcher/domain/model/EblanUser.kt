@@ -15,21 +15,17 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.domain.model
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.hilt)
-}
+data class EblanUser(
+    val serialNumber: Long,
+    val eblanUserType: EblanUserType,
+    val isPrivateSpaceEntryPointHidden: Boolean,
+)
 
-android {
-    namespace = "com.eblan.launcher.framework.launcherapps"
-}
-
-dependencies {
-    implementation(projects.common)
-    implementation(projects.domain.common)
-    implementation(projects.domain.framework)
-    implementation(projects.framework.imageSerializer)
-    implementation(projects.framework.packageManager)
-    implementation(projects.framework.userManager)
+enum class EblanUserType {
+    Personal,
+    Clone,
+    Work,
+    Private,
 }

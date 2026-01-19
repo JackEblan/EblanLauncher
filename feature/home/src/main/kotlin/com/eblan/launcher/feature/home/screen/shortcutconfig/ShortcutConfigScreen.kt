@@ -92,6 +92,7 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutConfig
+import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -113,7 +114,7 @@ import kotlin.uuid.Uuid
 internal fun SharedTransitionScope.ShortcutConfigScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     paddingValues: PaddingValues,
     drag: Drag,
     gridItemSettings: GridItemSettings,
@@ -241,7 +242,7 @@ private fun SharedTransitionScope.Success(
     paddingValues: PaddingValues,
     drag: Drag,
     gridItemSettings: GridItemSettings,
-    eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     screen: Screen,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
@@ -328,13 +329,13 @@ private fun SharedTransitionScope.Success(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun EblanShortcutConfigTabRow(
     currentPage: Int,
-    eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     onAnimateScrollToPage: suspend (Int) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
     SecondaryTabRow(selectedTabIndex = currentPage) {
-        eblanShortcutConfigs.keys.forEachIndexed { index, serialNumber ->
+        eblanShortcutConfigs.keys.forEachIndexed { index, eblanUser ->
             Tab(
                 selected = currentPage == index,
                 onClick = {
@@ -344,7 +345,7 @@ private fun EblanShortcutConfigTabRow(
                 },
                 text = {
                     Text(
-                        text = "User $serialNumber",
+                        text = eblanUser.eblanUserType.name,
                         maxLines = 1,
                     )
                 },
@@ -362,7 +363,7 @@ private fun SharedTransitionScope.EblanShortcutConfigsPage(
     paddingValues: PaddingValues,
     drag: Drag,
     gridItemSettings: GridItemSettings,
-    eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     screen: Screen,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,

@@ -69,8 +69,10 @@ import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
+import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GestureSettings
+import com.eblan.launcher.domain.model.GetEblanApplicationInfos
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
@@ -117,9 +119,9 @@ internal fun SharedTransitionScope.PagerScreen(
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
     experimentalSettings: ExperimentalSettings,
-    eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
+    getEblanApplicationInfos: GetEblanApplicationInfos,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
-    eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEditGridItem: (String) -> Unit,
@@ -452,7 +454,7 @@ internal fun SharedTransitionScope.PagerScreen(
         ApplicationScreen(
             currentPage = currentPage,
             swipeY = swipeY.value,
-            eblanApplicationInfos = eblanApplicationInfos,
+            getEblanApplicationInfos = getEblanApplicationInfos,
             paddingValues = paddingValues,
             drag = drag,
             appDrawerSettings = appDrawerSettings,
@@ -518,7 +520,7 @@ internal fun SharedTransitionScope.PagerScreen(
         ApplicationScreen(
             currentPage = currentPage,
             swipeY = swipeY.value,
-            eblanApplicationInfos = eblanApplicationInfos,
+            getEblanApplicationInfos = getEblanApplicationInfos,
             paddingValues = paddingValues,
             drag = drag,
             appDrawerSettings = appDrawerSettings,

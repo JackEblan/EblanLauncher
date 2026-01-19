@@ -19,8 +19,10 @@ package com.eblan.launcher.domain.usecase.application
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutConfig
+import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -30,9 +32,10 @@ import javax.inject.Inject
 
 class GetEblanShortcutConfigsUseCase @Inject constructor(
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
+    private val launcherAppsWrapper: LauncherAppsWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(labelFlow: Flow<String>): Flow<Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>> = combine(
+    operator fun invoke(labelFlow: Flow<String>): Flow<Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>> = combine(
         eblanShortcutConfigRepository.eblanShortcutConfigs,
         labelFlow,
     ) { eblanShortcutConfigs, label ->
@@ -45,7 +48,7 @@ class GetEblanShortcutConfigsUseCase @Inject constructor(
         }.sortedBy { eblanShortcutConfig ->
             eblanShortcutConfig.applicationLabel?.lowercase()
         }.groupBy { eblanShortcutConfig ->
-            eblanShortcutConfig.serialNumber
+            launcherAppsWrapper.getUser(serialNumber = eblanShortcutConfig.serialNumber)
         }.mapValues { entry ->
             entry.value.groupBy { eblanShortcutConfig ->
                 EblanApplicationInfoGroup(

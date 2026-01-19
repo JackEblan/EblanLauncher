@@ -503,6 +503,12 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
+    override fun getPrivateSpaceSettingsIntent(): IntentSender? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+        launcherApps.privateSpaceSettingsIntent
+    } else {
+        null
+    }
+
     private fun isUserAvailable(userHandle: UserHandle): Boolean = userManagerWrapper.isUserRunning(userHandle = userHandle) && userManagerWrapper.isUserUnlocked(
         userHandle = userHandle,
     ) && !userManagerWrapper.isQuietModeEnabled(userHandle = userHandle)

@@ -1034,6 +1034,8 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                         iconPackFilePaths = iconPackFilePaths,
                         textColor = textColor,
                         klwpIntegration = klwpIntegration,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onLongPressGridItem = onLongPressGridItem,
                         onUpdatePopupMenu = onUpdatePopupMenu,
                         onUpdateIsQuietModeEnabled = { newIsQuiteModeEnabled ->
                             isQuietModeEnabled = newIsQuiteModeEnabled

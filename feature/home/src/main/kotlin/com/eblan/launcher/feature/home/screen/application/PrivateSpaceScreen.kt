@@ -19,6 +19,9 @@ package com.eblan.launcher.feature.home.screen.application
 
 import android.graphics.Rect
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -49,6 +52,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -67,13 +72,17 @@ import coil3.request.ImageRequest
 import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanUser
+import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
@@ -81,6 +90,7 @@ import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalUserManager
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 internal fun LazyGridScope.privateSpace(
     privateEblanUser: EblanUser?,
@@ -93,6 +103,14 @@ internal fun LazyGridScope.privateSpace(
     iconPackFilePaths: Map<String, String>,
     textColor: TextColor,
     klwpIntegration: Boolean,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
     onUpdatePopupMenu: (Boolean) -> Unit,
     onUpdateIsQuietModeEnabled: (Boolean) -> Unit,
 ) {
@@ -111,7 +129,7 @@ internal fun LazyGridScope.privateSpace(
 
     if (!isQuietModeEnabled) {
         items(privateEblanApplicationInfos) { eblanApplicationInfo ->
-            EblanApplicationInfoItem(
+            PrivateSpaceEblanApplicationInfoItem(
                 drag = drag,
                 eblanApplicationInfo = eblanApplicationInfo,
                 appDrawerSettings = appDrawerSettings,
@@ -119,6 +137,8 @@ internal fun LazyGridScope.privateSpace(
                 iconPackFilePaths = iconPackFilePaths,
                 textColor = textColor,
                 klwpIntegration = klwpIntegration,
+                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onLongPressGridItem = onLongPressGridItem,
                 onUpdatePopupMenu = onUpdatePopupMenu,
             )
         }
@@ -138,8 +158,14 @@ private fun PrivateSpaceStickyHeader(
 
     val packageManager = LocalPackageManager.current
 
+    val launcherApps = LocalLauncherApps.current
+
     val userHandle =
         userManager.getUserForSerialNumber(serialNumber = privateEblanUser.serialNumber)
+
+    val privateSpaceLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult(),
+    ) {}
 
     LaunchedEffect(key1 = userHandle) {
         if (userHandle != null) {
@@ -163,6 +189,19 @@ private fun PrivateSpaceStickyHeader(
         Text(
             text = "Private",
         )
+
+        launcherApps.getPrivateSpaceSettingsIntent()?.let { intentSender ->
+            IconButton(
+                onClick = {
+                    privateSpaceLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
+                },
+            ) {
+                Icon(
+                    imageVector = EblanLauncherIcons.Settings,
+                    contentDescription = null,
+                )
+            }
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && packageManager.isDefaultLauncher() && userHandle != null) {
             IconButton(
@@ -190,7 +229,7 @@ private fun PrivateSpaceStickyHeader(
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EblanApplicationInfoItem(
+private fun PrivateSpaceEblanApplicationInfoItem(
     modifier: Modifier = Modifier,
     drag: Drag,
     eblanApplicationInfo: EblanApplicationInfo,
@@ -199,11 +238,21 @@ private fun EblanApplicationInfoItem(
     iconPackFilePaths: Map<String, String>,
     textColor: TextColor,
     klwpIntegration: Boolean,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
     onUpdatePopupMenu: (Boolean) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
+
+    val graphicsLayer = rememberGraphicsLayer()
 
     val scale = remember { Animatable(1f) }
 
@@ -248,17 +297,17 @@ private fun EblanApplicationInfoItem(
         paddingValues.calculateTopPadding().roundToPx()
     }
 
+    val id = remember { Uuid.random().toHexString() }
+
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.End, Drag.Cancel -> {
-                scale.stop()
+        if (drag == Drag.End || drag == Drag.Cancel) {
+            scale.stop()
 
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
+            if (scale.value < 1f) {
+                scale.animateTo(1f)
             }
-
-            else -> Unit
+        } else {
+            Unit
         }
     }
 
@@ -293,6 +342,40 @@ private fun EblanApplicationInfoItem(
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
+
+                            val data = GridItemData.ApplicationInfo(
+                                serialNumber = eblanApplicationInfo.serialNumber,
+                                componentName = eblanApplicationInfo.componentName,
+                                packageName = eblanApplicationInfo.packageName,
+                                icon = eblanApplicationInfo.icon,
+                                label = eblanApplicationInfo.label,
+                                customIcon = eblanApplicationInfo.customIcon,
+                                customLabel = eblanApplicationInfo.customLabel,
+                            )
+
+                            onLongPressGridItem(
+                                GridItemSource.New(
+                                    gridItem = GridItem(
+                                        id = id,
+                                        folderId = null,
+                                        page = -1,
+                                        startColumn = -1,
+                                        startRow = -1,
+                                        columnSpan = 1,
+                                        rowSpan = 1,
+                                        data = data,
+                                        associate = Associate.Grid,
+                                        override = false,
+                                        gridItemSettings = appDrawerSettings.gridItemSettings,
+                                    ),
+                                ),
+                                null,
+                            )
+
+                            onUpdateGridItemOffset(
+                                intOffset,
+                                intSize,
+                            )
 
                             onUpdatePopupMenu(true)
                         }
@@ -339,7 +422,7 @@ private fun EblanApplicationInfoItem(
                     .align(Alignment.BottomEnd),
             ) {
                 Icon(
-                    imageVector = EblanLauncherIcons.Lock,
+                    imageVector = EblanLauncherIcons.Work,
                     contentDescription = null,
                     modifier = Modifier.padding(2.dp),
                 )

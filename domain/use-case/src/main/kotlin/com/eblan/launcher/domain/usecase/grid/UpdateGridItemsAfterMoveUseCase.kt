@@ -25,6 +25,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -35,8 +36,8 @@ import kotlin.uuid.Uuid
 
 class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
-    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val userDataRepository: UserDataRepository,
+    private val gridRepository: GridRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(moveGridItemResult: MoveGridItemResult) {
@@ -67,7 +68,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
             gridCacheRepository.upsertGridItems(gridItems = gridItems)
 
-            updateGridItemsUseCase(gridItems = gridItems)
+            gridRepository.updateGridItems(gridItems = gridItems)
         }
     }
 

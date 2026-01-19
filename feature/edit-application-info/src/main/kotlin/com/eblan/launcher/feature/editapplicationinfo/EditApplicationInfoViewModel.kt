@@ -27,7 +27,6 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
-import com.eblan.launcher.domain.usecase.application.RestoreEblanApplicationInfoUseCase
 import com.eblan.launcher.feature.editapplicationinfo.model.EditApplicationInfoUiState
 import com.eblan.launcher.feature.editapplicationinfo.navigation.EditApplicationInfoRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,7 +46,6 @@ internal class EditApplicationInfoViewModel @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val iconPackManager: IconPackManager,
     packageManagerWrapper: PackageManagerWrapper,
-    private val restoreEblanApplicationInfoUseCase: RestoreEblanApplicationInfoUseCase,
 ) : ViewModel() {
     private val editApplicationInfoRouteData =
         savedStateHandle.toRoute<EditApplicationInfoRouteData>()
@@ -125,7 +123,7 @@ internal class EditApplicationInfoViewModel @Inject constructor(
     fun restoreEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
         viewModelScope.launch {
             updateEblanApplicationInfo(
-                eblanApplicationInfo = restoreEblanApplicationInfoUseCase(
+                eblanApplicationInfo = eblanApplicationInfoRepository.restoreEblanApplicationInfo(
                     eblanApplicationInfo = eblanApplicationInfo,
                 ),
             )

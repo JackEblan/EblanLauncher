@@ -24,9 +24,11 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.flow.map
+import java.io.File
 import javax.inject.Inject
 
-internal class DefaultEblanApplicationInfoRepository @Inject constructor(private val eblanApplicationInfoDao: EblanApplicationInfoDao) : EblanApplicationInfoRepository {
+internal class DefaultEblanApplicationInfoRepository @Inject constructor(private val eblanApplicationInfoDao: EblanApplicationInfoDao) :
+    EblanApplicationInfoRepository {
     override val eblanApplicationInfos =
         eblanApplicationInfoDao.getEblanApplicationInfoEntities().map { entities ->
             entities.map { entity ->
@@ -38,10 +40,11 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
         eblanApplicationInfoDao.upsertEblanApplicationInfoEntity(entity = eblanApplicationInfo.asEntity())
     }
 
-    override suspend fun getEblanApplicationInfosByPackageName(packageName: String): List<EblanApplicationInfo> = eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByPackageName(packageName = packageName)
-        .map { entity ->
-            entity.asModel()
-        }
+    override suspend fun getEblanApplicationInfosByPackageName(packageName: String): List<EblanApplicationInfo> =
+        eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByPackageName(packageName = packageName)
+            .map { entity ->
+                entity.asModel()
+            }
 
     override suspend fun deleteEblanApplicationInfo(
         serialNumber: Long,
@@ -79,5 +82,20 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
 
     override suspend fun updateEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
         eblanApplicationInfoDao.updateEblanApplicationInfoEntity(entity = eblanApplicationInfo.asEntity())
+    }
+
+    override suspend fun restoreEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo): EblanApplicationInfo {
+        eblanApplicationInfo.customIcon?.let { customIcon ->
+            val customIconFile = File(customIcon)
+
+            if (customIconFile.exists()) {
+                File(customIcon).delete()
+            }
+        }
+
+        return eblanApplicationInfo.copy(
+            customIcon = null,
+            customLabel = null,
+        )
     }
 }

@@ -103,3 +103,21 @@ internal fun FolderGridItem.asEntity(): FolderGridItemEntity = FolderGridItemEnt
     icon = icon,
     gridItemSettings = gridItemSettings,
 )
+
+internal fun GridItem.asFolderGridItem(data: GridItemData.Folder): FolderGridItem {
+    return FolderGridItem(
+        id = id,
+        folderId = folderId,
+        page = page,
+        startColumn = startColumn,
+        startRow = startRow,
+        columnSpan = columnSpan,
+        rowSpan = rowSpan,
+        associate = associate,
+        label = data.label,
+        override = override,
+        pageCount = data.pageCount,
+        icon = data.icon,
+        gridItemSettings = gridItemSettings,
+    )
+}

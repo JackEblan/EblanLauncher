@@ -40,14 +40,12 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -60,7 +58,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SecondaryTabRow
@@ -1029,22 +1026,15 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                     privateSpace(
                         privateEblanUser = getEblanApplicationInfos.privateEblanUser,
                         privateEblanApplicationInfos = getEblanApplicationInfos.privateEblanApplicationInfos,
-                        lazyGridScope = this@LazyVerticalGrid,
                         managedProfileResult = managedProfileResult,
                         isQuietModeEnabled = isQuietModeEnabled,
-                        currentPage = currentPage,
                         drag = drag,
                         appDrawerSettings = appDrawerSettings,
                         paddingValues = paddingValues,
                         iconPackFilePaths = iconPackFilePaths,
-                        screen = screen,
                         textColor = textColor,
                         klwpIntegration = klwpIntegration,
-                        onUpdateGridItemOffset = onUpdateGridItemOffset,
-                        onLongPressGridItem = onLongPressGridItem,
                         onUpdatePopupMenu = onUpdatePopupMenu,
-                        onDraggingGridItem = onDraggingGridItem,
-                        onUpdateSharedElementKey = onUpdateSharedElementKey,
                         onUpdateIsQuietModeEnabled = { newIsQuiteModeEnabled ->
                             isQuietModeEnabled = newIsQuiteModeEnabled
                         },
@@ -1086,130 +1076,6 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                 paddingValues = paddingValues,
                 onScrollToItem = lazyGridState::scrollToItem,
             )
-        }
-    }
-}
-
-private fun SharedTransitionScope.privateSpace(
-    privateEblanUser: EblanUser?,
-    privateEblanApplicationInfos: List<EblanApplicationInfo>,
-    lazyGridScope: LazyGridScope,
-    managedProfileResult: ManagedProfileResult?,
-    isQuietModeEnabled: Boolean,
-    currentPage: Int,
-    drag: Drag,
-    appDrawerSettings: AppDrawerSettings,
-    paddingValues: PaddingValues,
-    iconPackFilePaths: Map<String, String>,
-    screen: Screen,
-    textColor: TextColor,
-    klwpIntegration: Boolean,
-    onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
-    onLongPressGridItem: (GridItemSource, ImageBitmap?) -> Unit,
-    onUpdatePopupMenu: (Boolean) -> Unit,
-    onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateIsQuietModeEnabled: (Boolean) -> Unit,
-) {
-    if (privateEblanUser == null) return
-
-    if (!privateEblanUser.isPrivateSpaceEntryPointHidden) {
-        lazyGridScope.stickyHeader {
-            PrivateSpaceStickyHeader(
-                privateEblanUser = privateEblanUser,
-                managedProfileResult = managedProfileResult,
-                isQuietModeEnabled = isQuietModeEnabled,
-                onUpdateIsQuietModeEnabled = onUpdateIsQuietModeEnabled,
-            )
-        }
-    }
-
-    if (!isQuietModeEnabled) {
-        lazyGridScope.items(privateEblanApplicationInfos) { eblanApplicationInfo ->
-            key(
-                eblanApplicationInfo.serialNumber,
-                eblanApplicationInfo.componentName,
-            ) {
-                EblanApplicationInfoItem(
-                    currentPage = currentPage,
-                    drag = drag,
-                    eblanApplicationInfo = eblanApplicationInfo,
-                    appDrawerSettings = appDrawerSettings,
-                    paddingValues = paddingValues,
-                    iconPackFilePaths = iconPackFilePaths,
-                    screen = screen,
-                    textColor = textColor,
-                    klwpIntegration = klwpIntegration,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onLongPressGridItem = onLongPressGridItem,
-                    onUpdatePopupMenu = onUpdatePopupMenu,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun PrivateSpaceStickyHeader(
-    privateEblanUser: EblanUser?,
-    managedProfileResult: ManagedProfileResult?,
-    isQuietModeEnabled: Boolean,
-    onUpdateIsQuietModeEnabled: (Boolean) -> Unit,
-) {
-    if (privateEblanUser == null) return
-
-    val userManager = LocalUserManager.current
-
-    val packageManager = LocalPackageManager.current
-
-    val userHandle =
-        userManager.getUserForSerialNumber(serialNumber = privateEblanUser.serialNumber)
-
-    LaunchedEffect(key1 = userHandle) {
-        if (userHandle != null) {
-            onUpdateIsQuietModeEnabled(userManager.isQuietModeEnabled(userHandle = userHandle))
-        }
-    }
-
-    LaunchedEffect(key1 = managedProfileResult) {
-        if (managedProfileResult != null && managedProfileResult.serialNumber == privateEblanUser.serialNumber) {
-            onUpdateIsQuietModeEnabled(managedProfileResult.isQuiteModeEnabled)
-        }
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(20.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = "Private Space",
-        )
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && packageManager.isDefaultLauncher() && userHandle != null) {
-            IconButton(
-                onClick = {
-                    userManager.requestQuietModeEnabled(
-                        enableQuiteMode = !isQuietModeEnabled,
-                        userHandle = userHandle,
-                    )
-
-                    onUpdateIsQuietModeEnabled(userManager.isQuietModeEnabled(userHandle))
-                },
-            ) {
-                Icon(
-                    imageVector = if (isQuietModeEnabled) {
-                        EblanLauncherIcons.Work
-                    } else {
-                        EblanLauncherIcons.WorkOff
-                    },
-                    contentDescription = null,
-                )
-            }
         }
     }
 }

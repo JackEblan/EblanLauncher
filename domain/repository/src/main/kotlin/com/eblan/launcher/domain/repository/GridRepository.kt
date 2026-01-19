@@ -15,18 +15,18 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.domain.repository
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.feature)
-    alias(libs.plugins.com.eblan.launcher.libraryCompose)
-}
+import com.eblan.launcher.domain.model.GridItem
 
-android {
-    namespace = "com.eblan.launcher.feature.editgriditem"
-}
+interface GridRepository {
+    suspend fun updateGridItem(gridItem: GridItem)
 
-dependencies {
-    implementation(projects.domain.framework)
-    implementation(projects.domain.repository)
-    implementation(projects.domain.useCase)
+    suspend fun restoreGridItem(gridItem: GridItem)
+
+    suspend fun updateGridItems(gridItems: List<GridItem>)
+
+    suspend fun deleteGridItems(gridItems: List<GridItem>)
+
+    suspend fun deleteGridItem(gridItem: GridItem)
 }

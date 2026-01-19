@@ -98,3 +98,28 @@ internal fun ShortcutConfigGridItem.asEntity(): ShortcutConfigGridItemEntity = S
     customLabel = customLabel,
     gridItemSettings = gridItemSettings,
 )
+
+internal fun GridItem.asShortcutConfigGridItem(data: GridItemData.ShortcutConfig): ShortcutConfigGridItem = ShortcutConfigGridItem(
+    id = id,
+    folderId = folderId,
+    page = page,
+    startColumn = startColumn,
+    startRow = startRow,
+    columnSpan = columnSpan,
+    rowSpan = rowSpan,
+    associate = associate,
+    componentName = data.componentName,
+    packageName = data.packageName,
+    activityIcon = data.activityIcon,
+    activityLabel = data.activityLabel,
+    applicationIcon = data.applicationIcon,
+    applicationLabel = data.applicationLabel,
+    override = override,
+    serialNumber = data.serialNumber,
+    shortcutIntentName = data.shortcutIntentName,
+    shortcutIntentIcon = data.shortcutIntentIcon,
+    shortcutIntentUri = data.shortcutIntentUri,
+    customIcon = data.customIcon,
+    customLabel = data.customLabel,
+    gridItemSettings = gridItemSettings,
+)

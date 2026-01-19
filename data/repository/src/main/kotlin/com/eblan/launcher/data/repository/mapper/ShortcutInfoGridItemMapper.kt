@@ -92,3 +92,26 @@ internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity = Short
     customIcon = customIcon,
     customShortLabel = customShortLabel,
 )
+
+internal fun GridItem.asShortcutInfoGridItem(data: GridItemData.ShortcutInfo): ShortcutInfoGridItem = ShortcutInfoGridItem(
+    id = id,
+    folderId = folderId,
+    page = page,
+    startColumn = startColumn,
+    startRow = startRow,
+    columnSpan = columnSpan,
+    rowSpan = rowSpan,
+    associate = associate,
+    shortcutId = data.shortcutId,
+    packageName = data.packageName,
+    shortLabel = data.shortLabel,
+    longLabel = data.longLabel,
+    icon = data.icon,
+    override = override,
+    serialNumber = data.serialNumber,
+    isEnabled = data.isEnabled,
+    eblanApplicationInfoIcon = data.eblanApplicationInfoIcon,
+    customIcon = data.customIcon,
+    customShortLabel = data.customShortLabel,
+    gridItemSettings = gridItemSettings,
+)

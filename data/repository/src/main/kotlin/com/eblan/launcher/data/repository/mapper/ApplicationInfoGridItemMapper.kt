@@ -83,3 +83,23 @@ internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity =
     override = override,
     gridItemSettings = gridItemSettings,
 )
+
+internal fun GridItem.asApplicationInfo(data: GridItemData.ApplicationInfo): ApplicationInfoGridItem = ApplicationInfoGridItem(
+    id = id,
+    folderId = folderId,
+    page = page,
+    startColumn = startColumn,
+    startRow = startRow,
+    columnSpan = columnSpan,
+    rowSpan = rowSpan,
+    associate = associate,
+    componentName = data.componentName,
+    packageName = data.packageName,
+    icon = data.icon,
+    label = data.label,
+    override = override,
+    serialNumber = data.serialNumber,
+    customIcon = data.customIcon,
+    customLabel = data.customLabel,
+    gridItemSettings = gridItemSettings,
+)

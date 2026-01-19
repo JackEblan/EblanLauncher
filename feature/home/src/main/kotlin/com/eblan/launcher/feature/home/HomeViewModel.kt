@@ -34,12 +34,12 @@ import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.application.GetEblanAppWidgetProviderInfosUseCase
 import com.eblan.launcher.domain.usecase.application.GetEblanApplicationInfosUseCase
 import com.eblan.launcher.domain.usecase.application.GetEblanShortcutConfigsUseCase
 import com.eblan.launcher.domain.usecase.application.GetEblanShortcutInfosUseCase
-import com.eblan.launcher.domain.usecase.grid.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
@@ -48,7 +48,6 @@ import com.eblan.launcher.domain.usecase.grid.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterMoveUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterResizeUseCase
-import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsUseCase
 import com.eblan.launcher.domain.usecase.iconpack.GetIconPackFilePathsUseCase
 import com.eblan.launcher.domain.usecase.page.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.page.UpdatePageItemsUseCase
@@ -82,11 +81,9 @@ internal class HomeViewModel @Inject constructor(
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     private val updateGridItemsAfterResizeUseCase: UpdateGridItemsAfterResizeUseCase,
     private val updateGridItemsAfterMoveUseCase: UpdateGridItemsAfterMoveUseCase,
-    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val moveFolderGridItemUseCase: MoveFolderGridItemUseCase,
     private val getFolderDataByIdUseCase: GetFolderDataByIdUseCase,
     getGridItemsCacheUseCase: GetGridItemsCacheUseCase,
-    private val deleteGridItemUseCase: DeleteGridItemUseCase,
     private val getPinGridItemUseCase: GetPinGridItemUseCase,
     private val fileManager: FileManager,
     private val packageManagerWrapper: PackageManagerWrapper,
@@ -97,6 +94,7 @@ internal class HomeViewModel @Inject constructor(
     getEblanApplicationInfosUseCase: GetEblanApplicationInfosUseCase,
     getEblanAppWidgetProviderInfosUseCase: GetEblanAppWidgetProviderInfosUseCase,
     getEblanShortcutConfigsUseCase: GetEblanShortcutConfigsUseCase,
+    private val gridRepository: GridRepository,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -385,7 +383,7 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val lastFolderId = _foldersDataById.value.last().folderId
 
-            updateGridItemsUseCase(gridItems = folderGridCacheRepository.gridItemsCache.first())
+            gridRepository.updateGridItems(gridItems = folderGridCacheRepository.gridItemsCache.first())
 
             getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folder ->
                 _foldersDataById.update { currentFolders ->
@@ -490,7 +488,7 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             gridCacheRepository.deleteGridItem(gridItem = gridItem)
 
-            updateGridItemsUseCase(gridItems = gridCacheRepository.gridItemsCache.first())
+            gridRepository.updateGridItems(gridItems = gridCacheRepository.gridItemsCache.first())
 
             delay(defaultDelay)
 
@@ -509,7 +507,7 @@ internal class HomeViewModel @Inject constructor(
 
             gridCacheRepository.deleteGridItem(gridItem = gridItem)
 
-            updateGridItemsUseCase(gridItems = gridCacheRepository.gridItemsCache.first())
+            gridRepository.updateGridItems(gridItems = gridCacheRepository.gridItemsCache.first())
 
             delay(defaultDelay)
 
@@ -577,7 +575,7 @@ internal class HomeViewModel @Inject constructor(
 
     fun deleteGridItem(gridItem: GridItem) {
         viewModelScope.launch {
-            deleteGridItemUseCase(gridItem = gridItem)
+            gridRepository.deleteGridItem(gridItem = gridItem)
         }
     }
 

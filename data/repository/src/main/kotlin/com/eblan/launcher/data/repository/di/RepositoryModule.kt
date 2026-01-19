@@ -26,6 +26,7 @@ import com.eblan.launcher.data.repository.DefaultEblanShortcutInfoRepository
 import com.eblan.launcher.data.repository.DefaultFolderGridCacheRepository
 import com.eblan.launcher.data.repository.DefaultFolderGridItemRepository
 import com.eblan.launcher.data.repository.DefaultGridCacheRepository
+import com.eblan.launcher.data.repository.DefaultGridRepository
 import com.eblan.launcher.data.repository.DefaultShortcutConfigGridItemRepository
 import com.eblan.launcher.data.repository.DefaultShortcutInfoGridItemRepository
 import com.eblan.launcher.data.repository.DefaultUserDataRepository
@@ -39,6 +40,7 @@ import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
@@ -103,4 +105,8 @@ internal interface RepositoryModule {
     @Binds
     @Singleton
     fun shortcutConfigGridItemRepository(impl: DefaultShortcutConfigGridItemRepository): ShortcutConfigGridItemRepository
+
+    @Binds
+    @Singleton
+    fun gridRepository(impl: DefaultGridRepository): GridRepository
 }

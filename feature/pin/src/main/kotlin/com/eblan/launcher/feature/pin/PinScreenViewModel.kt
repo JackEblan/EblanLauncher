@@ -23,7 +23,7 @@ import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsUseCase
+import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.pin.AddPinShortcutToHomeScreenUseCase
 import com.eblan.launcher.domain.usecase.pin.AddPinWidgetToHomeScreenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,7 +40,7 @@ class PinScreenViewModel @Inject constructor(
     private val addPinShortcutToHomeScreenUseCase: AddPinShortcutToHomeScreenUseCase,
     private val addPinWidgetToHomeScreenUseCase: AddPinWidgetToHomeScreenUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
-    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
+    private val gridRepository: GridRepository,
 ) : ViewModel() {
     private val _gridItem = MutableStateFlow<GridItem?>(null)
 
@@ -152,7 +152,7 @@ class PinScreenViewModel @Inject constructor(
 
     fun updateGridItems() {
         viewModelScope.launch {
-            updateGridItemsUseCase(gridItems = gridCacheRepository.gridItemsCache.first())
+            gridRepository.updateGridItems(gridItems = gridCacheRepository.gridItemsCache.first())
 
             _isFinished.update {
                 true

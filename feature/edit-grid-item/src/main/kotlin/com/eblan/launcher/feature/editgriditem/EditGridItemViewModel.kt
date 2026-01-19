@@ -26,9 +26,8 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
+import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
-import com.eblan.launcher.domain.usecase.grid.RestoreGridItemUseCase
-import com.eblan.launcher.domain.usecase.grid.UpdateGridItemUseCase
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.feature.editgriditem.navigation.EditGridItemRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,10 +46,9 @@ import javax.inject.Inject
 internal class EditGridItemViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getHomeDataUseCase: GetHomeDataUseCase,
-    private val updateGridItemUseCase: UpdateGridItemUseCase,
     private val iconPackManager: IconPackManager,
     packageManagerWrapper: PackageManagerWrapper,
-    private val restoreGridItemUseCase: RestoreGridItemUseCase,
+    private val gridRepository: GridRepository,
 ) : ViewModel() {
     private val editGridItemRouteData = savedStateHandle.toRoute<EditGridItemRouteData>()
 
@@ -86,7 +84,7 @@ internal class EditGridItemViewModel @Inject constructor(
 
     fun updateGridItem(gridItem: GridItem) {
         viewModelScope.launch {
-            updateGridItemUseCase(gridItem = gridItem)
+            gridRepository.updateGridItem(gridItem = gridItem)
 
             getGridItem()
         }
@@ -94,9 +92,9 @@ internal class EditGridItemViewModel @Inject constructor(
 
     fun restoreGridItem(gridItem: GridItem) {
         viewModelScope.launch {
-            updateGridItem(
-                gridItem = restoreGridItemUseCase(gridItem = gridItem),
-            )
+            gridRepository.restoreGridItem(gridItem = gridItem)
+
+            getGridItem()
         }
     }
 

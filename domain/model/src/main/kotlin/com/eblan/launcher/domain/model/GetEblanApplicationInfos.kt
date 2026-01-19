@@ -17,15 +17,8 @@
  */
 package com.eblan.launcher.domain.model
 
-data class EblanUser(
-    val serialNumber: Long,
-    val eblanUserType: EblanUserType,
-    val isPrivateSpaceEntryPointHidden: Boolean,
+data class GetEblanApplicationInfos(
+    val eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
+    val privateEblanUser: EblanUser?,
+    val privateEblanApplicationInfos: List<EblanApplicationInfo>,
 )
-
-enum class EblanUserType {
-    Personal,
-    Clone,
-    Work,
-    Private,
-}

@@ -72,6 +72,7 @@ import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GestureSettings
+import com.eblan.launcher.domain.model.GetEblanApplicationInfos
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
@@ -118,7 +119,7 @@ internal fun SharedTransitionScope.PagerScreen(
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
     experimentalSettings: ExperimentalSettings,
-    eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
+    getEblanApplicationInfos: GetEblanApplicationInfos,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     onTapFolderGridItem: (String) -> Unit,
@@ -453,7 +454,7 @@ internal fun SharedTransitionScope.PagerScreen(
         ApplicationScreen(
             currentPage = currentPage,
             swipeY = swipeY.value,
-            eblanApplicationInfos = eblanApplicationInfos,
+            getEblanApplicationInfos = getEblanApplicationInfos,
             paddingValues = paddingValues,
             drag = drag,
             appDrawerSettings = appDrawerSettings,
@@ -519,7 +520,7 @@ internal fun SharedTransitionScope.PagerScreen(
         ApplicationScreen(
             currentPage = currentPage,
             swipeY = swipeY.value,
-            eblanApplicationInfos = eblanApplicationInfos,
+            getEblanApplicationInfos = getEblanApplicationInfos,
             paddingValues = paddingValues,
             drag = drag,
             appDrawerSettings = appDrawerSettings,

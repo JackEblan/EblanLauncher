@@ -336,15 +336,21 @@ internal fun SharedTransitionScope.FolderGridItemContent(
                 .sortedWith(compareBy({ it.startRow }, { it.startColumn }))
                 .forEach { gridItem ->
                     val folderGridItemModifier = Modifier
-                        .sharedElementWithCallerManagedVisibility(
-                            rememberSharedContentState(
-                                key = SharedElementKey(
-                                    id = gridItem.id,
-                                    screen = screen,
-                                ),
-                            ),
-                            visible = drag == Drag.Cancel || drag == Drag.End,
-                        )
+                        .run {
+                            if (screen == Screen.Drag || screen == Screen.FolderDrag) {
+                                sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(
+                                        key = SharedElementKey(
+                                            id = gridItem.id,
+                                            screen = screen,
+                                        ),
+                                    ),
+                                    visible = drag == Drag.Cancel || drag == Drag.End,
+                                )
+                            } else {
+                                this
+                            }
+                        }
                         .size((gridItemSettings.iconSize * 0.25).dp)
 
                     when (val currentData = gridItem.data) {
@@ -396,14 +402,26 @@ internal fun SharedTransitionScope.FolderGridItemContent(
 
                         is GridItemData.ShortcutConfig -> {
                             val icon = when {
-                                currentData.shortcutIntentIcon != null -> currentData.shortcutIntentIcon
-                                currentData.activityIcon != null -> currentData.activityIcon
-                                else -> currentData.applicationIcon
+                                currentData.customIcon != null -> {
+                                    currentData.customIcon
+                                }
+
+                                currentData.shortcutIntentIcon != null -> {
+                                    currentData.shortcutIntentIcon
+                                }
+
+                                currentData.activityIcon != null -> {
+                                    currentData.activityIcon
+                                }
+
+                                else -> {
+                                    currentData.applicationIcon
+                                }
                             }
 
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current)
-                                    .data(currentData.customIcon ?: icon)
+                                    .data(icon)
                                     .addLastModifiedToFileCacheKey(true).build(),
                                 contentDescription = null,
                                 modifier = folderGridItemModifier,
@@ -449,20 +467,44 @@ internal fun ShortcutConfigGridItemContent(
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     val icon = when {
-        data.shortcutIntentIcon != null -> data.shortcutIntentIcon
-        data.activityIcon != null -> data.activityIcon
-        else -> data.applicationIcon
+        data.customIcon != null -> {
+            data.customIcon
+        }
+
+        data.shortcutIntentIcon != null -> {
+            data.shortcutIntentIcon
+        }
+
+        data.activityIcon != null -> {
+            data.activityIcon
+        }
+
+        else -> {
+            data.applicationIcon
+        }
     }
 
     val label = when {
-        data.shortcutIntentName != null -> data.shortcutIntentName
-        data.activityLabel != null -> data.activityLabel
-        else -> data.applicationLabel
+        data.customLabel != null -> {
+            data.customLabel
+        }
+
+        data.shortcutIntentName != null -> {
+            data.shortcutIntentName
+        }
+
+        data.activityLabel != null -> {
+            data.activityLabel
+        }
+
+        else -> {
+            data.applicationLabel
+        }
     }
 
     Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current).data(data.customIcon ?: icon)
+            model = ImageRequest.Builder(LocalContext.current).data(icon)
                 .addLastModifiedToFileCacheKey(true).build(),
             contentDescription = null,
             modifier = modifier.matchParentSize(),
@@ -485,7 +527,7 @@ internal fun ShortcutConfigGridItemContent(
 
     if (gridItemSettings.showLabel) {
         Text(
-            text = (data.customLabel ?: label).toString(),
+            text = (label).toString(),
             color = textColor,
             textAlign = TextAlign.Center,
             maxLines = maxLines,

@@ -21,7 +21,7 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.domain.model.EblanUserType
+import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -34,7 +34,7 @@ class GetEblanApplicationInfosUseCase @Inject constructor(
     private val launcherAppsWrapper: LauncherAppsWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(labelFlow: Flow<String>): Flow<Map<EblanUserType, List<EblanApplicationInfo>>> = combine(
+    operator fun invoke(labelFlow: Flow<String>): Flow<Map<EblanUser, List<EblanApplicationInfo>>> = combine(
         eblanApplicationInfoRepository.eblanApplicationInfos,
         labelFlow,
     ) { eblanApplicationInfos, label ->
@@ -46,7 +46,7 @@ class GetEblanApplicationInfosUseCase @Inject constructor(
         }.sortedBy { eblanApplicationInfo ->
             eblanApplicationInfo.label.lowercase()
         }.groupBy { eblanApplicationInfo ->
-            launcherAppsWrapper.getUserType(serialNumber = eblanApplicationInfo.serialNumber)
+            launcherAppsWrapper.getUser(serialNumber = eblanApplicationInfo.serialNumber)
         }
     }.flowOn(defaultDispatcher)
 }

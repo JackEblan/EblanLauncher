@@ -17,7 +17,11 @@
  */
 package com.eblan.launcher.domain.model
 
-data class EblanUserType(
+data class EblanUser(
     val serialNumber: Long,
-    val label: String?,
+    val eblanUserType: EblanUserType,
 )
+
+enum class EblanUserType {
+    Personal, Clone, Work, Private
+}

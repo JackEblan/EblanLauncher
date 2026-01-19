@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.os.UserHandle
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
@@ -63,16 +64,17 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         }
     }
 
-    override suspend fun getApplicationLabel(packageName: String): String? = withContext(defaultDispatcher) {
-        try {
-            val applicationInfo =
-                packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+    override suspend fun getApplicationLabel(packageName: String): String? =
+        withContext(defaultDispatcher) {
+            try {
+                val applicationInfo =
+                    packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
 
-            packageManager.getApplicationLabel(applicationInfo).toString()
-        } catch (_: PackageManager.NameNotFoundException) {
-            null
+                packageManager.getApplicationLabel(applicationInfo).toString()
+            } catch (_: PackageManager.NameNotFoundException) {
+                null
+            }
         }
-    }
 
     override fun getComponentName(packageName: String): String? {
         val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
@@ -143,5 +145,9 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
             intent.resolveActivityInfo(packageManager, PackageManager.MATCH_DEFAULT_ONLY)
 
         return activityInfo != null && activityInfo.exported
+    }
+
+    override fun getUserBadgedLabel(label: CharSequence, userHandle: UserHandle): CharSequence {
+        return packageManager.getUserBadgedLabel(label, userHandle)
     }
 }

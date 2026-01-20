@@ -115,15 +115,15 @@ internal fun LazyGridScope.privateSpace(
 ) {
     if (privateEblanUser == null) return
 
-    if (!privateEblanUser.isPrivateSpaceEntryPointHidden) {
-        stickyHeader {
-            PrivateSpaceStickyHeader(
-                privateEblanUser = privateEblanUser,
-                managedProfileResult = managedProfileResult,
-                isQuietModeEnabled = isQuietModeEnabled,
-                onUpdateIsQuietModeEnabled = onUpdateIsQuietModeEnabled,
-            )
-        }
+    if (privateEblanUser.isPrivateSpaceEntryPointHidden) return
+
+    stickyHeader {
+        PrivateSpaceStickyHeader(
+            privateEblanUser = privateEblanUser,
+            managedProfileResult = managedProfileResult,
+            isQuietModeEnabled = isQuietModeEnabled,
+            onUpdateIsQuietModeEnabled = onUpdateIsQuietModeEnabled,
+        )
     }
 
     if (!isQuietModeEnabled) {

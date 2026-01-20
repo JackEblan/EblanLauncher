@@ -52,10 +52,6 @@ internal fun Project.configureKotlinAndroid(
     configure<KotlinAndroidProjectExtension> {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
-
-            freeCompilerArgs.apply {
-                add("-Xexplicit-backing-fields")
-            }
         }
     }
 }

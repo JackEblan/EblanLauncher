@@ -102,7 +102,7 @@ internal class HomeViewModel @Inject constructor(
         initialValue = HomeUiState.Loading,
     )
 
-    private val _screen = MutableStateFlow(Screen.Pager)
+    private val _screen = MutableStateFlow<Screen>(Screen.Pager)
 
     val screen = _screen.asStateFlow()
 
@@ -119,8 +119,6 @@ internal class HomeViewModel @Inject constructor(
     private var moveGridItemJob: Job? = null
 
     private val _foldersDataById = MutableStateFlow(ArrayDeque<FolderDataById>())
-
-    val foldersDataById = _foldersDataById.asStateFlow()
 
     val gridItemsCache = getGridItemsCacheUseCase().stateIn(
         scope = viewModelScope,
@@ -284,15 +282,28 @@ internal class HomeViewModel @Inject constructor(
 
     fun showFolderGridCache(
         gridItems: List<GridItem>,
-        screen: Screen,
     ) {
         viewModelScope.launch {
             folderGridCacheRepository.insertGridItems(gridItems = gridItems)
 
             delay(defaultDelay)
 
-            _screen.update {
-                screen
+            val lastFolderId = _foldersDataById.value.last().folderId
+
+            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folderDataById ->
+                _foldersDataById.update { currentFolders ->
+                    currentFolders.apply {
+                        val index = currentFolders.indexOfFirst { it.folderId == lastFolderId }
+
+                        currentFolders[index] = folderDataById
+                    }
+                }
+
+                delay(defaultDelay)
+
+                _screen.update {
+                    Screen.FolderDrag(folderDataById = folderDataById)
+                }
             }
         }
     }
@@ -385,19 +396,19 @@ internal class HomeViewModel @Inject constructor(
 
             gridRepository.updateGridItems(gridItems = folderGridCacheRepository.gridItemsCache.first())
 
-            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folderDataById ->
                 _foldersDataById.update { currentFolders ->
-                    ArrayDeque(currentFolders).apply {
-                        val index = indexOfFirst { it.folderId == lastFolderId }
+                    currentFolders.apply {
+                        val index = currentFolders.indexOfFirst { it.folderId == lastFolderId }
 
-                        set(index, folder)
+                        currentFolders[index] = folderDataById
                     }
                 }
 
                 delay(defaultDelay)
 
                 _screen.update {
-                    Screen.Folder
+                    Screen.Folder(folderDataById = folderDataById)
                 }
             }
 
@@ -429,19 +440,19 @@ internal class HomeViewModel @Inject constructor(
 
             val lastFolderId = _foldersDataById.value.last().folderId
 
-            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folderDataById ->
                 _foldersDataById.update { currentFolders ->
-                    ArrayDeque(currentFolders).apply {
-                        val index = indexOfFirst { it.folderId == lastFolderId }
+                    currentFolders.apply {
+                        val index = currentFolders.indexOfFirst { it.folderId == lastFolderId }
 
-                        set(index, folder)
+                        currentFolders[index] = folderDataById
                     }
                 }
 
                 delay(defaultDelay)
 
                 _screen.update {
-                    Screen.Folder
+                    Screen.Folder(folderDataById = folderDataById)
                 }
             }
 
@@ -519,17 +530,17 @@ internal class HomeViewModel @Inject constructor(
 
     fun showFolder(folderId: String) {
         viewModelScope.launch {
-            getFolderDataByIdUseCase(folderId = folderId)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = folderId)?.let { folderDataById ->
                 _foldersDataById.update { currentFolders ->
-                    ArrayDeque(currentFolders).apply {
+                    currentFolders.apply {
                         clear()
 
-                        add(folder)
+                        add(folderDataById)
                     }
                 }
 
                 _screen.update {
-                    Screen.Folder
+                    Screen.Folder(folderDataById = folderDataById)
                 }
             }
         }
@@ -537,11 +548,15 @@ internal class HomeViewModel @Inject constructor(
 
     fun addFolder(folderId: String) {
         viewModelScope.launch {
-            getFolderDataByIdUseCase(folderId = folderId)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = folderId)?.let { folderDataById ->
                 _foldersDataById.update { currentFolders ->
-                    ArrayDeque(currentFolders).apply {
-                        add(folder)
+                    currentFolders.apply {
+                        add(folderDataById)
                     }
+                }
+
+                _screen.update {
+                    Screen.Folder(folderDataById = folderDataById)
                 }
             }
         }
@@ -549,8 +564,20 @@ internal class HomeViewModel @Inject constructor(
 
     fun removeLastFolder() {
         _foldersDataById.update { currentFolders ->
-            ArrayDeque(currentFolders).apply {
-                removeLast()
+            if (currentFolders.isNotEmpty()) {
+                currentFolders.apply {
+                    removeLast()
+                }
+            } else {
+                ArrayDeque()
+            }
+        }
+
+        _screen.update {
+            if (_foldersDataById.value.isNotEmpty()) {
+                Screen.Folder(folderDataById = _foldersDataById.value.last())
+            } else {
+                Screen.Pager
             }
         }
     }
@@ -659,19 +686,16 @@ internal class HomeViewModel @Inject constructor(
 
     fun showFolderWhenDragging(folderId: String) {
         viewModelScope.launch {
-            getFolderDataByIdUseCase(folderId = folderId)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = folderId)?.let { folderDataById ->
                 _foldersDataById.update { currentFolders ->
-                    ArrayDeque(currentFolders).apply {
+                    currentFolders.apply {
                         clear()
 
-                        add(folder)
+                        add(folderDataById)
                     }
                 }
 
-                showFolderGridCache(
-                    gridItems = folder.gridItems,
-                    screen = Screen.FolderDrag,
-                )
+                showFolderGridCache(gridItems = folderDataById.gridItems)
             }
         }
     }

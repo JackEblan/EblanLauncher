@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -70,7 +70,7 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 @Composable
 internal fun SharedTransitionScope.FolderDragScreen(
     modifier: Modifier = Modifier,
-    foldersDataById: ArrayDeque<FolderDataById>,
+    folderDataById: FolderDataById,
     gridItemCache: GridItemCache,
     gridItemSource: GridItemSource?,
     textColor: TextColor,
@@ -81,7 +81,6 @@ internal fun SharedTransitionScope.FolderDragScreen(
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
     moveGridItemResult: MoveGridItemResult?,
-    folderGridHorizontalPagerState: PagerState,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
@@ -122,7 +121,11 @@ internal fun SharedTransitionScope.FolderDragScreen(
 
     var titleHeight by remember { mutableIntStateOf(0) }
 
-    val folderDataById = requireNotNull(foldersDataById.lastOrNull())
+    val folderGridHorizontalPagerState = rememberPagerState(
+        pageCount = {
+            folderDataById.pageCount
+        },
+    )
 
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleDragFolderGridItem(

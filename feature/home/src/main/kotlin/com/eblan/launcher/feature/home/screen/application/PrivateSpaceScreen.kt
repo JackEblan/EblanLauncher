@@ -53,7 +53,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -190,38 +189,42 @@ private fun PrivateSpaceStickyHeader(
             text = "Private",
         )
 
-        launcherApps.getPrivateSpaceSettingsIntent()?.let { intentSender ->
-            IconButton(
-                onClick = {
-                    privateSpaceLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
-                },
-            ) {
-                Icon(
-                    imageVector = EblanLauncherIcons.Settings,
-                    contentDescription = null,
-                )
-            }
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && packageManager.isDefaultLauncher() && userHandle != null) {
-            IconButton(
-                onClick = {
-                    userManager.requestQuietModeEnabled(
-                        enableQuiteMode = !isQuietModeEnabled,
-                        userHandle = userHandle,
-                    )
-
-                    onUpdateIsQuietModeEnabled(userManager.isQuietModeEnabled(userHandle))
-                },
-            ) {
-                Icon(
-                    imageVector = if (isQuietModeEnabled) {
-                        EblanLauncherIcons.Lock
-                    } else {
-                        EblanLauncherIcons.LockOpen
+        Row {
+            launcherApps.getPrivateSpaceSettingsIntent()?.let { intentSender ->
+                IconButton(
+                    onClick = {
+                        privateSpaceLauncher.launch(
+                            IntentSenderRequest.Builder(intentSender).build(),
+                        )
                     },
-                    contentDescription = null,
-                )
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Settings,
+                        contentDescription = null,
+                    )
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && packageManager.isDefaultLauncher() && userHandle != null) {
+                IconButton(
+                    onClick = {
+                        userManager.requestQuietModeEnabled(
+                            enableQuiteMode = !isQuietModeEnabled,
+                            userHandle = userHandle,
+                        )
+
+                        onUpdateIsQuietModeEnabled(userManager.isQuietModeEnabled(userHandle))
+                    },
+                ) {
+                    Icon(
+                        imageVector = if (isQuietModeEnabled) {
+                            EblanLauncherIcons.Lock
+                        } else {
+                            EblanLauncherIcons.LockOpen
+                        },
+                        contentDescription = null,
+                    )
+                }
             }
         }
     }
@@ -251,8 +254,6 @@ private fun PrivateSpaceEblanApplicationInfoItem(
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
-
-    val graphicsLayer = rememberGraphicsLayer()
 
     val scale = remember { Animatable(1f) }
 
@@ -306,8 +307,6 @@ private fun PrivateSpaceEblanApplicationInfoItem(
             if (scale.value < 1f) {
                 scale.animateTo(1f)
             }
-        } else {
-            Unit
         }
     }
 

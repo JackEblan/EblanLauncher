@@ -286,8 +286,6 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             folderGridCacheRepository.insertGridItems(gridItems = gridItems)
 
-            delay(defaultDelay)
-
             val lastFolderId = _foldersDataById.value.last().folderId
 
             getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folderDataById ->

@@ -137,7 +137,7 @@ internal suspend fun handleDragGridItem(
 
     val isOnRightGrid = dragIntOffset.x + edgeDistance > gridWidth
 
-    val isOnDock = dragY > (gridHeight - dockHeightPx)
+    val isOnDock = dockHeightPx > 0 && dragY > (gridHeight - dockHeightPx)
 
     if (isOnLeftGrid) {
         delay(500L)

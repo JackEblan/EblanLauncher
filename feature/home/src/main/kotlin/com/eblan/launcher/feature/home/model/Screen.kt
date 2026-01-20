@@ -17,12 +17,20 @@
  */
 package com.eblan.launcher.feature.home.model
 
-internal enum class Screen {
-    Pager,
-    Drag,
-    Resize,
-    Loading,
-    EditPage,
-    Folder,
-    FolderDrag,
+import com.eblan.launcher.domain.model.FolderDataById
+
+internal sealed interface Screen {
+    data object Pager : Screen
+
+    data object Drag : Screen
+
+    data object Resize : Screen
+
+    data object Loading : Screen
+
+    data object EditPage : Screen
+
+    data class Folder(val folderDataById: FolderDataById) : Screen
+
+    data class FolderDrag(val folderDataById: FolderDataById) : Screen
 }

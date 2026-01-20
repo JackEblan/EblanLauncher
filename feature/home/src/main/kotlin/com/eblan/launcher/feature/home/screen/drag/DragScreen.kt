@@ -354,7 +354,6 @@ internal fun SharedTransitionScope.DragScreen(
             drag = drag,
             moveGridItemResult = moveGridItemResult,
             onShowFolderWhenDragging = onShowFolderWhenDragging,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 

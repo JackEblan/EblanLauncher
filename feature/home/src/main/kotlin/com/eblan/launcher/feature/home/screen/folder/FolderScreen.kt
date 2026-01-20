@@ -23,11 +23,9 @@ import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -38,7 +36,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -81,7 +79,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun SharedTransitionScope.FolderScreen(
     modifier: Modifier = Modifier,
-    foldersDataById: ArrayDeque<FolderDataById>,
+    folderDataById: FolderDataById,
     drag: Drag,
     paddingValues: PaddingValues,
     hasShortcutHostPermission: Boolean,
@@ -89,7 +87,6 @@ internal fun SharedTransitionScope.FolderScreen(
     screenHeight: Int,
     textColor: TextColor,
     homeSettings: HomeSettings,
-    folderGridHorizontalPagerState: PagerState,
     statusBarNotifications: Map<String, Int>,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
@@ -140,8 +137,6 @@ internal fun SharedTransitionScope.FolderScreen(
 
     var titleHeight by remember { mutableIntStateOf(0) }
 
-    val folderDataById = foldersDataById.lastOrNull()
-
     val activity = LocalActivity.current as ComponentActivity
 
     val scope = rememberCoroutineScope()
@@ -152,11 +147,11 @@ internal fun SharedTransitionScope.FolderScreen(
         pageIndicatorHeight.roundToPx()
     }
 
-    LaunchedEffect(key1 = foldersDataById) {
-        if (foldersDataById.isEmpty()) {
-            onUpdateScreen(Screen.Pager)
-        }
-    }
+    val folderGridHorizontalPagerState = rememberPagerState(
+        pageCount = {
+            folderDataById.pageCount
+        },
+    )
 
     DisposableEffect(key1 = activity) {
         val listener = Consumer<Intent> { intent ->
@@ -181,156 +176,148 @@ internal fun SharedTransitionScope.FolderScreen(
         }
     }
 
-    BackHandler(foldersDataById.isNotEmpty()) {
+    BackHandler {
         onRemoveLastFolder()
     }
 
-    Box(
-        modifier = modifier
+    Column(
+        modifier = Modifier
             .pointerInput(key1 = Unit) {
-                detectTapGestures(onTap = {
-                    onUpdateScreen(Screen.Pager)
-                })
+                detectTapGestures(
+                    onTap = {
+                        onUpdateScreen(Screen.Pager)
+                    },
+                )
             }
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(
+                top = paddingValues.calculateTopPadding(),
+                bottom = paddingValues.calculateBottomPadding(),
+            ),
     ) {
-        if (folderDataById != null) {
-            AnimatedContent(
-                modifier = Modifier
-                    .matchParentSize()
-                    .padding(
-                        top = paddingValues.calculateTopPadding(),
-                        bottom = paddingValues.calculateBottomPadding(),
-                    ),
-                targetState = folderDataById,
-            ) { targetState ->
-                Column(modifier = Modifier.fillMaxSize()) {
-                    Column(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                titleHeight = it.height
-                            }
-                            .fillMaxWidth()
-                            .padding(5.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        Text(
-                            text = targetState.label,
-                            color = getSystemTextColor(textColor = textColor),
-                            style = MaterialTheme.typography.headlineLarge,
-                        )
-
-                        Spacer(modifier = Modifier.height(20.dp))
-                    }
-
-                    HorizontalPager(
-                        state = folderGridHorizontalPagerState,
-                        modifier = Modifier.weight(1f),
-                    ) { index ->
-                        GridLayout(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(
-                                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                                ),
-                            gridItems = targetState.gridItemsByPage[index],
-                            columns = homeSettings.folderColumns,
-                            rows = homeSettings.folderRows,
-                            { gridItem ->
-                                val cellWidth = gridWidth / homeSettings.folderColumns
-
-                                val cellHeight =
-                                    (gridHeight - pageIndicatorHeightPx - titleHeight) / homeSettings.folderRows
-
-                                val x = gridItem.startColumn * cellWidth
-
-                                val y = gridItem.startRow * cellHeight
-
-                                val width = gridItem.columnSpan * cellWidth
-
-                                val height = gridItem.rowSpan * cellHeight
-
-                                InteractiveGridItemContent(
-                                    gridItem = gridItem,
-                                    hasShortcutHostPermission = hasShortcutHostPermission,
-                                    drag = drag,
-                                    gridItemSettings = homeSettings.gridItemSettings,
-                                    textColor = textColor,
-                                    statusBarNotifications = statusBarNotifications,
-                                    isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
-                                    iconPackFilePaths = iconPackFilePaths,
-                                    screen = screen,
-                                    onTapApplicationInfo = { serialNumber, componentName ->
-                                        val sourceBoundsX = x + leftPadding
-
-                                        val sourceBoundsY = y + topPadding
-
-                                        launcherApps.startMainActivity(
-                                            serialNumber = serialNumber,
-                                            componentName = componentName,
-                                            sourceBounds = Rect(
-                                                sourceBoundsX,
-                                                sourceBoundsY,
-                                                sourceBoundsX + width,
-                                                sourceBoundsY + height,
-                                            ),
-                                        )
-                                    },
-                                    onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
-                                        val sourceBoundsX = x + leftPadding
-
-                                        val sourceBoundsY = y + topPadding
-
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                                            launcherApps.startShortcut(
-                                                serialNumber = serialNumber,
-                                                packageName = packageName,
-                                                id = shortcutId,
-                                                sourceBounds = Rect(
-                                                    sourceBoundsX,
-                                                    sourceBoundsY,
-                                                    sourceBoundsX + width,
-                                                    sourceBoundsY + height,
-                                                ),
-                                            )
-                                        }
-                                    },
-                                    onTapShortcutConfig = { uri ->
-                                        context.startActivity(Intent.parseUri(uri, 0))
-                                    },
-                                    onTapFolderGridItem = {
-                                        onAddFolder(gridItem.id)
-                                    },
-                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                    onUpdateImageBitmap = { imageBitmap ->
-                                        onLongPressGridItem(
-                                            GridItemSource.Existing(gridItem = gridItem),
-                                            imageBitmap,
-                                        )
-                                    },
-                                    onDraggingGridItem = {
-                                        onDraggingGridItem(foldersDataById.last().gridItems)
-                                    },
-                                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                )
-                            },
-                        )
-                    }
-
-                    PageIndicator(
-                        modifier = Modifier
-                            .height(pageIndicatorHeight)
-                            .fillMaxWidth(),
-                        gridHorizontalPagerState = folderGridHorizontalPagerState,
-                        infiniteScroll = false,
-                        pageCount = folderDataById.pageCount,
-                        color = getSystemTextColor(textColor = textColor),
-                    )
+        Column(
+            modifier = Modifier
+                .onSizeChanged {
+                    titleHeight = it.height
                 }
-            }
+                .fillMaxWidth()
+                .padding(5.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = folderDataById.label,
+                color = getSystemTextColor(textColor = textColor),
+                style = MaterialTheme.typography.headlineLarge,
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
+
+        HorizontalPager(
+            state = folderGridHorizontalPagerState,
+            modifier = Modifier.weight(1f),
+        ) { index ->
+            GridLayout(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                    ),
+                gridItems = folderDataById.gridItemsByPage[index],
+                columns = homeSettings.folderColumns,
+                rows = homeSettings.folderRows,
+                { gridItem ->
+                    val cellWidth = gridWidth / homeSettings.folderColumns
+
+                    val cellHeight =
+                        (gridHeight - pageIndicatorHeightPx - titleHeight) / homeSettings.folderRows
+
+                    val x = gridItem.startColumn * cellWidth
+
+                    val y = gridItem.startRow * cellHeight
+
+                    val width = gridItem.columnSpan * cellWidth
+
+                    val height = gridItem.rowSpan * cellHeight
+
+                    InteractiveGridItemContent(
+                        gridItem = gridItem,
+                        hasShortcutHostPermission = hasShortcutHostPermission,
+                        drag = drag,
+                        gridItemSettings = homeSettings.gridItemSettings,
+                        textColor = textColor,
+                        statusBarNotifications = statusBarNotifications,
+                        isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
+                        iconPackFilePaths = iconPackFilePaths,
+                        screen = screen,
+                        onTapApplicationInfo = { serialNumber, componentName ->
+                            val sourceBoundsX = x + leftPadding
+
+                            val sourceBoundsY = y + topPadding
+
+                            launcherApps.startMainActivity(
+                                serialNumber = serialNumber,
+                                componentName = componentName,
+                                sourceBounds = Rect(
+                                    sourceBoundsX,
+                                    sourceBoundsY,
+                                    sourceBoundsX + width,
+                                    sourceBoundsY + height,
+                                ),
+                            )
+                        },
+                        onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
+                            val sourceBoundsX = x + leftPadding
+
+                            val sourceBoundsY = y + topPadding
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                                launcherApps.startShortcut(
+                                    serialNumber = serialNumber,
+                                    packageName = packageName,
+                                    id = shortcutId,
+                                    sourceBounds = Rect(
+                                        sourceBoundsX,
+                                        sourceBoundsY,
+                                        sourceBoundsX + width,
+                                        sourceBoundsY + height,
+                                    ),
+                                )
+                            }
+                        },
+                        onTapShortcutConfig = { uri ->
+                            context.startActivity(Intent.parseUri(uri, 0))
+                        },
+                        onTapFolderGridItem = {
+                            onAddFolder(gridItem.id)
+                        },
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onUpdateImageBitmap = { imageBitmap ->
+                            onLongPressGridItem(
+                                GridItemSource.Existing(gridItem = gridItem),
+                                imageBitmap,
+                            )
+                        },
+                        onDraggingGridItem = {
+                            onDraggingGridItem(folderDataById.gridItems)
+                        },
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    )
+                },
+            )
+        }
+
+        PageIndicator(
+            modifier = Modifier
+                .height(pageIndicatorHeight)
+                .fillMaxWidth(),
+            gridHorizontalPagerState = folderGridHorizontalPagerState,
+            infiniteScroll = false,
+            pageCount = folderDataById.pageCount,
+            color = getSystemTextColor(textColor = textColor),
+        )
     }
 }

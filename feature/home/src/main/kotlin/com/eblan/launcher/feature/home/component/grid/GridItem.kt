@@ -336,21 +336,15 @@ internal fun SharedTransitionScope.FolderGridItemContent(
                 .sortedWith(compareBy({ it.startRow }, { it.startColumn }))
                 .forEach { gridItem ->
                     val folderGridItemModifier = Modifier
-                        .run {
-                            if (screen == Screen.Drag || screen == Screen.FolderDrag) {
-                                sharedElementWithCallerManagedVisibility(
-                                    rememberSharedContentState(
-                                        key = SharedElementKey(
-                                            id = gridItem.id,
-                                            screen = screen,
-                                        ),
-                                    ),
-                                    visible = drag == Drag.Cancel || drag == Drag.End,
-                                )
-                            } else {
-                                this
-                            }
-                        }
+                        .sharedElementWithCallerManagedVisibility(
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = screen,
+                                ),
+                            ),
+                            visible = drag == Drag.Cancel || drag == Drag.End,
+                        )
                         .size((gridItemSettings.iconSize * 0.25).dp)
 
                     when (val currentData = gridItem.data) {

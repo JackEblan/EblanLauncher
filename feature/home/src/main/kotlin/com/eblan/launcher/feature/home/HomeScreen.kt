@@ -81,7 +81,6 @@ import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.EblanUser
-import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GetEblanApplicationInfos
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
@@ -139,8 +138,6 @@ internal fun HomeRoute(
 
     val pageItems by viewModel.pageItems.collectAsStateWithLifecycle()
 
-    val folders by viewModel.foldersDataById.collectAsStateWithLifecycle()
-
     val gridItemsCache by viewModel.gridItemsCache.collectAsStateWithLifecycle()
 
     val pinGridItem by viewModel.pinGridItem.collectAsStateWithLifecycle()
@@ -163,7 +160,6 @@ internal fun HomeRoute(
         homeUiState = homeUiState,
         movedGridItemResult = movedGridItemResult,
         pageItems = pageItems,
-        foldersDataById = folders,
         gridItemsCache = gridItemsCache,
         pinGridItem = pinGridItem,
         eblanShortcutInfosGroup = eblanShortcutInfosGroup,
@@ -215,7 +211,6 @@ internal fun HomeScreen(
     homeUiState: HomeUiState,
     movedGridItemResult: MoveGridItemResult?,
     pageItems: List<PageItem>,
-    foldersDataById: ArrayDeque<FolderDataById>,
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
@@ -254,10 +249,7 @@ internal fun HomeScreen(
         gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
-    onShowFolderGridCache: (
-        gridItems: List<GridItem>,
-        screen: Screen,
-    ) -> Unit,
+    onShowFolderGridCache: (List<GridItem>) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
@@ -452,7 +444,6 @@ internal fun HomeScreen(
                     paddingValues = paddingValues,
                     dragIntOffset = dragIntOffset,
                     drag = drag,
-                    foldersDataById = foldersDataById,
                     gridItemCache = gridItemsCache,
                     pinGridItem = pinGridItem,
                     eblanShortcutInfosGroup = eblanShortcutInfosGroup,
@@ -538,7 +529,6 @@ private fun SharedTransitionScope.Success(
     paddingValues: PaddingValues,
     dragIntOffset: IntOffset,
     drag: Drag,
-    foldersDataById: ArrayDeque<FolderDataById>,
     gridItemCache: GridItemCache,
     pinGridItem: GridItem?,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
@@ -577,10 +567,7 @@ private fun SharedTransitionScope.Success(
         gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
-    onShowFolderGridCache: (
-        gridItems: List<GridItem>,
-        screen: Screen,
-    ) -> Unit,
+    onShowFolderGridCache: (List<GridItem>) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
@@ -655,12 +642,6 @@ private fun SharedTransitionScope.Success(
             } else {
                 homeData.userData.homeSettings.pageCount
             }
-        },
-    )
-
-    val folderGridHorizontalPagerState = rememberPagerState(
-        pageCount = {
-            foldersDataById.lastOrNull()?.pageCount ?: 0
         },
     )
 
@@ -866,9 +847,9 @@ private fun SharedTransitionScope.Success(
                 )
             }
 
-            Screen.Folder -> {
+            is Screen.Folder -> {
                 FolderScreen(
-                    foldersDataById = foldersDataById,
+                    folderDataById = targetState.folderDataById,
                     drag = drag,
                     paddingValues = paddingValues,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
@@ -876,7 +857,6 @@ private fun SharedTransitionScope.Success(
                     screenHeight = screenHeight,
                     textColor = homeData.textColor,
                     homeSettings = homeData.userData.homeSettings,
-                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     statusBarNotifications = statusBarNotifications,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = targetState,
@@ -889,21 +869,16 @@ private fun SharedTransitionScope.Success(
                         onUpdateGridItemImageBitmap(imageBitmap)
                     },
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onDraggingGridItem = { folderGridItems ->
-                        onShowFolderGridCache(
-                            folderGridItems,
-                            Screen.FolderDrag,
-                        )
-                    },
+                    onDraggingGridItem = onShowFolderGridCache,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onResetOverlay = onResetOverlay,
                 )
             }
 
-            Screen.FolderDrag -> {
+            is Screen.FolderDrag -> {
                 FolderDragScreen(
                     gridItemCache = gridItemCache,
-                    foldersDataById = foldersDataById,
+                    folderDataById = targetState.folderDataById,
                     gridItemSource = gridItemSource,
                     textColor = homeData.textColor,
                     drag = drag,
@@ -913,7 +888,6 @@ private fun SharedTransitionScope.Success(
                     paddingValues = paddingValues,
                     homeSettings = homeData.userData.homeSettings,
                     moveGridItemResult = movedGridItemResult,
-                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,

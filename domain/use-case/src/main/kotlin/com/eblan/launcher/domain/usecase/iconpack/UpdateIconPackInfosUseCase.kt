@@ -72,10 +72,7 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                     .map { launcherAppsActivityInfo ->
                         ensureActive()
 
-                        launcherAppsActivityInfo.componentName.replace(
-                            "/",
-                            "-",
-                        )
+                        launcherAppsActivityInfo.componentName.hashCode().toString()
                     }
 
                 eblanIconPackInfoRepository.upsertEblanIconPackInfo(

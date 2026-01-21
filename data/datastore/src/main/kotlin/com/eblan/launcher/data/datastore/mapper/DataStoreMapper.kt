@@ -74,6 +74,7 @@ internal fun AppDrawerSettingsProto.toAppDrawerSettings(): AppDrawerSettings = A
     appDrawerColumns = appDrawerColumns,
     appDrawerRowsHeight = appDrawerRowsHeight,
     gridItemSettings = gridItemSettingsProto.toGridItemSettings(),
+    showSearchBar = if (hasShowSearchBar()) showSearchBar else true,
 )
 
 internal fun GridItemSettingsProto.toGridItemSettings(): GridItemSettings = GridItemSettings(
@@ -237,6 +238,7 @@ internal fun AppDrawerSettings.toAppDrawerSettingsProto(): AppDrawerSettingsProt
         .setAppDrawerColumns(appDrawerColumns)
         .setAppDrawerRowsHeight(appDrawerRowsHeight)
         .setGridItemSettingsProto(gridItemSettingsProto)
+        .setShowSearchBar(showSearchBar)
         .build()
 }
 

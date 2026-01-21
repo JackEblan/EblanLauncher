@@ -324,10 +324,12 @@ private fun SharedTransitionScope.Success(
                 end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
             ),
     ) {
-        SearchBar(
-            title = "Search Applications",
-            onChangeLabel = onGetEblanApplicationInfosByLabel,
-        )
+        if (appDrawerSettings.showSearchBar) {
+            SearchBar(
+                title = "Search Applications",
+                onChangeLabel = onGetEblanApplicationInfosByLabel,
+            )
+        }
 
         if (getEblanApplicationInfos.eblanApplicationInfos.keys.size > 1) {
             EblanApplicationInfoTabRow(

@@ -149,6 +149,18 @@ private fun Success(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             SettingsColumn(
+                title = "Show Search Bar",
+                subtitle = if (appDrawerSettings.showSearchBar) "Enabled" else "Disabled",
+                onClick = {
+                    onUpdateAppDrawerSettings(
+                        appDrawerSettings.copy(showSearchBar = !appDrawerSettings.showSearchBar)
+                    )
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
                 title = "Hidden Applications",
                 subtitle = "Hidden Applications",
                 onClick = {

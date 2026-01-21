@@ -95,7 +95,7 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(
                 val customIconFile = File(customIcon)
 
                 if (customIconFile.exists()) {
-                    File(customIcon).delete()
+                    customIconFile.delete()
                 }
             }
 

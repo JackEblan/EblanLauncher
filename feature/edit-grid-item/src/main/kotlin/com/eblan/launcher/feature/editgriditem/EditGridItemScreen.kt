@@ -117,6 +117,7 @@ internal fun EditGridItemScreen(
                                     is GridItemData.ApplicationInfo,
                                     is GridItemData.ShortcutConfig,
                                     is GridItemData.ShortcutInfo,
+                                    is GridItemData.Folder,
                                     -> {
                                         onRestoreGridItem(editGridItemUiState.gridItem)
                                     }

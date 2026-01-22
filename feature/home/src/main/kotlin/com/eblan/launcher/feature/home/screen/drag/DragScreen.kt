@@ -63,6 +63,7 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -166,10 +167,8 @@ internal fun SharedTransitionScope.DragScreen(
 
     val dockHeight = homeSettings.dockHeight.dp
 
-    val pageIndicatorHeight = 30.dp
-
     val pageIndicatorHeightPx = with(density) {
-        pageIndicatorHeight.roundToPx()
+        PAGE_INDICATOR_HEIGHT.dp.roundToPx()
     }
 
     val configureLauncher = rememberLauncherForActivityResult(
@@ -422,7 +421,7 @@ internal fun SharedTransitionScope.DragScreen(
 
         PageIndicator(
             modifier = Modifier
-                .height(pageIndicatorHeight)
+                .height(PAGE_INDICATOR_HEIGHT.dp)
                 .fillMaxWidth(),
             gridHorizontalPagerState = gridHorizontalPagerState,
             infiniteScroll = homeSettings.infiniteScroll,

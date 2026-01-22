@@ -53,6 +53,7 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 
@@ -119,10 +120,8 @@ internal fun SharedTransitionScope.ResizeScreen(
         dockHeight.roundToPx()
     }
 
-    val pageIndicatorHeight = 30.dp
-
     val pageIndicatorHeightPx = with(density) {
-        pageIndicatorHeight.roundToPx()
+        PAGE_INDICATOR_HEIGHT.dp.roundToPx()
     }
 
     var currentGridItem by remember {
@@ -187,7 +186,7 @@ internal fun SharedTransitionScope.ResizeScreen(
 
         PageIndicator(
             modifier = Modifier
-                .height(pageIndicatorHeight)
+                .height(PAGE_INDICATOR_HEIGHT.dp)
                 .fillMaxWidth(),
             gridHorizontalPagerState = gridHorizontalPagerState,
             infiniteScroll = homeSettings.infiniteScroll,

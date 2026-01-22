@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -70,6 +71,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleActionMainIntent
 import com.eblan.launcher.ui.local.LocalLauncherApps
@@ -79,6 +81,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun SharedTransitionScope.FolderScreen(
     modifier: Modifier = Modifier,
+    folderGridHorizontalPagerState: PagerState,
     folderDataById: FolderDataById,
     drag: Drag,
     paddingValues: PaddingValues,
@@ -141,17 +144,9 @@ internal fun SharedTransitionScope.FolderScreen(
 
     val scope = rememberCoroutineScope()
 
-    val pageIndicatorHeight = 30.dp
-
     val pageIndicatorHeightPx = with(density) {
-        pageIndicatorHeight.roundToPx()
+        PAGE_INDICATOR_HEIGHT.dp.roundToPx()
     }
-
-    val folderGridHorizontalPagerState = rememberPagerState(
-        pageCount = {
-            folderDataById.pageCount
-        },
-    )
 
     DisposableEffect(key1 = activity) {
         val listener = Consumer<Intent> { intent ->
@@ -181,7 +176,7 @@ internal fun SharedTransitionScope.FolderScreen(
     }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .pointerInput(key1 = Unit) {
                 detectTapGestures(
                     onTap = {
@@ -312,7 +307,7 @@ internal fun SharedTransitionScope.FolderScreen(
 
         PageIndicator(
             modifier = Modifier
-                .height(pageIndicatorHeight)
+                .height(PAGE_INDICATOR_HEIGHT.dp)
                 .fillMaxWidth(),
             gridHorizontalPagerState = folderGridHorizontalPagerState,
             infiniteScroll = false,

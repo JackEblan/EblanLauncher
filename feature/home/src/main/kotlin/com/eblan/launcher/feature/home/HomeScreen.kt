@@ -645,6 +645,24 @@ private fun SharedTransitionScope.Success(
         },
     )
 
+    val folderGridHorizontalPagerState = rememberPagerState(
+        pageCount = {
+            when (screen) {
+                is Screen.Folder -> {
+                    screen.folderDataById.pageCount
+                }
+
+                is Screen.FolderDrag -> {
+                    screen.folderDataById.pageCount
+                }
+
+                else -> {
+                    0
+                }
+            }
+        },
+    )
+
     val currentPage by remember(
         key1 = gridHorizontalPagerState,
         key2 = homeData.userData.homeSettings,
@@ -849,6 +867,7 @@ private fun SharedTransitionScope.Success(
 
             is Screen.Folder -> {
                 FolderScreen(
+                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     folderDataById = targetState.folderDataById,
                     drag = drag,
                     paddingValues = paddingValues,
@@ -877,6 +896,7 @@ private fun SharedTransitionScope.Success(
 
             is Screen.FolderDrag -> {
                 FolderDragScreen(
+                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     gridItemCache = gridItemCache,
                     folderDataById = targetState.folderDataById,
                     gridItemSource = gridItemSource,

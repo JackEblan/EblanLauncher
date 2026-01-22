@@ -44,6 +44,7 @@ import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.resizeGridItemWithPixels
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.feature.home.util.DRAG_HANDLE_SIZE
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -89,10 +90,8 @@ internal fun GridItemResizeOverlay(
 
     var dragHandle by remember { mutableStateOf(Alignment.Center) }
 
-    val dragHandleSize = 30.dp
-
     val dragHandleSizePx = with(density) {
-        dragHandleSize.roundToPx()
+        DRAG_HANDLE_SIZE.dp.roundToPx()
     }
 
     val borderWidth by remember {
@@ -188,7 +187,7 @@ internal fun GridItemResizeOverlay(
     }
 
     val circleModifier = Modifier
-        .size(dragHandleSize)
+        .size(DRAG_HANDLE_SIZE.dp)
         .background(color = color, shape = CircleShape)
 
     LaunchedEffect(

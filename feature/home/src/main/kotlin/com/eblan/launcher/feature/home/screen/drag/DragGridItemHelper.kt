@@ -37,6 +37,7 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.util.EDGE_DISTANCE
 import kotlinx.coroutines.delay
 
 internal suspend fun handlePageDirection(
@@ -118,7 +119,7 @@ internal suspend fun handleDragGridItem(
     }
 
     val edgeDistance = with(density) {
-        15.dp.roundToPx()
+        EDGE_DISTANCE.dp.roundToPx()
     }
 
     val horizontalPadding = leftPadding + rightPadding

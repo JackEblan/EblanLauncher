@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -63,6 +64,7 @@ import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
+import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 
@@ -70,6 +72,7 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 @Composable
 internal fun SharedTransitionScope.FolderDragScreen(
     modifier: Modifier = Modifier,
+    folderGridHorizontalPagerState: PagerState,
     folderDataById: FolderDataById,
     gridItemCache: GridItemCache,
     gridItemSource: GridItemSource?,
@@ -113,19 +116,11 @@ internal fun SharedTransitionScope.FolderDragScreen(
 
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
-    val pageIndicatorHeight = 30.dp
-
     val pageIndicatorHeightPx = with(density) {
-        pageIndicatorHeight.roundToPx()
+        PAGE_INDICATOR_HEIGHT.dp.roundToPx()
     }
 
     var titleHeight by remember { mutableIntStateOf(0) }
-
-    val folderGridHorizontalPagerState = rememberPagerState(
-        pageCount = {
-            folderDataById.pageCount
-        },
-    )
 
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleDragFolderGridItem(
@@ -194,7 +189,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
     }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(
                 top = paddingValues.calculateTopPadding(),
@@ -231,7 +226,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
             userScrollEnabled = false,
         ) { index ->
             GridLayout(
-                modifier = modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 gridItems = gridItemCache.folderGridItemsCacheByPage[index],
                 columns = homeSettings.folderColumns,
                 rows = homeSettings.folderRows,
@@ -275,7 +270,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
 
         PageIndicator(
             modifier = Modifier
-                .height(pageIndicatorHeight)
+                .height(PAGE_INDICATOR_HEIGHT.dp)
                 .fillMaxWidth(),
             gridHorizontalPagerState = folderGridHorizontalPagerState,
             infiniteScroll = false,

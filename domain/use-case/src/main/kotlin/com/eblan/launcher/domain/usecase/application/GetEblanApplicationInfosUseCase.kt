@@ -40,7 +40,7 @@ class GetEblanApplicationInfosUseCase @Inject constructor(
     ) { eblanApplicationInfos, label ->
         val groupedEblanApplicationInfos =
             eblanApplicationInfos.filter { eblanApplicationInfo ->
-                eblanApplicationInfo.label.contains(
+                !eblanApplicationInfo.isHidden && eblanApplicationInfo.label.contains(
                     other = label,
                     ignoreCase = true,
                 )
@@ -58,7 +58,7 @@ class GetEblanApplicationInfosUseCase @Inject constructor(
 
         GetEblanApplicationInfos(
             eblanApplicationInfos = groupedEblanApplicationInfos.filterKeys { eblanUser ->
-                eblanUser.eblanUserType != EblanUserType.Private
+                eblanUser != privateEblanUser
             },
             privateEblanUser = privateEblanUser,
             privateEblanApplicationInfos = groupedEblanApplicationInfos[privateEblanUser].orEmpty(),

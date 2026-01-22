@@ -222,23 +222,11 @@ internal fun HomeSettings.toHomeSettingsProto(): HomeSettingsProto = HomeSetting
     .setLockScreenOrientation(lockScreenOrientation)
     .build()
 
-internal fun AppDrawerSettings.toAppDrawerSettingsProto(): AppDrawerSettingsProto {
-    val gridItemSettingsProto = GridItemSettingsProto.newBuilder()
-        .setIconSize(gridItemSettings.iconSize)
-        .setTextColorProto(gridItemSettings.textColor.toTextColorProto())
-        .setTextSize(gridItemSettings.textSize)
-        .setShowLabel(gridItemSettings.showLabel)
-        .setSingleLineLabel(gridItemSettings.singleLineLabel)
-        .setHorizontalAlignmentProto(gridItemSettings.horizontalAlignment.toHorizontalAlignmentProto())
-        .setVerticalArrangementProto(gridItemSettings.verticalArrangement.toVerticalArrangementProto())
-        .build()
-
-    return AppDrawerSettingsProto.newBuilder()
-        .setAppDrawerColumns(appDrawerColumns)
-        .setAppDrawerRowsHeight(appDrawerRowsHeight)
-        .setGridItemSettingsProto(gridItemSettingsProto)
-        .build()
-}
+internal fun AppDrawerSettings.toAppDrawerSettingsProto(): AppDrawerSettingsProto = AppDrawerSettingsProto.newBuilder()
+    .setAppDrawerColumns(appDrawerColumns)
+    .setAppDrawerRowsHeight(appDrawerRowsHeight)
+    .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
+    .build()
 
 internal fun GeneralSettings.toGeneralSettingsProto(): GeneralSettingsProto = GeneralSettingsProto.newBuilder()
     .setThemeProto(theme.toThemeProto())

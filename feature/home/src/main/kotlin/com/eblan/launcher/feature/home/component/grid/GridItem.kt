@@ -75,9 +75,10 @@ internal fun SharedTransitionScope.GridItemContent(
     isDragging: Boolean,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
-    drag: Drag = Drag.End,
+    drag: Drag,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
+    isScrollInProgress: Boolean,
 ) {
     key(gridItem.id) {
         if (isDragging) {
@@ -98,6 +99,7 @@ internal fun SharedTransitionScope.GridItemContent(
                         drag = drag,
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
+                        isScrollInProgress = isScrollInProgress,
                     )
                 }
 
@@ -108,6 +110,7 @@ internal fun SharedTransitionScope.GridItemContent(
                         data = data,
                         drag = drag,
                         screen = screen,
+                        isScrollInProgress = isScrollInProgress,
                     )
                 }
 
@@ -121,6 +124,7 @@ internal fun SharedTransitionScope.GridItemContent(
                         hasShortcutHostPermission = hasShortcutHostPermission,
                         drag = drag,
                         screen = screen,
+                        isScrollInProgress = isScrollInProgress,
                     )
                 }
 
@@ -134,6 +138,7 @@ internal fun SharedTransitionScope.GridItemContent(
                         drag = drag,
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
+                        isScrollInProgress = isScrollInProgress,
                     )
                 }
 
@@ -146,6 +151,7 @@ internal fun SharedTransitionScope.GridItemContent(
                         gridItemSettings = gridItemSettings,
                         drag = drag,
                         screen = screen,
+                        isScrollInProgress = isScrollInProgress,
                     )
                 }
             }
@@ -316,6 +322,7 @@ internal fun SharedTransitionScope.FolderGridItemContent(
     textColor: Color,
     screen: Screen,
     drag: Drag,
+    isScrollInProgress: Boolean,
 ) {
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
@@ -353,7 +360,7 @@ internal fun SharedTransitionScope.FolderGridItemContent(
                                         screen = screen,
                                     ),
                                 ),
-                                visible = drag == Drag.Cancel || drag == Drag.End,
+                                visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                             )
                             .size((gridItemSettings.iconSize * 0.25).dp)
 
@@ -541,6 +548,7 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
     drag: Drag,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
+    isScrollInProgress: Boolean,
 ) {
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -568,7 +576,7 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
                             screen = screen,
                         ),
                     ),
-                    visible = drag == Drag.Cancel || drag == Drag.End,
+                    visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                 ),
             data = data,
             textColor = textColor,
@@ -590,6 +598,7 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
     hasShortcutHostPermission: Boolean,
     drag: Drag,
     screen: Screen,
+    isScrollInProgress: Boolean,
 ) {
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -617,7 +626,7 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
                             screen = screen,
                         ),
                     ),
-                    visible = drag == Drag.Cancel || drag == Drag.End,
+                    visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                 ),
             data = data,
             textColor = textColor,
@@ -638,6 +647,7 @@ private fun SharedTransitionScope.FolderGridItem(
     drag: Drag,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
+    isScrollInProgress: Boolean,
 ) {
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -665,7 +675,7 @@ private fun SharedTransitionScope.FolderGridItem(
                             screen = screen,
                         ),
                     ),
-                    visible = drag == Drag.Cancel || drag == Drag.End,
+                    visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                 ),
             gridItemSettings = gridItemSettings,
             data = data,
@@ -673,6 +683,7 @@ private fun SharedTransitionScope.FolderGridItem(
             textColor = textColor,
             screen = screen,
             drag = drag,
+            isScrollInProgress = isScrollInProgress,
         )
     }
 }
@@ -685,6 +696,7 @@ private fun SharedTransitionScope.WidgetGridItem(
     data: GridItemData.Widget,
     drag: Drag,
     screen: Screen,
+    isScrollInProgress: Boolean,
 ) {
     val appWidgetManager = LocalAppWidgetManager.current
 
@@ -700,7 +712,7 @@ private fun SharedTransitionScope.WidgetGridItem(
                     screen = screen,
                 ),
             ),
-            visible = drag == Drag.Cancel || drag == Drag.End,
+            visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
         )
         .fillMaxSize()
 
@@ -733,6 +745,7 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
     gridItemSettings: GridItemSettings,
     drag: Drag,
     screen: Screen,
+    isScrollInProgress: Boolean,
 ) {
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -760,7 +773,7 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
                             screen = screen,
                         ),
                     ),
-                    visible = drag == Drag.Cancel || drag == Drag.End,
+                    visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                 ),
             data = data,
             textColor = textColor,

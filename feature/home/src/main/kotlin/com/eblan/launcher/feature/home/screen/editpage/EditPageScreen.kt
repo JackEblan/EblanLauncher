@@ -66,6 +66,7 @@ import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
+import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -212,7 +213,9 @@ internal fun SharedTransitionScope.EditPageScreen(
                                     statusBarNotifications = emptyMap(),
                                     hasShortcutHostPermission = hasShortcutHostPermission,
                                     iconPackFilePaths = iconPackFilePaths,
+                                    drag = Drag.End,
                                     screen = screen,
+                                    isScrollInProgress = false,
                                 )
                             },
                         )

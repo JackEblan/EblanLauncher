@@ -414,6 +414,7 @@ internal fun SharedTransitionScope.DragScreen(
                         drag = drag,
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
+                        isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                     )
                 },
             )
@@ -469,6 +470,7 @@ internal fun SharedTransitionScope.DragScreen(
                     drag = drag,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
+                    isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                 )
             },
         )

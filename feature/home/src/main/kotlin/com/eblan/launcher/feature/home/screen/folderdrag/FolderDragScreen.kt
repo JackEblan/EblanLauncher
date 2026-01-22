@@ -264,8 +264,10 @@ internal fun SharedTransitionScope.FolderDragScreen(
                         isDragging = isDragging,
                         statusBarNotifications = statusBarNotifications,
                         hasShortcutHostPermission = hasShortcutHostPermission,
+                        drag = drag,
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
+                        isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
                     )
                 },
             )

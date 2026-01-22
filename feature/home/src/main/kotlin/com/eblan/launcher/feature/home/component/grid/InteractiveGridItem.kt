@@ -834,6 +834,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                 textColor = textColor,
                 screen = screen,
                 drag = drag,
+                isScrollInProgress = isScrollInProgress,
             )
         }
     }

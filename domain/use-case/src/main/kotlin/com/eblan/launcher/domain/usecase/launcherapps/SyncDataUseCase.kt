@@ -440,7 +440,6 @@ class SyncDataUseCase @Inject constructor(
                         iconPackInfoPackageName = iconPackInfoPackageName,
                         iconPackInfoDirectory = iconPackDirectory,
                         componentName = launcherAppsActivityInfo.componentName,
-                        packageName = launcherAppsActivityInfo.packageName,
                     )
                 }.map { launcherAppsActivityInfo ->
                     currentCoroutineContext().ensureActive()

@@ -29,13 +29,12 @@ internal suspend fun cacheIconPackFile(
     iconPackInfoPackageName: String,
     iconPackInfoDirectory: File,
     componentName: String,
-    packageName: String,
 ) {
     appFilter.find { iconPackInfoComponent ->
         currentCoroutineContext().ensureActive()
 
-        iconPackInfoComponent.component.contains(componentName) ||
-            iconPackInfoComponent.component.contains(packageName)
+        componentName == iconPackInfoComponent.component.removePrefix("ComponentInfo{")
+            .removeSuffix("}")
     }?.let { iconPackInfoComponent ->
         iconPackManager.createIconPackInfoPath(
             packageName = iconPackInfoPackageName,

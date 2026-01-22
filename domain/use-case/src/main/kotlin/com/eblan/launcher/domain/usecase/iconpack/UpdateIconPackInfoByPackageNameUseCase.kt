@@ -56,7 +56,6 @@ class UpdateIconPackInfoByPackageNameUseCase @Inject constructor(
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     iconPackInfoDirectory = iconPackDirectory,
                     componentName = componentName,
-                    packageName = packageName,
                 )
             }
         }

@@ -63,7 +63,7 @@ internal fun PopupApplicationInfoMenu(
     popupIntOffset: IntOffset,
     gridItem: GridItem?,
     popupIntSize: IntSize,
-    eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     hasShortcutHostPermission: Boolean,
     currentPage: Int,
     drag: Drag,
@@ -122,7 +122,7 @@ internal fun PopupApplicationInfoMenu(
             .padding(paddingValues),
         content = {
             ApplicationInfoMenu(
-                eblanShortcutInfosByPackageName = eblanShortcutInfos[
+                eblanShortcutInfosGroup = eblanShortcutInfosGroup[
                     EblanShortcutInfoByGroup(
                         serialNumber = applicationInfo.serialNumber,
                         packageName = applicationInfo.packageName,
@@ -212,7 +212,7 @@ internal fun PopupApplicationInfoMenu(
 @Composable
 private fun ApplicationInfoMenu(
     modifier: Modifier = Modifier,
-    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
+    eblanShortcutInfosGroup: List<EblanShortcutInfo>?,
     hasShortcutHostPermission: Boolean,
     currentPage: Int,
     drag: Drag,
@@ -247,14 +247,14 @@ private fun ApplicationInfoMenu(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 if (hasShortcutHostPermission &&
-                    !eblanShortcutInfosByPackageName.isNullOrEmpty()
+                    !eblanShortcutInfosGroup.isNullOrEmpty()
                 ) {
                     ShortcutInfoMenu(
                         modifier = modifier,
                         currentPage = currentPage,
                         drag = drag,
                         icon = icon,
-                        eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
+                        eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                         gridItemSettings = gridItemSettings,
                         onTapShortcutInfo = onTapShortcutInfo,
                         onLongPressGridItem = onLongPressGridItem,

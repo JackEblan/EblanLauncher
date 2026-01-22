@@ -52,12 +52,10 @@ class UpdateIconPackInfoByPackageNameUseCase @Inject constructor(
             if (iconPackInfoPackageName.isNotEmpty()) {
                 cacheIconPackFile(
                     iconPackManager = iconPackManager,
-                    fileManager = fileManager,
                     appFilter = appFilter,
                     iconPackInfoPackageName = iconPackInfoPackageName,
-                    iconPackDirectory = iconPackDirectory,
+                    iconPackInfoDirectory = iconPackDirectory,
                     componentName = componentName,
-                    packageName = packageName,
                 )
             }
         }

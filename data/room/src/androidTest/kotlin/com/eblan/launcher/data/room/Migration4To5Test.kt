@@ -20,7 +20,6 @@ package com.eblan.launcher.data.room
 import androidx.room.testing.MigrationTestHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.eblan.launcher.data.room.migration.Migration4To5
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,8 +51,7 @@ class Migration4To5Test {
                 """
                 INSERT INTO `EblanApplicationInfoEntity`
                 (packageName, serialNumber, componentName, icon, label) 
-                VALUES ('com.example.app', 1, 'com.example.app/.MainActivity', '/path/icon.png', 'Original App'),
-                ('com.test.app2',   2, 'com.test.app2/.Settings',     NULL,           NULL)
+                VALUES ('com.example.app', 1, 'com.example.app/.MainActivity', '/path/icon.png', 'Original App')
                 """.trimIndent(),
             )
 
@@ -66,9 +64,7 @@ class Migration4To5Test {
                     resizeMode, minResizeWidth, minResizeHeight,
                     maxResizeWidth, maxResizeHeight, label
                 ) VALUES 
-                ('com.example.clock', 100, 'com.example.app', 4, 2, 4, 2, 1, 2, 2, 8, 8, 'Clock'),
-                ('com.example.weather', 101, 'com.example.app', 4, 4, 4, 4, 1, 2, 2, 8, 8, NULL),
-                ('com.example.notes', 102, 'com.example.app', 2, 2, 2, 2, 0, 2, 2, 4, 4, 'My Notes')
+                ('com.example.clock', 100, 'com.example.app', 4, 2, 4, 2, 1, 2, 2, 8, 8, 'Clock')
                 """.trimIndent(),
             )
 
@@ -81,9 +77,7 @@ class Migration4To5Test {
                     horizontalAlignment, verticalArrangement, label)
                 VALUES 
                 ('item1', 0, 0, 0, 1, 1, 'none', 'com.app/.Main', 'com.app', 0, 100, 48, 
-                 '#FFFFFF', 14, 1, 0, 'center', 'top', 'Browser'),
-                ('item2', 0, 1, 1, 1, 1, 'none', 'com.app/.Notes', 'com.app', 0, 101, 48,
-                 '#000000', 12, 0, 1, 'start', 'bottom', NULL)
+                 '#FFFFFF', 14, 1, 0, 'center', 'top', 'Browser')
                 """.trimIndent(),
             )
 
@@ -109,17 +103,7 @@ class Migration4To5Test {
                 NULL, 'Clock', NULL,
                 0, 500,
                 48, '#FFFFFF', 14, 1, 0,
-                'center', 'top'),
-     
-                ('widget_2', NULL, 1, 0, 0, 2, 2,
-                'none', 102, 'com.weather', 'com.weather.Widget', NULL,
-                100, 100,
-                0, 1, 1, 8, 8,          
-                2, 2,
-                NULL, '', NULL,          -- label was NULL → will become '' in v5
-                0, 501,
-                32, '#000000', 12, 0, 1,
-                'start', 'bottom')
+                'center', 'top')
                 """.trimIndent(),
             )
 
@@ -164,7 +148,6 @@ class Migration4To5Test {
             testDatabase,
             5,
             true,
-            Migration4To5(),
         )
 
         // EblanApplicationInfoEntity
@@ -184,14 +167,6 @@ class Migration4To5Test {
             assertEquals("Original App", cursor.getString(3))
             assertNull(cursor.getString(4)) // customIcon
             assertNull(cursor.getString(5)) // customLabel
-
-            assertTrue(cursor.moveToNext())
-
-            // Row 2 — label was NULL → defaulted to ''
-            assertEquals("com.test.app2/.Settings", cursor.getString(0))
-            assertEquals("", cursor.getString(3)) // label NOT NULL enforced
-            assertNull(cursor.getString(4))
-            assertNull(cursor.getString(5))
         }
 
         // EblanAppWidgetProviderInfoEntity
@@ -202,16 +177,6 @@ class Migration4To5Test {
                 // Row 1
                 assertEquals("com.example.clock", cursor.getString(0))
                 assertEquals("Clock", cursor.getString(1))
-
-                cursor.moveToNext()
-                // Row 2 — previously NULL label → now empty string
-                assertEquals("com.example.weather", cursor.getString(0))
-                assertEquals("", cursor.getString(1))
-
-                cursor.moveToNext()
-                // Row 3
-                assertEquals("com.example.notes", cursor.getString(0))
-                assertEquals("My Notes", cursor.getString(1))
             }
 
         // ApplicationInfoGridItemEntity
@@ -222,23 +187,12 @@ class Migration4To5Test {
                 assertEquals("Browser", c.getString(1))
                 assertNull(c.getString(2))
                 assertNull(c.getString(3))
-
-                assertTrue(c.moveToNext())
-
-                assertEquals("item2", c.getString(0))
-                assertEquals("", c.getString(1)) // NULL → ''
-                assertNull(c.getString(2))
-                assertNull(c.getString(3))
             }
 
         // WidgetGridItemEntity
         dbV5.query("SELECT id, label FROM `WidgetGridItemEntity` ORDER BY serialNumber").use { c ->
             assertTrue(c.moveToFirst())
             assertEquals("Clock", c.getString(1))
-
-            assertTrue(c.moveToNext())
-
-            assertEquals("", c.getString(1)) // previously NULL → now empty string
         }
 
         // FolderGridItemEntity

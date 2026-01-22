@@ -63,13 +63,15 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
-import com.eblan.launcher.ui.local.LocalByteArray
+import com.eblan.launcher.ui.local.LocalFileManager
+import com.eblan.launcher.ui.local.LocalImageSerializer
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -147,7 +149,9 @@ internal fun SharedTransitionScope.DragScreen(
 
     val launcherApps = LocalLauncherApps.current
 
-    val byteArray = LocalByteArray.current
+    val imageSerializer = LocalImageSerializer.current
+
+    val fileManager = LocalFileManager.current
 
     val view = LocalView.current
 
@@ -163,10 +167,8 @@ internal fun SharedTransitionScope.DragScreen(
 
     val dockHeight = homeSettings.dockHeight.dp
 
-    val pageIndicatorHeight = 30.dp
-
     val pageIndicatorHeightPx = with(density) {
-        pageIndicatorHeight.roundToPx()
+        PAGE_INDICATOR_HEIGHT.dp.roundToPx()
     }
 
     val configureLauncher = rememberLauncherForActivityResult(
@@ -204,7 +206,7 @@ internal fun SharedTransitionScope.DragScreen(
     ) { result ->
         scope.launch {
             handleShortcutConfigLauncherResult(
-                androidByteArrayWrapper = byteArray,
+                imageSerializer = imageSerializer,
                 moveGridItemResult = moveGridItemResult,
                 result = result,
                 gridItemSource = gridItemSource,
@@ -223,7 +225,8 @@ internal fun SharedTransitionScope.DragScreen(
                 result = result,
                 userManagerWrapper = userManager,
                 launcherAppsWrapper = launcherApps,
-                byteArrayWrapper = byteArray,
+                imageSerializer = imageSerializer,
+                fileManager = fileManager,
                 gridItemSource = gridItemSource,
                 onDeleteGridItemCache = onDeleteGridItemCache,
                 onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
@@ -350,7 +353,6 @@ internal fun SharedTransitionScope.DragScreen(
             drag = drag,
             moveGridItemResult = moveGridItemResult,
             onShowFolderWhenDragging = onShowFolderWhenDragging,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 
@@ -411,6 +413,7 @@ internal fun SharedTransitionScope.DragScreen(
                         drag = drag,
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
+                        isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                     )
                 },
             )
@@ -418,7 +421,7 @@ internal fun SharedTransitionScope.DragScreen(
 
         PageIndicator(
             modifier = Modifier
-                .height(pageIndicatorHeight)
+                .height(PAGE_INDICATOR_HEIGHT.dp)
                 .fillMaxWidth(),
             gridHorizontalPagerState = gridHorizontalPagerState,
             infiniteScroll = homeSettings.infiniteScroll,
@@ -466,6 +469,7 @@ internal fun SharedTransitionScope.DragScreen(
                     drag = drag,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
+                    isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                 )
             },
         )

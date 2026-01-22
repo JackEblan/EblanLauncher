@@ -18,12 +18,15 @@
 package com.eblan.launcher.domain.framework
 
 import com.eblan.launcher.domain.model.IconPackInfoComponent
+import java.io.File
 
 interface IconPackManager {
     suspend fun parseAppFilter(packageName: String): List<IconPackInfoComponent>
 
-    suspend fun loadByteArrayFromIconPack(
+    suspend fun createIconPackInfoPath(
         packageName: String,
-        drawableName: String,
-    ): ByteArray?
+        componentName: String,
+        drawable: String,
+        iconPackInfoDirectory: File,
+    ): String?
 }

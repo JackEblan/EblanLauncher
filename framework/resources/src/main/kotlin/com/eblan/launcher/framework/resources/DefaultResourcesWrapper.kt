@@ -24,13 +24,10 @@ import com.eblan.launcher.domain.model.Theme
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-internal class DefaultResourcesWrapper @Inject constructor(@param:ApplicationContext private val context: Context) :
-    ResourcesWrapper {
-    override fun getSystemTheme(): Theme {
-        return when (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
-            Configuration.UI_MODE_NIGHT_YES -> Theme.Dark
-            Configuration.UI_MODE_NIGHT_NO -> Theme.Light
-            else -> Theme.Light
-        }
+internal class DefaultResourcesWrapper @Inject constructor(@param:ApplicationContext private val context: Context) : ResourcesWrapper {
+    override fun getSystemTheme(): Theme = when (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+        Configuration.UI_MODE_NIGHT_YES -> Theme.Dark
+        Configuration.UI_MODE_NIGHT_NO -> Theme.Light
+        else -> Theme.Light
     }
 }

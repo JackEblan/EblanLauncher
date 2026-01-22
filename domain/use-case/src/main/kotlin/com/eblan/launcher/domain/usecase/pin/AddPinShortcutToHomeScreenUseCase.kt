@@ -35,6 +35,7 @@ import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 class AddPinShortcutToHomeScreenUseCase @Inject constructor(
@@ -56,90 +57,81 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
         shortLabel: String,
         longLabel: String,
         isEnabled: Boolean,
-        byteArray: ByteArray?,
-    ): GridItem? {
-        return withContext(defaultDispatcher) {
-            val homeSettings = userDataRepository.userData.first().homeSettings
+        icon: String?,
+    ): GridItem? = withContext(defaultDispatcher) {
+        val homeSettings = userDataRepository.userData.first().homeSettings
 
-            val columns = homeSettings.columns
+        val columns = homeSettings.columns
 
-            val rows = homeSettings.rows
+        val rows = homeSettings.rows
 
-            val pageCount = homeSettings.pageCount
+        val pageCount = homeSettings.pageCount
 
-            val initialPage = homeSettings.initialPage
+        val initialPage = homeSettings.initialPage
 
-            val gridItems = (
-                applicationInfoGridItemRepository.gridItems.first() +
-                    widgetGridItemRepository.gridItems.first() +
-                    shortcutInfoGridItemRepository.gridItems.first() +
-                    folderGridItemRepository.gridItems.first() +
-                    shortcutConfigGridItemRepository.gridItems.first()
-                ).filter { gridItem ->
-                gridItem.associate == Associate.Grid &&
-                    gridItem.folderId == null
-            }
-
-            val icon = byteArray?.let { currentByteArray ->
-                fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                    name = shortcutId,
-                    byteArray = currentByteArray,
-                )
-            }
-
-            val eblanApplicationInfoIcon =
-                packageManagerWrapper.getApplicationIcon(packageName = packageName)
-                    ?.let { byteArray ->
-                        fileManager.updateAndGetFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                            name = packageName,
-                            byteArray = byteArray,
-                        )
-                    }
-
-            val data = GridItemData.ShortcutInfo(
-                shortcutId = shortcutId,
-                packageName = packageName,
-                serialNumber = serialNumber,
-                shortLabel = shortLabel,
-                longLabel = longLabel,
-                icon = icon,
-                isEnabled = isEnabled,
-                eblanApplicationInfoIcon = eblanApplicationInfoIcon,
-                customIcon = null,
-                customShortLabel = null,
-            )
-
-            val gridItem = GridItem(
-                id = shortcutId,
-                folderId = null,
-                page = initialPage,
-                startColumn = 0,
-                startRow = 0,
-                columnSpan = 1,
-                rowSpan = 1,
-                data = data,
-                associate = Associate.Grid,
-                override = false,
-                gridItemSettings = homeSettings.gridItemSettings,
-            )
-
-            val newGridItem = findAvailableRegionByPage(
-                gridItems = gridItems,
-                gridItem = gridItem,
-                pageCount = pageCount,
-                columns = columns,
-                rows = rows,
-            )
-
-            if (newGridItem != null) {
-                gridCacheRepository.insertGridItems(gridItems = gridItems)
-
-                gridCacheRepository.insertGridItem(gridItem = newGridItem)
-            }
-
-            newGridItem
+        val gridItems = (
+            applicationInfoGridItemRepository.gridItems.first() +
+                widgetGridItemRepository.gridItems.first() +
+                shortcutInfoGridItemRepository.gridItems.first() +
+                folderGridItemRepository.gridItems.first() +
+                shortcutConfigGridItemRepository.gridItems.first()
+            ).filter { gridItem ->
+            gridItem.associate == Associate.Grid &&
+                gridItem.folderId == null
         }
+
+        val eblanApplicationInfoIcon =
+            packageManagerWrapper.getComponentName(packageName = packageName)
+                ?.let { componentName ->
+                    val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                    val file = File(
+                        directory,
+                        componentName.hashCode().toString(),
+                    )
+
+                    file.absolutePath
+                }
+
+        val data = GridItemData.ShortcutInfo(
+            shortcutId = shortcutId,
+            packageName = packageName,
+            serialNumber = serialNumber,
+            shortLabel = shortLabel,
+            longLabel = longLabel,
+            icon = icon,
+            isEnabled = isEnabled,
+            eblanApplicationInfoIcon = eblanApplicationInfoIcon,
+            customIcon = null,
+            customShortLabel = null,
+        )
+
+        val gridItem = GridItem(
+            id = shortcutId,
+            folderId = null,
+            page = initialPage,
+            startColumn = 0,
+            startRow = 0,
+            columnSpan = 1,
+            rowSpan = 1,
+            data = data,
+            associate = Associate.Grid,
+            override = false,
+            gridItemSettings = homeSettings.gridItemSettings,
+        )
+
+        val newGridItem = findAvailableRegionByPage(
+            gridItems = gridItems,
+            gridItem = gridItem,
+            pageCount = pageCount,
+            columns = columns,
+            rows = rows,
+        )
+
+        if (newGridItem != null) {
+            gridCacheRepository.insertGridItems(gridItems = gridItems + newGridItem)
+        }
+
+        newGridItem
     }
 }

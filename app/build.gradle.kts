@@ -26,8 +26,8 @@ android {
 
     defaultConfig {
         applicationId = "com.eblan.launcher"
-        versionCode = 35
-        versionName = "0.3.5-alpha"
+        versionCode = 38
+        versionName = "0.3.8-alpha"
     }
 
     buildTypes {
@@ -62,7 +62,7 @@ dependencies {
     implementation(projects.feature.settings.gestures)
     implementation(projects.feature.settings.home)
     implementation(projects.feature.settings.settings)
-    implementation(projects.framework.byteArray)
+    implementation(projects.framework.imageSerializer)
     implementation(projects.framework.fileManager)
     implementation(projects.framework.iconPackManager)
     implementation(projects.framework.launcherApps)

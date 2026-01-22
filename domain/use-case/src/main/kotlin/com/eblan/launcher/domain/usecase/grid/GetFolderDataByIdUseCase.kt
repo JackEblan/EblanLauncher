@@ -41,33 +41,31 @@ class GetFolderDataByIdUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(folderId: String): FolderDataById? {
-        return withContext(defaultDispatcher) {
-            val homeSettings = userDataRepository.userData.first().homeSettings
+    suspend operator fun invoke(folderId: String): FolderDataById? = withContext(defaultDispatcher) {
+        val homeSettings = userDataRepository.userData.first().homeSettings
 
-            val gridItems = (
-                applicationInfoGridItemRepository.gridItems.first() +
-                    widgetGridItemRepository.gridItems.first() +
-                    shortcutInfoGridItemRepository.gridItems.first() +
-                    folderGridItemRepository.gridItems.first() +
-                    shortcutConfigGridItemRepository.gridItems.first()
-                ).filter { gridItem ->
-                gridItem.folderId == folderId && isGridItemSpanWithinBounds(
-                    gridItem = gridItem,
-                    columns = homeSettings.folderColumns,
-                    rows = homeSettings.folderRows,
-                )
-            }
+        val gridItems = (
+            applicationInfoGridItemRepository.gridItems.first() +
+                widgetGridItemRepository.gridItems.first() +
+                shortcutInfoGridItemRepository.gridItems.first() +
+                folderGridItemRepository.gridItems.first() +
+                shortcutConfigGridItemRepository.gridItems.first()
+            ).filter { gridItem ->
+            gridItem.folderId == folderId && isGridItemSpanWithinBounds(
+                gridItem = gridItem,
+                columns = homeSettings.folderColumns,
+                rows = homeSettings.folderRows,
+            )
+        }
 
-            folderGridItemRepository.getFolderGridItemData(id = folderId)?.let { folderGridItemData ->
-                FolderDataById(
-                    folderId = folderId,
-                    label = folderGridItemData.label,
-                    gridItems = gridItems,
-                    gridItemsByPage = gridItems.groupBy { gridItem -> gridItem.page },
-                    pageCount = folderGridItemData.pageCount,
-                )
-            }
+        folderGridItemRepository.getFolderGridItemData(id = folderId)?.let { folderGridItemData ->
+            FolderDataById(
+                folderId = folderId,
+                label = folderGridItemData.label,
+                gridItems = gridItems,
+                gridItemsByPage = gridItems.groupBy { gridItem -> gridItem.page },
+                pageCount = folderGridItemData.pageCount,
+            )
         }
     }
 }

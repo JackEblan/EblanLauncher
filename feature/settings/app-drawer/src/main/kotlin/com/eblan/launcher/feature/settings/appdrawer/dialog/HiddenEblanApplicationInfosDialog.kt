@@ -55,36 +55,51 @@ internal fun HiddenEblanApplicationInfosDialog(
                 style = MaterialTheme.typography.titleLarge,
             )
 
-            LazyColumn(
-                modifier = Modifier.weight(
-                    weight = 1f,
-                    fill = false,
-                ),
-            ) {
-                items(eblanApplicationInfos) { eblanApplicationInfo ->
-                    ListItem(
-                        headlineContent = { Text(text = eblanApplicationInfo.label) },
-                        leadingContent = {
-                            AsyncImage(
-                                model = eblanApplicationInfo.icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(40.dp),
-                            )
-                        },
-                        trailingContent = {
-                            IconButton(onClick = {
-                                onUpdateEblanApplicationInfo(eblanApplicationInfo.copy(isHidden = false))
-                            }) {
-                                Icon(
-                                    imageVector = EblanLauncherIcons.Delete,
-                                    contentDescription = null,
-                                )
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
+            when {
+                eblanApplicationInfos.isEmpty() -> {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 10.dp),
+                        text = "No hidden Applications",
                     )
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.weight(
+                            weight = 1f,
+                            fill = false,
+                        ),
+                    ) {
+                        items(eblanApplicationInfos) { eblanApplicationInfo ->
+                            ListItem(
+                                headlineContent = { Text(text = eblanApplicationInfo.label) },
+                                leadingContent = {
+                                    AsyncImage(
+                                        model = eblanApplicationInfo.icon,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(40.dp),
+                                    )
+                                },
+                                trailingContent = {
+                                    IconButton(onClick = {
+                                        onUpdateEblanApplicationInfo(
+                                            eblanApplicationInfo.copy(
+                                                isHidden = false,
+                                            ),
+                                        )
+                                    }) {
+                                        Icon(
+                                            imageVector = EblanLauncherIcons.Delete,
+                                            contentDescription = null,
+                                        )
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp),
+                            )
+                        }
+                    }
                 }
             }
 

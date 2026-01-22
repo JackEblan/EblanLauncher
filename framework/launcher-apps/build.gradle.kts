@@ -29,6 +29,7 @@ dependencies {
     implementation(projects.common)
     implementation(projects.domain.common)
     implementation(projects.domain.framework)
-    implementation(projects.framework.byteArray)
+    implementation(projects.framework.imageSerializer)
+    implementation(projects.framework.packageManager)
     implementation(projects.framework.userManager)
 }

@@ -31,7 +31,9 @@ import java.io.File
 import javax.inject.Inject
 
 @HiltAndroidApp
-class EblanApplication : Application(), Thread.UncaughtExceptionHandler {
+class EblanApplication :
+    Application(),
+    Thread.UncaughtExceptionHandler {
     @Inject
     lateinit var notificationManagerWrapper: AndroidNotificationManagerWrapper
 
@@ -45,7 +47,7 @@ class EblanApplication : Application(), Thread.UncaughtExceptionHandler {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManagerWrapper.createNotificationChannel(
                 channelId = AndroidNotificationManagerWrapper.CHANNEL_ID,
-                name = getString(R.string.einstein_launcher_service),
+                name = getString(R.string.app_name),
                 importance = NotificationManager.IMPORTANCE_DEFAULT,
             )
         }

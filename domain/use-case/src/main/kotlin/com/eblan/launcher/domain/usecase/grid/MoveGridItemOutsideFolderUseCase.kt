@@ -38,7 +38,7 @@ class MoveGridItemOutsideFolderUseCase @Inject constructor(
         movingGridItem: GridItem,
         gridItems: List<GridItem>,
     ) {
-        return withContext(defaultDispatcher) {
+        withContext(defaultDispatcher) {
             val folderGridItems =
                 folderGridCacheRepository.gridItemsCache.first().toMutableList().apply {
                     removeIf { gridItem ->

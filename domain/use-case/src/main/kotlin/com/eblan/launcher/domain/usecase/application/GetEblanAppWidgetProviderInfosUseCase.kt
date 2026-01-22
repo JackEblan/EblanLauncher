@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.usecase.applicationcomponent
+package com.eblan.launcher.domain.usecase.application
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
@@ -24,31 +24,32 @@ import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetEblanAppWidgetProviderInfosByLabelUseCase @Inject constructor(
+class GetEblanAppWidgetProviderInfosUseCase @Inject constructor(
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(label: String): Flow<Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>> {
-        return eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
-            eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
-                eblanAppWidgetProviderInfo.label.lowercase()
-            }.filter { eblanAppWidgetProviderInfo ->
-                label.isNotBlank() && eblanAppWidgetProviderInfo.label.contains(
-                    other = label,
-                    ignoreCase = true,
-                )
-            }.groupBy { eblanAppWidgetProviderInfo ->
-                EblanApplicationInfoGroup(
-                    serialNumber = eblanAppWidgetProviderInfo.serialNumber,
-                    packageName = eblanAppWidgetProviderInfo.packageName,
-                    icon = eblanAppWidgetProviderInfo.icon,
-                    label = eblanAppWidgetProviderInfo.label,
-                )
-            }
-        }.flowOn(defaultDispatcher)
-    }
+    operator fun invoke(labelFlow: Flow<String>): Flow<Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>> = combine(
+        eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos,
+        labelFlow,
+    ) { eblanAppWidgetProviderInfos, label ->
+        eblanAppWidgetProviderInfos.filter { eblanAppWidgetProviderInfo ->
+            eblanAppWidgetProviderInfo.label.contains(
+                other = label,
+                ignoreCase = true,
+            )
+        }.sortedBy { eblanAppWidgetProviderInfo ->
+            eblanAppWidgetProviderInfo.label.lowercase()
+        }.groupBy { eblanAppWidgetProviderInfo ->
+            EblanApplicationInfoGroup(
+                serialNumber = eblanAppWidgetProviderInfo.serialNumber,
+                packageName = eblanAppWidgetProviderInfo.packageName,
+                icon = eblanAppWidgetProviderInfo.icon,
+                label = eblanAppWidgetProviderInfo.label,
+            )
+        }
+    }.flowOn(defaultDispatcher)
 }

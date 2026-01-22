@@ -23,4 +23,5 @@ data class SyncEblanApplicationInfo(
     val packageName: String,
     val icon: String?,
     val label: String?,
+    val lastUpdateTime: Long,
 )

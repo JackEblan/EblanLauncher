@@ -19,7 +19,9 @@ package com.eblan.launcher.feature.settings.general.dialog
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -56,32 +58,45 @@ internal fun ImportIconPackInfoDialog(
                 style = MaterialTheme.typography.titleLarge,
             )
 
-            LazyColumn(
-                modifier = Modifier.weight(
-                    weight = 1f,
-                    fill = false,
-                ),
-            ) {
-                items(packageManagerIconPackInfos) { packageManagerIconPackInfo ->
-                    ListItem(
-                        headlineContent = { Text(text = packageManagerIconPackInfo.label) },
-                        leadingContent = {
-                            AsyncImage(
-                                model = packageManagerIconPackInfo.icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(40.dp),
-                            )
-                        },
-                        modifier = Modifier
-                            .clickable {
-                                onUpdateIconPackInfo(
-                                    packageManagerIconPackInfo.packageName,
-                                    packageManagerIconPackInfo.label,
-                                )
-                            }
-                            .fillMaxWidth()
-                            .padding(10.dp),
+            when {
+                packageManagerIconPackInfos.isEmpty() -> {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 10.dp),
+                        text = "No icon packs",
                     )
+                }
+
+                else -> {
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    LazyColumn(
+                        modifier = Modifier.weight(
+                            weight = 1f,
+                            fill = false,
+                        ),
+                    ) {
+                        items(packageManagerIconPackInfos) { packageManagerIconPackInfo ->
+                            ListItem(
+                                headlineContent = { Text(text = packageManagerIconPackInfo.label) },
+                                leadingContent = {
+                                    AsyncImage(
+                                        model = packageManagerIconPackInfo.icon,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(40.dp),
+                                    )
+                                },
+                                modifier = Modifier
+                                    .clickable {
+                                        onUpdateIconPackInfo(
+                                            packageManagerIconPackInfo.packageName,
+                                            packageManagerIconPackInfo.label,
+                                        )
+                                    }
+                                    .fillMaxWidth()
+                                    .padding(10.dp),
+                            )
+                        }
+                    }
                 }
             }
 

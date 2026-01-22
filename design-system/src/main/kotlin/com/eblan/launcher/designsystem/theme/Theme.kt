@@ -126,19 +126,17 @@ fun EblanLauncherTheme(
 }
 
 @Composable
-private fun getGreenColorScheme(theme: Theme): ColorScheme {
-    return when (theme) {
-        Theme.System -> {
-            if (isSystemInDarkTheme()) DarkColorScheme else LightColorScheme
-        }
+private fun getGreenColorScheme(theme: Theme): ColorScheme = when (theme) {
+    Theme.System -> {
+        if (isSystemInDarkTheme()) DarkColorScheme else LightColorScheme
+    }
 
-        Theme.Light -> {
-            LightColorScheme
-        }
+    Theme.Light -> {
+        LightColorScheme
+    }
 
-        Theme.Dark -> {
-            DarkColorScheme
-        }
+    Theme.Dark -> {
+        DarkColorScheme
     }
 }
 

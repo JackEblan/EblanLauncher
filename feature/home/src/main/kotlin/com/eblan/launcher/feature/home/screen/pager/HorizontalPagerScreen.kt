@@ -65,6 +65,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
@@ -150,10 +151,8 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         paddingValues.calculateTopPadding().roundToPx()
     }
 
-    val pageIndicatorHeight = 30.dp
-
     val pageIndicatorHeightPx = with(density) {
-        pageIndicatorHeight.roundToPx()
+        PAGE_INDICATOR_HEIGHT.dp.roundToPx()
     }
 
     LaunchedEffect(key1 = gridHorizontalPagerState) {
@@ -312,7 +311,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         PageIndicator(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(pageIndicatorHeight),
+                .height(PAGE_INDICATOR_HEIGHT.dp),
             gridHorizontalPagerState = gridHorizontalPagerState,
             infiniteScroll = homeSettings.infiniteScroll,
             pageCount = homeSettings.pageCount,

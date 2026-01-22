@@ -25,4 +25,5 @@ data class EblanShortcutConfig(
     val activityLabel: String?,
     val applicationIcon: String?,
     val applicationLabel: String?,
+    val lastUpdateTime: Long,
 )

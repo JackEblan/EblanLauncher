@@ -23,8 +23,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import javax.inject.Inject
 
-internal class DefaultGridCacheRepository @Inject constructor(private val gridCacheDataSource: GridCacheDataSource) :
-    GridCacheRepository {
+internal class DefaultGridCacheRepository @Inject constructor(private val gridCacheDataSource: GridCacheDataSource) : GridCacheRepository {
     override val gridItemsCache = gridCacheDataSource.gridItemsCache
 
     override fun insertGridItems(gridItems: List<GridItem>) {

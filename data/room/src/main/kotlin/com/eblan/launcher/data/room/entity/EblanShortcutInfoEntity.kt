@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.data.room.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import com.eblan.launcher.domain.model.ShortcutQueryFlag
 
@@ -30,4 +31,6 @@ data class EblanShortcutInfoEntity(
     val icon: String?,
     val shortcutQueryFlag: ShortcutQueryFlag,
     val isEnabled: Boolean,
+    @ColumnInfo(defaultValue = "0")
+    val lastUpdateTime: Long,
 )

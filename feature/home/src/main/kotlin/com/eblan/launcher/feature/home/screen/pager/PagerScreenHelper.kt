@@ -40,8 +40,6 @@ import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_VALUE
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 internal fun doEblanActions(
@@ -101,45 +99,42 @@ internal fun doEblanActions(
     }
 }
 
-internal fun resetSwipeOffset(
-    scope: CoroutineScope,
+internal suspend fun resetSwipeOffset(
     gestureSettings: GestureSettings,
     swipeDownY: Animatable<Float, AnimationVector1D>,
     screenHeight: Int,
     swipeUpY: Animatable<Float, AnimationVector1D>,
 ) {
-    fun animateOffset(
+    suspend fun animateOffset(
         eblanAction: EblanAction,
         swipeY: Animatable<Float, AnimationVector1D>,
     ) {
-        scope.launch {
-            if (eblanAction is EblanAction.OpenAppDrawer) {
-                val targetValue = if (swipeY.value < screenHeight - 200f) {
-                    0f
-                } else {
-                    screenHeight.toFloat()
-                }
-
-                swipeY.animateTo(
-                    targetValue = targetValue,
-                    animationSpec = tween(
-                        easing = FastOutSlowInEasing,
-                    ),
-                )
+        if (eblanAction is EblanAction.OpenAppDrawer) {
+            val targetValue = if (swipeY.value < screenHeight - 200f) {
+                0f
             } else {
-                swipeY.snapTo(screenHeight.toFloat())
+                screenHeight.toFloat()
             }
+
+            swipeY.animateTo(
+                targetValue = targetValue,
+                animationSpec = tween(
+                    easing = FastOutSlowInEasing,
+                ),
+            )
+        } else {
+            swipeY.snapTo(screenHeight.toFloat())
         }
     }
 
     animateOffset(
-        eblanAction = gestureSettings.swipeDown,
-        swipeY = swipeDownY,
+        eblanAction = gestureSettings.swipeUp,
+        swipeY = swipeUpY,
     )
 
     animateOffset(
-        eblanAction = gestureSettings.swipeUp,
-        swipeY = swipeUpY,
+        eblanAction = gestureSettings.swipeDown,
+        swipeY = swipeDownY,
     )
 }
 

@@ -17,36 +17,30 @@
  */
 package com.eblan.launcher.domain.usecase.iconpack
 
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.IconPackInfoComponent
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import java.io.File
 
 internal suspend fun cacheIconPackFile(
     iconPackManager: IconPackManager,
-    fileManager: FileManager,
     appFilter: List<IconPackInfoComponent>,
     iconPackInfoPackageName: String,
-    iconPackDirectory: File,
+    iconPackInfoDirectory: File,
     componentName: String,
-    packageName: String,
 ) {
     appFilter.find { iconPackInfoComponent ->
-        iconPackInfoComponent.component.contains(componentName) ||
-            iconPackInfoComponent.component.contains(packageName)
+        currentCoroutineContext().ensureActive()
+
+        componentName == iconPackInfoComponent.component.removePrefix("ComponentInfo{")
+            .removeSuffix("}")
     }?.let { iconPackInfoComponent ->
-        iconPackManager.loadByteArrayFromIconPack(
+        iconPackManager.createIconPackInfoPath(
             packageName = iconPackInfoPackageName,
-            drawableName = iconPackInfoComponent.drawable,
-        )?.let { byteArray ->
-            fileManager.updateAndGetFilePath(
-                directory = iconPackDirectory,
-                name = componentName.replace(
-                    "/",
-                    "-",
-                ),
-                byteArray = byteArray,
-            )
-        }
+            componentName = componentName,
+            drawable = iconPackInfoComponent.drawable,
+            iconPackInfoDirectory = iconPackInfoDirectory,
+        )
     }
 }

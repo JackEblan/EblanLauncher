@@ -73,4 +73,6 @@ interface AndroidLauncherAppsWrapper {
         packageName: String,
         componentName: String,
     ): IntentSender?
+
+    fun getPrivateSpaceSettingsIntent(): IntentSender?
 }

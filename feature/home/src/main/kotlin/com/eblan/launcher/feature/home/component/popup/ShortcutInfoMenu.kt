@@ -68,7 +68,7 @@ internal fun ShortcutInfoMenu(
     currentPage: Int,
     drag: Drag,
     icon: String?,
-    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
+    eblanShortcutInfosGroup: List<EblanShortcutInfo>,
     gridItemSettings: GridItemSettings,
     onTapShortcutInfo: (
         serialNumber: Long,
@@ -94,7 +94,7 @@ internal fun ShortcutInfoMenu(
             )
             .verticalScroll(rememberScrollState()),
     ) {
-        eblanShortcutInfosByPackageName.forEach { eblanShortcutInfo ->
+        eblanShortcutInfosGroup.forEach { eblanShortcutInfo ->
             ShortcutInfoMenuItem(
                 currentPage = currentPage,
                 icon = icon,

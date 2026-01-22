@@ -1,0 +1,6 @@
+- Optimized data syncing for 70% faster performance while keeping memory usage low
+- Removed the dock search bar for a cleaner interface
+- Added the ability to hide apps from the app drawer
+- Integrated KLWP Live Wallpaper support
+
+Note: Updating to this version will clear old cache data.

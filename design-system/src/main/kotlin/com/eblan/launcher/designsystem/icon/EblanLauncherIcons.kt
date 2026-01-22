@@ -31,10 +31,11 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Gesture
 import androidx.compose.material.icons.filled.Handshake
-import androidx.compose.material.icons.filled.HideSource
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Pages
 import androidx.compose.material.icons.filled.Restore
@@ -58,7 +59,6 @@ object EblanLauncherIcons {
     val Folder = Icons.Default.Folder
     val Apps = Icons.Default.Apps
     val Image = Icons.Default.Image
-    val Search = Icons.Default.Search
     val ArrowDropDown = Icons.Default.ArrowDropDown
     val ArrowDropUp = Icons.Default.ArrowDropUp
     val Info = Icons.Default.Info
@@ -71,5 +71,7 @@ object EblanLauncherIcons {
     val Handshake = Icons.Default.Handshake
     val Shortcut = Icons.AutoMirrored.Filled.Shortcut
     val Restore = Icons.Default.Restore
-    val HideSource = Icons.Default.HideSource
+    val Search = Icons.Default.Search
+    val Lock = Icons.Default.Lock
+    val LockOpen = Icons.Default.LockOpen
 }

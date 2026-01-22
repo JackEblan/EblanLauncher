@@ -15,19 +15,17 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.framework.bytearray
+package com.eblan.launcher.domain.model
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+data class EblanUser(
+    val serialNumber: Long,
+    val eblanUserType: EblanUserType,
+    val isPrivateSpaceEntryPointHidden: Boolean,
+)
 
-@Module
-@InstallIn(SingletonComponent::class)
-internal interface ByteArrayModule {
-
-    @Binds
-    @Singleton
-    fun androidByteArrayWrapper(impl: DefaultByteArrayWrapper): AndroidByteArrayWrapper
+enum class EblanUserType {
+    Personal,
+    Clone,
+    Work,
+    Private,
 }

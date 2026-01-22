@@ -497,7 +497,7 @@ private fun ApplicationInfoGridItemMenu(
                         currentPage = currentPage,
                         drag = drag,
                         icon = icon,
-                        eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
+                        eblanShortcutInfosGroup = eblanShortcutInfosByPackageName,
                         gridItemSettings = gridItemSettings,
                         onTapShortcutInfo = onTapShortcutInfo,
                         onLongPressGridItem = onLongPressGridItem,

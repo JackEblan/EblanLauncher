@@ -15,40 +15,49 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.usecase.applicationcomponent
+package com.eblan.launcher.domain.usecase.application
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutConfig
+import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetEblanShortcutConfigByLabelUseCase @Inject constructor(
+class GetEblanShortcutConfigsUseCase @Inject constructor(
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
+    private val launcherAppsWrapper: LauncherAppsWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(label: String): Flow<Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>> {
-        return eblanShortcutConfigRepository.eblanShortcutConfigs.map { eblanShortcutConfigs ->
-            eblanShortcutConfigs.sortedBy { eblanShortcutConfig ->
-                eblanShortcutConfig.applicationLabel?.lowercase()
-            }.filter { eblanShortcutConfig ->
-                label.isNotBlank() && eblanShortcutConfig.applicationLabel.toString().contains(
+    operator fun invoke(labelFlow: Flow<String>): Flow<Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>> = combine(
+        eblanShortcutConfigRepository.eblanShortcutConfigs,
+        labelFlow,
+    ) { eblanShortcutConfigs, label ->
+        eblanShortcutConfigs.filter { eblanShortcutConfig ->
+            eblanShortcutConfig.applicationLabel.toString()
+                .contains(
                     other = label,
                     ignoreCase = true,
                 )
-            }.groupBy { eblanAppWidgetProviderInfo ->
+        }.sortedBy { eblanShortcutConfig ->
+            eblanShortcutConfig.applicationLabel?.lowercase()
+        }.groupBy { eblanShortcutConfig ->
+            launcherAppsWrapper.getUser(serialNumber = eblanShortcutConfig.serialNumber)
+        }.mapValues { entry ->
+            entry.value.groupBy { eblanShortcutConfig ->
                 EblanApplicationInfoGroup(
-                    serialNumber = eblanAppWidgetProviderInfo.serialNumber,
-                    packageName = eblanAppWidgetProviderInfo.packageName,
-                    icon = eblanAppWidgetProviderInfo.activityIcon,
-                    label = eblanAppWidgetProviderInfo.applicationLabel,
+                    serialNumber = eblanShortcutConfig.serialNumber,
+                    packageName = eblanShortcutConfig.packageName,
+                    icon = eblanShortcutConfig.applicationIcon,
+                    label = eblanShortcutConfig.applicationLabel,
                 )
             }
-        }.flowOn(defaultDispatcher)
-    }
+        }
+    }.flowOn(defaultDispatcher)
 }

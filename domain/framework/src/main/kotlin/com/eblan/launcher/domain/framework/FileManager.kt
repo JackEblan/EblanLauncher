@@ -28,12 +28,6 @@ interface FileManager {
         byteArray: ByteArray,
     ): String?
 
-    suspend fun getFilePath(
-        directory: File,
-        name: String,
-        byteArray: ByteArray,
-    ): String?
-
     companion object {
         const val ICONS_DIR = "icons"
 
@@ -42,8 +36,6 @@ interface FileManager {
         const val SHORTCUTS_DIR = "shortcuts"
 
         const val ICON_PACKS_DIR = "iconpacks"
-
-        const val SHORTCUT_CONFIGS_DIR = "shortcutconfigs"
 
         const val SHORTCUT_INTENT_ICONS_DIR = "shortcutsintenticons"
 

@@ -29,22 +29,31 @@ import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.ExperimentalSettings
+import com.eblan.launcher.domain.model.FastAppWidgetManagerAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.FastLauncherAppsActivityInfo
+import com.eblan.launcher.domain.model.FastLauncherAppsShortcutInfo
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
+import com.eblan.launcher.domain.model.ShortcutConfigActivityInfo
+import com.eblan.launcher.domain.model.ShortcutConfigGridItem
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
+import com.eblan.launcher.domain.model.UpdateShortcutConfigGridItem
 import com.eblan.launcher.domain.model.UpdateShortcutInfoGridItem
 import com.eblan.launcher.domain.model.UpdateWidgetGridItem
+import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
+import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -63,7 +72,6 @@ import kotlin.uuid.Uuid
 
 class SyncDataUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
-    private val notificationManagerWrapper: NotificationManagerWrapper,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val fileManager: FileManager,
@@ -76,57 +84,113 @@ class SyncDataUseCase @Inject constructor(
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
     private val iconPackManager: IconPackManager,
+    private val notificationManagerWrapper: NotificationManagerWrapper,
+    private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
         withContext(ioDispatcher) {
+            val userData = userDataRepository.userData.first()
+
             try {
                 notificationManagerWrapper.notifySyncData()
 
                 joinAll(
                     launch {
-                        val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
-
-                        val userData = userDataRepository.userData.first()
-
-                        updateEblanApplicationInfos(
-                            launcherAppsActivityInfos = launcherAppsActivityInfos,
-                            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                        )
-
-                        insertApplicationInfoGridItems(
-                            launcherAppsActivityInfos = launcherAppsActivityInfos,
-                            experimentalSettings = userData.experimentalSettings,
-                            homeSettings = userData.homeSettings,
-                        )
-
-                        updateApplicationInfoGridItems(launcherAppsActivityInfos = launcherAppsActivityInfos)
-
+                        updateEblanLauncherAppsActivityInfos(userData = userData)
+                    },
+                    launch {
+                        updateAppWidgetManagerAppWidgetProviderInfos()
+                    },
+                    launch {
+                        updateEblanLauncherShortcutInfos()
+                    },
+                    launch {
                         updateIconPackInfos(
-                            launcherAppsActivityInfos = launcherAppsActivityInfos,
                             iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
                         )
-                    },
-                    launch {
-                        val appWidgetManagerAppWidgetProviderInfos =
-                            appWidgetManagerWrapper.getInstalledProviders()
-
-                        updateEblanAppWidgetProviderInfos(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
-
-                        updateWidgetGridItems(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
-                    },
-                    launch {
-                        val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcuts()
-
-                        updateEblanShortcutInfos(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
-
-                        updateShortcutInfoGridItems(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
                     },
                 )
             } finally {
-                notificationManagerWrapper.cancelSyncData()
+                notificationManagerWrapper.cancelNotifySyncData()
             }
         }
+    }
+
+    private suspend fun updateEblanLauncherShortcutInfos() {
+        val oldFastLauncherAppsShortcutInfos =
+            eblanShortcutInfoRepository.eblanShortcutInfos.first().map { eblanShortcutInfo ->
+                FastLauncherAppsShortcutInfo(
+                    packageName = eblanShortcutInfo.packageName,
+                    serialNumber = eblanShortcutInfo.serialNumber,
+                    lastUpdateTime = eblanShortcutInfo.lastUpdateTime,
+                )
+            }
+
+        val newFastLauncherAppsShortcutInfos = launcherAppsWrapper.getFastShortcuts()
+
+        if (oldFastLauncherAppsShortcutInfos == newFastLauncherAppsShortcutInfos) return
+
+        val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcuts()
+
+        updateEblanShortcutInfos(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
+
+        updateShortcutInfoGridItems(launcherAppsShortcutInfos = launcherAppsShortcutInfos)
+    }
+
+    private suspend fun updateEblanLauncherAppsActivityInfos(userData: UserData) {
+        val oldFastEblanLauncherAppsActivityInfo =
+            eblanApplicationInfoRepository.eblanApplicationInfos.first()
+                .map { eblanApplicationInfo ->
+                    FastLauncherAppsActivityInfo(
+                        serialNumber = eblanApplicationInfo.serialNumber,
+                        packageName = eblanApplicationInfo.packageName,
+                        lastUpdateTime = eblanApplicationInfo.lastUpdateTime,
+                    )
+                }
+
+        val newFastLauncherAppsActivityInfo = launcherAppsWrapper.getFastActivityList()
+
+        if (oldFastEblanLauncherAppsActivityInfo == newFastLauncherAppsActivityInfo) return
+
+        val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
+
+        updateEblanApplicationInfos(
+            launcherAppsActivityInfos = launcherAppsActivityInfos,
+            iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+        )
+
+        insertApplicationInfoGridItems(
+            launcherAppsActivityInfos = launcherAppsActivityInfos,
+            experimentalSettings = userData.experimentalSettings,
+            homeSettings = userData.homeSettings,
+        )
+
+        updateApplicationInfoGridItems(launcherAppsActivityInfos = launcherAppsActivityInfos)
+    }
+
+    private suspend fun updateAppWidgetManagerAppWidgetProviderInfos() {
+        val oldFastAppWidgetManagerAppWidgetProviderInfos =
+            eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.first()
+                .map { eblanAppWidgetProviderInfo ->
+                    FastAppWidgetManagerAppWidgetProviderInfo(
+                        serialNumber = eblanAppWidgetProviderInfo.serialNumber,
+                        packageName = eblanAppWidgetProviderInfo.packageName,
+                        lastUpdateTime = eblanAppWidgetProviderInfo.lastUpdateTime,
+                    )
+                }
+
+        val newFastAppWidgetManagerAppWidgetProviderInfos =
+            appWidgetManagerWrapper.getFastInstalledProviders()
+
+        if (oldFastAppWidgetManagerAppWidgetProviderInfos == newFastAppWidgetManagerAppWidgetProviderInfos) return
+
+        val appWidgetManagerAppWidgetProviderInfos =
+            appWidgetManagerWrapper.getInstalledProviders()
+
+        updateEblanAppWidgetProviderInfos(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
+
+        updateWidgetGridItems(appWidgetManagerAppWidgetProviderInfos = appWidgetManagerAppWidgetProviderInfos)
     }
 
     private suspend fun updateEblanApplicationInfos(
@@ -142,43 +206,43 @@ class SyncDataUseCase @Inject constructor(
                         packageName = eblanApplicationInfo.packageName,
                         icon = eblanApplicationInfo.icon,
                         label = eblanApplicationInfo.label,
+                        lastUpdateTime = eblanApplicationInfo.lastUpdateTime,
                     )
                 }
+
+        val newEblanShortcutConfigs = mutableListOf<EblanShortcutConfig>()
 
         val newSyncEblanApplicationInfos =
             launcherAppsActivityInfos.map { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
-                val launcherAppsActivityInfoIcon = launcherAppsActivityInfo.activityIcon
-                    ?: launcherAppsActivityInfo.applicationIcon
+                newEblanShortcutConfigs.addAll(
+                    launcherAppsWrapper.getShortcutConfigActivityList(
+                        serialNumber = launcherAppsActivityInfo.serialNumber,
+                        packageName = launcherAppsActivityInfo.packageName,
+                    ).map { shortcutConfigActivity ->
+                        currentCoroutineContext().ensureActive()
 
-                val icon = launcherAppsActivityInfoIcon?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        name = launcherAppsActivityInfo.componentName.replace(
-                            "/",
-                            "-",
-                        ),
-                        byteArray = byteArray,
-                    )
-                }
-
-                updateEblanShortcutConfigs(
-                    launcherAppsWrapper = launcherAppsWrapper,
-                    fileManager = fileManager,
-                    eblanShortcutConfigRepository = eblanShortcutConfigRepository,
-                    serialNumber = launcherAppsActivityInfo.serialNumber,
-                    packageName = launcherAppsActivityInfo.packageName,
-                    icon = icon,
-                    label = launcherAppsActivityInfo.label,
+                        EblanShortcutConfig(
+                            componentName = shortcutConfigActivity.componentName,
+                            packageName = shortcutConfigActivity.packageName,
+                            serialNumber = shortcutConfigActivity.serialNumber,
+                            activityIcon = shortcutConfigActivity.activityIcon,
+                            activityLabel = shortcutConfigActivity.activityLabel,
+                            applicationIcon = launcherAppsActivityInfo.activityIcon,
+                            applicationLabel = launcherAppsActivityInfo.activityLabel,
+                            lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
+                        )
+                    },
                 )
 
                 SyncEblanApplicationInfo(
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     componentName = launcherAppsActivityInfo.componentName,
                     packageName = launcherAppsActivityInfo.packageName,
-                    icon = icon,
-                    label = launcherAppsActivityInfo.label,
+                    icon = launcherAppsActivityInfo.activityIcon,
+                    label = launcherAppsActivityInfo.activityLabel,
+                    lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
                 )
             }
 
@@ -186,14 +250,20 @@ class SyncDataUseCase @Inject constructor(
             val upsertEblanApplicationInfosToDelete =
                 oldSyncEblanApplicationInfos - newSyncEblanApplicationInfos.toSet()
 
-            eblanApplicationInfoRepository.upsertSyncEblanApplicationInfos(syncEblanApplicationInfos = newSyncEblanApplicationInfos)
+            eblanApplicationInfoRepository.upsertSyncEblanApplicationInfos(
+                syncEblanApplicationInfos = newSyncEblanApplicationInfos,
+            )
 
-            eblanApplicationInfoRepository.deleteSyncEblanApplicationInfos(syncEblanApplicationInfos = upsertEblanApplicationInfosToDelete)
+            eblanApplicationInfoRepository.deleteSyncEblanApplicationInfos(
+                syncEblanApplicationInfos = upsertEblanApplicationInfosToDelete,
+            )
 
             upsertEblanApplicationInfosToDelete.forEach { eblanApplicationInfoToDelete ->
                 currentCoroutineContext().ensureActive()
 
                 val isUnique = newSyncEblanApplicationInfos.none { newEblanApplicationInfo ->
+                    currentCoroutineContext().ensureActive()
+
                     newEblanApplicationInfo.packageName == eblanApplicationInfoToDelete.packageName && newEblanApplicationInfo.serialNumber != eblanApplicationInfoToDelete.serialNumber
                 }
 
@@ -222,6 +292,61 @@ class SyncDataUseCase @Inject constructor(
                 }
             }
         }
+
+        updateEblanShortcutConfigs(
+            eblanShortcutConfigRepository = eblanShortcutConfigRepository,
+            newEblanShortcutConfigs = newEblanShortcutConfigs,
+        )
+
+        updateShortcutConfigGridItems(shortcutConfigActivityInfos = launcherAppsActivityInfos)
+    }
+
+    private suspend fun updateEblanShortcutConfigs(
+        eblanShortcutConfigRepository: EblanShortcutConfigRepository,
+        newEblanShortcutConfigs: List<EblanShortcutConfig>,
+    ) {
+        val oldEblanShortcutConfigs = eblanShortcutConfigRepository.eblanShortcutConfigs.first()
+
+        if (oldEblanShortcutConfigs != newEblanShortcutConfigs) {
+            val eblanShortcutConfigsToDelete =
+                oldEblanShortcutConfigs - newEblanShortcutConfigs.toSet()
+
+            eblanShortcutConfigRepository.upsertEblanShortcutConfigs(
+                eblanShortcutConfigs = newEblanShortcutConfigs,
+            )
+
+            eblanShortcutConfigRepository.deleteEblanShortcutConfigs(
+                eblanShortcutConfigs = eblanShortcutConfigsToDelete,
+            )
+
+            eblanShortcutConfigsToDelete.forEach { eblanShortcutConfigToDelete ->
+                currentCoroutineContext().ensureActive()
+
+                val isUnique = newEblanShortcutConfigs.none { newEblanShortcutConfig ->
+                    currentCoroutineContext().ensureActive()
+
+                    newEblanShortcutConfig.packageName == eblanShortcutConfigToDelete.packageName && newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber
+                }
+
+                if (isUnique) {
+                    eblanShortcutConfigToDelete.activityIcon?.let { activityIcon ->
+                        val activityIconFile = File(activityIcon)
+
+                        if (activityIconFile.exists()) {
+                            activityIconFile.delete()
+                        }
+
+                        eblanShortcutConfigToDelete.applicationIcon?.let { applicationIcon ->
+                            val applicationIconFile = File(applicationIcon)
+
+                            if (applicationIconFile.exists()) {
+                                applicationIconFile.delete()
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @OptIn(ExperimentalUuidApi::class)
@@ -239,17 +364,6 @@ class SyncDataUseCase @Inject constructor(
             columns: Int,
             associate: Associate,
         ) {
-            val launcherAppsActivityInfoIcon =
-                launcherAppsActivityInfo.activityIcon ?: launcherAppsActivityInfo.applicationIcon
-
-            val icon = launcherAppsActivityInfoIcon?.let { byteArray ->
-                fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                    name = launcherAppsActivityInfo.componentName.replace("/", "-"),
-                    byteArray = byteArray,
-                )
-            }
-
             val startColumn = index % columns
 
             val startRow = index / columns
@@ -266,8 +380,8 @@ class SyncDataUseCase @Inject constructor(
                     associate = associate,
                     componentName = launcherAppsActivityInfo.componentName,
                     packageName = launcherAppsActivityInfo.packageName,
-                    icon = icon,
-                    label = launcherAppsActivityInfo.label,
+                    icon = launcherAppsActivityInfo.activityIcon,
+                    label = launcherAppsActivityInfo.activityLabel,
                     override = false,
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     customIcon = null,
@@ -305,11 +419,10 @@ class SyncDataUseCase @Inject constructor(
         )
     }
 
-    private suspend fun updateIconPackInfos(
-        launcherAppsActivityInfos: List<LauncherAppsActivityInfo>,
-        iconPackInfoPackageName: String,
-    ) {
+    private suspend fun updateIconPackInfos(iconPackInfoPackageName: String) {
         if (iconPackInfoPackageName.isNotEmpty()) {
+            val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
+
             val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 
             val iconPackDirectory = File(
@@ -323,20 +436,15 @@ class SyncDataUseCase @Inject constructor(
 
                     cacheIconPackFile(
                         iconPackManager = iconPackManager,
-                        fileManager = fileManager,
                         appFilter = appFilter,
                         iconPackInfoPackageName = iconPackInfoPackageName,
-                        iconPackDirectory = iconPackDirectory,
+                        iconPackInfoDirectory = iconPackDirectory,
                         componentName = launcherAppsActivityInfo.componentName,
-                        packageName = launcherAppsActivityInfo.packageName,
                     )
                 }.map { launcherAppsActivityInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    launcherAppsActivityInfo.componentName.replace(
-                        "/",
-                        "-",
-                    )
+                    launcherAppsActivityInfo.componentName.hashCode().toString()
                 }
 
             iconPackDirectory.listFiles()?.filter { it.isFile && it.name !in installedPackageNames }
@@ -358,29 +466,29 @@ class SyncDataUseCase @Inject constructor(
             appWidgetManagerAppWidgetProviderInfos.map { appWidgetManagerAppWidgetProviderInfo ->
                 currentCoroutineContext().ensureActive()
 
-                val preview = appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                        name = appWidgetManagerAppWidgetProviderInfo.componentName.replace(
-                            "/",
-                            "-",
-                        ),
-                        byteArray = byteArray,
+                val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                val componentName =
+                    packageManagerWrapper.getComponentName(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
+
+                val icon = if (componentName != null) {
+                    val file = File(
+                        directory,
+                        componentName.hashCode().toString(),
+                    )
+
+                    file.absolutePath
+                } else {
+                    val file = File(
+                        directory,
+                        appWidgetManagerAppWidgetProviderInfo.packageName.hashCode().toString(),
+                    )
+
+                    packageManagerWrapper.getApplicationIcon(
+                        packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                        file = file,
                     )
                 }
-
-                val label =
-                    packageManagerWrapper.getApplicationLabel(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
-
-                val icon =
-                    packageManagerWrapper.getApplicationIcon(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
-                        ?.let { byteArray ->
-                            fileManager.updateAndGetFilePath(
-                                directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                                name = appWidgetManagerAppWidgetProviderInfo.packageName,
-                                byteArray = byteArray,
-                            )
-                        }
 
                 EblanAppWidgetProviderInfo(
                     componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
@@ -396,9 +504,12 @@ class SyncDataUseCase @Inject constructor(
                     minResizeHeight = appWidgetManagerAppWidgetProviderInfo.minResizeHeight,
                     maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
                     maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
-                    preview = preview,
+                    preview = appWidgetManagerAppWidgetProviderInfo.preview,
                     icon = icon,
-                    label = label.toString(),
+                    label = packageManagerWrapper.getApplicationLabel(
+                        packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                    ).toString(),
+                    lastUpdateTime = appWidgetManagerAppWidgetProviderInfo.lastUpdateTime,
                 )
             }
 
@@ -444,23 +555,16 @@ class SyncDataUseCase @Inject constructor(
         val newEblanShortcutInfos = launcherAppsShortcutInfos?.map { launcherAppsShortcutInfo ->
             currentCoroutineContext().ensureActive()
 
-            val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                    name = launcherAppsShortcutInfo.shortcutId,
-                    byteArray = byteArray,
-                )
-            }
-
             EblanShortcutInfo(
                 shortcutId = launcherAppsShortcutInfo.shortcutId,
                 serialNumber = launcherAppsShortcutInfo.serialNumber,
                 packageName = launcherAppsShortcutInfo.packageName,
                 shortLabel = launcherAppsShortcutInfo.shortLabel,
                 longLabel = launcherAppsShortcutInfo.longLabel,
-                icon = icon,
+                icon = launcherAppsShortcutInfo.icon,
                 shortcutQueryFlag = launcherAppsShortcutInfo.shortcutQueryFlag,
                 isEnabled = launcherAppsShortcutInfo.isEnabled,
+                lastUpdateTime = launcherAppsShortcutInfo.lastUpdateTime,
             )
         }
 
@@ -514,7 +618,8 @@ class SyncDataUseCase @Inject constructor(
                     UpdateApplicationInfoGridItem(
                         id = applicationInfoGridItem.id,
                         componentName = launcherAppsActivityInfo.componentName,
-                        label = launcherAppsActivityInfo.label,
+                        icon = launcherAppsActivityInfo.activityIcon,
+                        label = launcherAppsActivityInfo.activityLabel,
                     ),
                 )
             } else {
@@ -528,6 +633,63 @@ class SyncDataUseCase @Inject constructor(
 
         applicationInfoGridItemRepository.deleteApplicationInfoGridItems(
             applicationInfoGridItems = deleteApplicationInfoGridItems,
+        )
+    }
+
+    private suspend fun updateShortcutConfigGridItems(shortcutConfigActivityInfos: List<ShortcutConfigActivityInfo>) {
+        val updateShortcutConfigGridItems = mutableListOf<UpdateShortcutConfigGridItem>()
+
+        val deleteShortcutConfigGridItems = mutableListOf<ShortcutConfigGridItem>()
+
+        val shortcutConfigGridItems =
+            shortcutConfigGridItemRepository.shortcutConfigGridItems.first()
+
+        shortcutConfigGridItems.filterNot { shortcutConfigGridItem ->
+            shortcutConfigGridItem.override
+        }.forEach { shortcutConfigGridItem ->
+            currentCoroutineContext().ensureActive()
+
+            val shortcutConfigActivityInfo =
+                shortcutConfigActivityInfos.find { shortcutConfigActivityInfo ->
+                    currentCoroutineContext().ensureActive()
+
+                    shortcutConfigActivityInfo.packageName == shortcutConfigGridItem.packageName && shortcutConfigActivityInfo.serialNumber == shortcutConfigGridItem.serialNumber
+                }
+
+            if (shortcutConfigActivityInfo != null) {
+                val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                val componentName =
+                    packageManagerWrapper.getComponentName(packageName = shortcutConfigActivityInfo.packageName)
+
+                val file = File(
+                    directory,
+                    componentName.hashCode().toString(),
+                )
+
+                updateShortcutConfigGridItems.add(
+                    UpdateShortcutConfigGridItem(
+                        id = shortcutConfigGridItem.id,
+                        componentName = shortcutConfigActivityInfo.componentName,
+                        activityLabel = shortcutConfigActivityInfo.activityLabel,
+                        activityIcon = shortcutConfigActivityInfo.activityIcon,
+                        applicationLabel = packageManagerWrapper.getApplicationLabel(
+                            packageName = shortcutConfigActivityInfo.packageName,
+                        ).toString(),
+                        applicationIcon = file.absolutePath,
+                    ),
+                )
+            } else {
+                deleteShortcutConfigGridItems.add(shortcutConfigGridItem)
+            }
+        }
+
+        shortcutConfigGridItemRepository.updateShortcutConfigGridItems(
+            updateShortcutConfigGridItems = updateShortcutConfigGridItems,
+        )
+
+        shortcutConfigGridItemRepository.deleteShortcutConfigGridItems(
+            shortcutConfigGridItems = deleteShortcutConfigGridItems,
         )
     }
 
@@ -553,6 +715,30 @@ class SyncDataUseCase @Inject constructor(
                 }
 
             if (appWidgetManagerAppWidgetProviderInfo != null) {
+                val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                val componentName =
+                    packageManagerWrapper.getComponentName(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
+
+                val icon = if (componentName != null) {
+                    val file = File(
+                        directory,
+                        componentName.hashCode().toString(),
+                    )
+
+                    file.absolutePath
+                } else {
+                    val file = File(
+                        directory,
+                        appWidgetManagerAppWidgetProviderInfo.packageName.hashCode().toString(),
+                    )
+
+                    packageManagerWrapper.getApplicationIcon(
+                        packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                        file = file,
+                    )
+                }
+
                 updateWidgetGridItems.add(
                     UpdateWidgetGridItem(
                         id = widgetGridItem.id,
@@ -567,6 +753,10 @@ class SyncDataUseCase @Inject constructor(
                         maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
                         targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
                         targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
+                        icon = icon,
+                        label = packageManagerWrapper.getApplicationLabel(
+                            packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                        ).toString(),
                     ),
                 )
             } else {
@@ -602,11 +792,27 @@ class SyncDataUseCase @Inject constructor(
                     }
 
                 if (launcherAppsShortcutInfo != null) {
-                    val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                        fileManager.updateAndGetFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                            name = launcherAppsShortcutInfo.shortcutId,
-                            byteArray = byteArray,
+                    val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                    val componentName =
+                        packageManagerWrapper.getComponentName(packageName = launcherAppsShortcutInfo.packageName)
+
+                    val eblanApplicationInfoIcon = if (componentName != null) {
+                        val file = File(
+                            directory,
+                            componentName.hashCode().toString(),
+                        )
+
+                        file.absolutePath
+                    } else {
+                        val file = File(
+                            directory,
+                            launcherAppsShortcutInfo.packageName.hashCode().toString(),
+                        )
+
+                        packageManagerWrapper.getApplicationIcon(
+                            packageName = launcherAppsShortcutInfo.packageName,
+                            file = file,
                         )
                     }
 
@@ -616,7 +822,8 @@ class SyncDataUseCase @Inject constructor(
                             shortLabel = launcherAppsShortcutInfo.shortLabel,
                             longLabel = launcherAppsShortcutInfo.longLabel,
                             isEnabled = launcherAppsShortcutInfo.isEnabled,
-                            icon = icon,
+                            icon = launcherAppsShortcutInfo.icon,
+                            eblanApplicationInfoIcon = eblanApplicationInfoIcon,
                         ),
                     )
                 } else {

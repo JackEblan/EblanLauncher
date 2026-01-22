@@ -21,14 +21,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
-import com.eblan.launcher.domain.usecase.applicationcomponent.RestoreEblanApplicationInfoUseCase
-import com.eblan.launcher.domain.usecase.iconpack.GetIconPackInfosUseCase
 import com.eblan.launcher.feature.editapplicationinfo.model.EditApplicationInfoUiState
 import com.eblan.launcher.feature.editapplicationinfo.navigation.EditApplicationInfoRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,9 +45,6 @@ internal class EditApplicationInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     packageManagerWrapper: PackageManagerWrapper,
-    private val fileManager: FileManager,
-    private val restoreEblanApplicationInfoUseCase: RestoreEblanApplicationInfoUseCase,
-    private val getIconPackInfosUseCase: GetIconPackInfosUseCase,
 ) : ViewModel() {
     private val editApplicationInfoRouteData =
         savedStateHandle.toRoute<EditApplicationInfoRouteData>()
@@ -86,7 +81,7 @@ internal class EditApplicationInfoViewModel @Inject constructor(
 
     fun updateEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
         viewModelScope.launch {
-            eblanApplicationInfoRepository.upsertEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
+            eblanApplicationInfoRepository.updateEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
 
             getApplicationInfo()
         }
@@ -115,16 +110,10 @@ internal class EditApplicationInfoViewModel @Inject constructor(
     }
 
     fun updateEblanApplicationInfoCustomIcon(
-        byteArray: ByteArray,
+        customIcon: String?,
         eblanApplicationInfo: EblanApplicationInfo,
     ) {
         viewModelScope.launch {
-            val customIcon = fileManager.updateAndGetFilePath(
-                directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
-                name = eblanApplicationInfo.packageName,
-                byteArray = byteArray,
-            )
-
             updateEblanApplicationInfo(
                 eblanApplicationInfo = eblanApplicationInfo.copy(
                     customIcon = customIcon,
@@ -135,11 +124,11 @@ internal class EditApplicationInfoViewModel @Inject constructor(
 
     fun restoreEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
         viewModelScope.launch {
-            updateEblanApplicationInfo(
-                eblanApplicationInfo = restoreEblanApplicationInfoUseCase(
-                    eblanApplicationInfo = eblanApplicationInfo,
-                ),
+            eblanApplicationInfoRepository.restoreEblanApplicationInfo(
+                eblanApplicationInfo = eblanApplicationInfo,
             )
+
+            getApplicationInfo()
         }
     }
 

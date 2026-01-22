@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -265,14 +266,16 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
-    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+    val isDragging by remember(key1 = drag) {
+        derivedStateOf {
+            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+        }
+    }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging -> {
-                if (isLongPress) {
-                    onDraggingGridItem()
-                }
+            Drag.Dragging if isLongPress -> {
+                onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
@@ -354,7 +357,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                                 screen = screen,
                             ),
                         ),
-                        visible = !isScrollInProgress,
+                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                     )
                     .drawWithContent {
                         graphicsLayer.record {
@@ -413,14 +416,16 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+    val isDragging by remember(key1 = drag) {
+        derivedStateOf {
+            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+        }
+    }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging -> {
-                if (isLongPress) {
-                    onDraggingGridItem()
-                }
+            Drag.Dragging if isLongPress -> {
+                onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
@@ -446,7 +451,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                         screen = screen,
                     ),
                 ),
-                visible = !isScrollInProgress,
+                visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
             )
             .drawWithContent {
                 graphicsLayer.record {
@@ -557,14 +562,16 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
-    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+    val isDragging by remember(key1 = drag) {
+        derivedStateOf {
+            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+        }
+    }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging -> {
-                if (isLongPress) {
-                    onDraggingGridItem()
-                }
+            Drag.Dragging if isLongPress -> {
+                onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
@@ -648,7 +655,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                                 screen = screen,
                             ),
                         ),
-                        visible = !isScrollInProgress,
+                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                     )
                     .drawWithContent {
                         graphicsLayer.record {
@@ -716,14 +723,16 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
-    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+    val isDragging by remember(key1 = drag) {
+        derivedStateOf {
+            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+        }
+    }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging -> {
-                if (isLongPress) {
-                    onDraggingGridItem()
-                }
+            Drag.Dragging if isLongPress -> {
+                onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
@@ -805,7 +814,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                                 screen = screen,
                             ),
                         ),
-                        visible = !isScrollInProgress,
+                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                     )
                     .drawWithContent {
                         graphicsLayer.record {
@@ -825,6 +834,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                 textColor = textColor,
                 screen = screen,
                 drag = drag,
+                isScrollInProgress = isScrollInProgress,
             )
         }
     }
@@ -874,14 +884,16 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
-    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+    val isDragging by remember(key1 = drag) {
+        derivedStateOf {
+            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+        }
+    }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging -> {
-                if (isLongPress) {
-                    onDraggingGridItem()
-                }
+            Drag.Dragging if isLongPress -> {
+                onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
@@ -963,7 +975,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                                 screen = screen,
                             ),
                         ),
-                        visible = !isScrollInProgress,
+                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                     )
                     .drawWithContent {
                         graphicsLayer.record {

@@ -23,6 +23,7 @@ import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.FolderDataById
+import com.eblan.launcher.domain.model.GetEblanApplicationInfos
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemData
@@ -33,13 +34,12 @@ import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
-import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanAppWidgetProviderInfosByLabelUseCase
-import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanApplicationComponentUseCase
-import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanApplicationInfosByLabelUseCase
-import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutConfigByLabelUseCase
-import com.eblan.launcher.domain.usecase.applicationcomponent.GetEblanShortcutInfosUseCase
-import com.eblan.launcher.domain.usecase.grid.DeleteGridItemUseCase
+import com.eblan.launcher.domain.usecase.application.GetEblanAppWidgetProviderInfosUseCase
+import com.eblan.launcher.domain.usecase.application.GetEblanApplicationInfosUseCase
+import com.eblan.launcher.domain.usecase.application.GetEblanShortcutConfigsUseCase
+import com.eblan.launcher.domain.usecase.application.GetEblanShortcutInfosUseCase
 import com.eblan.launcher.domain.usecase.grid.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
@@ -48,31 +48,25 @@ import com.eblan.launcher.domain.usecase.grid.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterMoveUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterResizeUseCase
-import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsUseCase
 import com.eblan.launcher.domain.usecase.iconpack.GetIconPackFilePathsUseCase
 import com.eblan.launcher.domain.usecase.page.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.page.UpdatePageItemsUseCase
 import com.eblan.launcher.domain.usecase.pin.GetPinGridItemUseCase
-import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -82,27 +76,25 @@ internal class HomeViewModel @Inject constructor(
     private val folderGridCacheRepository: FolderGridCacheRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
-    getEblanApplicationComponentUseCase: GetEblanApplicationComponentUseCase,
     private val cachePageItemsUseCase: CachePageItemsUseCase,
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     private val updateGridItemsAfterResizeUseCase: UpdateGridItemsAfterResizeUseCase,
     private val updateGridItemsAfterMoveUseCase: UpdateGridItemsAfterMoveUseCase,
-    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val moveFolderGridItemUseCase: MoveFolderGridItemUseCase,
     private val getFolderDataByIdUseCase: GetFolderDataByIdUseCase,
-    getEblanApplicationInfosByLabelUseCase: GetEblanApplicationInfosByLabelUseCase,
-    getEblanAppWidgetProviderInfosByLabelUseCase: GetEblanAppWidgetProviderInfosByLabelUseCase,
     getGridItemsCacheUseCase: GetGridItemsCacheUseCase,
-    private val deleteGridItemUseCase: DeleteGridItemUseCase,
     private val getPinGridItemUseCase: GetPinGridItemUseCase,
     private val fileManager: FileManager,
     private val packageManagerWrapper: PackageManagerWrapper,
-    getEblanShortcutConfigByLabelUseCase: GetEblanShortcutConfigByLabelUseCase,
     getEblanShortcutInfosUseCase: GetEblanShortcutInfosUseCase,
     eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     getIconPackFilePathsUseCase: GetIconPackFilePathsUseCase,
     private val moveGridItemOutsideFolderUseCase: MoveGridItemOutsideFolderUseCase,
+    getEblanApplicationInfosUseCase: GetEblanApplicationInfosUseCase,
+    getEblanAppWidgetProviderInfosUseCase: GetEblanAppWidgetProviderInfosUseCase,
+    getEblanShortcutConfigsUseCase: GetEblanShortcutConfigsUseCase,
+    private val gridRepository: GridRepository,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -110,15 +102,7 @@ internal class HomeViewModel @Inject constructor(
         initialValue = HomeUiState.Loading,
     )
 
-    val eblanApplicationComponentUiState =
-        getEblanApplicationComponentUseCase().map(EblanApplicationComponentUiState::Success)
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = EblanApplicationComponentUiState.Loading,
-            )
-
-    private val _screen = MutableStateFlow(Screen.Pager)
+    private val _screen = MutableStateFlow<Screen>(Screen.Pager)
 
     val screen = _screen.asStateFlow()
 
@@ -136,46 +120,6 @@ internal class HomeViewModel @Inject constructor(
 
     private val _foldersDataById = MutableStateFlow(ArrayDeque<FolderDataById>())
 
-    val foldersDataById = _foldersDataById.asStateFlow()
-
-    private val _eblanApplicationLabel = MutableStateFlow<String?>(null)
-
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val eblanApplicationInfosByLabel =
-        _eblanApplicationLabel.filterNotNull().debounce(defaultDelay).flatMapLatest { label ->
-            getEblanApplicationInfosByLabelUseCase(label = label)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList(),
-        )
-
-    private val _eblanAppWidgetProviderInfoLabel = MutableStateFlow<String?>(null)
-
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val eblanAppWidgetProviderInfosByLabel =
-        _eblanAppWidgetProviderInfoLabel.filterNotNull().debounce(defaultDelay)
-            .flatMapLatest { label ->
-                getEblanAppWidgetProviderInfosByLabelUseCase(label = label)
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyMap(),
-            )
-
-    private val _eblanShortcutConfigsLabel = MutableStateFlow<String?>(null)
-
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val eblanShortcutConfigsByLabel =
-        _eblanShortcutConfigsLabel.filterNotNull().debounce(defaultDelay)
-            .flatMapLatest { label ->
-                getEblanShortcutConfigByLabelUseCase(label = label)
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyMap(),
-            )
-
     val gridItemsCache = getGridItemsCacheUseCase().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -190,13 +134,13 @@ internal class HomeViewModel @Inject constructor(
 
     val pinGridItem = _pinGridItem.asStateFlow()
 
-    val eblanShortcutInfos = getEblanShortcutInfosUseCase().stateIn(
+    val eblanShortcutInfosGroup = getEblanShortcutInfosUseCase().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = emptyMap(),
     )
 
-    val eblanAppWidgetProviderInfos =
+    val eblanAppWidgetProviderInfosGroup =
         eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
             eblanAppWidgetProviderInfos.groupBy { eblanAppWidgetProviderInfo ->
                 eblanAppWidgetProviderInfo.packageName
@@ -209,6 +153,37 @@ internal class HomeViewModel @Inject constructor(
 
     val iconPackFilePaths = getIconPackFilePathsUseCase()
         .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyMap(),
+        )
+
+    private val _eblanApplicationInfoLabel = MutableStateFlow("")
+
+    val getEblanApplicationInfos =
+        getEblanApplicationInfosUseCase(labelFlow = _eblanApplicationInfoLabel).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = GetEblanApplicationInfos(
+                eblanApplicationInfos = emptyMap(),
+                privateEblanUser = null,
+                privateEblanApplicationInfos = emptyList(),
+            ),
+        )
+
+    private val _eblanAppWidgetProviderInfoLabel = MutableStateFlow("")
+
+    val eblanAppWidgetProviderInfos =
+        getEblanAppWidgetProviderInfosUseCase(labelFlow = _eblanAppWidgetProviderInfoLabel).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyMap(),
+        )
+
+    private val _eblanShortcutConfigLabel = MutableStateFlow("")
+
+    val eblanShortcutConfigs =
+        getEblanShortcutConfigsUseCase(labelFlow = _eblanShortcutConfigLabel).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyMap(),
@@ -307,15 +282,26 @@ internal class HomeViewModel @Inject constructor(
 
     fun showFolderGridCache(
         gridItems: List<GridItem>,
-        screen: Screen,
     ) {
         viewModelScope.launch {
             folderGridCacheRepository.insertGridItems(gridItems = gridItems)
 
-            delay(defaultDelay)
+            val lastFolderId = _foldersDataById.value.last().folderId
 
-            _screen.update {
-                screen
+            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folderDataById ->
+                _foldersDataById.update { currentFolders ->
+                    currentFolders.apply {
+                        val index = currentFolders.indexOfFirst { it.folderId == lastFolderId }
+
+                        currentFolders[index] = folderDataById
+                    }
+                }
+
+                delay(defaultDelay)
+
+                _screen.update {
+                    Screen.FolderDrag(folderDataById = folderDataById)
+                }
             }
         }
     }
@@ -406,21 +392,21 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val lastFolderId = _foldersDataById.value.last().folderId
 
-            updateGridItemsUseCase(gridItems = folderGridCacheRepository.gridItemsCache.first())
+            gridRepository.updateGridItems(gridItems = folderGridCacheRepository.gridItemsCache.first())
 
-            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folderDataById ->
                 _foldersDataById.update { currentFolders ->
-                    ArrayDeque(currentFolders).apply {
-                        val index = indexOfFirst { it.folderId == lastFolderId }
+                    currentFolders.apply {
+                        val index = currentFolders.indexOfFirst { it.folderId == lastFolderId }
 
-                        set(index, folder)
+                        currentFolders[index] = folderDataById
                     }
                 }
 
                 delay(defaultDelay)
 
                 _screen.update {
-                    Screen.Folder
+                    Screen.Folder(folderDataById = folderDataById)
                 }
             }
 
@@ -452,19 +438,19 @@ internal class HomeViewModel @Inject constructor(
 
             val lastFolderId = _foldersDataById.value.last().folderId
 
-            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folderDataById ->
                 _foldersDataById.update { currentFolders ->
-                    ArrayDeque(currentFolders).apply {
-                        val index = indexOfFirst { it.folderId == lastFolderId }
+                    currentFolders.apply {
+                        val index = currentFolders.indexOfFirst { it.folderId == lastFolderId }
 
-                        set(index, folder)
+                        currentFolders[index] = folderDataById
                     }
                 }
 
                 delay(defaultDelay)
 
                 _screen.update {
-                    Screen.Folder
+                    Screen.Folder(folderDataById = folderDataById)
                 }
             }
 
@@ -511,7 +497,7 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             gridCacheRepository.deleteGridItem(gridItem = gridItem)
 
-            updateGridItemsUseCase(gridItems = gridCacheRepository.gridItemsCache.first())
+            gridRepository.updateGridItems(gridItems = gridCacheRepository.gridItemsCache.first())
 
             delay(defaultDelay)
 
@@ -530,7 +516,7 @@ internal class HomeViewModel @Inject constructor(
 
             gridCacheRepository.deleteGridItem(gridItem = gridItem)
 
-            updateGridItemsUseCase(gridItems = gridCacheRepository.gridItemsCache.first())
+            gridRepository.updateGridItems(gridItems = gridCacheRepository.gridItemsCache.first())
 
             delay(defaultDelay)
 
@@ -542,17 +528,17 @@ internal class HomeViewModel @Inject constructor(
 
     fun showFolder(folderId: String) {
         viewModelScope.launch {
-            getFolderDataByIdUseCase(folderId = folderId)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = folderId)?.let { folderDataById ->
                 _foldersDataById.update { currentFolders ->
-                    ArrayDeque(currentFolders).apply {
+                    currentFolders.apply {
                         clear()
 
-                        add(folder)
+                        add(folderDataById)
                     }
                 }
 
                 _screen.update {
-                    Screen.Folder
+                    Screen.Folder(folderDataById = folderDataById)
                 }
             }
         }
@@ -560,11 +546,15 @@ internal class HomeViewModel @Inject constructor(
 
     fun addFolder(folderId: String) {
         viewModelScope.launch {
-            getFolderDataByIdUseCase(folderId = folderId)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = folderId)?.let { folderDataById ->
                 _foldersDataById.update { currentFolders ->
-                    ArrayDeque(currentFolders).apply {
-                        add(folder)
+                    currentFolders.apply {
+                        add(folderDataById)
                     }
+                }
+
+                _screen.update {
+                    Screen.Folder(folderDataById = folderDataById)
                 }
             }
         }
@@ -572,14 +562,26 @@ internal class HomeViewModel @Inject constructor(
 
     fun removeLastFolder() {
         _foldersDataById.update { currentFolders ->
-            ArrayDeque(currentFolders).apply {
-                removeLast()
+            if (currentFolders.isNotEmpty()) {
+                currentFolders.apply {
+                    removeLast()
+                }
+            } else {
+                ArrayDeque()
+            }
+        }
+
+        _screen.update {
+            if (_foldersDataById.value.isNotEmpty()) {
+                Screen.Folder(folderDataById = _foldersDataById.value.last())
+            } else {
+                Screen.Pager
             }
         }
     }
 
     fun getEblanApplicationInfosByLabel(label: String) {
-        _eblanApplicationLabel.update {
+        _eblanApplicationInfoLabel.update {
             label
         }
     }
@@ -591,14 +593,14 @@ internal class HomeViewModel @Inject constructor(
     }
 
     fun getEblanShortcutConfigsByLabel(label: String) {
-        _eblanShortcutConfigsLabel.update {
+        _eblanShortcutConfigLabel.update {
             label
         }
     }
 
     fun deleteGridItem(gridItem: GridItem) {
         viewModelScope.launch {
-            deleteGridItemUseCase(gridItem = gridItem)
+            gridRepository.deleteGridItem(gridItem = gridItem)
         }
     }
 
@@ -623,22 +625,17 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             gridCacheRepository.deleteGridItem(gridItem = moveGridItemResult.movingGridItem)
 
-            val icon = pinItemRequestType.icon?.let { byteArray ->
-                fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                    name = pinItemRequestType.shortcutId,
-                    byteArray = byteArray,
-                )
-            }
-
             val eblanApplicationInfoIcon =
-                packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
-                    ?.let { byteArray ->
-                        fileManager.updateAndGetFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                            name = pinItemRequestType.packageName,
-                            byteArray = byteArray,
+                packageManagerWrapper.getComponentName(packageName = pinItemRequestType.packageName)
+                    ?.let { componentName ->
+                        val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
+
+                        val file = File(
+                            directory,
+                            componentName.hashCode().toString(),
                         )
+
+                        file.absolutePath
                     }
 
             val data = ShortcutInfo(
@@ -647,7 +644,7 @@ internal class HomeViewModel @Inject constructor(
                 serialNumber = pinItemRequestType.serialNumber,
                 shortLabel = pinItemRequestType.shortLabel,
                 longLabel = pinItemRequestType.longLabel,
-                icon = icon,
+                icon = pinItemRequestType.icon,
                 isEnabled = pinItemRequestType.isEnabled,
                 eblanApplicationInfoIcon = eblanApplicationInfoIcon,
                 customIcon = null,
@@ -687,19 +684,16 @@ internal class HomeViewModel @Inject constructor(
 
     fun showFolderWhenDragging(folderId: String) {
         viewModelScope.launch {
-            getFolderDataByIdUseCase(folderId = folderId)?.let { folder ->
+            getFolderDataByIdUseCase(folderId = folderId)?.let { folderDataById ->
                 _foldersDataById.update { currentFolders ->
-                    ArrayDeque(currentFolders).apply {
+                    currentFolders.apply {
                         clear()
 
-                        add(folder)
+                        add(folderDataById)
                     }
                 }
 
-                showFolderGridCache(
-                    gridItems = folder.gridItems,
-                    screen = Screen.FolderDrag,
-                )
+                showFolderGridCache(gridItems = folderDataById.gridItems)
             }
         }
     }

@@ -15,17 +15,16 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.data.room.migration
 
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
+plugins {
+    alias(libs.plugins.com.eblan.launcher.library)
+    alias(libs.plugins.com.eblan.launcher.hilt)
+}
 
-class Migration6To7 : Migration(6, 7) {
-    override fun migrate(db: SupportSQLiteDatabase) {
-        updateEblanApplicationInfoEntities(db = db)
-    }
+android {
+    namespace = "com.eblan.launcher.framework.imageserializer"
+}
 
-    private fun updateEblanApplicationInfoEntities(db: SupportSQLiteDatabase) {
-        db.execSQL("ALTER TABLE `EblanApplicationInfoEntity` ADD COLUMN `isHidden` INTEGER NOT NULL DEFAULT 0")
-    }
+dependencies {
+    implementation(projects.domain.common)
 }

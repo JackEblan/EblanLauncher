@@ -217,14 +217,12 @@ private fun Success(
     }
 }
 
-fun EblanAction.getEblanActionSubtitle(): String {
-    return when (this) {
-        EblanAction.None -> "None"
-        is EblanAction.OpenApp -> "Open $componentName"
-        EblanAction.OpenAppDrawer -> "Open app drawer"
-        EblanAction.OpenNotificationPanel -> "Open notification panel"
-        EblanAction.LockScreen -> "Lock screen"
-        EblanAction.OpenQuickSettings -> "Open quick settings"
-        EblanAction.OpenRecents -> "Open recents"
-    }
+fun EblanAction.getEblanActionSubtitle(): String = when (this) {
+    EblanAction.None -> "None"
+    is EblanAction.OpenApp -> "Open $componentName"
+    EblanAction.OpenAppDrawer -> "Open app drawer"
+    EblanAction.OpenNotificationPanel -> "Open notification panel"
+    EblanAction.LockScreen -> "Lock screen"
+    EblanAction.OpenQuickSettings -> "Open quick settings"
+    EblanAction.OpenRecents -> "Open recents"
 }

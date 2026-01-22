@@ -30,17 +30,19 @@ import android.os.Bundle
 import android.os.Process
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
+import com.eblan.launcher.framework.imageserializer.AndroidImageSerializer
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
+import java.io.File
 
 internal suspend fun handleDropGridItem(
     moveGridItemResult: MoveGridItemResult?,
@@ -252,7 +254,7 @@ internal fun handleBoundWidget(
 
 @Suppress("DEPRECATION")
 internal suspend fun handleShortcutConfigLauncherResult(
-    androidByteArrayWrapper: AndroidByteArrayWrapper,
+    imageSerializer: AndroidImageSerializer,
     moveGridItemResult: MoveGridItemResult?,
     result: ActivityResult,
     gridItemSource: GridItemSource,
@@ -284,7 +286,7 @@ internal suspend fun handleShortcutConfigLauncherResult(
             intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON)
         }
     }?.let { bitmap ->
-        androidByteArrayWrapper.createByteArray(bitmap = bitmap)
+        imageSerializer.createByteArray(bitmap = bitmap)
     }
 
     val shortcutIntentUri = result.data?.let { intent ->
@@ -318,7 +320,8 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
     result: ActivityResult,
     userManagerWrapper: AndroidUserManagerWrapper,
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
-    byteArrayWrapper: AndroidByteArrayWrapper,
+    imageSerializer: AndroidImageSerializer,
+    fileManager: FileManager,
     gridItemSource: GridItemSource,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateShortcutConfigIntoShortcutInfoGridItem: (
@@ -354,6 +357,22 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
         pinItemRequest.isValid &&
         pinItemRequest.accept()
     ) {
+        val icon = launcherAppsWrapper.getShortcutIconDrawable(
+            shortcutInfo = shortcutInfo,
+            density = 0,
+        )?.let { drawable ->
+            val directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR)
+
+            val file = File(
+                directory,
+                shortcutInfo.id.hashCode().toString(),
+            )
+
+            imageSerializer.createDrawablePath(drawable = drawable, file = file)
+
+            file.absolutePath
+        }
+
         val pinItemRequestType = PinItemRequestType.ShortcutInfo(
             serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = shortcutInfo.userHandle),
             shortcutId = shortcutInfo.id,
@@ -362,12 +381,7 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
             longLabel = shortcutInfo.longLabel.toString(),
             isEnabled = shortcutInfo.isEnabled,
             disabledMessage = shortcutInfo.disabledMessage?.toString(),
-            icon = launcherAppsWrapper.getShortcutIconDrawable(
-                shortcutInfo = shortcutInfo,
-                density = 0,
-            )?.let {
-                byteArrayWrapper.createByteArray(drawable = it)
-            },
+            icon = icon,
         )
 
         onUpdateShortcutConfigIntoShortcutInfoGridItem(

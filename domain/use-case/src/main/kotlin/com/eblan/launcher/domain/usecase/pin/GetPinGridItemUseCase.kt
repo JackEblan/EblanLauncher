@@ -30,6 +30,7 @@ import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -43,115 +44,101 @@ class GetPinGridItemUseCase @Inject constructor(
     @OptIn(ExperimentalUuidApi::class)
     suspend operator fun invoke(
         pinItemRequestType: PinItemRequestType,
-    ): GridItem {
-        return withContext(defaultDispatcher) {
-            val homeSettings = userDataRepository.userData.first().homeSettings
+    ): GridItem = withContext(defaultDispatcher) {
+        val homeSettings = userDataRepository.userData.first().homeSettings
 
-            when (pinItemRequestType) {
-                is PinItemRequestType.Widget -> {
-                    val preview = pinItemRequestType.preview?.let { byteArray ->
-                        fileManager.updateAndGetFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                            name = pinItemRequestType.componentName.replace("/", "-"),
-                            byteArray = byteArray,
-                        )
-                    }
+        when (pinItemRequestType) {
+            is PinItemRequestType.Widget -> {
+                val icon =
+                    packageManagerWrapper.getComponentName(packageName = pinItemRequestType.packageName)
+                        ?.let { componentName ->
+                            val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
 
-                    val label =
-                        packageManagerWrapper.getApplicationLabel(packageName = pinItemRequestType.packageName)
+                            val file = File(
+                                directory,
+                                componentName.hashCode().toString(),
+                            )
 
-                    val icon =
-                        packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
-                            ?.let { byteArray ->
-                                fileManager.updateAndGetFilePath(
-                                    directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                                    name = pinItemRequestType.packageName,
-                                    byteArray = byteArray,
-                                )
-                            }
+                            file.absolutePath
+                        }
 
-                    val data = Widget(
-                        appWidgetId = 0,
-                        componentName = pinItemRequestType.componentName,
-                        packageName = pinItemRequestType.packageName,
-                        serialNumber = pinItemRequestType.serialNumber,
-                        configure = pinItemRequestType.configure,
-                        minWidth = pinItemRequestType.minWidth,
-                        minHeight = pinItemRequestType.minHeight,
-                        resizeMode = pinItemRequestType.resizeMode,
-                        minResizeWidth = pinItemRequestType.minResizeWidth,
-                        minResizeHeight = pinItemRequestType.minResizeHeight,
-                        maxResizeWidth = pinItemRequestType.maxResizeWidth,
-                        maxResizeHeight = pinItemRequestType.maxResizeHeight,
-                        targetCellHeight = pinItemRequestType.targetCellHeight,
-                        targetCellWidth = pinItemRequestType.targetCellWidth,
-                        preview = preview,
-                        label = label.toString(),
-                        icon = icon,
-                    )
+                val data = Widget(
+                    appWidgetId = 0,
+                    componentName = pinItemRequestType.componentName,
+                    packageName = pinItemRequestType.packageName,
+                    serialNumber = pinItemRequestType.serialNumber,
+                    configure = pinItemRequestType.configure,
+                    minWidth = pinItemRequestType.minWidth,
+                    minHeight = pinItemRequestType.minHeight,
+                    resizeMode = pinItemRequestType.resizeMode,
+                    minResizeWidth = pinItemRequestType.minResizeWidth,
+                    minResizeHeight = pinItemRequestType.minResizeHeight,
+                    maxResizeWidth = pinItemRequestType.maxResizeWidth,
+                    maxResizeHeight = pinItemRequestType.maxResizeHeight,
+                    targetCellHeight = pinItemRequestType.targetCellHeight,
+                    targetCellWidth = pinItemRequestType.targetCellWidth,
+                    preview = pinItemRequestType.preview,
+                    label = packageManagerWrapper.getApplicationLabel(packageName = pinItemRequestType.packageName)
+                        .toString(),
+                    icon = icon,
+                )
 
-                    GridItem(
-                        id = Uuid.random()
-                            .toHexString(),
-                        folderId = null,
-                        page = homeSettings.initialPage,
-                        startColumn = 0,
-                        startRow = 0,
-                        columnSpan = 1,
-                        rowSpan = 1,
-                        data = data,
-                        associate = Associate.Grid,
-                        override = false,
-                        gridItemSettings = homeSettings.gridItemSettings,
-                    )
-                }
+                GridItem(
+                    id = Uuid.random()
+                        .toHexString(),
+                    folderId = null,
+                    page = homeSettings.initialPage,
+                    startColumn = 0,
+                    startRow = 0,
+                    columnSpan = 1,
+                    rowSpan = 1,
+                    data = data,
+                    associate = Associate.Grid,
+                    override = false,
+                    gridItemSettings = homeSettings.gridItemSettings,
+                )
+            }
 
-                is PinItemRequestType.ShortcutInfo -> {
-                    val icon = pinItemRequestType.icon?.let { byteArray ->
-                        fileManager.updateAndGetFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                            name = pinItemRequestType.shortcutId,
-                            byteArray = byteArray,
-                        )
-                    }
+            is PinItemRequestType.ShortcutInfo -> {
+                val eblanApplicationInfoIcon =
+                    packageManagerWrapper.getComponentName(packageName = pinItemRequestType.packageName)
+                        ?.let { componentName ->
+                            val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
 
-                    val eblanApplicationInfoIcon =
-                        packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
-                            ?.let { byteArray ->
-                                fileManager.updateAndGetFilePath(
-                                    directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                                    name = pinItemRequestType.packageName,
-                                    byteArray = byteArray,
-                                )
-                            }
+                            val file = File(
+                                directory,
+                                componentName.hashCode().toString(),
+                            )
 
-                    val data = ShortcutInfo(
-                        shortcutId = pinItemRequestType.shortcutId,
-                        packageName = pinItemRequestType.packageName,
-                        serialNumber = pinItemRequestType.serialNumber,
-                        shortLabel = pinItemRequestType.shortLabel,
-                        longLabel = pinItemRequestType.longLabel,
-                        icon = icon,
-                        isEnabled = pinItemRequestType.isEnabled,
-                        eblanApplicationInfoIcon = eblanApplicationInfoIcon,
-                        customIcon = null,
-                        customShortLabel = null,
-                    )
+                            file.absolutePath
+                        }
 
-                    GridItem(
-                        id = pinItemRequestType.shortcutId,
-                        folderId = null,
-                        page = homeSettings.initialPage,
-                        startColumn = 0,
-                        startRow = 0,
-                        columnSpan = 1,
-                        rowSpan = 1,
-                        data = data,
-                        associate = Associate.Grid,
-                        override = false,
-                        gridItemSettings = homeSettings.gridItemSettings,
-                    )
-                }
+                val data = ShortcutInfo(
+                    shortcutId = pinItemRequestType.shortcutId,
+                    packageName = pinItemRequestType.packageName,
+                    serialNumber = pinItemRequestType.serialNumber,
+                    shortLabel = pinItemRequestType.shortLabel,
+                    longLabel = pinItemRequestType.longLabel,
+                    icon = pinItemRequestType.icon,
+                    isEnabled = pinItemRequestType.isEnabled,
+                    eblanApplicationInfoIcon = eblanApplicationInfoIcon,
+                    customIcon = null,
+                    customShortLabel = null,
+                )
+
+                GridItem(
+                    id = pinItemRequestType.shortcutId,
+                    folderId = null,
+                    page = homeSettings.initialPage,
+                    startColumn = 0,
+                    startRow = 0,
+                    columnSpan = 1,
+                    rowSpan = 1,
+                    data = data,
+                    associate = Associate.Grid,
+                    override = false,
+                    gridItemSettings = homeSettings.gridItemSettings,
+                )
             }
         }
     }

@@ -20,13 +20,11 @@ package com.eblan.launcher.data.room
 import androidx.room.testing.MigrationTestHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.eblan.launcher.data.room.migration.Migration6To7
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
@@ -50,9 +48,73 @@ class Migration6To7Test {
             // EblanApplicationInfoEntity
             execSQL(
                 """
-                INSERT INTO `EblanApplicationInfoEntity`
-                (packageName, serialNumber, componentName, icon, label) 
-                VALUES ('com.example.app', 1, 'com.example.app/.MainActivity', '/path/icon.png', 'Original App')
+        INSERT INTO `EblanApplicationInfoEntity` (
+        componentName,
+        serialNumber,
+        packageName,
+        icon,
+        label,
+        customIcon,
+        customLabel
+    ) 
+    VALUES( 
+      'componentName', 
+      0, 
+      'packageName',   
+      'icon', 
+      'label',
+       'customIcon',               
+       'customLabel')
+                """.trimIndent(),
+            )
+
+            // EblanAppWidgetProviderInfoEntity
+            execSQL(
+                """
+                INSERT INTO `EblanAppWidgetProviderInfoEntity` (
+                    componentName, serialNumber, packageName,
+                    targetCellWidth, targetCellHeight, minWidth, minHeight,
+                    resizeMode, minResizeWidth, minResizeHeight,
+                    maxResizeWidth, maxResizeHeight, label
+                ) VALUES 
+                ('componentName', 0, 'packageName', 0, 1, 2, 3, 4, 5, 6, 7, 8, 'label')
+                """.trimIndent(),
+            )
+
+            // EblanShortcutConfigEntity
+            execSQL(
+                """
+                INSERT INTO `EblanShortcutConfigEntity` (
+                    componentName, packageName, serialNumber,
+                    activityIcon, activityLabel, applicationIcon, applicationLabel
+              ) VALUES (
+                   'componentName',
+                    'packageName',
+                      0,
+                    'activityIcon',        
+                    'activityLabel',     
+                     'applicationIcon',        
+                     'applicationLabel')
+                """.trimIndent(),
+            )
+
+            // EblanShortcutInfoEntity
+            execSQL(
+                """
+    INSERT INTO `EblanShortcutInfoEntity` (
+        shortcutId, serialNumber, packageName,
+        shortLabel, longLabel, icon,
+        shortcutQueryFlag, isEnabled
+    ) VALUES (
+        'shortcutId',
+        0,
+        'packageName',
+        'shortLabel',
+        'longLabel',
+        'icon',
+        0,
+        1
+    )
                 """.trimIndent(),
             )
 
@@ -60,31 +122,99 @@ class Migration6To7Test {
         }
 
         // Run migration and validate version 7
-        val dbV5 = helper.runMigrationsAndValidate(
+        val dbV7 = helper.runMigrationsAndValidate(
             testDatabase,
             7,
             true,
-            Migration6To7(),
         )
 
         // EblanApplicationInfoEntity
-        dbV5.query(
+        dbV7.query(
             """
-            SELECT componentName, serialNumber, packageName, label, customIcon, customLabel, isHidden
+            SELECT componentName, serialNumber, packageName, icon, label, customIcon, customLabel, isHidden, lastUpdateTime
             FROM `EblanApplicationInfoEntity`
-            ORDER BY serialNumber
             """.trimIndent(),
         ).use { cursor ->
             assertTrue(cursor.moveToFirst())
 
-            // Row 1
-            assertEquals("com.example.app/.MainActivity", cursor.getString(0))
-            assertEquals(1, cursor.getInt(1))
-            assertEquals("com.example.app", cursor.getString(2))
-            assertEquals("Original App", cursor.getString(3))
-            assertNull(cursor.getString(4)) // customIcon
-            assertNull(cursor.getString(5)) // customLabel
+            assertEquals("componentName", cursor.getString(0))
+            assertEquals(0, cursor.getInt(1))
+            assertEquals("packageName", cursor.getString(2))
+            assertEquals("icon", cursor.getString(3))
+            assertEquals("label", cursor.getString(4))
+            assertEquals("customIcon", cursor.getString(5))
+            assertEquals("customLabel", cursor.getString(6))
+            assertEquals(0, cursor.getInt(7))
+            assertEquals(0, cursor.getLong(8))
+        }
+
+        // EblanAppWidgetProviderInfoEntity
+        dbV7.query(
+            """
+    SELECT componentName, serialNumber, packageName, targetCellWidth, targetCellHeight,
+           minWidth, minHeight, resizeMode, minResizeWidth, minResizeHeight,
+           maxResizeWidth, maxResizeHeight, label, lastUpdateTime
+    FROM `EblanAppWidgetProviderInfoEntity`
+            """.trimIndent(),
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+
+            assertEquals("componentName", cursor.getString(0))
+            assertEquals(0, cursor.getLong(1))
+            assertEquals("packageName", cursor.getString(2))
+            assertEquals(0, cursor.getInt(3))
+            assertEquals(1, cursor.getInt(4))
+            assertEquals(2, cursor.getInt(5))
+            assertEquals(3, cursor.getInt(6))
+            assertEquals(4, cursor.getInt(7))
+            assertEquals(5, cursor.getInt(8))
+            assertEquals(6, cursor.getInt(9))
+            assertEquals(7, cursor.getInt(10))
+            assertEquals(8, cursor.getInt(11))
+            assertEquals("label", cursor.getString(12))
+            assertEquals(0, cursor.getLong(13))
+        }
+
+// EblanShortcutConfigEntity
+        dbV7.query(
+            """
+    SELECT componentName, packageName, serialNumber,
+           activityIcon, activityLabel, applicationIcon, applicationLabel, lastUpdateTime
+    FROM `EblanShortcutConfigEntity`
+            """.trimIndent(),
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+
+            assertEquals("componentName", cursor.getString(0))
+            assertEquals("packageName", cursor.getString(1))
+            assertEquals(0, cursor.getLong(2))
+            assertEquals("activityIcon", cursor.getString(3))
+            assertEquals("activityLabel", cursor.getString(4))
+            assertEquals("applicationIcon", cursor.getString(5))
+            assertEquals("applicationLabel", cursor.getString(6))
+            assertEquals(0, cursor.getLong(7))
+        }
+
+// EblanShortcutInfoEntity
+        dbV7.query(
+            """
+    SELECT shortcutId, serialNumber, packageName,
+           shortLabel, longLabel, icon,
+           shortcutQueryFlag, isEnabled, lastUpdateTime
+    FROM `EblanShortcutInfoEntity`
+            """.trimIndent(),
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+
+            assertEquals("shortcutId", cursor.getString(0))
+            assertEquals(0, cursor.getLong(1))
+            assertEquals("packageName", cursor.getString(2))
+            assertEquals("shortLabel", cursor.getString(3))
+            assertEquals("longLabel", cursor.getString(4))
+            assertEquals("icon", cursor.getString(5))
             assertEquals(0, cursor.getInt(6))
+            assertEquals(1, cursor.getInt(7))
+            assertEquals(0, cursor.getLong(8))
         }
     }
 }

@@ -190,26 +190,20 @@ internal class LazyGridDragAndDropState(
         get() = this.offset + this.size
 }
 
-private operator fun IntOffset.plus(size: IntSize): IntOffset {
-    return IntOffset(x + size.width, y + size.height)
-}
+private operator fun IntOffset.plus(size: IntSize): IntOffset = IntOffset(x + size.width, y + size.height)
 
-private operator fun Offset.plus(size: Size): Offset {
-    return Offset(x + size.width, y + size.height)
-}
+private operator fun Offset.plus(size: Size): Offset = Offset(x + size.width, y + size.height)
 
-internal fun Modifier.dragContainer(state: LazyGridDragAndDropState): Modifier {
-    return pointerInput(state) {
-        detectDragGesturesAfterLongPress(
-            onDrag = { change, offset ->
-                change.consume()
-                state.onDrag(offset = offset)
-            },
-            onDragStart = { offset -> state.onDragStart(offset) },
-            onDragEnd = { state.onDragInterrupted() },
-            onDragCancel = { state.onDragInterrupted() },
-        )
-    }
+internal fun Modifier.dragContainer(state: LazyGridDragAndDropState): Modifier = pointerInput(state) {
+    detectDragGesturesAfterLongPress(
+        onDrag = { change, offset ->
+            change.consume()
+            state.onDrag(offset = offset)
+        },
+        onDragStart = { offset -> state.onDragStart(offset) },
+        onDragEnd = { state.onDragInterrupted() },
+        onDragCancel = { state.onDragInterrupted() },
+    )
 }
 
 @Composable

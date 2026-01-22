@@ -30,7 +30,5 @@ internal class LauncherAppWidgetHost(
         context: Context,
         appWidgetId: Int,
         appWidget: AppWidgetProviderInfo,
-    ): AppWidgetHostView {
-        return LauncherAppWidgetHostView(context)
-    }
+    ): AppWidgetHostView = LauncherAppWidgetHostView(context)
 }

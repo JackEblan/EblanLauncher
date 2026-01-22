@@ -34,11 +34,9 @@ internal class DefaultFileManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : FileManager {
-    override suspend fun getFilesDirectory(name: String): File {
-        return withContext(ioDispatcher) {
-            File(context.filesDir, name).apply {
-                if (!exists()) mkdirs()
-            }
+    override suspend fun getFilesDirectory(name: String): File = withContext(ioDispatcher) {
+        File(context.filesDir, name).apply {
+            if (!exists()) mkdirs()
         }
     }
 
@@ -46,59 +44,37 @@ internal class DefaultFileManager @Inject constructor(
         directory: File,
         name: String,
         byteArray: ByteArray,
-    ): String? {
-        return withContext(ioDispatcher) {
-            val file = File(directory, name)
+    ): String? = withContext(ioDispatcher) {
+        val file = File(directory, name)
 
-            val oldFile = readFileBytes(file = file)
+        val oldFile = readFileBytes(file = file)
 
-            if (oldFile.contentEquals(byteArray)) {
-                file.absolutePath
-            } else {
-                try {
-                    FileOutputStream(file).use { fos ->
-                        fos.write(byteArray)
-                    }
-
-                    file.absolutePath
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                    null
-                }
-            }
-        }
-    }
-
-    override suspend fun getFilePath(
-        directory: File,
-        name: String,
-        byteArray: ByteArray,
-    ): String? {
-        return withContext(ioDispatcher) {
-            val file = File(directory, name)
-
-            val oldFile = readFileBytes(file = file)
-
-            if (oldFile.contentEquals(byteArray)) {
-                file.absolutePath
-            } else {
-                null
-            }
-        }
-    }
-
-    private fun readFileBytes(file: File): ByteArray? {
-        return if (file.exists()) {
+        if (oldFile.contentEquals(byteArray)) {
+            file.absolutePath
+        } else {
             try {
-                FileInputStream(file).use { fis ->
-                    fis.readBytes()
+                FileOutputStream(file).use { fos ->
+                    fos.write(byteArray)
                 }
+
+                file.absolutePath
             } catch (e: IOException) {
                 e.printStackTrace()
                 null
             }
-        } else {
+        }
+    }
+
+    private fun readFileBytes(file: File): ByteArray? = if (file.exists()) {
+        try {
+            FileInputStream(file).use { fis ->
+                fis.readBytes()
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
             null
         }
+    } else {
+        null
     }
 }

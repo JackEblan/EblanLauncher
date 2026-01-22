@@ -15,14 +15,10 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.model
+package com.eblan.launcher.domain.model
 
-import com.eblan.launcher.domain.model.EblanApplicationComponent
-
-internal sealed interface EblanApplicationComponentUiState {
-    data object Loading : EblanApplicationComponentUiState
-
-    data class Success(
-        val eblanApplicationComponent: EblanApplicationComponent,
-    ) : EblanApplicationComponentUiState
-}
+data class GetEblanApplicationInfos(
+    val eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
+    val privateEblanUser: EblanUser?,
+    val privateEblanApplicationInfos: List<EblanApplicationInfo>,
+)

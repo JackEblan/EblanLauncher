@@ -30,8 +30,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-internal class FolderSettingsViewModel @Inject constructor(private val userDataRepository: UserDataRepository) :
-    ViewModel() {
+internal class FolderSettingsViewModel @Inject constructor(private val userDataRepository: UserDataRepository) : ViewModel() {
     val folderSettingsUiState = userDataRepository.userData.map { userData ->
         FolderSettingsUiState.Success(homeSettings = userData.homeSettings)
     }.stateIn(

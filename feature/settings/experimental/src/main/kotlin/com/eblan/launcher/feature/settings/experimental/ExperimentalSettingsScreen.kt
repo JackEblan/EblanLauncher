@@ -151,7 +151,7 @@ private fun Success(
             SettingsSwitch(
                 checked = experimentalSettings.klwpIntegration,
                 title = "KLWP Integration",
-                subtitle = "Send broadcast to KLWP Live Wallpaper",
+                subtitle = "Send broadcasts to KLWP Live Wallpaper",
                 onCheckedChange = { klwpIntegration ->
                     onUpdateExperimentalSettings(experimentalSettings.copy(klwpIntegration = klwpIntegration))
                 },

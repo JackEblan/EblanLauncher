@@ -15,16 +15,10 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.domain.model
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.hilt)
-}
-
-android {
-    namespace = "com.eblan.launcher.framework.bytearray"
-}
-
-dependencies {
-    implementation(projects.domain.common)
-}
+data class FastAppWidgetManagerAppWidgetProviderInfo(
+    val serialNumber: Long,
+    val packageName: String,
+    val lastUpdateTime: Long,
+)

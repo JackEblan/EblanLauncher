@@ -60,11 +60,13 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -91,7 +93,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -269,8 +270,6 @@ private fun SharedTransitionScope.Success(
 ) {
     val density = LocalDensity.current
 
-    val focusManager = LocalFocusManager.current
-
     var showPopupApplicationMenu by remember { mutableStateOf(false) }
 
     var popupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -299,13 +298,23 @@ private fun SharedTransitionScope.Success(
 
     var eblanApplicationInfoGroup by remember { mutableStateOf<EblanApplicationInfoGroup?>(null) }
 
+    val searchBarState = rememberSearchBarState()
+
     LaunchedEffect(key1 = isPressHome) {
         if (isPressHome) {
-            focusManager.clearFocus()
-
             showPopupApplicationMenu = false
 
             onDismiss()
+        }
+
+        if (isPressHome && searchBarState.currentValue == SearchBarValue.Expanded) {
+            searchBarState.animateToCollapsed()
+        }
+    }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Start && searchBarState.currentValue == SearchBarValue.Expanded) {
+            searchBarState.animateToCollapsed()
         }
     }
 
@@ -325,6 +334,7 @@ private fun SharedTransitionScope.Success(
             ),
     ) {
         SearchBar(
+            searchBarState = searchBarState,
             title = "Search Applications",
             onChangeLabel = onGetEblanApplicationInfosByLabel,
         )

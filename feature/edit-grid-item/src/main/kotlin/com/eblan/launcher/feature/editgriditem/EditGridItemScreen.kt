@@ -315,6 +315,8 @@ private fun EditApplicationInfo(
                     ),
                 )
             },
+            onSearchIconPackInfoComponent = {
+            },
         )
     }
 
@@ -427,6 +429,8 @@ private fun EditFolder(
                         customIcon = icon,
                     ),
                 )
+            },
+            onSearchIconPackInfoComponent = {
             },
         )
     }
@@ -564,6 +568,8 @@ private fun EditShortcutInfo(
                     ),
                 )
             },
+            onSearchIconPackInfoComponent = {
+            },
         )
     }
 
@@ -664,6 +670,8 @@ private fun EditShortcutConfig(
                         customIcon = icon,
                     ),
                 )
+            },
+            onSearchIconPackInfoComponent = {
             },
         )
     }

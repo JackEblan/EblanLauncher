@@ -25,10 +25,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SearchBarState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -38,17 +40,17 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class, FlowPreview::class)
 @Composable
 internal fun SearchBar(
     modifier: Modifier = Modifier,
+    searchBarState: SearchBarState,
     title: String,
     onChangeLabel: (String) -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-
-    val searchBarState = rememberSearchBarState()
+    val scope = rememberCoroutineScope()
 
     val textFieldState = rememberTextFieldState()
 
@@ -75,7 +77,7 @@ internal fun SearchBar(
                         contentDescription = null,
                     )
                 },
-                onSearch = { focusManager.clearFocus() },
+                onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
                 placeholder = { Text(text = title) },
             )
         },

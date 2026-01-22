@@ -42,12 +42,15 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -71,7 +74,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -121,8 +123,6 @@ internal fun SharedTransitionScope.WidgetScreen(
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-
     val scope = rememberCoroutineScope()
 
     val offsetY = remember { Animatable(screenHeight.toFloat()) }
@@ -148,23 +148,6 @@ internal fun SharedTransitionScope.WidgetScreen(
                 easing = FastOutSlowInEasing,
             ),
         )
-    }
-
-    LaunchedEffect(key1 = isPressHome) {
-        if (isPressHome) {
-            focusManager.clearFocus()
-
-            scope.launch {
-                offsetY.animateTo(
-                    targetValue = screenHeight.toFloat(),
-                    animationSpec = tween(
-                        easing = FastOutSlowInEasing,
-                    ),
-                )
-
-                onDismiss()
-            }
-        }
     }
 
     BackHandler {
@@ -196,6 +179,7 @@ internal fun SharedTransitionScope.WidgetScreen(
             paddingValues = paddingValues,
             drag = drag,
             screen = screen,
+            isPressHome = isPressHome,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
@@ -216,11 +200,23 @@ internal fun SharedTransitionScope.WidgetScreen(
                 }
             },
             onUpdateSharedElementKey = onUpdateSharedElementKey,
+            onDismiss = {
+                scope.launch {
+                    offsetY.animateTo(
+                        targetValue = screenHeight.toFloat(),
+                        animationSpec = tween(
+                            easing = FastOutSlowInEasing,
+                        ),
+                    )
+
+                    onDismiss()
+                }
+            },
         )
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun SharedTransitionScope.Success(
     modifier: Modifier = Modifier,
@@ -230,6 +226,7 @@ private fun SharedTransitionScope.Success(
     paddingValues: PaddingValues,
     drag: Drag,
     screen: Screen,
+    isPressHome: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -243,6 +240,7 @@ private fun SharedTransitionScope.Success(
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onDismiss: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -275,6 +273,24 @@ private fun SharedTransitionScope.Success(
         )
     }
 
+    val searchBarState = rememberSearchBarState()
+
+    LaunchedEffect(key1 = isPressHome) {
+        if (isPressHome) {
+            onDismiss()
+        }
+
+        if (isPressHome && searchBarState.currentValue == SearchBarValue.Expanded) {
+            searchBarState.animateToCollapsed()
+        }
+    }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Start && searchBarState.currentValue == SearchBarValue.Expanded) {
+            searchBarState.animateToCollapsed()
+        }
+    }
+
     Column(
         modifier = modifier
             .run {
@@ -292,6 +308,7 @@ private fun SharedTransitionScope.Success(
             ),
     ) {
         SearchBar(
+            searchBarState = searchBarState,
             title = "Search Widgets",
             onChangeLabel = onGetEblanAppWidgetProviderInfosByLabel,
         )

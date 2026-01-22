@@ -45,6 +45,7 @@ internal class EditApplicationInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     packageManagerWrapper: PackageManagerWrapper,
+    private val iconPackManager: IconPackManager,
 ) : ViewModel() {
     private val editApplicationInfoRouteData =
         savedStateHandle.toRoute<EditApplicationInfoRouteData>()
@@ -87,16 +88,13 @@ internal class EditApplicationInfoViewModel @Inject constructor(
         }
     }
 
-    fun updateIconPackInfoPackageName(
-        packageName: String,
-        component: String,
-    ) {
+    fun updateIconPackInfoPackageName(packageName: String) {
         iconPackInfoComponentsJob = viewModelScope.launch {
             _iconPackInfoComponents.update {
-                getIconPackInfosUseCase(
-                    packageName = packageName,
-                    component = component,
-                )
+                iconPackManager.parseAppFilter(packageName = packageName)
+                    .distinctBy { iconPackInfoComponent ->
+                        iconPackInfoComponent.drawable
+                    }
             }
         }
     }
@@ -129,6 +127,20 @@ internal class EditApplicationInfoViewModel @Inject constructor(
             )
 
             getApplicationInfo()
+        }
+    }
+
+    fun searchIconPackInfoComponent(component: String) {
+        viewModelScope.launch {
+            iconPackInfoComponentsJob?.cancel()
+
+            iconPackInfoComponentsJob = viewModelScope.launch {
+                _iconPackInfoComponents.update { currentIconPackInfoComponents ->
+                    currentIconPackInfoComponents.filter { iconPackInfoComponent ->
+                        iconPackInfoComponent.component.contains(component)
+                    }
+                }
+            }
         }
     }
 

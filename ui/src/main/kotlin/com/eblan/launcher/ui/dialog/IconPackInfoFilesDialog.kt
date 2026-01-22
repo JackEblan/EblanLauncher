@@ -32,11 +32,9 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSearchBarState
@@ -52,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.ui.local.LocalFileManager
@@ -70,6 +69,7 @@ fun IconPackInfoFilesDialog(
     iconName: String,
     onDismissRequest: () -> Unit,
     onUpdateIcon: (String?) -> Unit,
+    onSearchIconPackInfoComponent: (String) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -84,9 +84,11 @@ fun IconPackInfoFilesDialog(
     val textFieldState = rememberTextFieldState()
 
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(modifier = modifier
-            .fillMaxWidth()
-            .padding(10.dp)) {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+        ) {
             Text(
                 text = iconPackInfoLabel.toString(),
                 style = MaterialTheme.typography.titleLarge,
@@ -111,34 +113,20 @@ fun IconPackInfoFilesDialog(
                                 searchBarState = searchBarState,
                                 textFieldState = textFieldState,
                                 onSearch = {
-                                    scope.launch { searchBarState.animateToCollapsed() }
+                                    onSearchIconPackInfoComponent(textFieldState.text.toString())
                                 },
                                 placeholder = {
                                     Text("Search")
                                 },
                                 leadingIcon = {
-                                    if (searchBarState.currentValue == SearchBarValue.Expanded) {
-                                        IconButton(
-                                            onClick = {
-                                                scope.launch {
-                                                    searchBarState.animateToCollapsed()
-                                                }
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = EblanLauncherIcons.ArrowBack,
-                                                contentDescription = null,
-                                            )
-                                        }
-                                    } else {
-                                        Icon(
-                                            imageVector = EblanLauncherIcons.Search,
-                                            contentDescription = null
-                                        )
-                                    }
+                                    Icon(
+                                        imageVector = EblanLauncherIcons.Search,
+                                        contentDescription = null,
+                                    )
                                 },
                             )
-                        })
+                        },
+                    )
 
                     Spacer(modifier = Modifier.height(10.dp))
 

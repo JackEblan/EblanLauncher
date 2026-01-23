@@ -20,16 +20,20 @@ package com.eblan.launcher.ui.dialog
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,12 +48,14 @@ import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.IconPackInfoComponent
+import com.eblan.launcher.ui.SearchBar
 import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalIconPackManager
 import com.eblan.launcher.ui.local.LocalImageSerializer
 import kotlinx.coroutines.launch
 import java.io.File
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IconPackInfoFilesDialog(
     modifier: Modifier = Modifier,
@@ -59,6 +65,7 @@ fun IconPackInfoFilesDialog(
     iconName: String,
     onDismissRequest: () -> Unit,
     onUpdateIcon: (String?) -> Unit,
+    onSearchIconPackInfoComponent: (String) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -68,13 +75,29 @@ fun IconPackInfoFilesDialog(
 
     val iconPackManager = LocalIconPackManager.current
 
+    val searchBarState = rememberSearchBarState()
+
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(modifier = modifier.fillMaxWidth()) {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+        ) {
             Text(
-                modifier = Modifier.padding(10.dp),
                 text = iconPackInfoLabel.toString(),
                 style = MaterialTheme.typography.titleLarge,
             )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            SearchBar(
+                modifier = Modifier.fillMaxWidth(),
+                searchBarState = searchBarState,
+                title = "Search Icons",
+                onChangeLabel = onSearchIconPackInfoComponent,
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             when {
                 iconPackInfoComponents.isEmpty() -> {
@@ -142,10 +165,11 @@ fun IconPackInfoFilesDialog(
                 }
             }
 
+            Spacer(modifier = Modifier.height(10.dp))
+
             TextButton(
                 modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(10.dp),
+                    .align(Alignment.End),
                 onClick = onDismissRequest,
             ) {
                 Text(text = "Cancel")

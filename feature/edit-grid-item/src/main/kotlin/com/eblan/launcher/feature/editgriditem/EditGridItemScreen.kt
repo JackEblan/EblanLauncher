@@ -77,6 +77,7 @@ internal fun EditGridItemRoute(
         onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
         onResetIconPackInfoPackageName = viewModel::resetIconPackInfoPackageName,
         onRestoreGridItem = viewModel::restoreGridItem,
+        onSearchIconPackInfoComponent = viewModel::searchIconPackInfoComponent,
     )
 }
 
@@ -92,6 +93,7 @@ internal fun EditGridItemScreen(
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
     onRestoreGridItem: (GridItem) -> Unit,
+    onSearchIconPackInfoComponent: (String) -> Unit,
 ) {
     if (editGridItemUiState is EditGridItemUiState.Success &&
         editGridItemUiState.gridItem != null
@@ -148,6 +150,7 @@ internal fun EditGridItemScreen(
                     onUpdateGridItem = onUpdateGridItem,
                     onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                     onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
+                    onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
                 )
             }
         }
@@ -163,6 +166,7 @@ private fun Success(
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
+    onSearchIconPackInfoComponent: (String) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -184,6 +188,7 @@ private fun Success(
                         onUpdateGridItem = onUpdateGridItem,
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
+                        onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
                     )
                 }
 
@@ -196,6 +201,7 @@ private fun Success(
                         onUpdateGridItem = onUpdateGridItem,
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
+                        onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
                     )
                 }
 
@@ -208,6 +214,7 @@ private fun Success(
                         onUpdateGridItem = onUpdateGridItem,
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
+                        onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
                     )
                 }
 
@@ -220,6 +227,7 @@ private fun Success(
                         onUpdateGridItem = onUpdateGridItem,
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
+                        onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
                     )
                 }
 
@@ -258,6 +266,7 @@ private fun EditApplicationInfo(
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
+    onSearchIconPackInfoComponent: (String) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
@@ -315,6 +324,7 @@ private fun EditApplicationInfo(
                     ),
                 )
             },
+            onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
         )
     }
 
@@ -359,6 +369,7 @@ private fun EditFolder(
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
+    onSearchIconPackInfoComponent: (String) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
@@ -428,6 +439,7 @@ private fun EditFolder(
                     ),
                 )
             },
+            onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
         )
     }
 
@@ -507,6 +519,7 @@ private fun EditShortcutInfo(
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
+    onSearchIconPackInfoComponent: (String) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
@@ -564,6 +577,7 @@ private fun EditShortcutInfo(
                     ),
                 )
             },
+            onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
         )
     }
 
@@ -608,6 +622,7 @@ private fun EditShortcutConfig(
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
+    onSearchIconPackInfoComponent: (String) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
@@ -665,6 +680,7 @@ private fun EditShortcutConfig(
                     ),
                 )
             },
+            onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
         )
     }
 

@@ -73,6 +73,7 @@ internal fun EditApplicationInfoRoute(
         onRestoreEblanApplicationInfo = viewModel::restoreEblanApplicationInfo,
         onResetIconPackInfoPackageName = viewModel::resetIconPackInfoPackageName,
         onUpdateGridItemCustomIcon = viewModel::updateEblanApplicationInfoCustomIcon,
+        onSearchIconPackInfoComponent = viewModel::searchIconPackInfoComponent,
     )
 }
 
@@ -92,6 +93,7 @@ internal fun EditApplicationInfoScreen(
         customIcon: String?,
         eblanApplicationInfo: EblanApplicationInfo,
     ) -> Unit,
+    onSearchIconPackInfoComponent: (String) -> Unit,
 ) {
     if (editApplicationInfoUiState is EditApplicationInfoUiState.Success &&
         editApplicationInfoUiState.eblanApplicationInfo != null
@@ -138,6 +140,7 @@ internal fun EditApplicationInfoScreen(
                     onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                     onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
                     onUpdateGridItemCustomIcon = onUpdateGridItemCustomIcon,
+                    onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
                 )
             }
         }
@@ -157,6 +160,7 @@ private fun Success(
         customIcon: String?,
         eblanApplicationInfo: EblanApplicationInfo,
     ) -> Unit,
+    onSearchIconPackInfoComponent: (String) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
@@ -226,6 +230,7 @@ private fun Success(
                         eblanApplicationInfo,
                     )
                 },
+                onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
             )
         }
 

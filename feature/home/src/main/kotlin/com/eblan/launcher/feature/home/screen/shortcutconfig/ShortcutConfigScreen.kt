@@ -53,10 +53,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -80,7 +82,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -98,12 +99,12 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
-import com.eblan.launcher.feature.home.component.searchbar.SearchBar
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
+import com.eblan.launcher.ui.SearchBar
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -134,8 +135,6 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-
     val scope = rememberCoroutineScope()
 
     val offsetY = remember { Animatable(screenHeight.toFloat()) }
@@ -161,23 +160,6 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
                 easing = FastOutSlowInEasing,
             ),
         )
-    }
-
-    LaunchedEffect(key1 = isPressHome) {
-        if (isPressHome) {
-            focusManager.clearFocus()
-
-            scope.launch {
-                offsetY.animateTo(
-                    targetValue = screenHeight.toFloat(),
-                    animationSpec = tween(
-                        easing = FastOutSlowInEasing,
-                    ),
-                )
-
-                onDismiss()
-            }
-        }
     }
 
     BackHandler {
@@ -210,6 +192,7 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
             gridItemSettings = gridItemSettings,
             eblanShortcutConfigs = eblanShortcutConfigs,
             screen = screen,
+            isPressHome = isPressHome,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
@@ -230,6 +213,18 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
                 }
             },
             onUpdateSharedElementKey = onUpdateSharedElementKey,
+            onDismiss = {
+                scope.launch {
+                    offsetY.animateTo(
+                        targetValue = screenHeight.toFloat(),
+                        animationSpec = tween(
+                            easing = FastOutSlowInEasing,
+                        ),
+                    )
+
+                    onDismiss()
+                }
+            },
         )
     }
 }
@@ -244,6 +239,7 @@ private fun SharedTransitionScope.Success(
     gridItemSettings: GridItemSettings,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     screen: Screen,
+    isPressHome: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -257,12 +253,31 @@ private fun SharedTransitionScope.Success(
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onDismiss: () -> Unit,
 ) {
     val horizontalPagerState = rememberPagerState(
         pageCount = {
             eblanShortcutConfigs.keys.size
         },
     )
+
+    val searchBarState = rememberSearchBarState()
+
+    LaunchedEffect(key1 = isPressHome) {
+        if (isPressHome) {
+            onDismiss()
+        }
+
+        if (isPressHome && searchBarState.currentValue == SearchBarValue.Expanded) {
+            searchBarState.animateToCollapsed()
+        }
+    }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Start && searchBarState.currentValue == SearchBarValue.Expanded) {
+            searchBarState.animateToCollapsed()
+        }
+    }
 
     Column(
         modifier = modifier
@@ -274,6 +289,10 @@ private fun SharedTransitionScope.Success(
             ),
     ) {
         SearchBar(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            searchBarState = searchBarState,
             title = "Search Shortcuts",
             onChangeLabel = onGetEblanShortcutConfigsByLabel,
         )

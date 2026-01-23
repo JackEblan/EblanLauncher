@@ -353,24 +353,27 @@ private fun EblanShortcutConfigTabRow(
 ) {
     val scope = rememberCoroutineScope()
 
-    SecondaryTabRow(selectedTabIndex = currentPage) {
-        eblanShortcutConfigs.keys.forEachIndexed { index, eblanUser ->
-            Tab(
-                selected = currentPage == index,
-                onClick = {
-                    scope.launch {
-                        onAnimateScrollToPage(index)
-                    }
-                },
-                text = {
-                    Text(
-                        text = eblanUser.eblanUserType.name,
-                        maxLines = 1,
-                    )
-                },
-            )
-        }
-    }
+    SecondaryTabRow(
+        selectedTabIndex = currentPage,
+        tabs = {
+            eblanShortcutConfigs.keys.forEachIndexed { index, eblanUser ->
+                Tab(
+                    selected = currentPage == index,
+                    onClick = {
+                        scope.launch {
+                            onAnimateScrollToPage(index)
+                        }
+                    },
+                    text = {
+                        Text(
+                            text = eblanUser.eblanUserType.name,
+                            maxLines = 1,
+                        )
+                    },
+                )
+            }
+        },
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)

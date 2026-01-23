@@ -58,6 +58,10 @@ class SyncDataService : Service() {
 
     private var syncDataJob: Job? = null
 
+    private val _isSyncingData = MutableStateFlow(false)
+
+    val isSyncingData = _isSyncingData.asStateFlow()
+
     private val managedProfileBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val userHandle = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -71,11 +75,7 @@ class SyncDataService : Service() {
             }
 
             if (userHandle != null) {
-                syncDataJob?.cancel()
-
-                syncDataJob = serviceScope.launch {
-                    syncDataUseCase()
-                }
+                syncData()
 
                 _managedProfileResult.update {
                     ManagedProfileResult(
@@ -87,14 +87,8 @@ class SyncDataService : Service() {
         }
     }
 
-    private val binder = LocalBinder()
-
     override fun onBind(intent: Intent?): IBinder {
-        syncDataJob?.cancel()
-
-        syncDataJob = serviceScope.launch {
-            syncDataUseCase()
-        }
+        syncData()
 
         registerReceiver(
             managedProfileBroadcastReceiver,
@@ -111,7 +105,7 @@ class SyncDataService : Service() {
             },
         )
 
-        return binder
+        return LocalBinder()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -120,6 +114,22 @@ class SyncDataService : Service() {
         unregisterReceiver(managedProfileBroadcastReceiver)
 
         return super.onUnbind(intent)
+    }
+
+    private fun syncData() {
+        syncDataJob?.cancel()
+
+        syncDataJob = serviceScope.launch {
+            _isSyncingData.update {
+                true
+            }
+
+            syncDataUseCase()
+
+            _isSyncingData.update {
+                false
+            }
+        }
     }
 
     inner class LocalBinder : Binder() {

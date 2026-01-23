@@ -684,6 +684,8 @@ private fun SharedTransitionScope.Success(
         mutableStateOf<Map<String, Int>>(emptyMap())
     }
 
+    var isSyncingData by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = pinGridItem) {
         val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
@@ -707,6 +709,9 @@ private fun SharedTransitionScope.Success(
         },
         onStatusBarNotificationsChange = { newStatusBarNotifications ->
             statusBarNotifications = newStatusBarNotifications
+        },
+        onSyncingDataChange = { newSyncingData ->
+            isSyncingData = newSyncingData
         },
     )
 
@@ -757,6 +762,7 @@ private fun SharedTransitionScope.Success(
                     getEblanApplicationInfos = getEblanApplicationInfos,
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     eblanShortcutConfigs = eblanShortcutConfigs,
+                    isSyncingData = isSyncingData,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(
@@ -1009,6 +1015,7 @@ private fun LifecycleEffect(
     syncDataEnabled: Boolean,
     onManagedProfileResultChange: (ManagedProfileResult?) -> Unit,
     onStatusBarNotificationsChange: (Map<String, Int>) -> Unit,
+    onSyncingDataChange: (Boolean) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -1040,6 +1047,14 @@ private fun LifecycleEffect(
                     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                         listener.managedProfileResult.collect {
                             onManagedProfileResultChange(it)
+                        }
+                    }
+                }
+
+                scope.launch {
+                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        listener.isSyncingData.collect {
+                            onSyncingDataChange(it)
                         }
                     }
                 }

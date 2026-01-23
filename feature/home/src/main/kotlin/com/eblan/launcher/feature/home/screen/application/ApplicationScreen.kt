@@ -59,12 +59,14 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabIndicatorScope
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSearchBarState
@@ -167,6 +169,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     klwpIntegration: Boolean,
     alpha: Float,
     cornerSize: Dp,
+    isSyncingData: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -217,6 +220,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             screen = screen,
             textColor = textColor,
             klwpIntegration = klwpIntegration,
+            isSyncingData = isSyncingData,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -250,6 +254,7 @@ private fun SharedTransitionScope.Success(
     screen: Screen,
     textColor: TextColor,
     klwpIntegration: Boolean,
+    isSyncingData: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -348,6 +353,7 @@ private fun SharedTransitionScope.Success(
                 currentPage = horizontalPagerState.currentPage,
                 eblanApplicationInfos = getEblanApplicationInfos.eblanApplicationInfos,
                 klwpIntegration = klwpIntegration,
+                isSyncingData = isSyncingData,
                 onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
             )
 
@@ -1102,6 +1108,7 @@ private fun EblanApplicationInfoTabRow(
     currentPage: Int,
     eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
     klwpIntegration: Boolean,
+    isSyncingData: Boolean,
     onAnimateScrollToPage: suspend (Int) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -1113,23 +1120,59 @@ private fun EblanApplicationInfoTabRow(
         } else {
             TabRowDefaults.secondaryContainerColor
         },
-    ) {
-        eblanApplicationInfos.keys.forEachIndexed { index, eblanUser ->
-            Tab(
-                selected = currentPage == index,
-                onClick = {
-                    scope.launch {
-                        onAnimateScrollToPage(index)
-                    }
-                },
-                text = {
-                    Text(
-                        text = eblanUser.eblanUserType.name,
-                        maxLines = 1,
-                    )
-                },
+        indicator = {
+            SecondaryIndicator(
+                selectedTabIndex = currentPage,
+                isSyncingData = isSyncingData,
             )
-        }
+        },
+        tabs = {
+            eblanApplicationInfos.keys.forEachIndexed { index, eblanUser ->
+                Tab(
+                    selected = currentPage == index,
+                    onClick = {
+                        scope.launch {
+                            onAnimateScrollToPage(index)
+                        }
+                    },
+                    text = {
+                        Text(
+                            text = eblanUser.eblanUserType.name,
+                            maxLines = 1,
+                        )
+                    },
+                )
+            }
+        },
+    )
+}
+
+@Composable
+private fun TabIndicatorScope.SecondaryIndicator(
+    modifier: Modifier = Modifier,
+    selectedTabIndex: Int,
+    isSyncingData: Boolean,
+) {
+    if (isSyncingData) {
+        LinearProgressIndicator(
+            modifier = modifier
+                .tabIndicatorOffset(
+                    selectedTabIndex = selectedTabIndex,
+                    matchContentSize = false,
+                )
+                .fillMaxWidth(),
+        )
+    } else {
+        Box(
+            modifier
+                .tabIndicatorOffset(
+                    selectedTabIndex = selectedTabIndex,
+                    matchContentSize = false,
+                )
+                .fillMaxWidth()
+                .height(3.0.dp)
+                .background(color = MaterialTheme.colorScheme.primary),
+        )
     }
 }
 

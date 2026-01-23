@@ -118,6 +118,7 @@ internal fun SharedTransitionScope.PagerScreen(
     getEblanApplicationInfos: GetEblanApplicationInfos,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    isSyncingData: Boolean,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEditGridItem: (String) -> Unit,
@@ -458,6 +459,7 @@ internal fun SharedTransitionScope.PagerScreen(
             klwpIntegration = experimentalSettings.klwpIntegration,
             alpha = alpha,
             cornerSize = cornerSize,
+            isSyncingData = isSyncingData,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -524,6 +526,7 @@ internal fun SharedTransitionScope.PagerScreen(
             klwpIntegration = experimentalSettings.klwpIntegration,
             alpha = alpha,
             cornerSize = cornerSize,
+            isSyncingData = isSyncingData,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(

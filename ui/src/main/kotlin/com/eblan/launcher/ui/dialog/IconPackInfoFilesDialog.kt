@@ -28,13 +28,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSearchBarState
@@ -50,9 +46,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
-import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.IconPackInfoComponent
+import com.eblan.launcher.ui.SearchBar
 import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalIconPackManager
 import com.eblan.launcher.ui.local.LocalImageSerializer
@@ -81,8 +77,6 @@ fun IconPackInfoFilesDialog(
 
     val searchBarState = rememberSearchBarState()
 
-    val textFieldState = rememberTextFieldState()
-
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(
             modifier = modifier
@@ -107,25 +101,10 @@ fun IconPackInfoFilesDialog(
                     Spacer(modifier = Modifier.height(10.dp))
 
                     SearchBar(
-                        state = searchBarState,
-                        inputField = {
-                            SearchBarDefaults.InputField(
-                                searchBarState = searchBarState,
-                                textFieldState = textFieldState,
-                                onSearch = {
-                                    onSearchIconPackInfoComponent(textFieldState.text.toString())
-                                },
-                                placeholder = {
-                                    Text("Search")
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = EblanLauncherIcons.Search,
-                                        contentDescription = null,
-                                    )
-                                },
-                            )
-                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        searchBarState = searchBarState,
+                        title = "Search Icons",
+                        onChangeLabel = onSearchIconPackInfoComponent,
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))

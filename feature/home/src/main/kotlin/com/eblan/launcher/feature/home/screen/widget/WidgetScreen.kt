@@ -87,12 +87,12 @@ import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
-import com.eblan.launcher.feature.home.component.searchbar.SearchBar
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
+import com.eblan.launcher.ui.SearchBar
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -308,6 +308,9 @@ private fun SharedTransitionScope.Success(
             ),
     ) {
         SearchBar(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
             searchBarState = searchBarState,
             title = "Search Widgets",
             onChangeLabel = onGetEblanAppWidgetProviderInfosByLabel,

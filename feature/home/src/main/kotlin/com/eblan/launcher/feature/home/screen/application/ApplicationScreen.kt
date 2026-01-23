@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
@@ -124,7 +125,6 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
-import com.eblan.launcher.feature.home.component.searchbar.SearchBar
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
@@ -134,6 +134,7 @@ import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
+import com.eblan.launcher.ui.SearchBar
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -334,6 +335,9 @@ private fun SharedTransitionScope.Success(
             ),
     ) {
         SearchBar(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
             searchBarState = searchBarState,
             title = "Search Applications",
             onChangeLabel = onGetEblanApplicationInfosByLabel,

@@ -82,6 +82,8 @@ internal class EditGridItemViewModel @Inject constructor(
 
     private var iconPackInfoComponentsJob: Job? = null
 
+    private var appFilter = emptyList<IconPackInfoComponent>()
+
     fun updateGridItem(gridItem: GridItem) {
         viewModelScope.launch {
             gridRepository.updateGridItem(gridItem = gridItem)
@@ -104,6 +106,8 @@ internal class EditGridItemViewModel @Inject constructor(
                 iconPackManager.parseAppFilter(packageName = packageName)
                     .distinctBy { iconPackInfoComponent ->
                         iconPackInfoComponent.drawable
+                    }.also { newAppFilter ->
+                        appFilter = newAppFilter
                     }
             }
         }
@@ -114,6 +118,21 @@ internal class EditGridItemViewModel @Inject constructor(
 
         _iconPackInfoComponents.update {
             emptyList()
+        }
+    }
+
+    fun searchIconPackInfoComponent(component: String) {
+        viewModelScope.launch {
+            viewModelScope.launch {
+                _iconPackInfoComponents.update {
+                    appFilter.filter { iconPackInfoComponent ->
+                        iconPackInfoComponent.component.contains(
+                            other = component,
+                            ignoreCase = true,
+                        )
+                    }
+                }
+            }
         }
     }
 

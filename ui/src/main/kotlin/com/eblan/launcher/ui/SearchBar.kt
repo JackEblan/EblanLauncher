@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.component.searchbar
+package com.eblan.launcher.ui
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,13 +27,11 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import kotlinx.coroutines.FlowPreview
@@ -44,7 +42,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class, FlowPreview::class)
 @Composable
-internal fun SearchBar(
+fun SearchBar(
     modifier: Modifier = Modifier,
     searchBarState: SearchBarState,
     title: String,
@@ -64,9 +62,7 @@ internal fun SearchBar(
 
     SearchBar(
         state = searchBarState,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(10.dp),
+        modifier = modifier,
         inputField = {
             SearchBarDefaults.InputField(
                 searchBarState = searchBarState,

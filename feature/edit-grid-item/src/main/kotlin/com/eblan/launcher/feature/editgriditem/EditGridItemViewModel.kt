@@ -21,6 +21,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.GridItem
@@ -31,6 +33,7 @@ import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.feature.editgriditem.navigation.EditGridItemRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -49,6 +52,7 @@ internal class EditGridItemViewModel @Inject constructor(
     private val iconPackManager: IconPackManager,
     packageManagerWrapper: PackageManagerWrapper,
     private val gridRepository: GridRepository,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val editGridItemRouteData = savedStateHandle.toRoute<EditGridItemRouteData>()
 
@@ -101,7 +105,7 @@ internal class EditGridItemViewModel @Inject constructor(
     }
 
     fun updateIconPackInfoPackageName(packageName: String) {
-        iconPackInfoComponentsJob = viewModelScope.launch {
+        iconPackInfoComponentsJob = viewModelScope.launch(defaultDispatcher) {
             _iconPackInfoComponents.update {
                 iconPackManager.parseAppFilter(packageName = packageName)
                     .distinctBy { iconPackInfoComponent ->
@@ -122,15 +126,13 @@ internal class EditGridItemViewModel @Inject constructor(
     }
 
     fun searchIconPackInfoComponent(component: String) {
-        viewModelScope.launch {
-            viewModelScope.launch {
-                _iconPackInfoComponents.update {
-                    appFilter.filter { iconPackInfoComponent ->
-                        iconPackInfoComponent.component.contains(
-                            other = component,
-                            ignoreCase = true,
-                        )
-                    }
+        viewModelScope.launch(defaultDispatcher) {
+            _iconPackInfoComponents.update {
+                appFilter.filter { iconPackInfoComponent ->
+                    iconPackInfoComponent.component.contains(
+                        other = component,
+                        ignoreCase = true,
+                    )
                 }
             }
         }

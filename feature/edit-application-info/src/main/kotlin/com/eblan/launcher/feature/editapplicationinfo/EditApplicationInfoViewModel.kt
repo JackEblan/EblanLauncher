@@ -21,6 +21,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -30,6 +32,7 @@ import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.feature.editapplicationinfo.model.EditApplicationInfoUiState
 import com.eblan.launcher.feature.editapplicationinfo.navigation.EditApplicationInfoRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -46,6 +49,7 @@ internal class EditApplicationInfoViewModel @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     packageManagerWrapper: PackageManagerWrapper,
     private val iconPackManager: IconPackManager,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val editApplicationInfoRouteData =
         savedStateHandle.toRoute<EditApplicationInfoRouteData>()
@@ -91,7 +95,7 @@ internal class EditApplicationInfoViewModel @Inject constructor(
     }
 
     fun updateIconPackInfoPackageName(packageName: String) {
-        iconPackInfoComponentsJob = viewModelScope.launch {
+        iconPackInfoComponentsJob = viewModelScope.launch(defaultDispatcher) {
             _iconPackInfoComponents.update {
                 iconPackManager.parseAppFilter(packageName = packageName)
                     .distinctBy { iconPackInfoComponent ->
@@ -137,15 +141,13 @@ internal class EditApplicationInfoViewModel @Inject constructor(
     }
 
     fun searchIconPackInfoComponent(component: String) {
-        viewModelScope.launch {
-            viewModelScope.launch {
-                _iconPackInfoComponents.update {
-                    appFilter.filter { iconPackInfoComponent ->
-                        iconPackInfoComponent.component.contains(
-                            other = component,
-                            ignoreCase = true,
-                        )
-                    }
+        viewModelScope.launch(defaultDispatcher) {
+            _iconPackInfoComponents.update {
+                appFilter.filter { iconPackInfoComponent ->
+                    iconPackInfoComponent.component.contains(
+                        other = component,
+                        ignoreCase = true,
+                    )
                 }
             }
         }

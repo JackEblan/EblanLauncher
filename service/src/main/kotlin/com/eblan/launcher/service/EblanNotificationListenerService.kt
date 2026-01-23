@@ -32,14 +32,12 @@ class EblanNotificationListenerService : NotificationListenerService() {
 
     val statusBarNotifications = _statusBarNotifications.asStateFlow()
 
-    private val binder = LocalBinder()
-
     private var isListenerConnected = false
 
     override fun onBind(intent: Intent?): IBinder? = if (intent?.action == SERVICE_INTERFACE) {
         super.onBind(intent)
     } else {
-        binder
+        LocalBinder()
     }
 
     override fun onListenerConnected() {

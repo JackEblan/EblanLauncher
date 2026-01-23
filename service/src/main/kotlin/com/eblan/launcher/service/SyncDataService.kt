@@ -87,8 +87,6 @@ class SyncDataService : Service() {
         }
     }
 
-    private val binder = LocalBinder()
-
     override fun onBind(intent: Intent?): IBinder {
         syncDataJob?.cancel()
 
@@ -111,7 +109,7 @@ class SyncDataService : Service() {
             },
         )
 
-        return binder
+        return LocalBinder()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {

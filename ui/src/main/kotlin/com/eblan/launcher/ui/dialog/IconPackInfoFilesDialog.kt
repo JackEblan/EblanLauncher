@@ -88,6 +88,17 @@ fun IconPackInfoFilesDialog(
                 style = MaterialTheme.typography.titleLarge,
             )
 
+            Spacer(modifier = Modifier.height(10.dp))
+
+            SearchBar(
+                modifier = Modifier.fillMaxWidth(),
+                searchBarState = searchBarState,
+                title = "Search Icons",
+                onChangeLabel = onSearchIconPackInfoComponent,
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
             when {
                 iconPackInfoComponents.isEmpty() -> {
                     CircularProgressIndicator(
@@ -98,17 +109,6 @@ fun IconPackInfoFilesDialog(
                 }
 
                 else -> {
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    SearchBar(
-                        modifier = Modifier.fillMaxWidth(),
-                        searchBarState = searchBarState,
-                        title = "Search Icons",
-                        onChangeLabel = onSearchIconPackInfoComponent,
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
                     LazyVerticalGrid(
                         modifier = Modifier.weight(
                             weight = 1f,

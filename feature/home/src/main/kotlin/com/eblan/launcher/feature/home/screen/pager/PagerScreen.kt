@@ -18,7 +18,6 @@
 package com.eblan.launcher.feature.home.screen.pager
 
 import android.content.Intent
-import android.graphics.Rect
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -69,7 +68,6 @@ import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GetEblanApplicationInfos
-import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.ManagedProfileResult
@@ -251,7 +249,7 @@ internal fun SharedTransitionScope.PagerScreen(
             gestureSettings = gestureSettings,
             launcherApps = launcherApps,
             context = context,
-            onShowAppDrawer = {
+            onOpenAppDrawer = {
                 showAppDrawer = true
             },
         )
@@ -283,21 +281,8 @@ internal fun SharedTransitionScope.PagerScreen(
 
                 handleEblanActionIntent(
                     intent = intent,
-                    onStartMainActivity = { componentName ->
-                        launcherApps.startMainActivity(
-                            componentName = componentName,
-                            sourceBounds = Rect(),
-                        )
-                    },
-                    onPerformGlobalAction = { globalAction ->
-                        val intent =
-                            Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
-                                GlobalAction.GLOBAL_ACTION_TYPE,
-                                globalAction.name,
-                            )
-
-                        context.sendBroadcast(intent)
-                    },
+                    launcherApps = launcherApps,
+                    context = context,
                     onOpenAppDrawer = {
                         showAppDrawer = true
                     },
@@ -355,20 +340,8 @@ internal fun SharedTransitionScope.PagerScreen(
                             swipeUpY = swipeUpY.value,
                             swipeDownY = swipeDownY.value,
                             screenHeight = screenHeight,
-                            onStartMainActivity = { componentName ->
-                                launcherApps.startMainActivity(
-                                    componentName = componentName,
-                                    sourceBounds = Rect(),
-                                )
-                            },
-                            onPerformGlobalAction = { globalAction ->
-                                val intent = Intent(GlobalAction.NAME).putExtra(
-                                    GlobalAction.GLOBAL_ACTION_TYPE,
-                                    globalAction.name,
-                                ).setPackage(context.packageName)
-
-                                context.sendBroadcast(intent)
-                            },
+                            launcherApps = launcherApps,
+                            context = context,
                         )
 
                         scope.launch {
@@ -622,6 +595,8 @@ internal fun SharedTransitionScope.PagerScreen(
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {
                 eblanApplicationInfoGroup = null
+
+                isPressHome = false
             },
             onDraggingGridItem = onDraggingGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,

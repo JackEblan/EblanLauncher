@@ -36,6 +36,5 @@ interface AndroidNotificationManagerWrapper {
         const val CHANNEL_ID = "Eblan Launcher"
         const val ICON_PACK_INFO_SERVICE_NOTIFICATION_ID = 1
         const val CRASH_NOTIFICATION_ID = 2
-        const val GRID_ITEMS_SYNC_NOTIFICATION_ID = 2
     }
 }

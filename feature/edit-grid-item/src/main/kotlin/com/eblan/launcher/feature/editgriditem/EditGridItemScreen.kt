@@ -49,8 +49,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemAction
-import com.eblan.launcher.domain.model.GridItemActionType
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
@@ -730,34 +728,6 @@ private fun EditShortcutConfig(
     }
 }
 
-private fun getGridItem(gridItem: GridItem, customIcon: String?): GridItem = when (val data = gridItem.data) {
-    is GridItemData.ApplicationInfo -> {
-        val newData = data.copy(customIcon = customIcon)
-
-        gridItem.copy(data = newData)
-    }
-
-    is GridItemData.Folder -> {
-        val newData = data.copy(icon = customIcon)
-
-        gridItem.copy(data = newData)
-    }
-
-    is GridItemData.ShortcutConfig -> {
-        val newData = data.copy(customIcon = customIcon)
-
-        gridItem.copy(data = newData)
-    }
-
-    is GridItemData.ShortcutInfo -> {
-        val newData = data.copy(customIcon = customIcon)
-
-        gridItem.copy(data = newData)
-    }
-
-    else -> gridItem
-}
-
 @Composable
 private fun GridItemActionSettings(
     modifier: Modifier = Modifier,
@@ -798,7 +768,9 @@ private fun GridItemActionSettings(
 
             SettingsColumn(
                 title = "Double Tap",
-                subtitle = gridItem.doubleTap.getGridItemActionSubtitle(),
+                subtitle = gridItem.doubleTap.gridItemActionType.getGridItemActionSubtitle(
+                    componentName = gridItem.doubleTap.componentName,
+                ),
                 onClick = {
                     showDoubleTapDialog = true
                 },
@@ -808,7 +780,9 @@ private fun GridItemActionSettings(
 
             SettingsColumn(
                 title = "Swipe Up",
-                subtitle = gridItem.swipeUp.getGridItemActionSubtitle(),
+                subtitle = gridItem.swipeUp.gridItemActionType.getGridItemActionSubtitle(
+                    componentName = gridItem.swipeUp.componentName,
+                ),
                 onClick = {
                     showSwipeUpDialog = true
                 },
@@ -818,7 +792,9 @@ private fun GridItemActionSettings(
 
             SettingsColumn(
                 title = "Swipe Down",
-                subtitle = gridItem.swipeDown.getGridItemActionSubtitle(),
+                subtitle = gridItem.swipeDown.gridItemActionType.getGridItemActionSubtitle(
+                    componentName = gridItem.swipeDown.componentName,
+                ),
                 onClick = {
                     showSwipeDownDialog = true
                 },
@@ -835,7 +811,7 @@ private fun GridItemActionSettings(
                 onUpdateGridItem(gridItem.copy(doubleTap = doubleTap))
             },
             onDismissRequest = {
-                showSwipeUpDialog = false
+                showDoubleTapDialog = false
             },
         )
     }
@@ -863,18 +839,8 @@ private fun GridItemActionSettings(
                 onUpdateGridItem(gridItem.copy(swipeDown = swipeDown))
             },
             onDismissRequest = {
-                showSwipeUpDialog = false
+                showSwipeDownDialog = false
             },
         )
     }
-}
-
-internal fun GridItemAction.getGridItemActionSubtitle() = when (this.gridItemActionType) {
-    GridItemActionType.None -> "None"
-    GridItemActionType.OpenAppDrawer -> "Open app drawer"
-    GridItemActionType.OpenNotificationPanel -> "Open notification panel"
-    GridItemActionType.OpenApp -> "Open $componentName"
-    GridItemActionType.LockScreen -> "Lock screen"
-    GridItemActionType.OpenQuickSettings -> "Open quick settings"
-    GridItemActionType.OpenRecents -> "Open recents"
 }

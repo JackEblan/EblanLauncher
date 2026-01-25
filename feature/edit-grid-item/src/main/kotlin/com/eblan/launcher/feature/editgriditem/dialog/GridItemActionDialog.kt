@@ -33,7 +33,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,46 +57,11 @@ internal fun GridItemActionDialog(
     onUpdateGridItemAction: (GridItemAction) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    var selectedGridItemAction by remember { mutableStateOf(gridItemAction) }
+    var selectedGridItemActionType by remember { mutableStateOf(gridItemAction.gridItemActionType) }
+
+    var componentName by remember { mutableStateOf(gridItemAction.componentName) }
 
     var showSelectApplicationDialog by remember { mutableStateOf(false) }
-
-    val gridItemActions by remember {
-        derivedStateOf {
-            listOf(
-                GridItemAction(
-                    gridItemActionType = GridItemActionType.None,
-                    componentName = "",
-                ),
-                GridItemAction(
-                    gridItemActionType = GridItemActionType.OpenAppDrawer,
-                    componentName = "",
-                ),
-                GridItemAction(
-                    gridItemActionType = GridItemActionType.OpenNotificationPanel,
-                    componentName = "",
-                ),
-                GridItemAction(
-                    gridItemActionType = GridItemActionType.OpenApp,
-                    componentName = selectedGridItemAction.componentName.ifBlank {
-                        "app"
-                    },
-                ),
-                GridItemAction(
-                    gridItemActionType = GridItemActionType.LockScreen,
-                    componentName = "",
-                ),
-                GridItemAction(
-                    gridItemActionType = GridItemActionType.OpenQuickSettings,
-                    componentName = "",
-                ),
-                GridItemAction(
-                    gridItemActionType = GridItemActionType.OpenRecents,
-                    componentName = "",
-                ),
-            )
-        }
-    }
 
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(
@@ -118,16 +82,16 @@ internal fun GridItemActionDialog(
                     .selectableGroup()
                     .fillMaxWidth(),
             ) {
-                gridItemActions.forEach { currentGridItemAction ->
+                GridItemActionType.entries.forEach { gridItemActionType ->
                     EblanRadioButton(
-                        text = currentGridItemAction.getGridItemActionSubtitle(),
-                        selected = selectedGridItemAction == currentGridItemAction,
+                        text = gridItemActionType.getGridItemActionSubtitle(componentName = componentName),
+                        selected = selectedGridItemActionType == gridItemActionType,
                         onClick = {
-                            if (currentGridItemAction.gridItemActionType == GridItemActionType.OpenApp) {
+                            if (gridItemActionType == GridItemActionType.OpenApp) {
                                 showSelectApplicationDialog = true
                             }
 
-                            selectedGridItemAction = currentGridItemAction
+                            selectedGridItemActionType = gridItemActionType
                         },
                     )
                 }
@@ -152,7 +116,12 @@ internal fun GridItemActionDialog(
 
                 TextButton(
                     onClick = {
-                        onUpdateGridItemAction(selectedGridItemAction)
+                        onUpdateGridItemAction(
+                            GridItemAction(
+                                gridItemActionType = selectedGridItemActionType,
+                                componentName = componentName,
+                            ),
+                        )
 
                         onDismissRequest()
                     },
@@ -167,18 +136,10 @@ internal fun GridItemActionDialog(
         SelectApplicationDialog(
             eblanApplicationInfos = eblanApplicationInfos,
             onDismissRequest = {
-                selectedGridItemAction = GridItemAction(
-                    gridItemActionType = GridItemActionType.None,
-                    componentName = "app",
-                )
-
                 showSelectApplicationDialog = false
             },
-            onSelectComponentName = { componentName ->
-                selectedGridItemAction = GridItemAction(
-                    gridItemActionType = GridItemActionType.OpenApp,
-                    componentName = componentName,
-                )
+            onSelectComponentName = { newComponentName ->
+                componentName = newComponentName
 
                 showSelectApplicationDialog = false
             },

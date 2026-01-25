@@ -63,12 +63,10 @@ internal class EblanAccessibilityService : AccessibilityService() {
     }
 
     override fun onServiceConnected() {
-        val intentFilter = IntentFilter(GlobalAction.NAME)
-
         ContextCompat.registerReceiver(
-            applicationContext,
+            this,
             globalActionBroadcastReceiver,
-            intentFilter,
+            IntentFilter(GlobalAction.NAME),
             ContextCompat.RECEIVER_NOT_EXPORTED,
         )
     }

@@ -42,4 +42,4 @@ internal const val KUSTOM_ACTION_VAR_VALUE = "org.kustom.action.VAR_VALUE"
 
 internal const val PAGE_INDICATOR_HEIGHT = 30
 internal const val EDGE_DISTANCE = 15
-internal const val DRAG_HANDLE_SIZE = 15
+internal const val DRAG_HANDLE_SIZE = 30

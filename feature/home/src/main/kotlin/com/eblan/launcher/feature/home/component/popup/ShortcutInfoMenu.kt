@@ -50,10 +50,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemAction
-import com.eblan.launcher.domain.model.GridItemActionType
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
@@ -217,16 +217,16 @@ private fun ShortcutInfoMenuItem(
                                                 associate = Associate.Grid,
                                                 override = false,
                                                 gridItemSettings = gridItemSettings,
-                                                doubleTap = GridItemAction(
-                                                    gridItemActionType = GridItemActionType.None,
+                                                doubleTap = EblanAction(
+                                                    eblanActionType = EblanActionType.None,
                                                     componentName = "",
                                                 ),
-                                                swipeUp = GridItemAction(
-                                                    gridItemActionType = GridItemActionType.None,
+                                                swipeUp = EblanAction(
+                                                    eblanActionType = EblanActionType.None,
                                                     componentName = "",
                                                 ),
-                                                swipeDown = GridItemAction(
-                                                    gridItemActionType = GridItemActionType.None,
+                                                swipeDown = EblanAction(
+                                                    eblanActionType = EblanActionType.None,
                                                     componentName = "",
                                                 ),
                                             ),

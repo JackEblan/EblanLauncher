@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutConfig
@@ -197,9 +198,9 @@ internal fun SharedTransitionScope.PagerScreen(
 
     val swipeY by remember {
         derivedStateOf {
-            if (swipeUpY.value < screenHeight.toFloat() && gestureSettings.swipeUp is EblanAction.OpenAppDrawer) {
+            if (swipeUpY.value < screenHeight.toFloat() && gestureSettings.swipeUp.eblanActionType == EblanActionType.OpenAppDrawer) {
                 swipeUpY
-            } else if (swipeDownY.value < screenHeight.toFloat() && gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
+            } else if (swipeDownY.value < screenHeight.toFloat() && gestureSettings.swipeDown.eblanActionType == EblanActionType.OpenAppDrawer) {
                 swipeDownY
             } else {
                 Animatable(screenHeight.toFloat())
@@ -407,7 +408,7 @@ internal fun SharedTransitionScope.PagerScreen(
         },
     )
 
-    if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
+    if (gestureSettings.swipeUp.eblanActionType == EblanActionType.OpenAppDrawer || gestureSettings.swipeDown.eblanActionType == EblanActionType.OpenAppDrawer) {
         ApplicationScreen(
             currentPage = currentPage,
             swipeY = swipeY.value,

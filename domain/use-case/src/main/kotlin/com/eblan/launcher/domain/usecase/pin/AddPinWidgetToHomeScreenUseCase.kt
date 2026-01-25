@@ -25,9 +25,9 @@ import com.eblan.launcher.domain.grid.findAvailableRegionByPage
 import com.eblan.launcher.domain.grid.getWidgetGridItemSize
 import com.eblan.launcher.domain.grid.getWidgetGridItemSpan
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemAction
-import com.eblan.launcher.domain.model.GridItemActionType
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
@@ -163,16 +163,16 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             associate = Associate.Grid,
             override = false,
             gridItemSettings = homeSettings.gridItemSettings,
-            doubleTap = GridItemAction(
-                gridItemActionType = GridItemActionType.None,
+            doubleTap = EblanAction(
+                eblanActionType = EblanActionType.None,
                 componentName = "",
             ),
-            swipeUp = GridItemAction(
-                gridItemActionType = GridItemActionType.None,
+            swipeUp = EblanAction(
+                eblanActionType = EblanActionType.None,
                 componentName = "",
             ),
-            swipeDown = GridItemAction(
-                gridItemActionType = GridItemActionType.None,
+            swipeDown = EblanAction(
+                eblanActionType = EblanActionType.None,
                 componentName = "",
             ),
         )

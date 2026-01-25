@@ -32,6 +32,7 @@ import com.eblan.launcher.data.datastore.proto.home.HorizontalAlignmentProto
 import com.eblan.launcher.data.datastore.proto.home.TextColorProto
 import com.eblan.launcher.data.datastore.proto.home.VerticalArrangementProto
 import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.Theme
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
@@ -78,9 +79,20 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
     }.build()
 
     private val defaultGestureSettingsProto = GestureSettingsProto.newBuilder().apply {
-        doubleTapProto = EblanAction.None.toEblanActionProto()
-        swipeUpProto = EblanAction.OpenAppDrawer.toEblanActionProto()
-        swipeDownProto = EblanAction.None.toEblanActionProto()
+        doubleTapProto = EblanAction(
+            eblanActionType = EblanActionType.None,
+            componentName = "",
+        ).toEblanActionProto()
+
+        swipeUpProto = EblanAction(
+            eblanActionType = EblanActionType.OpenAppDrawer,
+            componentName = "",
+        ).toEblanActionProto()
+
+        swipeDownProto = EblanAction(
+            eblanActionType = EblanActionType.None,
+            componentName = "",
+        ).toEblanActionProto()
     }.build()
 
     private val defaultExperimentalSettings = ExperimentalSettingsProto.newBuilder().apply {

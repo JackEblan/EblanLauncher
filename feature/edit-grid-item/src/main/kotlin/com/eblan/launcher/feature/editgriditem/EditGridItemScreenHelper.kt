@@ -18,8 +18,6 @@
 package com.eblan.launcher.feature.editgriditem
 
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemAction
-import com.eblan.launcher.domain.model.GridItemActionType
 import com.eblan.launcher.domain.model.GridItemData
 
 internal fun getGridItem(gridItem: GridItem, customIcon: String?): GridItem = when (val data = gridItem.data) {
@@ -48,14 +46,4 @@ internal fun getGridItem(gridItem: GridItem, customIcon: String?): GridItem = wh
     }
 
     else -> gridItem
-}
-
-internal fun GridItemActionType.getGridItemActionSubtitle(componentName: String) = when (this) {
-    GridItemActionType.None -> "None"
-    GridItemActionType.OpenAppDrawer -> "Open app drawer"
-    GridItemActionType.OpenNotificationPanel -> "Open notification panel"
-    GridItemActionType.OpenApp -> "Open $componentName"
-    GridItemActionType.LockScreen -> "Lock screen"
-    GridItemActionType.OpenQuickSettings -> "Open quick settings"
-    GridItemActionType.OpenRecents -> "Open recents"
 }

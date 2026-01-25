@@ -46,6 +46,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.feature.action.model.ActionUiState
 import com.eblan.launcher.ui.dialog.SelectApplicationDialog
@@ -133,32 +134,25 @@ private fun Success(
 
     var showSelectApplicationDialog by remember { mutableStateOf(false) }
 
-    val eblanActions = listOf(
-        R.drawable.adb_24px to EblanAction.None,
-        R.drawable.outline_apps_24 to EblanAction.OpenAppDrawer,
-        R.drawable.notification_settings_24px to EblanAction.OpenNotificationPanel,
-        R.drawable.adb_24px to EblanAction.OpenApp(componentName = ""),
-        R.drawable.lock_24px to EblanAction.LockScreen,
-        R.drawable.settings_24px to EblanAction.OpenQuickSettings,
-        R.drawable.preview_24px to EblanAction.OpenRecents,
-    )
-
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
             .fillMaxSize(),
     ) {
-        eblanActions.forEach { (resId, eblanAction) ->
+        EblanActionType.entries.forEach { eblanActionType ->
             ListItem(
                 modifier = Modifier
                     .clickable {
                         scope.launch {
-                            if (eblanAction is EblanAction.OpenApp) {
+                            if (eblanActionType == EblanActionType.OpenApp) {
                                 showSelectApplicationDialog = true
                             } else {
                                 onUpdateEblanAction(
-                                    resId,
-                                    eblanAction,
+                                    eblanActionType.getResId(),
+                                    EblanAction(
+                                        eblanActionType = eblanActionType,
+                                        componentName = "",
+                                    ),
                                 )
                             }
                         }
@@ -166,11 +160,11 @@ private fun Success(
                     .fillMaxWidth()
                     .padding(10.dp),
                 headlineContent = {
-                    Text(text = eblanAction.getEblanActionSubtitle())
+                    Text(text = eblanActionType.name)
                 },
                 leadingContent = {
                     Icon(
-                        imageVector = ImageVector.vectorResource(resId),
+                        imageVector = ImageVector.vectorResource(eblanActionType.getResId()),
                         contentDescription = null,
                     )
                 },
@@ -190,7 +184,10 @@ private fun Success(
                 scope.launch {
                     onUpdateEblanAction(
                         R.drawable.adb_24px,
-                        EblanAction.OpenApp(componentName = componentName),
+                        EblanAction(
+                            eblanActionType = EblanActionType.OpenApp,
+                            componentName = componentName,
+                        ),
                     )
                 }
             },
@@ -198,12 +195,12 @@ private fun Success(
     }
 }
 
-private fun EblanAction.getEblanActionSubtitle(): String = when (this) {
-    EblanAction.None -> "None"
-    is EblanAction.OpenApp -> "Open app"
-    EblanAction.OpenAppDrawer -> "Open app drawer"
-    EblanAction.OpenNotificationPanel -> "Open notification panel"
-    EblanAction.LockScreen -> "Lock screen"
-    EblanAction.OpenQuickSettings -> "Open quick settings"
-    EblanAction.OpenRecents -> "Open recents"
+private fun EblanActionType.getResId() = when (this) {
+    EblanActionType.None -> R.drawable.adb_24px
+    EblanActionType.OpenApp -> R.drawable.adb_24px
+    EblanActionType.OpenAppDrawer -> R.drawable.outline_apps_24
+    EblanActionType.OpenNotificationPanel -> R.drawable.notification_settings_24px
+    EblanActionType.LockScreen -> R.drawable.lock_24px
+    EblanActionType.OpenQuickSettings -> R.drawable.settings_24px
+    EblanActionType.OpenRecents -> R.drawable.preview_24px
 }

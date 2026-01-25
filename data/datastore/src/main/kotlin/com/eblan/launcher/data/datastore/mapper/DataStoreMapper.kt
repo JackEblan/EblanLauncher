@@ -22,14 +22,8 @@ import com.eblan.launcher.data.datastore.proto.experimental.ExperimentalSettings
 import com.eblan.launcher.data.datastore.proto.general.GeneralSettingsProto
 import com.eblan.launcher.data.datastore.proto.general.ThemeProto
 import com.eblan.launcher.data.datastore.proto.gesture.EblanActionProto
+import com.eblan.launcher.data.datastore.proto.gesture.EblanActionTypeProto
 import com.eblan.launcher.data.datastore.proto.gesture.GestureSettingsProto
-import com.eblan.launcher.data.datastore.proto.gesture.LockScreenProto
-import com.eblan.launcher.data.datastore.proto.gesture.NoneProto
-import com.eblan.launcher.data.datastore.proto.gesture.OpenAppDrawerProto
-import com.eblan.launcher.data.datastore.proto.gesture.OpenAppProto
-import com.eblan.launcher.data.datastore.proto.gesture.OpenNotificationPanelProto
-import com.eblan.launcher.data.datastore.proto.gesture.OpenQuickSettingsProto
-import com.eblan.launcher.data.datastore.proto.gesture.OpenRecentsProto
 import com.eblan.launcher.data.datastore.proto.home.GridItemSettingsProto
 import com.eblan.launcher.data.datastore.proto.home.HomeSettingsProto
 import com.eblan.launcher.data.datastore.proto.home.HorizontalAlignmentProto
@@ -37,13 +31,7 @@ import com.eblan.launcher.data.datastore.proto.home.TextColorProto
 import com.eblan.launcher.data.datastore.proto.home.VerticalArrangementProto
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAction
-import com.eblan.launcher.domain.model.EblanAction.LockScreen
-import com.eblan.launcher.domain.model.EblanAction.None
-import com.eblan.launcher.domain.model.EblanAction.OpenApp
-import com.eblan.launcher.domain.model.EblanAction.OpenAppDrawer
-import com.eblan.launcher.domain.model.EblanAction.OpenNotificationPanel
-import com.eblan.launcher.domain.model.EblanAction.OpenQuickSettings
-import com.eblan.launcher.domain.model.EblanAction.OpenRecents
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GeneralSettings
 import com.eblan.launcher.domain.model.GestureSettings
@@ -128,35 +116,10 @@ internal fun VerticalArrangementProto.toVerticalArrangement(): VerticalArrangeme
     VerticalArrangementProto.Bottom -> VerticalArrangement.Bottom
 }
 
-internal fun EblanAction.toEblanActionProto(): EblanActionProto = when (this) {
-    None -> EblanActionProto.newBuilder()
-        .setNoneProto(NoneProto.getDefaultInstance())
-        .build()
-
-    is OpenAppDrawer -> EblanActionProto.newBuilder()
-        .setOpenAppDrawerProto(OpenAppDrawerProto.getDefaultInstance())
-        .build()
-
-    is OpenNotificationPanel -> EblanActionProto.newBuilder()
-        .setOpenNotificationPanelProto(OpenNotificationPanelProto.getDefaultInstance())
-        .build()
-
-    is OpenApp -> EblanActionProto.newBuilder()
-        .setOpenAppProto(OpenAppProto.newBuilder().setComponentName(componentName))
-        .build()
-
-    LockScreen -> EblanActionProto.newBuilder()
-        .setLockScreenProto(LockScreenProto.getDefaultInstance())
-        .build()
-
-    OpenQuickSettings -> EblanActionProto.newBuilder()
-        .setOpenQuickSettingsProto(OpenQuickSettingsProto.getDefaultInstance())
-        .build()
-
-    OpenRecents -> EblanActionProto.newBuilder()
-        .setOpenRecentsProto(OpenRecentsProto.getDefaultInstance())
-        .build()
-}
+internal fun EblanAction.toEblanActionProto(): EblanActionProto = EblanActionProto.newBuilder()
+    .setEblanActionTypeProto(eblanActionType.toEblanActionTypeProto())
+    .setComponentName(componentName)
+    .build()
 
 internal fun GestureSettingsProto.toGestureSettings(): GestureSettings = GestureSettings(
     doubleTap = doubleTapProto.toEblanAction(),
@@ -164,25 +127,30 @@ internal fun GestureSettingsProto.toGestureSettings(): GestureSettings = Gesture
     swipeDown = swipeDownProto.toEblanAction(),
 )
 
-internal fun EblanActionProto.toEblanAction(): EblanAction = when (typeCase) {
-    EblanActionProto.TypeCase.NONEPROTO -> None
-
-    EblanActionProto.TypeCase.OPENAPPDRAWERPROTO -> OpenAppDrawer
-
-    EblanActionProto.TypeCase.OPENNOTIFICATIONPANELPROTO -> OpenNotificationPanel
-
-    EblanActionProto.TypeCase.OPENAPPPROTO ->
-        OpenApp(openAppProto.componentName)
-
-    EblanActionProto.TypeCase.LOCKSCREENPROTO -> LockScreen
-
-    EblanActionProto.TypeCase.OPENQUICKSETTINGSPROTO -> OpenQuickSettings
-
-    EblanActionProto.TypeCase.OPENRECENTSPROTO -> OpenRecents
-
-    EblanActionProto.TypeCase.TYPE_NOT_SET, null ->
-        error("EblanActionProto type not set")
+internal fun EblanActionType.toEblanActionTypeProto(): EblanActionTypeProto = when (this) {
+    EblanActionType.None -> EblanActionTypeProto.None
+    EblanActionType.OpenAppDrawer -> EblanActionTypeProto.OpenAppDrawer
+    EblanActionType.OpenNotificationPanel -> EblanActionTypeProto.OpenNotificationPanel
+    EblanActionType.OpenApp -> EblanActionTypeProto.OpenApp
+    EblanActionType.LockScreen -> EblanActionTypeProto.LockScreen
+    EblanActionType.OpenQuickSettings -> EblanActionTypeProto.OpenQuickSettings
+    EblanActionType.OpenRecents -> EblanActionTypeProto.OpenRecents
 }
+
+internal fun EblanActionTypeProto.toEblanActionType(): EblanActionType = when (this) {
+    EblanActionTypeProto.None, EblanActionTypeProto.UNRECOGNIZED -> EblanActionType.None
+    EblanActionTypeProto.OpenAppDrawer -> EblanActionType.OpenAppDrawer
+    EblanActionTypeProto.OpenNotificationPanel -> EblanActionType.OpenNotificationPanel
+    EblanActionTypeProto.OpenApp -> EblanActionType.OpenApp
+    EblanActionTypeProto.LockScreen -> EblanActionType.LockScreen
+    EblanActionTypeProto.OpenQuickSettings -> EblanActionType.OpenQuickSettings
+    EblanActionTypeProto.OpenRecents -> EblanActionType.OpenRecents
+}
+
+internal fun EblanActionProto.toEblanAction(): EblanAction = EblanAction(
+    eblanActionType = eblanActionTypeProto.toEblanActionType(),
+    componentName = componentName,
+)
 
 internal fun Theme.toThemeProto(): ThemeProto = when (this) {
     Theme.System -> ThemeProto.DarkThemeConfigSystem

@@ -4,35 +4,17 @@ option java_package = "com.eblan.launcher.data.datastore.proto.gesture";
 option java_multiple_files = true;
 
 message EblanActionProto {
-  oneof type {
-    NoneProto noneProto = 1;
+  EblanActionTypeProto eblanActionTypeProto = 1;
 
-    OpenAppDrawerProto openAppDrawerProto = 2;
-
-    OpenNotificationPanelProto openNotificationPanelProto = 3;
-
-    OpenAppProto openAppProto = 4;
-
-    LockScreenProto lockScreenProto = 5;
-
-    OpenQuickSettingsProto openQuickSettingsProto = 6;
-
-    OpenRecentsProto openRecentsProto = 7;
-  }
+  string componentName = 2;
 }
 
-message NoneProto {}
-
-message OpenAppDrawerProto {}
-
-message OpenNotificationPanelProto {}
-
-message OpenAppProto {
-  string componentName = 1;
+enum EblanActionTypeProto {
+  None = 0;
+  OpenAppDrawer = 1;
+  OpenNotificationPanel = 2;
+  OpenApp = 3;
+  LockScreen = 4;
+  OpenQuickSettings = 5;
+  OpenRecents = 6;
 }
-
-message LockScreenProto {}
-
-message OpenQuickSettingsProto {}
-
-message OpenRecentsProto {}

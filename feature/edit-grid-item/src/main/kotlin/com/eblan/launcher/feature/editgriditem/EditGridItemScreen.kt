@@ -17,8 +17,6 @@
  */
 package com.eblan.launcher.feature.editgriditem
 
-import android.content.Intent
-import android.provider.Settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,7 +39,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -52,11 +49,11 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
-import com.eblan.launcher.feature.editgriditem.dialog.GridItemActionDialog
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.ui.dialog.IconPackInfoFilesDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
 import com.eblan.launcher.ui.edit.CustomIcon
+import com.eblan.launcher.ui.settings.EblanActionSettings
 import com.eblan.launcher.ui.settings.GridItemSettings
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
@@ -73,11 +70,14 @@ internal fun EditGridItemRoute(
 
     val iconPackInfoComponents by viewModel.iconPackInfoComponents.collectAsStateWithLifecycle()
 
+    val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
+
     EditGridItemScreen(
         modifier = modifier,
         editGridItemUiState = editUiState,
         packageManagerIconPackInfos = packageManagerIconPackInfos,
         iconPackInfoComponents = iconPackInfoComponents,
+        eblanApplicationInfos = eblanApplicationInfos,
         onNavigateUp = onNavigateUp,
         onUpdateGridItem = viewModel::updateGridItem,
         onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
@@ -94,6 +94,7 @@ internal fun EditGridItemScreen(
     editGridItemUiState: EditGridItemUiState,
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
     onNavigateUp: () -> Unit,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
@@ -149,10 +150,10 @@ internal fun EditGridItemScreen(
                     .padding(paddingValues),
             ) {
                 Success(
-                    modifier = modifier,
                     gridItem = editGridItemUiState.gridItem,
                     packageManagerIconPackInfos = packageManagerIconPackInfos,
                     iconPackInfoComponents = iconPackInfoComponents,
+                    eblanApplicationInfos = eblanApplicationInfos,
                     onUpdateGridItem = onUpdateGridItem,
                     onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                     onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
@@ -169,6 +170,7 @@ private fun Success(
     gridItem: GridItem,
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
@@ -261,10 +263,26 @@ private fun Success(
             )
         }
 
-        GridItemActionSettings(
-            gridItem = gridItem,
-            eblanApplicationInfos = emptyList(),
-            onUpdateGridItem = onUpdateGridItem,
+        Text(
+            modifier = Modifier.padding(15.dp),
+            text = "Grid Item Actions",
+            style = MaterialTheme.typography.bodySmall,
+        )
+
+        EblanActionSettings(
+            doubleTap = gridItem.doubleTap,
+            swipeUp = gridItem.swipeUp,
+            swipeDown = gridItem.swipeDown,
+            eblanApplicationInfos = eblanApplicationInfos,
+            onUpdateDoubleTap = { doubleTap ->
+                onUpdateGridItem(gridItem.copy(doubleTap = doubleTap))
+            },
+            onUpdateSwipeUp = { swipeUp ->
+                onUpdateGridItem(gridItem.copy(swipeUp = swipeUp))
+            },
+            onUpdateSwipeDown = { swipeDown ->
+                onUpdateGridItem(gridItem.copy(swipeDown = swipeDown))
+            },
         )
     }
 }
@@ -723,123 +741,6 @@ private fun EditShortcutConfig(
                 } else {
                     isError = true
                 }
-            },
-        )
-    }
-}
-
-@Composable
-private fun GridItemActionSettings(
-    modifier: Modifier = Modifier,
-    gridItem: GridItem,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
-    onUpdateGridItem: (GridItem) -> Unit,
-) {
-    val context = LocalContext.current
-
-    var showDoubleTapDialog by remember { mutableStateOf(false) }
-
-    var showSwipeUpDialog by remember { mutableStateOf(false) }
-
-    var showSwipeDownDialog by remember { mutableStateOf(false) }
-
-    Column(modifier = modifier) {
-        Text(
-            modifier = Modifier.padding(15.dp),
-            text = "Grid Item Action",
-            style = MaterialTheme.typography.bodySmall,
-        )
-
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 15.dp),
-        ) {
-            SettingsColumn(
-                title = "Accessibility Services",
-                subtitle = "Perform global actions",
-                onClick = {
-                    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                    context.startActivity(intent)
-                },
-            )
-
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-            SettingsColumn(
-                title = "Double Tap",
-                subtitle = gridItem.doubleTap.gridItemActionType.getGridItemActionSubtitle(
-                    componentName = gridItem.doubleTap.componentName,
-                ),
-                onClick = {
-                    showDoubleTapDialog = true
-                },
-            )
-
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-            SettingsColumn(
-                title = "Swipe Up",
-                subtitle = gridItem.swipeUp.gridItemActionType.getGridItemActionSubtitle(
-                    componentName = gridItem.swipeUp.componentName,
-                ),
-                onClick = {
-                    showSwipeUpDialog = true
-                },
-            )
-
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-            SettingsColumn(
-                title = "Swipe Down",
-                subtitle = gridItem.swipeDown.gridItemActionType.getGridItemActionSubtitle(
-                    componentName = gridItem.swipeDown.componentName,
-                ),
-                onClick = {
-                    showSwipeDownDialog = true
-                },
-            )
-        }
-    }
-
-    if (showDoubleTapDialog) {
-        GridItemActionDialog(
-            title = "Double Tap",
-            gridItemAction = gridItem.doubleTap,
-            eblanApplicationInfos = eblanApplicationInfos,
-            onUpdateGridItemAction = { doubleTap ->
-                onUpdateGridItem(gridItem.copy(doubleTap = doubleTap))
-            },
-            onDismissRequest = {
-                showDoubleTapDialog = false
-            },
-        )
-    }
-
-    if (showSwipeUpDialog) {
-        GridItemActionDialog(
-            title = "Swipe Up",
-            gridItemAction = gridItem.swipeUp,
-            eblanApplicationInfos = eblanApplicationInfos,
-            onUpdateGridItemAction = { swipeUp ->
-                onUpdateGridItem(gridItem.copy(swipeUp = swipeUp))
-            },
-            onDismissRequest = {
-                showSwipeUpDialog = false
-            },
-        )
-    }
-
-    if (showSwipeDownDialog) {
-        GridItemActionDialog(
-            title = "Swipe Down",
-            gridItemAction = gridItem.swipeDown,
-            eblanApplicationInfos = eblanApplicationInfos,
-            onUpdateGridItemAction = { swipeDown ->
-                onUpdateGridItem(gridItem.copy(swipeDown = swipeDown))
-            },
-            onDismissRequest = {
-                showSwipeDownDialog = false
             },
         )
     }

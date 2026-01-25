@@ -28,6 +28,7 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
+import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
@@ -52,6 +53,7 @@ internal class EditGridItemViewModel @Inject constructor(
     private val iconPackManager: IconPackManager,
     packageManagerWrapper: PackageManagerWrapper,
     private val gridRepository: GridRepository,
+    eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val editGridItemRouteData = savedStateHandle.toRoute<EditGridItemRouteData>()
@@ -75,6 +77,12 @@ internal class EditGridItemViewModel @Inject constructor(
             packageManagerWrapper.getIconPackInfos()
         }
     }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList(),
+    )
+
+    val eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = emptyList(),

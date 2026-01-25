@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.editgriditem.dialog
+package com.eblan.launcher.ui.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,25 +41,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 import com.eblan.launcher.designsystem.component.EblanRadioButton
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.domain.model.GridItemAction
-import com.eblan.launcher.domain.model.GridItemActionType
-import com.eblan.launcher.feature.editgriditem.getGridItemActionSubtitle
-import com.eblan.launcher.ui.dialog.SelectApplicationDialog
+import com.eblan.launcher.ui.settings.getEblanActionTypeSubtitle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun GridItemActionDialog(
+internal fun EblanActionDialog(
     modifier: Modifier = Modifier,
     title: String,
-    gridItemAction: GridItemAction,
+    eblanAction: EblanAction,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    onUpdateGridItemAction: (GridItemAction) -> Unit,
+    onUpdateEblanAction: (EblanAction) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    var selectedGridItemActionType by remember { mutableStateOf(gridItemAction.gridItemActionType) }
-
-    var componentName by remember { mutableStateOf(gridItemAction.componentName) }
+    var selectedEblanAction by remember { mutableStateOf(eblanAction) }
 
     var showSelectApplicationDialog by remember { mutableStateOf(false) }
 
@@ -82,16 +79,19 @@ internal fun GridItemActionDialog(
                     .selectableGroup()
                     .fillMaxWidth(),
             ) {
-                GridItemActionType.entries.forEach { gridItemActionType ->
+                EblanActionType.entries.forEach { eblanActionType ->
                     EblanRadioButton(
-                        text = gridItemActionType.getGridItemActionSubtitle(componentName = componentName),
-                        selected = selectedGridItemActionType == gridItemActionType,
+                        text = eblanActionType.getEblanActionTypeSubtitle(componentName = selectedEblanAction.componentName),
+                        selected = selectedEblanAction.eblanActionType == eblanActionType,
                         onClick = {
-                            if (gridItemActionType == GridItemActionType.OpenApp) {
+                            if (eblanActionType == EblanActionType.OpenApp) {
                                 showSelectApplicationDialog = true
+                            } else {
+                                selectedEblanAction = EblanAction(
+                                    eblanActionType = eblanActionType,
+                                    componentName = "",
+                                )
                             }
-
-                            selectedGridItemActionType = gridItemActionType
                         },
                     )
                 }
@@ -116,12 +116,7 @@ internal fun GridItemActionDialog(
 
                 TextButton(
                     onClick = {
-                        onUpdateGridItemAction(
-                            GridItemAction(
-                                gridItemActionType = selectedGridItemActionType,
-                                componentName = componentName,
-                            ),
-                        )
+                        onUpdateEblanAction(selectedEblanAction)
 
                         onDismissRequest()
                     },
@@ -136,10 +131,18 @@ internal fun GridItemActionDialog(
         SelectApplicationDialog(
             eblanApplicationInfos = eblanApplicationInfos,
             onDismissRequest = {
+                selectedEblanAction = EblanAction(
+                    eblanActionType = EblanActionType.None,
+                    componentName = "",
+                )
+
                 showSelectApplicationDialog = false
             },
-            onSelectComponentName = { newComponentName ->
-                componentName = newComponentName
+            onSelectComponentName = { componentName ->
+                selectedEblanAction = EblanAction(
+                    eblanActionType = EblanActionType.OpenApp,
+                    componentName = componentName,
+                )
 
                 showSelectApplicationDialog = false
             },

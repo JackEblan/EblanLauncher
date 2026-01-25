@@ -27,6 +27,8 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
@@ -34,8 +36,6 @@ import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.FastAppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.FastLauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.FastLauncherAppsShortcutInfo
-import com.eblan.launcher.domain.model.GridItemAction
-import com.eblan.launcher.domain.model.GridItemActionType
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
@@ -381,16 +381,16 @@ class SyncDataUseCase @Inject constructor(
                     customIcon = null,
                     customLabel = null,
                     gridItemSettings = homeSettings.gridItemSettings,
-                    doubleTap = GridItemAction(
-                        gridItemActionType = GridItemActionType.None,
+                    doubleTap = EblanAction(
+                        eblanActionType = EblanActionType.None,
                         componentName = "",
                     ),
-                    swipeUp = GridItemAction(
-                        gridItemActionType = GridItemActionType.None,
+                    swipeUp = EblanAction(
+                        eblanActionType = EblanActionType.None,
                         componentName = "",
                     ),
-                    swipeDown = GridItemAction(
-                        gridItemActionType = GridItemActionType.None,
+                    swipeDown = EblanAction(
+                        eblanActionType = EblanActionType.None,
                         componentName = "",
                     ),
                 ),

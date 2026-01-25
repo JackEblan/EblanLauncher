@@ -21,7 +21,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.eblan.launcher.domain.model.Associate
-import com.eblan.launcher.domain.model.GridItemAction
+import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.GridItemSettings
 
 @Entity
@@ -47,7 +47,7 @@ data class ShortcutInfoGridItemEntity(
     val customIcon: String?,
     val customShortLabel: String?,
     @Embedded val gridItemSettings: GridItemSettings,
-    @Embedded(prefix = "doubleTap") val doubleTap: GridItemAction,
-    @Embedded(prefix = "swipeUp") val swipeUp: GridItemAction,
-    @Embedded(prefix = "swipeDown") val swipeDown: GridItemAction,
+    @Embedded(prefix = "doubleTap") val doubleTap: EblanAction,
+    @Embedded(prefix = "swipeUp") val swipeUp: EblanAction,
+    @Embedded(prefix = "swipeDown") val swipeDown: EblanAction,
 )

@@ -17,34 +17,23 @@
  */
 package com.eblan.launcher.domain.model
 
-import kotlinx.serialization.Serializable
-
-@Serializable
-sealed interface EblanAction {
-    @Serializable
-    data object None : EblanAction
-
-    @Serializable
-    data object OpenAppDrawer : EblanAction
-
-    @Serializable
-    data object OpenNotificationPanel : EblanAction
-
-    @Serializable
-    data class OpenApp(val componentName: String) : EblanAction
-
-    @Serializable
-    data object LockScreen : EblanAction
-
-    @Serializable
-    data object OpenQuickSettings : EblanAction
-
-    @Serializable
-    data object OpenRecents : EblanAction
-
+data class EblanAction(
+    val eblanActionType: EblanActionType,
+    val componentName: String,
+) {
     companion object {
         const val ACTION = "com.eblan.launcher.EBLAN_ACTION"
 
         const val NAME = "EblanAction"
     }
+}
+
+enum class EblanActionType {
+    None,
+    OpenAppDrawer,
+    OpenNotificationPanel,
+    OpenApp,
+    LockScreen,
+    OpenQuickSettings,
+    OpenRecents,
 }

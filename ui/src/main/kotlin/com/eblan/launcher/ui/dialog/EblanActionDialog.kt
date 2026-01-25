@@ -131,11 +131,6 @@ internal fun EblanActionDialog(
         SelectApplicationDialog(
             eblanApplicationInfos = eblanApplicationInfos,
             onDismissRequest = {
-                selectedEblanAction = EblanAction(
-                    eblanActionType = EblanActionType.None,
-                    componentName = "",
-                )
-
                 showSelectApplicationDialog = false
             },
             onSelectComponentName = { componentName ->

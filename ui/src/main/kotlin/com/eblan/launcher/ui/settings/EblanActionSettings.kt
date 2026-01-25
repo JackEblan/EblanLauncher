@@ -83,7 +83,7 @@ fun EblanActionSettings(
 
         SettingsColumn(
             title = "Swipe Up",
-            subtitle = swipeUp.eblanActionType.getEblanActionTypeSubtitle(componentName = doubleTap.componentName),
+            subtitle = swipeUp.eblanActionType.getEblanActionTypeSubtitle(componentName = swipeUp.componentName),
             onClick = {
                 showSwipeUpDialog = true
             },
@@ -93,7 +93,7 @@ fun EblanActionSettings(
 
         SettingsColumn(
             title = "Swipe Down",
-            subtitle = swipeDown.eblanActionType.getEblanActionTypeSubtitle(componentName = doubleTap.componentName),
+            subtitle = swipeDown.eblanActionType.getEblanActionTypeSubtitle(componentName = swipeDown.componentName),
             onClick = {
                 showSwipeDownDialog = true
             },

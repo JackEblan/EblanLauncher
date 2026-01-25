@@ -28,16 +28,13 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-class UpdateIconPackInfoByPackageNameUseCase @Inject constructor(
+class UpdateIconPackInfoByComponentNameUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val iconPackManager: IconPackManager,
     private val userDataRepository: UserDataRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(
-        packageName: String,
-        componentName: String,
-    ) {
+    suspend operator fun invoke(componentName: String) {
         withContext(ioDispatcher) {
             val iconPackInfoPackageName =
                 userDataRepository.userData.first().generalSettings.iconPackInfoPackageName

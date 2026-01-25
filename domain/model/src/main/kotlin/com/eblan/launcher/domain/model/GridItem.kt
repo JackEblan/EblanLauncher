@@ -29,7 +29,9 @@ data class GridItem(
     val associate: Associate,
     val override: Boolean,
     val gridItemSettings: GridItemSettings,
-    val gridItemAction: GridItemAction,
+    val doubleTap: GridItemAction,
+    val swipeUp: GridItemAction,
+    val swipeDown: GridItemAction,
 )
 
 enum class Associate {

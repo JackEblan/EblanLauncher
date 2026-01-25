@@ -17,6 +17,8 @@
  */
 package com.eblan.launcher.feature.editgriditem
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -38,15 +41,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemAction
+import com.eblan.launcher.domain.model.GridItemActionType
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
+import com.eblan.launcher.feature.editgriditem.dialog.GridItemActionDialog
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.ui.dialog.IconPackInfoFilesDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
@@ -254,6 +262,12 @@ private fun Success(
                 },
             )
         }
+
+        GridItemActionSettings(
+            gridItem = gridItem,
+            eblanApplicationInfos = emptyList(),
+            onUpdateGridItem = onUpdateGridItem,
+        )
     }
 }
 
@@ -742,4 +756,125 @@ private fun getGridItem(gridItem: GridItem, customIcon: String?): GridItem = whe
     }
 
     else -> gridItem
+}
+
+@Composable
+private fun GridItemActionSettings(
+    modifier: Modifier = Modifier,
+    gridItem: GridItem,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
+    onUpdateGridItem: (GridItem) -> Unit,
+) {
+    val context = LocalContext.current
+
+    var showDoubleTapDialog by remember { mutableStateOf(false) }
+
+    var showSwipeUpDialog by remember { mutableStateOf(false) }
+
+    var showSwipeDownDialog by remember { mutableStateOf(false) }
+
+    Column(modifier = modifier) {
+        Text(
+            modifier = Modifier.padding(15.dp),
+            text = "Grid Item Action",
+            style = MaterialTheme.typography.bodySmall,
+        )
+
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 15.dp),
+        ) {
+            SettingsColumn(
+                title = "Accessibility Services",
+                subtitle = "Perform global actions",
+                onClick = {
+                    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    context.startActivity(intent)
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Double Tap",
+                subtitle = gridItem.doubleTap.getGridItemActionSubtitle(),
+                onClick = {
+                    showDoubleTapDialog = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Swipe Up",
+                subtitle = gridItem.swipeUp.getGridItemActionSubtitle(),
+                onClick = {
+                    showSwipeUpDialog = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Swipe Down",
+                subtitle = gridItem.swipeDown.getGridItemActionSubtitle(),
+                onClick = {
+                    showSwipeDownDialog = true
+                },
+            )
+        }
+    }
+
+    if (showDoubleTapDialog) {
+        GridItemActionDialog(
+            title = "Double Tap",
+            gridItemAction = gridItem.doubleTap,
+            eblanApplicationInfos = eblanApplicationInfos,
+            onUpdateGridItemAction = { doubleTap ->
+                onUpdateGridItem(gridItem.copy(doubleTap = doubleTap))
+            },
+            onDismissRequest = {
+                showSwipeUpDialog = false
+            },
+        )
+    }
+
+    if (showSwipeUpDialog) {
+        GridItemActionDialog(
+            title = "Swipe Up",
+            gridItemAction = gridItem.swipeUp,
+            eblanApplicationInfos = eblanApplicationInfos,
+            onUpdateGridItemAction = { swipeUp ->
+                onUpdateGridItem(gridItem.copy(swipeUp = swipeUp))
+            },
+            onDismissRequest = {
+                showSwipeUpDialog = false
+            },
+        )
+    }
+
+    if (showSwipeDownDialog) {
+        GridItemActionDialog(
+            title = "Swipe Down",
+            gridItemAction = gridItem.swipeDown,
+            eblanApplicationInfos = eblanApplicationInfos,
+            onUpdateGridItemAction = { swipeDown ->
+                onUpdateGridItem(gridItem.copy(swipeDown = swipeDown))
+            },
+            onDismissRequest = {
+                showSwipeUpDialog = false
+            },
+        )
+    }
+}
+
+internal fun GridItemAction.getGridItemActionSubtitle() = when (this.gridItemActionType) {
+    GridItemActionType.None -> "None"
+    GridItemActionType.OpenAppDrawer -> "Open app drawer"
+    GridItemActionType.OpenNotificationPanel -> "Open notification panel"
+    GridItemActionType.OpenApp -> "Open $componentName"
+    GridItemActionType.LockScreen -> "Lock screen"
+    GridItemActionType.OpenQuickSettings -> "Open quick settings"
+    GridItemActionType.OpenRecents -> "Open recents"
 }

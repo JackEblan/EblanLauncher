@@ -368,7 +368,15 @@ private fun PrivateSpaceEblanApplicationInfoItem(
                                         associate = Associate.Grid,
                                         override = false,
                                         gridItemSettings = appDrawerSettings.gridItemSettings,
-                                        gridItemAction = GridItemAction(
+                                        doubleTap = GridItemAction(
+                                            gridItemActionType = GridItemActionType.None,
+                                            componentName = "",
+                                        ),
+                                        swipeUp = GridItemAction(
+                                            gridItemActionType = GridItemActionType.None,
+                                            componentName = "",
+                                        ),
+                                        swipeDown = GridItemAction(
                                             gridItemActionType = GridItemActionType.None,
                                             componentName = "",
                                         ),

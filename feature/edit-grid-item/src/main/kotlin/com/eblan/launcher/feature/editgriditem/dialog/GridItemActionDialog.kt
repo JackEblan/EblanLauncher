@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.settings.gestures.dialog
+package com.eblan.launcher.feature.editgriditem.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,41 +42,59 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 import com.eblan.launcher.designsystem.component.EblanRadioButton
-import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.feature.settings.gestures.getEblanActionSubtitle
+import com.eblan.launcher.domain.model.GridItemAction
+import com.eblan.launcher.domain.model.GridItemActionType
+import com.eblan.launcher.feature.editgriditem.getGridItemActionSubtitle
 import com.eblan.launcher.ui.dialog.SelectApplicationDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun EblanActionDialog(
+internal fun GridItemActionDialog(
     modifier: Modifier = Modifier,
     title: String,
-    eblanAction: EblanAction,
+    gridItemAction: GridItemAction,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    onUpdateEblanAction: (EblanAction) -> Unit,
+    onUpdateGridItemAction: (GridItemAction) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    var selectedEblanAction by remember { mutableStateOf(eblanAction) }
+    var selectedGridItemAction by remember { mutableStateOf(gridItemAction) }
 
     var showSelectApplicationDialog by remember { mutableStateOf(false) }
 
-    val eblanActions by remember {
+    val gridItemActions by remember {
         derivedStateOf {
             listOf(
-                EblanAction.None,
-                EblanAction.OpenAppDrawer,
-                EblanAction.OpenNotificationPanel,
-                selectedEblanAction.let { eblanAction ->
-                    if (eblanAction is EblanAction.OpenApp) {
-                        EblanAction.OpenApp(componentName = eblanAction.componentName)
-                    } else {
-                        EblanAction.OpenApp(componentName = "app")
-                    }
-                },
-                EblanAction.LockScreen,
-                EblanAction.OpenQuickSettings,
-                EblanAction.OpenRecents,
+                GridItemAction(
+                    gridItemActionType = GridItemActionType.None,
+                    componentName = "",
+                ),
+                GridItemAction(
+                    gridItemActionType = GridItemActionType.OpenAppDrawer,
+                    componentName = "",
+                ),
+                GridItemAction(
+                    gridItemActionType = GridItemActionType.OpenNotificationPanel,
+                    componentName = "",
+                ),
+                GridItemAction(
+                    gridItemActionType = GridItemActionType.OpenApp,
+                    componentName = selectedGridItemAction.componentName.ifBlank {
+                        "app"
+                    },
+                ),
+                GridItemAction(
+                    gridItemActionType = GridItemActionType.LockScreen,
+                    componentName = "",
+                ),
+                GridItemAction(
+                    gridItemActionType = GridItemActionType.OpenQuickSettings,
+                    componentName = "",
+                ),
+                GridItemAction(
+                    gridItemActionType = GridItemActionType.OpenRecents,
+                    componentName = "",
+                ),
             )
         }
     }
@@ -100,16 +118,16 @@ internal fun EblanActionDialog(
                     .selectableGroup()
                     .fillMaxWidth(),
             ) {
-                eblanActions.forEach { currentEblanAction ->
+                gridItemActions.forEach { currentGridItemAction ->
                     EblanRadioButton(
-                        text = currentEblanAction.getEblanActionSubtitle(),
-                        selected = selectedEblanAction == currentEblanAction,
+                        text = currentGridItemAction.getGridItemActionSubtitle(),
+                        selected = selectedGridItemAction == currentGridItemAction,
                         onClick = {
-                            if (currentEblanAction is EblanAction.OpenApp) {
+                            if (currentGridItemAction.gridItemActionType == GridItemActionType.OpenApp) {
                                 showSelectApplicationDialog = true
                             }
 
-                            selectedEblanAction = currentEblanAction
+                            selectedGridItemAction = currentGridItemAction
                         },
                     )
                 }
@@ -134,7 +152,7 @@ internal fun EblanActionDialog(
 
                 TextButton(
                     onClick = {
-                        onUpdateEblanAction(selectedEblanAction)
+                        onUpdateGridItemAction(selectedGridItemAction)
 
                         onDismissRequest()
                     },
@@ -149,12 +167,18 @@ internal fun EblanActionDialog(
         SelectApplicationDialog(
             eblanApplicationInfos = eblanApplicationInfos,
             onDismissRequest = {
-                selectedEblanAction = EblanAction.None
+                selectedGridItemAction = GridItemAction(
+                    gridItemActionType = GridItemActionType.None,
+                    componentName = "app",
+                )
 
                 showSelectApplicationDialog = false
             },
             onSelectComponentName = { componentName ->
-                selectedEblanAction = EblanAction.OpenApp(componentName = componentName)
+                selectedGridItemAction = GridItemAction(
+                    gridItemActionType = GridItemActionType.OpenApp,
+                    componentName = componentName,
+                )
 
                 showSelectApplicationDialog = false
             },

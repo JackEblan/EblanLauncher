@@ -163,7 +163,15 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             associate = Associate.Grid,
             override = false,
             gridItemSettings = homeSettings.gridItemSettings,
-            gridItemAction = GridItemAction(
+            doubleTap = GridItemAction(
+                gridItemActionType = GridItemActionType.None,
+                componentName = "",
+            ),
+            swipeUp = GridItemAction(
+                gridItemActionType = GridItemActionType.None,
+                componentName = "",
+            ),
+            swipeDown = GridItemAction(
                 gridItemActionType = GridItemActionType.None,
                 componentName = "",
             ),

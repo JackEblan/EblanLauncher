@@ -82,18 +82,23 @@ internal fun ActionScreen(
     ) -> Unit,
     onFinish: () -> Unit,
 ) {
-    Scaffold(topBar = {
-        TopAppBar(title = {
-            Text(text = "Eblan Action")
-        }, navigationIcon = {
-            IconButton(onClick = onFinish) {
-                Icon(
-                    imageVector = EblanLauncherIcons.ArrowBack,
-                    contentDescription = null,
-                )
-            }
-        })
-    }) { paddingValues ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(text = "Eblan Action")
+                },
+                navigationIcon = {
+                    IconButton(onClick = onFinish) {
+                        Icon(
+                            imageVector = EblanLauncherIcons.ArrowBack,
+                            contentDescription = null,
+                        )
+                    }
+                },
+            )
+        },
+    ) { paddingValues ->
         Box(
             modifier = modifier
                 .fillMaxSize()
@@ -179,13 +184,13 @@ private fun Success(
             onDismissRequest = {
                 showSelectApplicationDialog = false
             },
-            onUpdateEblanAction = { openAppEblanAction ->
+            onSelectComponentName = { componentName ->
                 showSelectApplicationDialog = false
 
                 scope.launch {
                     onUpdateEblanAction(
                         R.drawable.adb_24px,
-                        openAppEblanAction,
+                        EblanAction.OpenApp(componentName = componentName),
                     )
                 }
             },

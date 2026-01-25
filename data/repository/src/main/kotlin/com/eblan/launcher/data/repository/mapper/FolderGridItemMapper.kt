@@ -35,7 +35,9 @@ internal fun FolderGridItemWrapperEntity.asGridItem(): GridItem = GridItem(
     associate = folderGridItemEntity.associate,
     override = folderGridItemEntity.override,
     gridItemSettings = folderGridItemEntity.gridItemSettings,
-    gridItemAction = folderGridItemEntity.gridItemAction,
+    doubleTap = folderGridItemEntity.doubleTap,
+    swipeUp = folderGridItemEntity.swipeUp,
+    swipeDown = folderGridItemEntity.swipeDown,
 )
 
 internal fun FolderGridItemWrapperEntity.asFolderGridItemData(): GridItemData.Folder {
@@ -87,7 +89,9 @@ internal fun FolderGridItemEntity.asGridItem(): GridItem = GridItem(
     associate = associate,
     override = override,
     gridItemSettings = gridItemSettings,
-    gridItemAction = gridItemAction,
+    doubleTap = doubleTap,
+    swipeUp = swipeUp,
+    swipeDown = swipeDown,
 )
 
 internal fun FolderGridItem.asEntity(): FolderGridItemEntity = FolderGridItemEntity(
@@ -104,7 +108,9 @@ internal fun FolderGridItem.asEntity(): FolderGridItemEntity = FolderGridItemEnt
     pageCount = pageCount,
     icon = icon,
     gridItemSettings = gridItemSettings,
-    gridItemAction = gridItemAction,
+    doubleTap = doubleTap,
+    swipeUp = swipeUp,
+    swipeDown = swipeDown,
 )
 
 internal fun GridItem.asFolderGridItem(data: GridItemData.Folder): FolderGridItem = FolderGridItem(
@@ -121,5 +127,7 @@ internal fun GridItem.asFolderGridItem(data: GridItemData.Folder): FolderGridIte
     pageCount = data.pageCount,
     icon = data.icon,
     gridItemSettings = gridItemSettings,
-    gridItemAction = gridItemAction,
+    doubleTap = doubleTap,
+    swipeUp = swipeUp,
+    swipeDown = swipeDown,
 )

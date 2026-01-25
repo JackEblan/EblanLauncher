@@ -54,7 +54,15 @@ internal fun WidgetGridItemEntity.asGridItem(): GridItem = GridItem(
     associate = associate,
     override = override,
     gridItemSettings = gridItemSettings,
-    gridItemAction = GridItemAction(
+    doubleTap = GridItemAction(
+        gridItemActionType = GridItemActionType.None,
+        componentName = "",
+    ),
+    swipeUp = GridItemAction(
+        gridItemActionType = GridItemActionType.None,
+        componentName = "",
+    ),
+    swipeDown = GridItemAction(
         gridItemActionType = GridItemActionType.None,
         componentName = "",
     ),

@@ -35,5 +35,7 @@ data class ApplicationInfoGridItem(
     val customIcon: String?,
     val customLabel: String?,
     val gridItemSettings: GridItemSettings,
-    val gridItemAction: GridItemAction,
+    val doubleTap: GridItemAction,
+    val swipeUp: GridItemAction,
+    val swipeDown: GridItemAction,
 )

@@ -31,5 +31,7 @@ data class FolderGridItem(
     val pageCount: Int,
     val icon: String?,
     val gridItemSettings: GridItemSettings,
-    val gridItemAction: GridItemAction,
+    val doubleTap: GridItemAction,
+    val swipeUp: GridItemAction,
+    val swipeDown: GridItemAction,
 )

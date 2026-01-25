@@ -47,7 +47,9 @@ internal fun ShortcutConfigGridItemEntity.asGridItem(): GridItem = GridItem(
     associate = associate,
     override = override,
     gridItemSettings = gridItemSettings,
-    gridItemAction = gridItemAction,
+    doubleTap = doubleTap,
+    swipeUp = swipeUp,
+    swipeDown = swipeDown,
 )
 
 internal fun ShortcutConfigGridItemEntity.asModel(): ShortcutConfigGridItem = ShortcutConfigGridItem(
@@ -73,7 +75,9 @@ internal fun ShortcutConfigGridItemEntity.asModel(): ShortcutConfigGridItem = Sh
     customIcon = customIcon,
     customLabel = customLabel,
     gridItemSettings = gridItemSettings,
-    gridItemAction = gridItemAction,
+    doubleTap = doubleTap,
+    swipeUp = swipeUp,
+    swipeDown = swipeDown,
 )
 
 internal fun ShortcutConfigGridItem.asEntity(): ShortcutConfigGridItemEntity = ShortcutConfigGridItemEntity(
@@ -99,7 +103,9 @@ internal fun ShortcutConfigGridItem.asEntity(): ShortcutConfigGridItemEntity = S
     customIcon = customIcon,
     customLabel = customLabel,
     gridItemSettings = gridItemSettings,
-    gridItemAction = gridItemAction,
+    doubleTap = doubleTap,
+    swipeUp = swipeUp,
+    swipeDown = swipeDown,
 )
 
 internal fun GridItem.asShortcutConfigGridItem(data: GridItemData.ShortcutConfig): ShortcutConfigGridItem = ShortcutConfigGridItem(
@@ -125,5 +131,7 @@ internal fun GridItem.asShortcutConfigGridItem(data: GridItemData.ShortcutConfig
     customIcon = data.customIcon,
     customLabel = data.customLabel,
     gridItemSettings = gridItemSettings,
-    gridItemAction = gridItemAction,
+    doubleTap = doubleTap,
+    swipeUp = swipeUp,
+    swipeDown = swipeDown,
 )

@@ -34,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
-import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 
 @Composable
@@ -42,7 +41,7 @@ fun SelectApplicationDialog(
     modifier: Modifier = Modifier,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     onDismissRequest: () -> Unit,
-    onUpdateEblanAction: (EblanAction.OpenApp) -> Unit,
+    onSelectComponentName: (String) -> Unit,
 ) {
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(modifier = modifier.fillMaxWidth()) {
@@ -67,7 +66,7 @@ fun SelectApplicationDialog(
                             .clickable {
                                 val componentName = eblanApplicationInfo.componentName
 
-                                onUpdateEblanAction(EblanAction.OpenApp(componentName = componentName))
+                                onSelectComponentName(componentName)
                             }
                             .fillMaxWidth()
                             .padding(10.dp),

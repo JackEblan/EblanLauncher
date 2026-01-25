@@ -217,7 +217,7 @@ private fun Success(
     }
 }
 
-fun EblanAction.getEblanActionSubtitle(): String = when (this) {
+internal fun EblanAction.getEblanActionSubtitle(): String = when (this) {
     EblanAction.None -> "None"
     is EblanAction.OpenApp -> "Open $componentName"
     EblanAction.OpenAppDrawer -> "Open app drawer"

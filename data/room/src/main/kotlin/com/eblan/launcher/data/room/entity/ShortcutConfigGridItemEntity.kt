@@ -21,6 +21,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.GridItemAction
 import com.eblan.launcher.domain.model.GridItemSettings
 
 @Entity
@@ -48,4 +49,5 @@ data class ShortcutConfigGridItemEntity(
     val customIcon: String?,
     val customLabel: String?,
     @Embedded val gridItemSettings: GridItemSettings,
+    @Embedded(prefix = "gridItemAction") val gridItemAction: GridItemAction,
 )

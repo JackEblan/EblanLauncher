@@ -31,4 +31,5 @@ data class FolderGridItem(
     val pageCount: Int,
     val icon: String?,
     val gridItemSettings: GridItemSettings,
+    val gridItemAction: GridItemAction,
 )

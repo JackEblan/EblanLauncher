@@ -45,6 +45,7 @@ internal fun ShortcutInfoGridItemEntity.asGridItem(): GridItem = GridItem(
     associate = associate,
     override = override,
     gridItemSettings = gridItemSettings,
+    gridItemAction = gridItemAction,
 )
 
 internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem = ShortcutInfoGridItem(
@@ -68,6 +69,7 @@ internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem = Shortc
     customIcon = customIcon,
     customShortLabel = customShortLabel,
     eblanApplicationInfoIcon = eblanApplicationInfoIcon,
+    gridItemAction = gridItemAction,
 )
 
 internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity = ShortcutInfoGridItemEntity(
@@ -91,6 +93,7 @@ internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity = Short
     eblanApplicationInfoIcon = eblanApplicationInfoIcon,
     customIcon = customIcon,
     customShortLabel = customShortLabel,
+    gridItemAction = gridItemAction,
 )
 
 internal fun GridItem.asShortcutInfoGridItem(data: GridItemData.ShortcutInfo): ShortcutInfoGridItem = ShortcutInfoGridItem(
@@ -114,4 +117,5 @@ internal fun GridItem.asShortcutInfoGridItem(data: GridItemData.ShortcutInfo): S
     customIcon = data.customIcon,
     customShortLabel = data.customShortLabel,
     gridItemSettings = gridItemSettings,
+    gridItemAction = gridItemAction,
 )

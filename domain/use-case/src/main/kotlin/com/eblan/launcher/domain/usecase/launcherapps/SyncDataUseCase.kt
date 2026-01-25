@@ -34,6 +34,8 @@ import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.FastAppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.FastLauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.FastLauncherAppsShortcutInfo
+import com.eblan.launcher.domain.model.GridItemAction
+import com.eblan.launcher.domain.model.GridItemActionType
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
@@ -379,6 +381,10 @@ class SyncDataUseCase @Inject constructor(
                     customIcon = null,
                     customLabel = null,
                     gridItemSettings = homeSettings.gridItemSettings,
+                    gridItemAction = GridItemAction(
+                        gridItemActionType = GridItemActionType.None,
+                        componentName = "",
+                    ),
                 ),
             )
         }

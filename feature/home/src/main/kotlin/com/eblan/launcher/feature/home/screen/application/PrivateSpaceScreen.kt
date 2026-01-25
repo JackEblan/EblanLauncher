@@ -75,6 +75,8 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemAction
+import com.eblan.launcher.domain.model.GridItemActionType
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.ManagedProfileResult
@@ -366,6 +368,10 @@ private fun PrivateSpaceEblanApplicationInfoItem(
                                         associate = Associate.Grid,
                                         override = false,
                                         gridItemSettings = appDrawerSettings.gridItemSettings,
+                                        gridItemAction = GridItemAction(
+                                            gridItemActionType = GridItemActionType.None,
+                                            componentName = "",
+                                        ),
                                     ),
                                 ),
                                 null,

@@ -19,6 +19,8 @@ package com.eblan.launcher.feature.home.screen.widget
 
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemAction
+import com.eblan.launcher.domain.model.GridItemActionType
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 
@@ -75,5 +77,9 @@ internal fun getWidgetGridItem(
         associate = Associate.Grid,
         override = false,
         gridItemSettings = gridItemSettings,
+        gridItemAction = GridItemAction(
+            gridItemActionType = GridItemActionType.None,
+            componentName = "",
+        ),
     )
 }

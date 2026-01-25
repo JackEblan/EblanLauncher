@@ -95,6 +95,8 @@ import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemAction
+import com.eblan.launcher.domain.model.GridItemActionType
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
@@ -661,6 +663,10 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                                         associate = Associate.Grid,
                                         override = false,
                                         gridItemSettings = gridItemSettings,
+                                        gridItemAction = GridItemAction(
+                                            gridItemActionType = GridItemActionType.None,
+                                            componentName = "",
+                                        ),
                                     ),
                                 ),
                                 graphicsLayer.toImageBitmap(),

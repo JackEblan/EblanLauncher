@@ -118,6 +118,8 @@ import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.EblanUserType
 import com.eblan.launcher.domain.model.GetEblanApplicationInfos
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemAction
+import com.eblan.launcher.domain.model.GridItemActionType
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.ManagedProfileResult
@@ -648,6 +650,10 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                                         associate = Associate.Grid,
                                         override = false,
                                         gridItemSettings = appDrawerSettings.gridItemSettings,
+                                        gridItemAction = GridItemAction(
+                                            gridItemActionType = GridItemActionType.None,
+                                            componentName = "",
+                                        ),
                                     ),
                                 ),
                                 graphicsLayer.toImageBitmap(),

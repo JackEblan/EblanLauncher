@@ -52,6 +52,8 @@ import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemAction
+import com.eblan.launcher.domain.model.GridItemActionType
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
@@ -215,6 +217,10 @@ private fun ShortcutInfoMenuItem(
                                                 associate = Associate.Grid,
                                                 override = false,
                                                 gridItemSettings = gridItemSettings,
+                                                gridItemAction = GridItemAction(
+                                                    gridItemActionType = GridItemActionType.None,
+                                                    componentName = "",
+                                                ),
                                             ),
                                         ),
                                         graphicsLayer.toImageBitmap(),

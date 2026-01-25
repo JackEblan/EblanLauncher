@@ -42,6 +42,7 @@ internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem = GridItem(
     associate = associate,
     override = override,
     gridItemSettings = gridItemSettings,
+    gridItemAction = gridItemAction,
 )
 
 internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem = ApplicationInfoGridItem(
@@ -62,6 +63,7 @@ internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem = 
     customIcon = customIcon,
     customLabel = customLabel,
     gridItemSettings = gridItemSettings,
+    gridItemAction = gridItemAction,
 )
 
 internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity = ApplicationInfoGridItemEntity(
@@ -82,6 +84,7 @@ internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity =
     customLabel = customLabel,
     override = override,
     gridItemSettings = gridItemSettings,
+    gridItemAction = gridItemAction,
 )
 
 internal fun GridItem.asApplicationInfo(data: GridItemData.ApplicationInfo): ApplicationInfoGridItem = ApplicationInfoGridItem(
@@ -102,4 +105,5 @@ internal fun GridItem.asApplicationInfo(data: GridItemData.ApplicationInfo): App
     customIcon = data.customIcon,
     customLabel = data.customLabel,
     gridItemSettings = gridItemSettings,
+    gridItemAction = gridItemAction,
 )

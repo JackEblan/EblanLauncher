@@ -23,6 +23,8 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemAction
+import com.eblan.launcher.domain.model.GridItemActionType
 import com.eblan.launcher.domain.model.GridItemData.ShortcutInfo
 import com.eblan.launcher.domain.model.GridItemData.Widget
 import com.eblan.launcher.domain.model.PinItemRequestType
@@ -96,6 +98,10 @@ class GetPinGridItemUseCase @Inject constructor(
                     associate = Associate.Grid,
                     override = false,
                     gridItemSettings = homeSettings.gridItemSettings,
+                    gridItemAction = GridItemAction(
+                        gridItemActionType = GridItemActionType.None,
+                        componentName = "",
+                    ),
                 )
             }
 
@@ -138,6 +144,10 @@ class GetPinGridItemUseCase @Inject constructor(
                     associate = Associate.Grid,
                     override = false,
                     gridItemSettings = homeSettings.gridItemSettings,
+                    gridItemAction = GridItemAction(
+                        gridItemActionType = GridItemActionType.None,
+                        componentName = "",
+                    ),
                 )
             }
         }

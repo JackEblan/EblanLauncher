@@ -50,6 +50,7 @@ import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.feature.action.model.ActionUiState
 import com.eblan.launcher.ui.dialog.SelectApplicationDialog
+import com.eblan.launcher.ui.settings.getEblanActionTypeSubtitle
 import kotlinx.coroutines.launch
 
 @Composable
@@ -160,7 +161,7 @@ private fun Success(
                     .fillMaxWidth()
                     .padding(10.dp),
                 headlineContent = {
-                    Text(text = eblanActionType.name)
+                    Text(text = eblanActionType.getEblanActionTypeSubtitle(componentName = ""))
                 },
                 leadingContent = {
                     Icon(

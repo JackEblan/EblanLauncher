@@ -137,7 +137,7 @@ fun EblanActionSettings(
     }
 }
 
-internal fun EblanActionType.getEblanActionTypeSubtitle(componentName: String): String = when (this) {
+fun EblanActionType.getEblanActionTypeSubtitle(componentName: String): String = when (this) {
     EblanActionType.None -> "None"
     EblanActionType.OpenApp -> "Open ${componentName.ifBlank { "app" }}"
     EblanActionType.OpenAppDrawer -> "Open app drawer"

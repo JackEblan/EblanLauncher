@@ -51,7 +51,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -392,6 +391,21 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                             swipeY.snapTo(swipeY.value + dragAmount)
                         }
                     },
+                    onDragCancel = {
+                        scope.launch {
+                            swipeEblanAction(
+                                swipeY = swipeY.value,
+                                swipeUp = gridItem.swipeUp,
+                                swipeDown = gridItem.swipeDown,
+                                launcherApps = launcherApps,
+                                context = context,
+                                maxSwipeY = maxSwipeY,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+
+                            swipeY.animateTo(0f)
+                        }
+                    },
                     onDragEnd = {
                         scope.launch {
                             swipeEblanAction(
@@ -400,7 +414,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                                 swipeDown = gridItem.swipeDown,
                                 launcherApps = launcherApps,
                                 context = context,
-                                density = density,
+                                maxSwipeY = maxSwipeY,
                                 onOpenAppDrawer = onOpenAppDrawer,
                             )
 
@@ -760,6 +774,21 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                             swipeY.snapTo(swipeY.value + dragAmount)
                         }
                     },
+                    onDragCancel = {
+                        scope.launch {
+                            swipeEblanAction(
+                                swipeY = swipeY.value,
+                                swipeUp = gridItem.swipeUp,
+                                swipeDown = gridItem.swipeDown,
+                                launcherApps = launcherApps,
+                                context = context,
+                                maxSwipeY = maxSwipeY,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+
+                            swipeY.animateTo(0f)
+                        }
+                    },
                     onDragEnd = {
                         scope.launch {
                             swipeEblanAction(
@@ -768,7 +797,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                                 swipeDown = gridItem.swipeDown,
                                 launcherApps = launcherApps,
                                 context = context,
-                                density = density,
+                                maxSwipeY = maxSwipeY,
                                 onOpenAppDrawer = onOpenAppDrawer,
                             )
 
@@ -981,6 +1010,21 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                             swipeY.snapTo(swipeY.value + dragAmount)
                         }
                     },
+                    onDragCancel = {
+                        scope.launch {
+                            swipeEblanAction(
+                                swipeY = swipeY.value,
+                                swipeUp = gridItem.swipeUp,
+                                swipeDown = gridItem.swipeDown,
+                                launcherApps = launcherApps,
+                                context = context,
+                                maxSwipeY = maxSwipeY,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+
+                            swipeY.animateTo(0f)
+                        }
+                    },
                     onDragEnd = {
                         scope.launch {
                             swipeEblanAction(
@@ -989,7 +1033,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                                 swipeDown = gridItem.swipeDown,
                                 launcherApps = launcherApps,
                                 context = context,
-                                density = density,
+                                maxSwipeY = maxSwipeY,
                                 onOpenAppDrawer = onOpenAppDrawer,
                             )
 
@@ -1204,6 +1248,21 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                             swipeY.snapTo(swipeY.value + dragAmount)
                         }
                     },
+                    onDragCancel = {
+                        scope.launch {
+                            swipeEblanAction(
+                                swipeY = swipeY.value,
+                                swipeUp = gridItem.swipeUp,
+                                swipeDown = gridItem.swipeDown,
+                                launcherApps = launcherApps,
+                                context = context,
+                                maxSwipeY = maxSwipeY,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+
+                            swipeY.animateTo(0f)
+                        }
+                    },
                     onDragEnd = {
                         scope.launch {
                             swipeEblanAction(
@@ -1212,7 +1271,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                                 swipeDown = gridItem.swipeDown,
                                 launcherApps = launcherApps,
                                 context = context,
-                                density = density,
+                                maxSwipeY = maxSwipeY,
                                 onOpenAppDrawer = onOpenAppDrawer,
                             )
 
@@ -1273,15 +1332,11 @@ private fun swipeEblanAction(
     swipeDown: EblanAction,
     launcherApps: AndroidLauncherAppsWrapper,
     context: Context,
-    density: Density,
+    maxSwipeY: Int,
     onOpenAppDrawer: () -> Unit,
 ) {
-    val minSwipeDistancePx = with(density) {
-        30.dp.roundToPx()
-    }
-
     when {
-        swipeY <= -minSwipeDistancePx -> {
+        swipeY <= -maxSwipeY -> {
             handleEblanAction(
                 eblanAction = swipeUp,
                 launcherApps = launcherApps,
@@ -1290,7 +1345,7 @@ private fun swipeEblanAction(
             )
         }
 
-        swipeY >= minSwipeDistancePx -> {
+        swipeY >= maxSwipeY -> {
             handleEblanAction(
                 eblanAction = swipeDown,
                 launcherApps = launcherApps,

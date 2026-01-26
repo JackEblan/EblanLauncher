@@ -22,7 +22,10 @@
       <SelectionState runConfigName="migrateAll()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="migrate6To7()">
+      <SelectionState runConfigName="Migration7To8Test">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="migrate7To8()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

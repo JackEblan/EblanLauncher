@@ -17,6 +17,9 @@
  */
 package com.eblan.launcher.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class EblanAction(
     val eblanActionType: EblanActionType,
     val componentName: String,
@@ -28,6 +31,7 @@ data class EblanAction(
     }
 }
 
+@Serializable
 enum class EblanActionType {
     None,
     OpenAppDrawer,

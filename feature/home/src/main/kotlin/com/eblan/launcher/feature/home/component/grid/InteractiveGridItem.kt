@@ -17,10 +17,14 @@
  */
 package com.eblan.launcher.feature.home.component.grid
 
+import android.content.Context
+import android.content.Intent
+import android.graphics.Rect
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,11 +49,15 @@ import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
+import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -60,8 +69,10 @@ import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
+import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
+import com.eblan.launcher.ui.local.LocalLauncherApps
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -95,6 +106,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onOpenAppDrawer: () -> Unit,
 ) {
     key(gridItem.id) {
         val currentGridItemSettings = if (gridItem.override) {
@@ -124,17 +136,13 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     isScrollInProgress = isScrollInProgress,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
-                    onTap = {
-                        onTapApplicationInfo(
-                            data.serialNumber,
-                            data.componentName,
-                        )
-                    },
+                    onTapApplicationInfo = onTapApplicationInfo,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     statusBarNotifications = statusBarNotifications,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onOpenAppDrawer = onOpenAppDrawer,
                 )
             }
 
@@ -164,17 +172,12 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     isScrollInProgress = isScrollInProgress,
                     screen = screen,
-                    onTap = {
-                        onTapShortcutInfo(
-                            data.serialNumber,
-                            data.packageName,
-                            data.shortcutId,
-                        )
-                    },
+                    onTapShortcutInfo = onTapShortcutInfo,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onOpenAppDrawer = onOpenAppDrawer,
                 )
             }
 
@@ -194,6 +197,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onOpenAppDrawer = onOpenAppDrawer,
                 )
             }
 
@@ -207,13 +211,12 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     drag = drag,
                     isScrollInProgress = isScrollInProgress,
                     screen = screen,
-                    onTap = {
-                        data.shortcutIntentUri?.let(onTapShortcutConfig)
-                    },
+                    onTapShortcutConfig = onTapShortcutConfig,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onOpenAppDrawer = onOpenAppDrawer,
                 )
             }
         }
@@ -233,7 +236,10 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     isScrollInProgress: Boolean,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
-    onTap: () -> Unit,
+    onTapApplicationInfo: (
+        serialNumber: Long,
+        componentName: String,
+    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -241,7 +247,12 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onOpenAppDrawer: () -> Unit,
 ) {
+    val launcherApps = LocalLauncherApps.current
+
+    val context = LocalContext.current
+
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
@@ -272,6 +283,8 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         }
     }
 
+    var swipeY by remember { mutableFloatStateOf(0f) }
+
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Dragging if isLongPress -> {
@@ -296,6 +309,14 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         modifier = modifier
             .pointerInput(key1 = drag) {
                 detectTapGestures(
+                    onDoubleTap = {
+                        handleEblanAction(
+                            eblanAction = gridItem.doubleTap,
+                            launcherApps = launcherApps,
+                            context = context,
+                            onOpenAppDrawer = onOpenAppDrawer,
+                        )
+                    },
                     onLongPress = {
                         scope.launch {
                             scale.animateTo(0.5f)
@@ -325,7 +346,10 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
                             scale.animateTo(1f)
 
-                            onTap()
+                            onTapApplicationInfo(
+                                data.serialNumber,
+                                data.componentName,
+                            )
                         }
                     },
                     onPress = {
@@ -336,6 +360,26 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                         if (scale.value < 1f) {
                             scale.animateTo(1f)
                         }
+                    },
+                )
+            }
+            .pointerInput(key1 = Unit) {
+                detectVerticalDragGestures(
+                    onDragStart = {
+                        swipeY = 0f
+                    },
+                    onVerticalDrag = { _, dragAmount ->
+                        swipeY += dragAmount
+                    },
+                    onDragEnd = {
+                        swipeEblanAction(
+                            swipeY = swipeY,
+                            swipeUp = gridItem.swipeUp,
+                            swipeDown = gridItem.swipeDown,
+                            launcherApps = launcherApps,
+                            context = context,
+                            onOpenAppDrawer = onOpenAppDrawer,
+                        )
                     },
                 )
             }
@@ -529,7 +573,11 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
     hasShortcutHostPermission: Boolean,
     isScrollInProgress: Boolean,
     screen: Screen,
-    onTap: () -> Unit,
+    onTapShortcutInfo: (
+        serialNumber: Long,
+        packageName: String,
+        shortcutId: String,
+    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -537,7 +585,12 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onOpenAppDrawer: () -> Unit,
 ) {
+    val launcherApps = LocalLauncherApps.current
+
+    val context = LocalContext.current
+
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
@@ -568,6 +621,8 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
         }
     }
 
+    var swipeY by remember { mutableFloatStateOf(0f) }
+
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Dragging if isLongPress -> {
@@ -592,6 +647,14 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
         modifier = modifier
             .pointerInput(key1 = drag) {
                 detectTapGestures(
+                    onDoubleTap = {
+                        handleEblanAction(
+                            eblanAction = gridItem.doubleTap,
+                            launcherApps = launcherApps,
+                            context = context,
+                            onOpenAppDrawer = onOpenAppDrawer,
+                        )
+                    },
                     onLongPress = {
                         scope.launch {
                             scale.animateTo(0.5f)
@@ -622,7 +685,11 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 
                                 scale.animateTo(1f)
 
-                                onTap()
+                                onTapShortcutInfo(
+                                    data.serialNumber,
+                                    data.packageName,
+                                    data.shortcutId,
+                                )
                             }
                         }
                     },
@@ -634,6 +701,26 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                         if (scale.value < 1f) {
                             scale.animateTo(1f)
                         }
+                    },
+                )
+            }
+            .pointerInput(key1 = Unit) {
+                detectVerticalDragGestures(
+                    onDragStart = {
+                        swipeY = 0f
+                    },
+                    onVerticalDrag = { _, dragAmount ->
+                        swipeY += dragAmount
+                    },
+                    onDragEnd = {
+                        swipeEblanAction(
+                            swipeY = swipeY,
+                            swipeUp = gridItem.swipeUp,
+                            swipeDown = gridItem.swipeDown,
+                            launcherApps = launcherApps,
+                            context = context,
+                            onOpenAppDrawer = onOpenAppDrawer,
+                        )
                     },
                 )
             }
@@ -698,7 +785,12 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onOpenAppDrawer: () -> Unit,
 ) {
+    val launcherApps = LocalLauncherApps.current
+
+    val context = LocalContext.current
+
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
@@ -729,6 +821,8 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
         }
     }
 
+    var swipeY by remember { mutableFloatStateOf(0f) }
+
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Dragging if isLongPress -> {
@@ -753,6 +847,14 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
         modifier = modifier
             .pointerInput(key1 = drag) {
                 detectTapGestures(
+                    onDoubleTap = {
+                        handleEblanAction(
+                            eblanAction = gridItem.doubleTap,
+                            launcherApps = launcherApps,
+                            context = context,
+                            onOpenAppDrawer = onOpenAppDrawer,
+                        )
+                    },
                     onLongPress = {
                         scope.launch {
                             scale.animateTo(0.5f)
@@ -793,6 +895,26 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                         if (scale.value < 1f) {
                             scale.animateTo(1f)
                         }
+                    },
+                )
+            }
+            .pointerInput(key1 = Unit) {
+                detectVerticalDragGestures(
+                    onDragStart = {
+                        swipeY = 0f
+                    },
+                    onVerticalDrag = { _, dragAmount ->
+                        swipeY += dragAmount
+                    },
+                    onDragEnd = {
+                        swipeEblanAction(
+                            swipeY = swipeY,
+                            swipeUp = gridItem.swipeUp,
+                            swipeDown = gridItem.swipeDown,
+                            launcherApps = launcherApps,
+                            context = context,
+                            onOpenAppDrawer = onOpenAppDrawer,
+                        )
                     },
                 )
             }
@@ -851,7 +973,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     drag: Drag,
     isScrollInProgress: Boolean,
     screen: Screen,
-    onTap: () -> Unit,
+    onTapShortcutConfig: (String) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -859,7 +981,12 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onOpenAppDrawer: () -> Unit,
 ) {
+    val launcherApps = LocalLauncherApps.current
+
+    val context = LocalContext.current
+
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
@@ -890,6 +1017,8 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
         }
     }
 
+    var swipeY by remember { mutableFloatStateOf(0f) }
+
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Dragging if isLongPress -> {
@@ -914,6 +1043,14 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
         modifier = modifier
             .pointerInput(key1 = drag) {
                 detectTapGestures(
+                    onDoubleTap = {
+                        handleEblanAction(
+                            eblanAction = gridItem.doubleTap,
+                            launcherApps = launcherApps,
+                            context = context,
+                            onOpenAppDrawer = onOpenAppDrawer,
+                        )
+                    },
                     onLongPress = {
                         scope.launch {
                             scale.animateTo(0.5f)
@@ -943,7 +1080,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
 
                             scale.animateTo(1f)
 
-                            onTap()
+                            data.shortcutIntentUri?.let(onTapShortcutConfig)
                         }
                     },
                     onPress = {
@@ -954,6 +1091,26 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                         if (scale.value < 1f) {
                             scale.animateTo(1f)
                         }
+                    },
+                )
+            }
+            .pointerInput(key1 = Unit) {
+                detectVerticalDragGestures(
+                    onDragStart = {
+                        swipeY = 0f
+                    },
+                    onVerticalDrag = { _, dragAmount ->
+                        swipeY += dragAmount
+                    },
+                    onDragEnd = {
+                        swipeEblanAction(
+                            swipeY = swipeY,
+                            swipeUp = gridItem.swipeUp,
+                            swipeDown = gridItem.swipeDown,
+                            launcherApps = launcherApps,
+                            context = context,
+                            onOpenAppDrawer = onOpenAppDrawer,
+                        )
                     },
                 )
             }
@@ -994,5 +1151,94 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                 gridItemSettings = gridItemSettings,
             )
         }
+    }
+}
+
+private fun swipeEblanAction(
+    swipeY: Float,
+    swipeUp: EblanAction,
+    swipeDown: EblanAction,
+    launcherApps: AndroidLauncherAppsWrapper,
+    context: Context,
+    onOpenAppDrawer: () -> Unit,
+) {
+    val minSwipeDistance = 80f
+
+    when {
+        swipeY <= -minSwipeDistance -> {
+            handleEblanAction(
+                eblanAction = swipeUp,
+                launcherApps = launcherApps,
+                context = context,
+                onOpenAppDrawer = onOpenAppDrawer,
+            )
+        }
+
+        swipeY >= minSwipeDistance -> {
+            handleEblanAction(
+                eblanAction = swipeDown,
+                launcherApps = launcherApps,
+                context = context,
+                onOpenAppDrawer = onOpenAppDrawer,
+            )
+        }
+    }
+}
+
+private fun handleEblanAction(
+    eblanAction: EblanAction,
+    launcherApps: AndroidLauncherAppsWrapper,
+    context: Context,
+    onOpenAppDrawer: () -> Unit,
+) {
+    when (eblanAction.eblanActionType) {
+        EblanActionType.OpenApp -> {
+            launcherApps.startMainActivity(
+                componentName = eblanAction.componentName,
+                sourceBounds = Rect(),
+            )
+        }
+
+        EblanActionType.OpenNotificationPanel -> {
+            val intent = Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
+                GlobalAction.GLOBAL_ACTION_TYPE,
+                GlobalAction.Notifications.name,
+            )
+
+            context.sendBroadcast(intent)
+        }
+
+        EblanActionType.LockScreen -> {
+            val intent = Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
+                GlobalAction.GLOBAL_ACTION_TYPE,
+                GlobalAction.LockScreen.name,
+            )
+
+            context.sendBroadcast(intent)
+        }
+
+        EblanActionType.OpenQuickSettings -> {
+            val intent = Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
+                GlobalAction.GLOBAL_ACTION_TYPE,
+                GlobalAction.QuickSettings.name,
+            )
+
+            context.sendBroadcast(intent)
+        }
+
+        EblanActionType.OpenRecents -> {
+            val intent = Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
+                GlobalAction.GLOBAL_ACTION_TYPE,
+                GlobalAction.Recents.name,
+            )
+
+            context.sendBroadcast(intent)
+        }
+
+        EblanActionType.OpenAppDrawer -> {
+            onOpenAppDrawer()
+        }
+
+        EblanActionType.None -> Unit
     }
 }

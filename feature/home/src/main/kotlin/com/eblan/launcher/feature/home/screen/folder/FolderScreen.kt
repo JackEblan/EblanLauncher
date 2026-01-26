@@ -299,6 +299,9 @@ internal fun SharedTransitionScope.FolderScreen(
                             onDraggingGridItem(folderDataById.gridItems)
                         },
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
+                        onOpenAppDrawer = {
+                            onUpdateScreen(Screen.Pager)
+                        },
                     )
                 },
             )

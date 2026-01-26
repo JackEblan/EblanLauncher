@@ -405,6 +405,9 @@ internal fun SharedTransitionScope.PagerScreen(
         onUpdateEblanApplicationInfoGroup = { newEblanApplicationInfoGroup ->
             eblanApplicationInfoGroup = newEblanApplicationInfoGroup
         },
+        onOpenAppDrawer = {
+            showAppDrawer = true
+        },
     )
 
     if (gestureSettings.swipeUp.eblanActionType == EblanActionType.OpenAppDrawer || gestureSettings.swipeDown.eblanActionType == EblanActionType.OpenAppDrawer) {

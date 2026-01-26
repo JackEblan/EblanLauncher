@@ -26,7 +26,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -39,7 +38,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
@@ -65,15 +63,15 @@ import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
-import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.GRID_ITEM_MAX_SWIPE_Y
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
+import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
+import com.eblan.launcher.feature.home.util.getVerticalArrangement
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
@@ -272,17 +270,11 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
-        HorizontalAlignment.Start -> Alignment.Start
-        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
-        HorizontalAlignment.End -> Alignment.End
-    }
+    val horizontalAlignment =
+        getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
 
-    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
-        VerticalArrangement.Top -> Arrangement.Top
-        VerticalArrangement.Center -> Arrangement.Center
-        VerticalArrangement.Bottom -> Arrangement.Bottom
-    }
+    val verticalArrangement =
+        getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
     val isDragging by remember(key1 = drag) {
         derivedStateOf {
@@ -592,17 +584,11 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
-        HorizontalAlignment.Start -> Alignment.Start
-        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
-        HorizontalAlignment.End -> Alignment.End
-    }
+    val horizontalAlignment =
+        getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
 
-    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
-        VerticalArrangement.Top -> Arrangement.Top
-        VerticalArrangement.Center -> Arrangement.Center
-        VerticalArrangement.Bottom -> Arrangement.Bottom
-    }
+    val verticalArrangement =
+        getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
     val isDragging by remember(key1 = drag) {
         derivedStateOf {
@@ -774,17 +760,11 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
-        HorizontalAlignment.Start -> Alignment.Start
-        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
-        HorizontalAlignment.End -> Alignment.End
-    }
+    val horizontalAlignment =
+        getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
 
-    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
-        VerticalArrangement.Top -> Arrangement.Top
-        VerticalArrangement.Center -> Arrangement.Center
-        VerticalArrangement.Bottom -> Arrangement.Bottom
-    }
+    val verticalArrangement =
+        getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
     val isDragging by remember(key1 = drag) {
         derivedStateOf {
@@ -952,17 +932,11 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
-        HorizontalAlignment.Start -> Alignment.Start
-        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
-        HorizontalAlignment.End -> Alignment.End
-    }
+    val horizontalAlignment =
+        getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
 
-    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
-        VerticalArrangement.Top -> Arrangement.Top
-        VerticalArrangement.Center -> Arrangement.Center
-        VerticalArrangement.Bottom -> Arrangement.Bottom
-    }
+    val verticalArrangement =
+        getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
     val isDragging by remember(key1 = drag) {
         derivedStateOf {
@@ -1132,69 +1106,67 @@ private fun Modifier.swipeGestures(
         }
     }
 
-    return run {
-        if (gridItem.swipeUp.eblanActionType != EblanActionType.None ||
-            gridItem.swipeDown.eblanActionType != EblanActionType.None
-        ) {
-            val swipeY = remember { Animatable(0f) }
+    return if (gridItem.swipeUp.eblanActionType != EblanActionType.None ||
+        gridItem.swipeDown.eblanActionType != EblanActionType.None
+    ) {
+        val swipeY = remember { Animatable(0f) }
 
-            val maxSwipeY = with(density) {
-                GRID_ITEM_MAX_SWIPE_Y.dp.roundToPx()
-            }
-
-            pointerInput(
-                key1 = gridItem.swipeUp,
-                key2 = gridItem.swipeDown,
-            ) {
-                detectVerticalDragGestures(
-                    onDragStart = {
-                        scope.launch {
-                            swipeY.snapTo(0f)
-                        }
-                    },
-                    onVerticalDrag = { _, dragAmount ->
-                        scope.launch {
-                            swipeY.snapTo(swipeY.value + dragAmount)
-                        }
-                    },
-                    onDragCancel = {
-                        scope.launch {
-                            swipeEblanAction(
-                                swipeY = swipeY.value,
-                                swipeUp = gridItem.swipeUp,
-                                swipeDown = gridItem.swipeDown,
-                                launcherApps = launcherApps,
-                                context = context,
-                                maxSwipeY = maxSwipeY,
-                                onOpenAppDrawer = onOpenAppDrawer,
-                            )
-                            swipeY.animateTo(0f)
-                        }
-                    },
-                    onDragEnd = {
-                        scope.launch {
-                            swipeEblanAction(
-                                swipeY = swipeY.value,
-                                swipeUp = gridItem.swipeUp,
-                                swipeDown = gridItem.swipeDown,
-                                launcherApps = launcherApps,
-                                context = context,
-                                maxSwipeY = maxSwipeY,
-                                onOpenAppDrawer = onOpenAppDrawer,
-                            )
-                            swipeY.animateTo(0f)
-                        }
-                    },
-                )
-            }.offset {
-                IntOffset(
-                    x = 0,
-                    y = swipeY.value.roundToInt().coerceIn(-maxSwipeY..maxSwipeY),
-                )
-            }
-        } else {
-            this
+        val maxSwipeY = with(density) {
+            GRID_ITEM_MAX_SWIPE_Y.dp.roundToPx()
         }
+
+        pointerInput(
+            key1 = gridItem.swipeUp,
+            key2 = gridItem.swipeDown,
+        ) {
+            detectVerticalDragGestures(
+                onDragStart = {
+                    scope.launch {
+                        swipeY.snapTo(0f)
+                    }
+                },
+                onVerticalDrag = { _, dragAmount ->
+                    scope.launch {
+                        swipeY.snapTo(swipeY.value + dragAmount)
+                    }
+                },
+                onDragCancel = {
+                    scope.launch {
+                        swipeEblanAction(
+                            swipeY = swipeY.value,
+                            swipeUp = gridItem.swipeUp,
+                            swipeDown = gridItem.swipeDown,
+                            launcherApps = launcherApps,
+                            context = context,
+                            maxSwipeY = maxSwipeY,
+                            onOpenAppDrawer = onOpenAppDrawer,
+                        )
+                        swipeY.animateTo(0f)
+                    }
+                },
+                onDragEnd = {
+                    scope.launch {
+                        swipeEblanAction(
+                            swipeY = swipeY.value,
+                            swipeUp = gridItem.swipeUp,
+                            swipeDown = gridItem.swipeDown,
+                            launcherApps = launcherApps,
+                            context = context,
+                            maxSwipeY = maxSwipeY,
+                            onOpenAppDrawer = onOpenAppDrawer,
+                        )
+                        swipeY.animateTo(0f)
+                    }
+                },
+            )
+        }.offset {
+            IntOffset(
+                x = 0,
+                y = swipeY.value.roundToInt().coerceIn(-maxSwipeY..maxSwipeY),
+            )
+        }
+    } else {
+        this
     }
 }
 

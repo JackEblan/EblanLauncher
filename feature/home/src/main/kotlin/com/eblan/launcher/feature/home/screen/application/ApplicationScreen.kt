@@ -28,7 +28,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -121,10 +120,8 @@ import com.eblan.launcher.domain.model.EblanUserType
 import com.eblan.launcher.domain.model.GetEblanApplicationInfos
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
@@ -133,7 +130,9 @@ import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
+import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
+import com.eblan.launcher.feature.home.util.getVerticalArrangement
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.ui.SearchBar
@@ -542,17 +541,11 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     val icon = iconPackFilePaths[eblanApplicationInfo.componentName] ?: eblanApplicationInfo.icon
 
-    val horizontalAlignment = when (appDrawerSettings.gridItemSettings.horizontalAlignment) {
-        HorizontalAlignment.Start -> Alignment.Start
-        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
-        HorizontalAlignment.End -> Alignment.End
-    }
+    val horizontalAlignment =
+        getHorizontalAlignment(horizontalAlignment = appDrawerSettings.gridItemSettings.horizontalAlignment)
 
-    val verticalArrangement = when (appDrawerSettings.gridItemSettings.verticalArrangement) {
-        VerticalArrangement.Top -> Arrangement.Top
-        VerticalArrangement.Center -> Arrangement.Center
-        VerticalArrangement.Bottom -> Arrangement.Bottom
-    }
+    val verticalArrangement =
+        getVerticalArrangement(verticalArrangement = appDrawerSettings.gridItemSettings.verticalArrangement)
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()

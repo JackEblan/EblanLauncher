@@ -11,8 +11,7 @@ Only 2 MB Android Launcher, total control, zero bloat, zero tracking
 ![F-Droid Version](https://img.shields.io/f-droid/v/com.eblan.launcher?style=for-the-badge&color=seagreen)
 ![GitHub License](https://img.shields.io/github/license/JackEblan/EblanLauncher?style=for-the-badge&color=teal)
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/JackEblan/EblanLauncher/total?style=for-the-badge&color=aquamarine)
-![Lines Of Code](![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fghloc.vercel.app%2Fapi%2FJackEblan%2FEinsteinLauncher%2Fbadge%3Fformat%3Dhuman%26filter%3Dsrc%2Fmain))
-
+![Lines Of Code](https://img.shields.io/endpoint?url=https%3A%2F%2Fghloc.vercel.app%2Fapi%2FJackEblan%2FEinsteinLauncher%2Fbadge%3Fformat%3Dhuman%26filter%3Dsrc%2Fmain&style=for-the-badge&color=lightseagreen)
 
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/packages/com.eblan.launcher)
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.eblan.launcher/)

@@ -28,12 +28,12 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -70,6 +70,7 @@ import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.util.GRID_ITEM_MAX_SWIPE_Y
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
@@ -77,6 +78,7 @@ import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -288,7 +290,11 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         }
     }
 
-    var swipeY by remember { mutableFloatStateOf(0f) }
+    val swipeY = remember { Animatable(0f) }
+
+    val maxSwipeY = with(density) {
+        GRID_ITEM_MAX_SWIPE_Y.dp.roundToPx()
+    }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
@@ -315,12 +321,18 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onDoubleTap = {
-                        handleEblanAction(
-                            eblanAction = gridItem.doubleTap,
-                            launcherApps = launcherApps,
-                            context = context,
-                            onOpenAppDrawer = onOpenAppDrawer,
-                        )
+                        scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            handleEblanAction(
+                                eblanAction = gridItem.doubleTap,
+                                launcherApps = launcherApps,
+                                context = context,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+                        }
                     },
                     onLongPress = {
                         scope.launch {
@@ -371,22 +383,36 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
             .pointerInput(key1 = Unit) {
                 detectVerticalDragGestures(
                     onDragStart = {
-                        swipeY = 0f
+                        scope.launch {
+                            swipeY.snapTo(0f)
+                        }
                     },
                     onVerticalDrag = { _, dragAmount ->
-                        swipeY += dragAmount
+                        scope.launch {
+                            swipeY.snapTo(swipeY.value + dragAmount)
+                        }
                     },
                     onDragEnd = {
-                        swipeEblanAction(
-                            swipeY = swipeY,
-                            swipeUp = gridItem.swipeUp,
-                            swipeDown = gridItem.swipeDown,
-                            launcherApps = launcherApps,
-                            context = context,
-                            density = density,
-                            onOpenAppDrawer = onOpenAppDrawer,
-                        )
+                        scope.launch {
+                            swipeEblanAction(
+                                swipeY = swipeY.value,
+                                swipeUp = gridItem.swipeUp,
+                                swipeDown = gridItem.swipeDown,
+                                launcherApps = launcherApps,
+                                context = context,
+                                density = density,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+
+                            swipeY.animateTo(0f)
+                        }
                     },
+                )
+            }
+            .offset {
+                IntOffset(
+                    x = 0,
+                    y = swipeY.value.roundToInt().coerceIn(-maxSwipeY..maxSwipeY),
                 )
             }
             .scale(
@@ -629,7 +655,11 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
         }
     }
 
-    var swipeY by remember { mutableFloatStateOf(0f) }
+    val swipeY = remember { Animatable(0f) }
+
+    val maxSwipeY = with(density) {
+        GRID_ITEM_MAX_SWIPE_Y.dp.roundToPx()
+    }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
@@ -656,12 +686,18 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onDoubleTap = {
-                        handleEblanAction(
-                            eblanAction = gridItem.doubleTap,
-                            launcherApps = launcherApps,
-                            context = context,
-                            onOpenAppDrawer = onOpenAppDrawer,
-                        )
+                        scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            handleEblanAction(
+                                eblanAction = gridItem.doubleTap,
+                                launcherApps = launcherApps,
+                                context = context,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+                        }
                     },
                     onLongPress = {
                         scope.launch {
@@ -715,22 +751,36 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
             .pointerInput(key1 = Unit) {
                 detectVerticalDragGestures(
                     onDragStart = {
-                        swipeY = 0f
+                        scope.launch {
+                            swipeY.snapTo(0f)
+                        }
                     },
                     onVerticalDrag = { _, dragAmount ->
-                        swipeY += dragAmount
+                        scope.launch {
+                            swipeY.snapTo(swipeY.value + dragAmount)
+                        }
                     },
                     onDragEnd = {
-                        swipeEblanAction(
-                            swipeY = swipeY,
-                            swipeUp = gridItem.swipeUp,
-                            swipeDown = gridItem.swipeDown,
-                            launcherApps = launcherApps,
-                            context = context,
-                            density = density,
-                            onOpenAppDrawer = onOpenAppDrawer,
-                        )
+                        scope.launch {
+                            swipeEblanAction(
+                                swipeY = swipeY.value,
+                                swipeUp = gridItem.swipeUp,
+                                swipeDown = gridItem.swipeDown,
+                                launcherApps = launcherApps,
+                                context = context,
+                                density = density,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+
+                            swipeY.animateTo(0f)
+                        }
                     },
+                )
+            }
+            .offset {
+                IntOffset(
+                    x = 0,
+                    y = swipeY.value.roundToInt().coerceIn(-maxSwipeY..maxSwipeY),
                 )
             }
             .scale(
@@ -832,7 +882,11 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
         }
     }
 
-    var swipeY by remember { mutableFloatStateOf(0f) }
+    val swipeY = remember { Animatable(0f) }
+
+    val maxSwipeY = with(density) {
+        GRID_ITEM_MAX_SWIPE_Y.dp.roundToPx()
+    }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
@@ -859,12 +913,18 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onDoubleTap = {
-                        handleEblanAction(
-                            eblanAction = gridItem.doubleTap,
-                            launcherApps = launcherApps,
-                            context = context,
-                            onOpenAppDrawer = onOpenAppDrawer,
-                        )
+                        scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            handleEblanAction(
+                                eblanAction = gridItem.doubleTap,
+                                launcherApps = launcherApps,
+                                context = context,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+                        }
                     },
                     onLongPress = {
                         scope.launch {
@@ -912,22 +972,36 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
             .pointerInput(key1 = Unit) {
                 detectVerticalDragGestures(
                     onDragStart = {
-                        swipeY = 0f
+                        scope.launch {
+                            swipeY.snapTo(0f)
+                        }
                     },
                     onVerticalDrag = { _, dragAmount ->
-                        swipeY += dragAmount
+                        scope.launch {
+                            swipeY.snapTo(swipeY.value + dragAmount)
+                        }
                     },
                     onDragEnd = {
-                        swipeEblanAction(
-                            swipeY = swipeY,
-                            swipeUp = gridItem.swipeUp,
-                            swipeDown = gridItem.swipeDown,
-                            launcherApps = launcherApps,
-                            context = context,
-                            density = density,
-                            onOpenAppDrawer = onOpenAppDrawer,
-                        )
+                        scope.launch {
+                            swipeEblanAction(
+                                swipeY = swipeY.value,
+                                swipeUp = gridItem.swipeUp,
+                                swipeDown = gridItem.swipeDown,
+                                launcherApps = launcherApps,
+                                context = context,
+                                density = density,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+
+                            swipeY.animateTo(0f)
+                        }
                     },
+                )
+            }
+            .offset {
+                IntOffset(
+                    x = 0,
+                    y = swipeY.value.roundToInt().coerceIn(-maxSwipeY..maxSwipeY),
                 )
             }
             .scale(
@@ -1031,7 +1105,11 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
         }
     }
 
-    var swipeY by remember { mutableFloatStateOf(0f) }
+    val swipeY = remember { Animatable(0f) }
+
+    val maxSwipeY = with(density) {
+        GRID_ITEM_MAX_SWIPE_Y.dp.roundToPx()
+    }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
@@ -1058,12 +1136,18 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onDoubleTap = {
-                        handleEblanAction(
-                            eblanAction = gridItem.doubleTap,
-                            launcherApps = launcherApps,
-                            context = context,
-                            onOpenAppDrawer = onOpenAppDrawer,
-                        )
+                        scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            handleEblanAction(
+                                eblanAction = gridItem.doubleTap,
+                                launcherApps = launcherApps,
+                                context = context,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+                        }
                     },
                     onLongPress = {
                         scope.launch {
@@ -1111,22 +1195,36 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
             .pointerInput(key1 = Unit) {
                 detectVerticalDragGestures(
                     onDragStart = {
-                        swipeY = 0f
+                        scope.launch {
+                            swipeY.snapTo(0f)
+                        }
                     },
                     onVerticalDrag = { _, dragAmount ->
-                        swipeY += dragAmount
+                        scope.launch {
+                            swipeY.snapTo(swipeY.value + dragAmount)
+                        }
                     },
                     onDragEnd = {
-                        swipeEblanAction(
-                            swipeY = swipeY,
-                            swipeUp = gridItem.swipeUp,
-                            swipeDown = gridItem.swipeDown,
-                            launcherApps = launcherApps,
-                            context = context,
-                            density = density,
-                            onOpenAppDrawer = onOpenAppDrawer,
-                        )
+                        scope.launch {
+                            swipeEblanAction(
+                                swipeY = swipeY.value,
+                                swipeUp = gridItem.swipeUp,
+                                swipeDown = gridItem.swipeDown,
+                                launcherApps = launcherApps,
+                                context = context,
+                                density = density,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+
+                            swipeY.animateTo(0f)
+                        }
                     },
+                )
+            }
+            .offset {
+                IntOffset(
+                    x = 0,
+                    y = swipeY.value.roundToInt().coerceIn(-maxSwipeY..maxSwipeY),
                 )
             }
             .scale(

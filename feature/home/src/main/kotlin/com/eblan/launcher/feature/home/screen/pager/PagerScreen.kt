@@ -335,7 +335,7 @@ internal fun SharedTransitionScope.PagerScreen(
                         }
                     },
                     onDragEnd = {
-                        doEblanActions(
+                        swipeEblanAction(
                             gestureSettings = gestureSettings,
                             swipeUpY = swipeUpY.value,
                             swipeDownY = swipeDownY.value,

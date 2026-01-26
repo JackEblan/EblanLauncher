@@ -139,10 +139,10 @@ fun EblanActionSettings(
 
 fun EblanActionType.getEblanActionTypeSubtitle(componentName: String): String = when (this) {
     EblanActionType.None -> "None"
-    EblanActionType.OpenApp -> "Open ${componentName.ifBlank { "app" }}"
-    EblanActionType.OpenAppDrawer -> "Open app drawer"
-    EblanActionType.OpenNotificationPanel -> "Open notification panel"
-    EblanActionType.LockScreen -> "Lock screen"
-    EblanActionType.OpenQuickSettings -> "Open quick settings"
-    EblanActionType.OpenRecents -> "Open recents"
+    EblanActionType.OpenApp -> "Open ${componentName.ifBlank { "App" }}"
+    EblanActionType.OpenAppDrawer -> "Open App Drawer"
+    EblanActionType.OpenNotificationPanel -> "Open Notification Panel"
+    EblanActionType.LockScreen -> "Lock Screen"
+    EblanActionType.OpenQuickSettings -> "Open Quick Settings"
+    EblanActionType.OpenRecents -> "Open Recents"
 }

@@ -323,13 +323,13 @@ class Migration7To8Test {
         verticalArrangement,
         -- doubleTap
         doubleTapeblanActionType,
-        doubleTapComponentName,
+        doubleTapcomponentName,
         -- swipeUp
         swipeUpeblanActionType,
-        swipeUpComponentName,
+        swipeUpcomponentName,
         -- swipeDown
         swipeDowneblanActionType,
-        swipeDownComponentName
+        swipeDowncomponentName
     FROM ApplicationInfoGridItemEntity
     WHERE id = 'app_com.example.app_1'
             """.trimIndent(),
@@ -442,11 +442,11 @@ class Migration7To8Test {
         horizontalAlignment,
         verticalArrangement,
         doubleTapeblanActionType,
-        doubleTapComponentName,
+        doubleTapcomponentName,
         swipeUpeblanActionType,
-        swipeUpComponentName,
+        swipeUpcomponentName,
         swipeDowneblanActionType,
-        swipeDownComponentName
+        swipeDowncomponentName
     FROM ShortcutInfoGridItemEntity
             """.trimIndent(),
         ).use { cursor ->
@@ -554,13 +554,13 @@ class Migration7To8Test {
         verticalArrangement,
         -- doubleTap
         doubleTapeblanActionType,
-        doubleTapComponentName,
+        doubleTapcomponentName,
         -- swipeUp
         swipeUpeblanActionType,
-        swipeUpComponentName,
+        swipeUpcomponentName,
         -- swipeDown
         swipeDowneblanActionType,
-        swipeDownComponentName
+        swipeDowncomponentName
     FROM FolderGridItemEntity
     WHERE id = 'folder_abc123'
             """.trimIndent(),
@@ -657,13 +657,13 @@ class Migration7To8Test {
         verticalArrangement,
         -- doubleTap
         doubleTapeblanActionType,
-        doubleTapComponentName,
+        doubleTapcomponentName,
         -- swipeUp
         swipeUpeblanActionType,
-        swipeUpComponentName,
+        swipeUpcomponentName,
         -- swipeDown
         swipeDowneblanActionType,
-        swipeDownComponentName
+        swipeDowncomponentName
     FROM ShortcutConfigGridItemEntity
     WHERE id = 'config_shortcut_001'
             """.trimIndent(),

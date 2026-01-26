@@ -151,14 +151,20 @@ class Migration3To4Test {
         dbV5.query("SELECT componentName FROM `ApplicationInfoGridItemEntity` WHERE id = 'app1'")
             .use { cursor ->
                 assertTrue(cursor.moveToFirst())
-                assertEquals("", cursor.getString(0)) // NULL → "" safely migrated
+                assertEquals(
+                    "",
+                    cursor.getString(cursor.getColumnIndexOrThrow("componentName")),
+                ) // NULL → "" safely migrated
             }
 
         // WidgetGridItemEntity
         dbV5.query("SELECT componentName FROM `WidgetGridItemEntity` WHERE id = 'widget1'")
             .use { cursor ->
                 assertTrue(cursor.moveToFirst())
-                assertEquals("com.example.app/com.example.widget.OldWidget", cursor.getString(0))
+                assertEquals(
+                    "com.example.app/com.example.widget.OldWidget",
+                    cursor.getString(cursor.getColumnIndexOrThrow("componentName")),
+                )
                 // className column should no longer exist
                 assertEquals(-1, cursor.getColumnIndex("className"))
             }

@@ -1074,36 +1074,6 @@ private fun Modifier.swipeGestures(
 
     val launcherApps = LocalLauncherApps.current
 
-    fun swipeEblanAction(
-        swipeY: Float,
-        swipeUp: EblanAction,
-        swipeDown: EblanAction,
-        launcherApps: AndroidLauncherAppsWrapper,
-        context: Context,
-        maxSwipeY: Int,
-        onOpenAppDrawer: () -> Unit,
-    ) {
-        when {
-            swipeY <= -maxSwipeY -> {
-                handleEblanAction(
-                    eblanAction = swipeUp,
-                    launcherApps = launcherApps,
-                    context = context,
-                    onOpenAppDrawer = onOpenAppDrawer,
-                )
-            }
-
-            swipeY >= maxSwipeY -> {
-                handleEblanAction(
-                    eblanAction = swipeDown,
-                    launcherApps = launcherApps,
-                    context = context,
-                    onOpenAppDrawer = onOpenAppDrawer,
-                )
-            }
-        }
-    }
-
     return if (gridItem.swipeUp.eblanActionType != EblanActionType.None ||
         gridItem.swipeDown.eblanActionType != EblanActionType.None
     ) {
@@ -1165,6 +1135,36 @@ private fun Modifier.swipeGestures(
         }
     } else {
         this
+    }
+}
+
+private fun swipeEblanAction(
+    swipeY: Float,
+    swipeUp: EblanAction,
+    swipeDown: EblanAction,
+    launcherApps: AndroidLauncherAppsWrapper,
+    context: Context,
+    maxSwipeY: Int,
+    onOpenAppDrawer: () -> Unit,
+) {
+    when {
+        swipeY <= -maxSwipeY -> {
+            handleEblanAction(
+                eblanAction = swipeUp,
+                launcherApps = launcherApps,
+                context = context,
+                onOpenAppDrawer = onOpenAppDrawer,
+            )
+        }
+
+        swipeY >= maxSwipeY -> {
+            handleEblanAction(
+                eblanAction = swipeDown,
+                launcherApps = launcherApps,
+                context = context,
+                onOpenAppDrawer = onOpenAppDrawer,
+            )
+        }
     }
 }
 

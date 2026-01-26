@@ -49,6 +49,7 @@ internal fun swipeEblanAction(
     screenHeight: Int,
     launcherApps: AndroidLauncherAppsWrapper,
     context: Context,
+    onOpenAppDrawer: () -> Unit,
 ) {
     val swipeThreshold = 100f
 
@@ -57,7 +58,7 @@ internal fun swipeEblanAction(
             eblanAction = gestureSettings.swipeUp,
             launcherApps = launcherApps,
             context = context,
-            onOpenAppDrawer = {},
+            onOpenAppDrawer = onOpenAppDrawer,
         )
     }
 

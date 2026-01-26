@@ -342,6 +342,9 @@ internal fun SharedTransitionScope.PagerScreen(
                             screenHeight = screenHeight,
                             launcherApps = launcherApps,
                             context = context,
+                            onOpenAppDrawer = {
+                                showAppDrawer = true
+                            },
                         )
 
                         scope.launch {

@@ -50,8 +50,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
@@ -253,6 +256,8 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
     val context = LocalContext.current
 
+    val density = LocalDensity.current
+
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
@@ -378,6 +383,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                             swipeDown = gridItem.swipeDown,
                             launcherApps = launcherApps,
                             context = context,
+                            density = density,
                             onOpenAppDrawer = onOpenAppDrawer,
                         )
                     },
@@ -591,6 +597,8 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 
     val context = LocalContext.current
 
+    val density = LocalDensity.current
+
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
@@ -719,6 +727,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                             swipeDown = gridItem.swipeDown,
                             launcherApps = launcherApps,
                             context = context,
+                            density = density,
                             onOpenAppDrawer = onOpenAppDrawer,
                         )
                     },
@@ -790,6 +799,8 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     val launcherApps = LocalLauncherApps.current
 
     val context = LocalContext.current
+
+    val density = LocalDensity.current
 
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -913,6 +924,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                             swipeDown = gridItem.swipeDown,
                             launcherApps = launcherApps,
                             context = context,
+                            density = density,
                             onOpenAppDrawer = onOpenAppDrawer,
                         )
                     },
@@ -986,6 +998,8 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     val launcherApps = LocalLauncherApps.current
 
     val context = LocalContext.current
+
+    val density = LocalDensity.current
 
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -1109,6 +1123,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                             swipeDown = gridItem.swipeDown,
                             launcherApps = launcherApps,
                             context = context,
+                            density = density,
                             onOpenAppDrawer = onOpenAppDrawer,
                         )
                     },
@@ -1160,12 +1175,15 @@ private fun swipeEblanAction(
     swipeDown: EblanAction,
     launcherApps: AndroidLauncherAppsWrapper,
     context: Context,
+    density: Density,
     onOpenAppDrawer: () -> Unit,
 ) {
-    val minSwipeDistance = 80f
+    val minSwipeDistancePx = with(density) {
+        30.dp.roundToPx()
+    }
 
     when {
-        swipeY <= -minSwipeDistance -> {
+        swipeY <= -minSwipeDistancePx -> {
             handleEblanAction(
                 eblanAction = swipeUp,
                 launcherApps = launcherApps,
@@ -1174,7 +1192,7 @@ private fun swipeEblanAction(
             )
         }
 
-        swipeY >= minSwipeDistance -> {
+        swipeY >= minSwipeDistancePx -> {
             handleEblanAction(
                 eblanAction = swipeDown,
                 launcherApps = launcherApps,

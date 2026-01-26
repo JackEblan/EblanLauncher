@@ -1100,15 +1100,6 @@ private fun Modifier.swipeGestures(
                 },
                 onDragCancel = {
                     scope.launch {
-                        swipeEblanAction(
-                            swipeY = swipeY.value,
-                            swipeUp = gridItem.swipeUp,
-                            swipeDown = gridItem.swipeDown,
-                            launcherApps = launcherApps,
-                            context = context,
-                            maxSwipeY = maxSwipeY,
-                            onOpenAppDrawer = onOpenAppDrawer,
-                        )
                         swipeY.animateTo(0f)
                     }
                 },

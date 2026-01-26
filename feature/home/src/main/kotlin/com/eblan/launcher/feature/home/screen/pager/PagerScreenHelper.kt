@@ -67,7 +67,7 @@ internal fun swipeEblanAction(
             eblanAction = gestureSettings.swipeDown,
             launcherApps = launcherApps,
             context = context,
-            onOpenAppDrawer = {},
+            onOpenAppDrawer = onOpenAppDrawer,
         )
     }
 }

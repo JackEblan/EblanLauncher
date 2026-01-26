@@ -26,37 +26,37 @@ class Migration7To8 : Migration(7, 8) {
         db.execSQL(
             """
             ALTER TABLE ApplicationInfoGridItemEntity 
-            ADD COLUMN doubleTapeblanActionType TEXT NOT NULL DEFAULT 'None'
+            ADD COLUMN doubleTap_eblanActionType TEXT NOT NULL DEFAULT 'None'
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ApplicationInfoGridItemEntity 
-            ADD COLUMN doubleTapcomponentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN doubleTap_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ApplicationInfoGridItemEntity 
-            ADD COLUMN swipeUpeblanActionType TEXT NOT NULL DEFAULT 'None'
+            ADD COLUMN swipeUp_eblanActionType TEXT NOT NULL DEFAULT 'None'
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ApplicationInfoGridItemEntity 
-            ADD COLUMN swipeUpcomponentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN swipeUp_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ApplicationInfoGridItemEntity 
-            ADD COLUMN swipeDowneblanActionType TEXT NOT NULL DEFAULT 'None'
+            ADD COLUMN swipeDown_eblanActionType TEXT NOT NULL DEFAULT 'None'
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ApplicationInfoGridItemEntity 
-            ADD COLUMN swipeDowncomponentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN swipeDown_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
 
@@ -64,37 +64,37 @@ class Migration7To8 : Migration(7, 8) {
         db.execSQL(
             """
             ALTER TABLE ShortcutInfoGridItemEntity 
-            ADD COLUMN doubleTapeblanActionType TEXT NOT NULL DEFAULT 'None'
+            ADD COLUMN doubleTap_eblanActionType TEXT NOT NULL DEFAULT 'None'
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ShortcutInfoGridItemEntity 
-            ADD COLUMN doubleTapcomponentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN doubleTap_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ShortcutInfoGridItemEntity 
-            ADD COLUMN swipeUpeblanActionType TEXT NOT NULL DEFAULT 'None'
+            ADD COLUMN swipeUp_eblanActionType TEXT NOT NULL DEFAULT 'None'
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ShortcutInfoGridItemEntity 
-            ADD COLUMN swipeUpcomponentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN swipeUp_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ShortcutInfoGridItemEntity 
-            ADD COLUMN swipeDowneblanActionType TEXT NOT NULL DEFAULT 'None'
+            ADD COLUMN swipeDown_eblanActionType TEXT NOT NULL DEFAULT 'None'
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ShortcutInfoGridItemEntity 
-            ADD COLUMN swipeDowncomponentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN swipeDown_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
 
@@ -102,37 +102,37 @@ class Migration7To8 : Migration(7, 8) {
         db.execSQL(
             """
             ALTER TABLE FolderGridItemEntity 
-            ADD COLUMN doubleTapeblanActionType TEXT NOT NULL DEFAULT 'None'
+            ADD COLUMN doubleTap_eblanActionType TEXT NOT NULL DEFAULT 'None'
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE FolderGridItemEntity 
-            ADD COLUMN doubleTapcomponentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN doubleTap_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE FolderGridItemEntity 
-            ADD COLUMN swipeUpeblanActionType TEXT NOT NULL DEFAULT 'None'
+            ADD COLUMN swipeUp_eblanActionType TEXT NOT NULL DEFAULT 'None'
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE FolderGridItemEntity 
-            ADD COLUMN swipeUpcomponentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN swipeUp_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE FolderGridItemEntity 
-            ADD COLUMN swipeDowneblanActionType TEXT NOT NULL DEFAULT 'None'
+            ADD COLUMN swipeDown_eblanActionType TEXT NOT NULL DEFAULT 'None'
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE FolderGridItemEntity 
-            ADD COLUMN swipeDowncomponentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN swipeDown_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
 
@@ -140,37 +140,37 @@ class Migration7To8 : Migration(7, 8) {
         db.execSQL(
             """
             ALTER TABLE ShortcutConfigGridItemEntity 
-            ADD COLUMN doubleTapeblanActionType TEXT NOT NULL DEFAULT 'None'
+            ADD COLUMN doubleTap_eblanActionType TEXT NOT NULL DEFAULT 'None'
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ShortcutConfigGridItemEntity 
-            ADD COLUMN doubleTapcomponentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN doubleTap_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ShortcutConfigGridItemEntity 
-            ADD COLUMN swipeUpeblanActionType TEXT NOT NULL DEFAULT 'None'
+            ADD COLUMN swipeUp_eblanActionType TEXT NOT NULL DEFAULT 'None'
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ShortcutConfigGridItemEntity 
-            ADD COLUMN swipeUpcomponentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN swipeUp_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ShortcutConfigGridItemEntity 
-            ADD COLUMN swipeDowneblanActionType TEXT NOT NULL DEFAULT 'None'
+            ADD COLUMN swipeDown_eblanActionType TEXT NOT NULL DEFAULT 'None'
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ShortcutConfigGridItemEntity 
-            ADD COLUMN swipeDowncomponentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN swipeDown_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
     }

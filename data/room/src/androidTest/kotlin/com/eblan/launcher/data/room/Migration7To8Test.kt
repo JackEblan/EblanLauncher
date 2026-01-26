@@ -322,14 +322,14 @@ class Migration7To8Test {
         horizontalAlignment,
         verticalArrangement,
         -- doubleTap
-        doubleTapeblanActionType,
-        doubleTapcomponentName,
+        doubleTap_eblanActionType,
+        doubleTap_componentName,
         -- swipeUp
-        swipeUpeblanActionType,
-        swipeUpcomponentName,
+        swipeUp_eblanActionType,
+        swipeUp_componentName,
         -- swipeDown
-        swipeDowneblanActionType,
-        swipeDowncomponentName
+        swipeDown_eblanActionType,
+        swipeDown_componentName
     FROM ApplicationInfoGridItemEntity
     WHERE id = 'app_com.example.app_1'
             """.trimIndent(),
@@ -388,26 +388,29 @@ class Migration7To8Test {
             // New gesture action fields – should have default values after migration
             assertEquals(
                 "None",
-                cursor.getString(cursor.getColumnIndexOrThrow("doubleTapeblanActionType")),
+                cursor.getString(cursor.getColumnIndexOrThrow("doubleTap_eblanActionType")),
             )
             assertEquals(
                 "",
-                cursor.getString(cursor.getColumnIndexOrThrow("doubleTapcomponentName")),
+                cursor.getString(cursor.getColumnIndexOrThrow("doubleTap_componentName")),
             )
 
             assertEquals(
                 "None",
-                cursor.getString(cursor.getColumnIndexOrThrow("swipeUpeblanActionType")),
-            )
-            assertEquals("", cursor.getString(cursor.getColumnIndexOrThrow("swipeUpcomponentName")))
-
-            assertEquals(
-                "None",
-                cursor.getString(cursor.getColumnIndexOrThrow("swipeDowneblanActionType")),
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_eblanActionType")),
             )
             assertEquals(
                 "",
-                cursor.getString(cursor.getColumnIndexOrThrow("swipeDowncomponentName")),
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_componentName")),
+            )
+
+            assertEquals(
+                "None",
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeDown_eblanActionType")),
+            )
+            assertEquals(
+                "",
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeDown_componentName")),
             )
         }
 
@@ -441,12 +444,12 @@ class Migration7To8Test {
         singleLineLabel,
         horizontalAlignment,
         verticalArrangement,
-        doubleTapeblanActionType,
-        doubleTapcomponentName,
-        swipeUpeblanActionType,
-        swipeUpcomponentName,
-        swipeDowneblanActionType,
-        swipeDowncomponentName
+        doubleTap_eblanActionType,
+        doubleTap_componentName,
+        swipeUp_eblanActionType,
+        swipeUp_componentName,
+        swipeDown_eblanActionType,
+        swipeDown_componentName
     FROM ShortcutInfoGridItemEntity
             """.trimIndent(),
         ).use { cursor ->
@@ -505,26 +508,29 @@ class Migration7To8Test {
 
             assertEquals(
                 "None",
-                cursor.getString(cursor.getColumnIndexOrThrow("doubleTapeblanActionType")),
+                cursor.getString(cursor.getColumnIndexOrThrow("doubleTap_eblanActionType")),
             )
             assertEquals(
                 "",
-                cursor.getString(cursor.getColumnIndexOrThrow("doubleTapcomponentName")),
+                cursor.getString(cursor.getColumnIndexOrThrow("doubleTap_componentName")),
             )
 
             assertEquals(
                 "None",
-                cursor.getString(cursor.getColumnIndexOrThrow("swipeUpeblanActionType")),
-            )
-            assertEquals("", cursor.getString(cursor.getColumnIndexOrThrow("swipeUpcomponentName")))
-
-            assertEquals(
-                "None",
-                cursor.getString(cursor.getColumnIndexOrThrow("swipeDowneblanActionType")),
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_eblanActionType")),
             )
             assertEquals(
                 "",
-                cursor.getString(cursor.getColumnIndexOrThrow("swipeDowncomponentName")),
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_componentName")),
+            )
+
+            assertEquals(
+                "None",
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeDown_eblanActionType")),
+            )
+            assertEquals(
+                "",
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeDown_componentName")),
             )
         }
 
@@ -553,14 +559,14 @@ class Migration7To8Test {
         horizontalAlignment,
         verticalArrangement,
         -- doubleTap
-        doubleTapeblanActionType,
-        doubleTapcomponentName,
+        doubleTap_eblanActionType,
+        doubleTap_componentName,
         -- swipeUp
-        swipeUpeblanActionType,
-        swipeUpcomponentName,
+        swipeUp_eblanActionType,
+        swipeUp_componentName,
         -- swipeDown
-        swipeDowneblanActionType,
-        swipeDowncomponentName
+        swipeDown_eblanActionType,
+        swipeDown_componentName
     FROM FolderGridItemEntity
     WHERE id = 'folder_abc123'
             """.trimIndent(),
@@ -599,26 +605,29 @@ class Migration7To8Test {
             // New gesture action fields — should have default values after migration
             assertEquals(
                 "None",
-                cursor.getString(cursor.getColumnIndexOrThrow("doubleTapeblanActionType")),
+                cursor.getString(cursor.getColumnIndexOrThrow("doubleTap_eblanActionType")),
             )
             assertEquals(
                 "",
-                cursor.getString(cursor.getColumnIndexOrThrow("doubleTapcomponentName")),
+                cursor.getString(cursor.getColumnIndexOrThrow("doubleTap_componentName")),
             )
 
             assertEquals(
                 "None",
-                cursor.getString(cursor.getColumnIndexOrThrow("swipeUpeblanActionType")),
-            )
-            assertEquals("", cursor.getString(cursor.getColumnIndexOrThrow("swipeUpcomponentName")))
-
-            assertEquals(
-                "None",
-                cursor.getString(cursor.getColumnIndexOrThrow("swipeDowneblanActionType")),
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_eblanActionType")),
             )
             assertEquals(
                 "",
-                cursor.getString(cursor.getColumnIndexOrThrow("swipeDowncomponentName")),
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_componentName")),
+            )
+
+            assertEquals(
+                "None",
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeDown_eblanActionType")),
+            )
+            assertEquals(
+                "",
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeDown_componentName")),
             )
         }
 
@@ -656,14 +665,14 @@ class Migration7To8Test {
         horizontalAlignment,
         verticalArrangement,
         -- doubleTap
-        doubleTapeblanActionType,
-        doubleTapcomponentName,
+        doubleTap_eblanActionType,
+        doubleTap_componentName,
         -- swipeUp
-        swipeUpeblanActionType,
-        swipeUpcomponentName,
+        swipeUp_eblanActionType,
+        swipeUp_componentName,
         -- swipeDown
-        swipeDowneblanActionType,
-        swipeDowncomponentName
+        swipeDown_eblanActionType,
+        swipeDown_componentName
     FROM ShortcutConfigGridItemEntity
     WHERE id = 'config_shortcut_001'
             """.trimIndent(),
@@ -732,26 +741,29 @@ class Migration7To8Test {
             // New gesture fields — should have default values after migration
             assertEquals(
                 "None",
-                cursor.getString(cursor.getColumnIndexOrThrow("doubleTapeblanActionType")),
+                cursor.getString(cursor.getColumnIndexOrThrow("doubleTap_eblanActionType")),
             )
             assertEquals(
                 "",
-                cursor.getString(cursor.getColumnIndexOrThrow("doubleTapcomponentName")),
+                cursor.getString(cursor.getColumnIndexOrThrow("doubleTap_componentName")),
             )
 
             assertEquals(
                 "None",
-                cursor.getString(cursor.getColumnIndexOrThrow("swipeUpeblanActionType")),
-            )
-            assertEquals("", cursor.getString(cursor.getColumnIndexOrThrow("swipeUpcomponentName")))
-
-            assertEquals(
-                "None",
-                cursor.getString(cursor.getColumnIndexOrThrow("swipeDowneblanActionType")),
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_eblanActionType")),
             )
             assertEquals(
                 "",
-                cursor.getString(cursor.getColumnIndexOrThrow("swipeDowncomponentName")),
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_componentName")),
+            )
+
+            assertEquals(
+                "None",
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeDown_eblanActionType")),
+            )
+            assertEquals(
+                "",
+                cursor.getString(cursor.getColumnIndexOrThrow("swipeDown_componentName")),
             )
         }
     }

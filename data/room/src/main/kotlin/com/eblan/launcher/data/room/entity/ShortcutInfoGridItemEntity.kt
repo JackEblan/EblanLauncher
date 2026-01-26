@@ -47,7 +47,7 @@ data class ShortcutInfoGridItemEntity(
     val customIcon: String?,
     val customShortLabel: String?,
     @Embedded val gridItemSettings: GridItemSettings,
-    @Embedded(prefix = "doubleTap") val doubleTap: EblanAction,
-    @Embedded(prefix = "swipeUp") val swipeUp: EblanAction,
-    @Embedded(prefix = "swipeDown") val swipeDown: EblanAction,
+    @Embedded(prefix = "doubleTap_") val doubleTap: EblanAction,
+    @Embedded(prefix = "swipeUp_") val swipeUp: EblanAction,
+    @Embedded(prefix = "swipeDown_") val swipeDown: EblanAction,
 )

@@ -1083,10 +1083,7 @@ private fun Modifier.swipeGestures(
             GRID_ITEM_MAX_SWIPE_Y.dp.roundToPx()
         }
 
-        pointerInput(
-            key1 = gridItem.swipeUp,
-            key2 = gridItem.swipeDown,
-        ) {
+        pointerInput(key1 = Unit) {
             detectVerticalDragGestures(
                 onDragStart = {
                     scope.launch {

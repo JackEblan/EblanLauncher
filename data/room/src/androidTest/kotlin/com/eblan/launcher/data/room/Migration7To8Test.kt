@@ -323,12 +323,15 @@ class Migration7To8Test {
         verticalArrangement,
         -- doubleTap
         doubleTap_eblanActionType,
+        doubleTap_serialNumber,
         doubleTap_componentName,
         -- swipeUp
         swipeUp_eblanActionType,
+        swipeUp_serialNumber,
         swipeUp_componentName,
         -- swipeDown
         swipeDown_eblanActionType,
+        swipeDown_serialNumber,
         swipeDown_componentName
     FROM ApplicationInfoGridItemEntity
     WHERE id = 'app_com.example.app_1'
@@ -385,10 +388,14 @@ class Migration7To8Test {
                 cursor.getString(cursor.getColumnIndexOrThrow("verticalArrangement")),
             )
 
-            // New gesture action fields – should have default values after migration
+            // New gesture fields — should have default values after migration
             assertEquals(
                 "None",
                 cursor.getString(cursor.getColumnIndexOrThrow("doubleTap_eblanActionType")),
+            )
+            assertEquals(
+                0L,
+                cursor.getLong(cursor.getColumnIndexOrThrow("doubleTap_serialNumber")),
             )
             assertEquals(
                 "",
@@ -400,6 +407,10 @@ class Migration7To8Test {
                 cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_eblanActionType")),
             )
             assertEquals(
+                0L,
+                cursor.getLong(cursor.getColumnIndexOrThrow("swipeUp_serialNumber")),
+            )
+            assertEquals(
                 "",
                 cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_componentName")),
             )
@@ -407,6 +418,10 @@ class Migration7To8Test {
             assertEquals(
                 "None",
                 cursor.getString(cursor.getColumnIndexOrThrow("swipeDown_eblanActionType")),
+            )
+            assertEquals(
+                0L,
+                cursor.getLong(cursor.getColumnIndexOrThrow("swipeDown_serialNumber")),
             )
             assertEquals(
                 "",
@@ -444,11 +459,17 @@ class Migration7To8Test {
         singleLineLabel,
         horizontalAlignment,
         verticalArrangement,
+        -- doubleTap
         doubleTap_eblanActionType,
+        doubleTap_serialNumber,
         doubleTap_componentName,
+        -- swipeUp
         swipeUp_eblanActionType,
+        swipeUp_serialNumber,
         swipeUp_componentName,
+        -- swipeDown
         swipeDown_eblanActionType,
+        swipeDown_serialNumber,
         swipeDown_componentName
     FROM ShortcutInfoGridItemEntity
             """.trimIndent(),
@@ -506,9 +527,14 @@ class Migration7To8Test {
                 cursor.getString(cursor.getColumnIndexOrThrow("verticalArrangement")),
             )
 
+            // New gesture fields — should have default values after migration
             assertEquals(
                 "None",
                 cursor.getString(cursor.getColumnIndexOrThrow("doubleTap_eblanActionType")),
+            )
+            assertEquals(
+                0L,
+                cursor.getLong(cursor.getColumnIndexOrThrow("doubleTap_serialNumber")),
             )
             assertEquals(
                 "",
@@ -520,6 +546,10 @@ class Migration7To8Test {
                 cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_eblanActionType")),
             )
             assertEquals(
+                0L,
+                cursor.getLong(cursor.getColumnIndexOrThrow("swipeUp_serialNumber")),
+            )
+            assertEquals(
                 "",
                 cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_componentName")),
             )
@@ -527,6 +557,10 @@ class Migration7To8Test {
             assertEquals(
                 "None",
                 cursor.getString(cursor.getColumnIndexOrThrow("swipeDown_eblanActionType")),
+            )
+            assertEquals(
+                0L,
+                cursor.getLong(cursor.getColumnIndexOrThrow("swipeDown_serialNumber")),
             )
             assertEquals(
                 "",
@@ -560,12 +594,15 @@ class Migration7To8Test {
         verticalArrangement,
         -- doubleTap
         doubleTap_eblanActionType,
+        doubleTap_serialNumber,
         doubleTap_componentName,
         -- swipeUp
         swipeUp_eblanActionType,
+        swipeUp_serialNumber,
         swipeUp_componentName,
         -- swipeDown
         swipeDown_eblanActionType,
+        swipeDown_serialNumber,
         swipeDown_componentName
     FROM FolderGridItemEntity
     WHERE id = 'folder_abc123'
@@ -602,10 +639,14 @@ class Migration7To8Test {
                 cursor.getString(cursor.getColumnIndexOrThrow("verticalArrangement")),
             )
 
-            // New gesture action fields — should have default values after migration
+            // New gesture fields — should have default values after migration
             assertEquals(
                 "None",
                 cursor.getString(cursor.getColumnIndexOrThrow("doubleTap_eblanActionType")),
+            )
+            assertEquals(
+                0L,
+                cursor.getLong(cursor.getColumnIndexOrThrow("doubleTap_serialNumber")),
             )
             assertEquals(
                 "",
@@ -617,6 +658,10 @@ class Migration7To8Test {
                 cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_eblanActionType")),
             )
             assertEquals(
+                0L,
+                cursor.getLong(cursor.getColumnIndexOrThrow("swipeUp_serialNumber")),
+            )
+            assertEquals(
                 "",
                 cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_componentName")),
             )
@@ -624,6 +669,10 @@ class Migration7To8Test {
             assertEquals(
                 "None",
                 cursor.getString(cursor.getColumnIndexOrThrow("swipeDown_eblanActionType")),
+            )
+            assertEquals(
+                0L,
+                cursor.getLong(cursor.getColumnIndexOrThrow("swipeDown_serialNumber")),
             )
             assertEquals(
                 "",
@@ -666,12 +715,15 @@ class Migration7To8Test {
         verticalArrangement,
         -- doubleTap
         doubleTap_eblanActionType,
+        doubleTap_serialNumber,
         doubleTap_componentName,
         -- swipeUp
         swipeUp_eblanActionType,
+        swipeUp_serialNumber,
         swipeUp_componentName,
         -- swipeDown
         swipeDown_eblanActionType,
+        swipeDown_serialNumber,
         swipeDown_componentName
     FROM ShortcutConfigGridItemEntity
     WHERE id = 'config_shortcut_001'
@@ -744,6 +796,10 @@ class Migration7To8Test {
                 cursor.getString(cursor.getColumnIndexOrThrow("doubleTap_eblanActionType")),
             )
             assertEquals(
+                0L,
+                cursor.getLong(cursor.getColumnIndexOrThrow("doubleTap_serialNumber")),
+            )
+            assertEquals(
                 "",
                 cursor.getString(cursor.getColumnIndexOrThrow("doubleTap_componentName")),
             )
@@ -753,6 +809,10 @@ class Migration7To8Test {
                 cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_eblanActionType")),
             )
             assertEquals(
+                0L,
+                cursor.getLong(cursor.getColumnIndexOrThrow("swipeUp_serialNumber")),
+            )
+            assertEquals(
                 "",
                 cursor.getString(cursor.getColumnIndexOrThrow("swipeUp_componentName")),
             )
@@ -760,6 +820,10 @@ class Migration7To8Test {
             assertEquals(
                 "None",
                 cursor.getString(cursor.getColumnIndexOrThrow("swipeDown_eblanActionType")),
+            )
+            assertEquals(
+                0L,
+                cursor.getLong(cursor.getColumnIndexOrThrow("swipeDown_serialNumber")),
             )
             assertEquals(
                 "",

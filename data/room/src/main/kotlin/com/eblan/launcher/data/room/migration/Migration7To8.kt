@@ -32,9 +32,16 @@ class Migration7To8 : Migration(7, 8) {
         db.execSQL(
             """
             ALTER TABLE ApplicationInfoGridItemEntity 
+            ADD COLUMN doubleTap_serialNumber INTEGER NOT NULL DEFAULT 0
+            """.trimIndent(),
+        )
+        db.execSQL(
+            """
+            ALTER TABLE ApplicationInfoGridItemEntity 
             ADD COLUMN doubleTap_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
+
         db.execSQL(
             """
             ALTER TABLE ApplicationInfoGridItemEntity 
@@ -44,13 +51,26 @@ class Migration7To8 : Migration(7, 8) {
         db.execSQL(
             """
             ALTER TABLE ApplicationInfoGridItemEntity 
-            ADD COLUMN swipeUp_componentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN swipeUp_serialNumber INTEGER NOT NULL DEFAULT 0
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ApplicationInfoGridItemEntity 
+            ADD COLUMN swipeUp_componentName TEXT NOT NULL DEFAULT ''
+            """.trimIndent(),
+        )
+
+        db.execSQL(
+            """
+            ALTER TABLE ApplicationInfoGridItemEntity 
             ADD COLUMN swipeDown_eblanActionType TEXT NOT NULL DEFAULT 'None'
+            """.trimIndent(),
+        )
+        db.execSQL(
+            """
+            ALTER TABLE ApplicationInfoGridItemEntity 
+            ADD COLUMN swipeDown_serialNumber INTEGER NOT NULL DEFAULT 0
             """.trimIndent(),
         )
         db.execSQL(
@@ -70,9 +90,16 @@ class Migration7To8 : Migration(7, 8) {
         db.execSQL(
             """
             ALTER TABLE ShortcutInfoGridItemEntity 
+            ADD COLUMN doubleTap_serialNumber INTEGER NOT NULL DEFAULT 0
+            """.trimIndent(),
+        )
+        db.execSQL(
+            """
+            ALTER TABLE ShortcutInfoGridItemEntity 
             ADD COLUMN doubleTap_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
+
         db.execSQL(
             """
             ALTER TABLE ShortcutInfoGridItemEntity 
@@ -82,13 +109,26 @@ class Migration7To8 : Migration(7, 8) {
         db.execSQL(
             """
             ALTER TABLE ShortcutInfoGridItemEntity 
-            ADD COLUMN swipeUp_componentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN swipeUp_serialNumber INTEGER NOT NULL DEFAULT 0
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ShortcutInfoGridItemEntity 
+            ADD COLUMN swipeUp_componentName TEXT NOT NULL DEFAULT ''
+            """.trimIndent(),
+        )
+
+        db.execSQL(
+            """
+            ALTER TABLE ShortcutInfoGridItemEntity 
             ADD COLUMN swipeDown_eblanActionType TEXT NOT NULL DEFAULT 'None'
+            """.trimIndent(),
+        )
+        db.execSQL(
+            """
+            ALTER TABLE ShortcutInfoGridItemEntity 
+            ADD COLUMN swipeDown_serialNumber INTEGER NOT NULL DEFAULT 0
             """.trimIndent(),
         )
         db.execSQL(
@@ -108,9 +148,16 @@ class Migration7To8 : Migration(7, 8) {
         db.execSQL(
             """
             ALTER TABLE FolderGridItemEntity 
+            ADD COLUMN doubleTap_serialNumber INTEGER NOT NULL DEFAULT 0
+            """.trimIndent(),
+        )
+        db.execSQL(
+            """
+            ALTER TABLE FolderGridItemEntity 
             ADD COLUMN doubleTap_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
+
         db.execSQL(
             """
             ALTER TABLE FolderGridItemEntity 
@@ -120,13 +167,26 @@ class Migration7To8 : Migration(7, 8) {
         db.execSQL(
             """
             ALTER TABLE FolderGridItemEntity 
-            ADD COLUMN swipeUp_componentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN swipeUp_serialNumber INTEGER NOT NULL DEFAULT 0
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE FolderGridItemEntity 
+            ADD COLUMN swipeUp_componentName TEXT NOT NULL DEFAULT ''
+            """.trimIndent(),
+        )
+
+        db.execSQL(
+            """
+            ALTER TABLE FolderGridItemEntity 
             ADD COLUMN swipeDown_eblanActionType TEXT NOT NULL DEFAULT 'None'
+            """.trimIndent(),
+        )
+        db.execSQL(
+            """
+            ALTER TABLE FolderGridItemEntity 
+            ADD COLUMN swipeDown_serialNumber INTEGER NOT NULL DEFAULT 0
             """.trimIndent(),
         )
         db.execSQL(
@@ -146,9 +206,16 @@ class Migration7To8 : Migration(7, 8) {
         db.execSQL(
             """
             ALTER TABLE ShortcutConfigGridItemEntity 
+            ADD COLUMN doubleTap_serialNumber INTEGER NOT NULL DEFAULT 0
+            """.trimIndent(),
+        )
+        db.execSQL(
+            """
+            ALTER TABLE ShortcutConfigGridItemEntity 
             ADD COLUMN doubleTap_componentName TEXT NOT NULL DEFAULT ''
             """.trimIndent(),
         )
+
         db.execSQL(
             """
             ALTER TABLE ShortcutConfigGridItemEntity 
@@ -158,13 +225,26 @@ class Migration7To8 : Migration(7, 8) {
         db.execSQL(
             """
             ALTER TABLE ShortcutConfigGridItemEntity 
-            ADD COLUMN swipeUp_componentName TEXT NOT NULL DEFAULT ''
+            ADD COLUMN swipeUp_serialNumber INTEGER NOT NULL DEFAULT 0
             """.trimIndent(),
         )
         db.execSQL(
             """
             ALTER TABLE ShortcutConfigGridItemEntity 
+            ADD COLUMN swipeUp_componentName TEXT NOT NULL DEFAULT ''
+            """.trimIndent(),
+        )
+
+        db.execSQL(
+            """
+            ALTER TABLE ShortcutConfigGridItemEntity 
             ADD COLUMN swipeDown_eblanActionType TEXT NOT NULL DEFAULT 'None'
+            """.trimIndent(),
+        )
+        db.execSQL(
+            """
+            ALTER TABLE ShortcutConfigGridItemEntity 
+            ADD COLUMN swipeDown_serialNumber INTEGER NOT NULL DEFAULT 0
             """.trimIndent(),
         )
         db.execSQL(

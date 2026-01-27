@@ -29,8 +29,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class ActionViewModel @Inject constructor(getEblanApplicationInfosUseCase: GetEblanApplicationInfosUseCase) :
-    ViewModel() {
+class ActionViewModel @Inject constructor(getEblanApplicationInfosUseCase: GetEblanApplicationInfosUseCase) : ViewModel() {
     val actionUiState =
         getEblanApplicationInfosUseCase(labelFlow = emptyFlow()).map(ActionUiState::Success)
             .stateIn(

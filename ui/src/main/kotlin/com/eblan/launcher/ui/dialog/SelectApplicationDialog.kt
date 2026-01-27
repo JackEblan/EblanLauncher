@@ -19,6 +19,7 @@ package com.eblan.launcher.ui.dialog
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -86,38 +87,21 @@ fun SelectApplicationDialog(
                         .fillMaxWidth(),
                     state = horizontalPagerState,
                 ) { index ->
-                    val eblanUser = eblanApplicationInfos.keys.toList().getOrElse(
+                    EblanApplicationInfosPage(
                         index = index,
-                        defaultValue = {
-                            EblanUser(
-                                serialNumber = 0L,
-                                eblanUserType = EblanUserType.Personal,
-                                isPrivateSpaceEntryPointHidden = false,
-                            )
-                        },
+                        eblanApplicationInfos = eblanApplicationInfos,
+                        onClick = onClick,
                     )
-
-                    LazyColumn(modifier = Modifier.weight(1f)) {
-                        items(eblanApplicationInfos[eblanUser].orEmpty()) { eblanApplicationInfo ->
-                            ListItem(
-                                headlineContent = { Text(text = eblanApplicationInfo.label) },
-                                leadingContent = {
-                                    AsyncImage(
-                                        model = eblanApplicationInfo.icon,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(40.dp),
-                                    )
-                                },
-                                modifier = Modifier
-                                    .clickable {
-                                        onClick(eblanApplicationInfo)
-                                    }
-                                    .fillMaxWidth()
-                                    .padding(10.dp),
-                            )
-                        }
-                    }
                 }
+            } else {
+                EblanApplicationInfosPage(
+                    modifier = Modifier
+                        .heightIn(max = 300.dp)
+                        .fillMaxWidth(),
+                    index = 0,
+                    eblanApplicationInfos = eblanApplicationInfos,
+                    onClick = onClick,
+                )
             }
 
             TextButton(
@@ -131,6 +115,46 @@ fun SelectApplicationDialog(
             ) {
                 Text(text = "Cancel")
             }
+        }
+    }
+}
+
+@Composable
+private fun EblanApplicationInfosPage(
+    modifier: Modifier = Modifier,
+    index: Int,
+    eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
+    onClick: (EblanApplicationInfo) -> Unit,
+) {
+    val eblanUser = eblanApplicationInfos.keys.toList().getOrElse(
+        index = index,
+        defaultValue = {
+            EblanUser(
+                serialNumber = 0L,
+                eblanUserType = EblanUserType.Personal,
+                isPrivateSpaceEntryPointHidden = false,
+            )
+        },
+    )
+
+    LazyColumn(modifier = modifier) {
+        items(eblanApplicationInfos[eblanUser].orEmpty()) { eblanApplicationInfo ->
+            ListItem(
+                headlineContent = { Text(text = eblanApplicationInfo.label) },
+                leadingContent = {
+                    AsyncImage(
+                        model = eblanApplicationInfo.icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp),
+                    )
+                },
+                modifier = Modifier
+                    .clickable {
+                        onClick(eblanApplicationInfo)
+                    }
+                    .fillMaxWidth()
+                    .padding(10.dp),
+            )
         }
     }
 }

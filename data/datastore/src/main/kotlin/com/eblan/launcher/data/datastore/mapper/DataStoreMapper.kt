@@ -118,6 +118,7 @@ internal fun VerticalArrangementProto.toVerticalArrangement(): VerticalArrangeme
 
 internal fun EblanAction.toEblanActionProto(): EblanActionProto = EblanActionProto.newBuilder()
     .setEblanActionTypeProto(eblanActionType.toEblanActionTypeProto())
+    .setSerialNumber(serialNumber)
     .setComponentName(componentName)
     .build()
 
@@ -149,6 +150,7 @@ internal fun EblanActionTypeProto.toEblanActionType(): EblanActionType = when (t
 
 internal fun EblanActionProto.toEblanAction(): EblanAction = EblanAction(
     eblanActionType = eblanActionTypeProto.toEblanActionType(),
+    serialNumber = serialNumber,
     componentName = componentName,
 )
 

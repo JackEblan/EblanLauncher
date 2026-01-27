@@ -665,14 +665,17 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                                         gridItemSettings = gridItemSettings,
                                         doubleTap = EblanAction(
                                             eblanActionType = EblanActionType.None,
+                                            serialNumber = 0L,
                                             componentName = "",
                                         ),
                                         swipeUp = EblanAction(
                                             eblanActionType = EblanActionType.None,
+                                            serialNumber = 0L,
                                             componentName = "",
                                         ),
                                         swipeDown = EblanAction(
                                             eblanActionType = EblanActionType.None,
+                                            serialNumber = 0L,
                                             componentName = "",
                                         ),
                                     ),

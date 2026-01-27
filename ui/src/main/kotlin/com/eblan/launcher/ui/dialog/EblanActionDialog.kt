@@ -90,6 +90,7 @@ internal fun EblanActionDialog(
                             } else {
                                 selectedEblanAction = EblanAction(
                                     eblanActionType = eblanActionType,
+                                    serialNumber = 0L,
                                     componentName = "",
                                 )
                             }
@@ -134,10 +135,11 @@ internal fun EblanActionDialog(
             onDismissRequest = {
                 showSelectApplicationDialog = false
             },
-            onSelectComponentName = { componentName ->
+            onClick = { eblanApplicationInfo ->
                 selectedEblanAction = EblanAction(
                     eblanActionType = EblanActionType.OpenApp,
-                    componentName = componentName,
+                    serialNumber = eblanApplicationInfo.serialNumber,
+                    componentName = eblanApplicationInfo.componentName,
                 )
 
                 showSelectApplicationDialog = false

@@ -56,14 +56,17 @@ internal fun WidgetGridItemEntity.asGridItem(): GridItem = GridItem(
     gridItemSettings = gridItemSettings,
     doubleTap = EblanAction(
         eblanActionType = EblanActionType.None,
+        serialNumber = 0L,
         componentName = "",
     ),
     swipeUp = EblanAction(
         eblanActionType = EblanActionType.None,
+        serialNumber = 0L,
         componentName = "",
     ),
     swipeDown = EblanAction(
         eblanActionType = EblanActionType.None,
+        serialNumber = 0L,
         componentName = "",
     ),
 )

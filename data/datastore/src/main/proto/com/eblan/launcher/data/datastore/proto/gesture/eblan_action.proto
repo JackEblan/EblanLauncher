@@ -6,7 +6,9 @@ option java_multiple_files = true;
 message EblanActionProto {
   EblanActionTypeProto eblanActionTypeProto = 1;
 
-  string componentName = 2;
+  int64 serialNumber = 2;
+
+  string componentName = 3;
 }
 
 enum EblanActionTypeProto {

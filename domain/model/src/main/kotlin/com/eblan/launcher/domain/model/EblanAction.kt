@@ -22,6 +22,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class EblanAction(
     val eblanActionType: EblanActionType,
+    val serialNumber: Long,
     val componentName: String,
 ) {
     companion object {

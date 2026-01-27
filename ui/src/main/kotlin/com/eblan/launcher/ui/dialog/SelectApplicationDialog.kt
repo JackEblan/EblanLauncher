@@ -51,7 +51,7 @@ fun SelectApplicationDialog(
     modifier: Modifier = Modifier,
     eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
     onDismissRequest: () -> Unit,
-    onSelectComponentName: (String) -> Unit,
+    onClick: (EblanApplicationInfo) -> Unit,
 ) {
     val horizontalPagerState = rememberPagerState(
         pageCount = {
@@ -102,9 +102,7 @@ fun SelectApplicationDialog(
                                 },
                                 modifier = Modifier
                                     .clickable {
-                                        val componentName = eblanApplicationInfo.componentName
-
-                                        onSelectComponentName(componentName)
+                                        onClick(eblanApplicationInfo)
                                     }
                                     .fillMaxWidth()
                                     .padding(10.dp),

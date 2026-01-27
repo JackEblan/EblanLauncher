@@ -153,6 +153,7 @@ private fun Success(
                                     eblanActionType.getResId(),
                                     EblanAction(
                                         eblanActionType = eblanActionType,
+                                        serialNumber = 0L,
                                         componentName = "",
                                     ),
                                 )
@@ -180,7 +181,7 @@ private fun Success(
             onDismissRequest = {
                 showSelectApplicationDialog = false
             },
-            onSelectComponentName = { componentName ->
+            onClick = { eblanApplicationInfo ->
                 showSelectApplicationDialog = false
 
                 scope.launch {
@@ -188,7 +189,8 @@ private fun Success(
                         R.drawable.adb_24px,
                         EblanAction(
                             eblanActionType = EblanActionType.OpenApp,
-                            componentName = componentName,
+                            serialNumber = eblanApplicationInfo.serialNumber,
+                            componentName = eblanApplicationInfo.componentName,
                         ),
                     )
                 }

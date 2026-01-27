@@ -50,6 +50,7 @@ internal fun handleEblanAction(
     when (eblanAction.eblanActionType) {
         EblanActionType.OpenApp -> {
             launcherApps.startMainActivity(
+                serialNumber = eblanAction.serialNumber,
                 componentName = eblanAction.componentName,
                 sourceBounds = Rect(),
             )

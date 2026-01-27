@@ -81,16 +81,19 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
     private val defaultGestureSettingsProto = GestureSettingsProto.newBuilder().apply {
         doubleTapProto = EblanAction(
             eblanActionType = EblanActionType.None,
+            serialNumber = 0L,
             componentName = "",
         ).toEblanActionProto()
 
         swipeUpProto = EblanAction(
             eblanActionType = EblanActionType.OpenAppDrawer,
+            serialNumber = 0L,
             componentName = "",
         ).toEblanActionProto()
 
         swipeDownProto = EblanAction(
             eblanActionType = EblanActionType.None,
+            serialNumber = 0L,
             componentName = "",
         ).toEblanActionProto()
     }.build()

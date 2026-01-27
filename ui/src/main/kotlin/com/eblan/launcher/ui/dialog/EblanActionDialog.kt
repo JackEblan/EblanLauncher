@@ -44,6 +44,7 @@ import com.eblan.launcher.designsystem.component.EblanRadioButton
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.ui.settings.getEblanActionTypeSubtitle
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,7 +53,7 @@ internal fun EblanActionDialog(
     modifier: Modifier = Modifier,
     title: String,
     eblanAction: EblanAction,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
+    eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
     onUpdateEblanAction: (EblanAction) -> Unit,
     onDismissRequest: () -> Unit,
 ) {

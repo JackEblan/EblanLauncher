@@ -45,6 +45,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanUser
+import com.eblan.launcher.domain.model.GetEblanApplicationInfos
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.IconPackInfoComponent
@@ -70,14 +72,14 @@ internal fun EditGridItemRoute(
 
     val iconPackInfoComponents by viewModel.iconPackInfoComponents.collectAsStateWithLifecycle()
 
-    val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
+    val getEblanApplicationInfos by viewModel.getEblanApplicationInfos.collectAsStateWithLifecycle()
 
     EditGridItemScreen(
         modifier = modifier,
         editGridItemUiState = editUiState,
         packageManagerIconPackInfos = packageManagerIconPackInfos,
         iconPackInfoComponents = iconPackInfoComponents,
-        eblanApplicationInfos = eblanApplicationInfos,
+        getEblanApplicationInfos = getEblanApplicationInfos,
         onNavigateUp = onNavigateUp,
         onUpdateGridItem = viewModel::updateGridItem,
         onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
@@ -94,7 +96,7 @@ internal fun EditGridItemScreen(
     editGridItemUiState: EditGridItemUiState,
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
+    getEblanApplicationInfos: GetEblanApplicationInfos,
     onNavigateUp: () -> Unit,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
@@ -127,7 +129,7 @@ internal fun EditGridItemScreen(
                                     is GridItemData.ShortcutConfig,
                                     is GridItemData.ShortcutInfo,
                                     is GridItemData.Folder,
-                                    -> {
+                                        -> {
                                         onRestoreGridItem(editGridItemUiState.gridItem)
                                     }
 
@@ -153,7 +155,7 @@ internal fun EditGridItemScreen(
                     gridItem = editGridItemUiState.gridItem,
                     packageManagerIconPackInfos = packageManagerIconPackInfos,
                     iconPackInfoComponents = iconPackInfoComponents,
-                    eblanApplicationInfos = eblanApplicationInfos,
+                    eblanApplicationInfos = getEblanApplicationInfos.eblanApplicationInfos,
                     onUpdateGridItem = onUpdateGridItem,
                     onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                     onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
@@ -170,7 +172,7 @@ private fun Success(
     gridItem: GridItem,
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
+    eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,

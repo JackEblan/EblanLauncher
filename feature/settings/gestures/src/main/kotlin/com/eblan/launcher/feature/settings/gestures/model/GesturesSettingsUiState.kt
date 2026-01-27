@@ -17,14 +17,15 @@
  */
 package com.eblan.launcher.feature.settings.gestures.model
 
+import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.GestureSettings
-import com.eblan.launcher.domain.model.GetEblanApplicationInfos
 
 internal sealed interface GesturesSettingsUiState {
     data object Loading : GesturesSettingsUiState
 
     data class Success(
         val gestureSettings: GestureSettings,
-        val getEblanApplicationInfos: GetEblanApplicationInfos,
+        val eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
     ) : GesturesSettingsUiState
 }

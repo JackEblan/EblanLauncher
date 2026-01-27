@@ -46,7 +46,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanUser
-import com.eblan.launcher.domain.model.GetEblanApplicationInfos
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.IconPackInfoComponent
@@ -72,14 +71,14 @@ internal fun EditGridItemRoute(
 
     val iconPackInfoComponents by viewModel.iconPackInfoComponents.collectAsStateWithLifecycle()
 
-    val getEblanApplicationInfos by viewModel.getEblanApplicationInfos.collectAsStateWithLifecycle()
+    val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
 
     EditGridItemScreen(
         modifier = modifier,
         editGridItemUiState = editUiState,
         packageManagerIconPackInfos = packageManagerIconPackInfos,
         iconPackInfoComponents = iconPackInfoComponents,
-        getEblanApplicationInfos = getEblanApplicationInfos,
+        eblanApplicationInfos = eblanApplicationInfos,
         onNavigateUp = onNavigateUp,
         onUpdateGridItem = viewModel::updateGridItem,
         onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
@@ -96,7 +95,7 @@ internal fun EditGridItemScreen(
     editGridItemUiState: EditGridItemUiState,
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
-    getEblanApplicationInfos: GetEblanApplicationInfos,
+    eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
     onNavigateUp: () -> Unit,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
@@ -155,7 +154,7 @@ internal fun EditGridItemScreen(
                     gridItem = editGridItemUiState.gridItem,
                     packageManagerIconPackInfos = packageManagerIconPackInfos,
                     iconPackInfoComponents = iconPackInfoComponents,
-                    eblanApplicationInfos = getEblanApplicationInfos.eblanApplicationInfos,
+                    eblanApplicationInfos = eblanApplicationInfos,
                     onUpdateGridItem = onUpdateGridItem,
                     onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                     onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,

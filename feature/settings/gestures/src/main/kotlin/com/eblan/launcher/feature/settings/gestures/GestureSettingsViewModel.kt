@@ -26,7 +26,6 @@ import com.eblan.launcher.feature.settings.gestures.model.GesturesSettingsUiStat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,11 +37,11 @@ internal class GestureSettingsViewModel @Inject constructor(
 ) : ViewModel() {
     val gesturesSettingsUiState = combine(
         userDataRepository.userData,
-        getEblanApplicationInfosUseCase(labelFlow = emptyFlow()),
+        getEblanApplicationInfosUseCase(),
     ) { userData, getEblanApplicationInfos ->
         GesturesSettingsUiState.Success(
             gestureSettings = userData.gestureSettings,
-            getEblanApplicationInfos = getEblanApplicationInfos,
+            eblanApplicationInfos = getEblanApplicationInfos,
         )
     }.stateIn(
         scope = viewModelScope,

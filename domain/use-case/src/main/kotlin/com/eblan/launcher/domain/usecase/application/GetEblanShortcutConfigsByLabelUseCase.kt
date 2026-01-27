@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-class GetEblanShortcutConfigsUseCase @Inject constructor(
+class GetEblanShortcutConfigsByLabelUseCase @Inject constructor(
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,

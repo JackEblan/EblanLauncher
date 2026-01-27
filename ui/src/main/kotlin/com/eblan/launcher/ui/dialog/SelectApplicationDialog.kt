@@ -19,14 +19,16 @@ package com.eblan.launcher.ui.dialog
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -60,7 +62,11 @@ fun SelectApplicationDialog(
     )
 
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(modifier = modifier.fillMaxWidth()) {
+        Column(
+            modifier = modifier
+                .verticalScroll(rememberScrollState())
+                .fillMaxWidth(),
+        ) {
             Text(
                 modifier = Modifier.padding(10.dp),
                 text = "Select Application",
@@ -75,7 +81,9 @@ fun SelectApplicationDialog(
                 )
 
                 HorizontalPager(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .heightIn(max = 300.dp)
+                        .fillMaxWidth(),
                     state = horizontalPagerState,
                 ) { index ->
                     val eblanUser = eblanApplicationInfos.keys.toList().getOrElse(

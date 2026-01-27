@@ -25,7 +25,6 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.domain.model.GetEblanApplicationInfos
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
@@ -40,7 +39,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -84,14 +82,10 @@ internal class EditGridItemViewModel @Inject constructor(
         initialValue = emptyList(),
     )
 
-    val getEblanApplicationInfos = getEblanApplicationInfosUseCase(labelFlow = emptyFlow()).stateIn(
+    val eblanApplicationInfos = getEblanApplicationInfosUseCase().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = GetEblanApplicationInfos(
-            eblanApplicationInfos = emptyMap(),
-            privateEblanUser = null,
-            privateEblanApplicationInfos = emptyList(),
-        ),
+        initialValue = emptyMap(),
     )
 
     private val _iconPackInfoComponents = MutableStateFlow(emptyList<IconPackInfoComponent>())

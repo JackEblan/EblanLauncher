@@ -20,29 +20,48 @@ package com.eblan.launcher.domain.usecase.application
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
-import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.domain.model.EblanUser
+import com.eblan.launcher.domain.model.EblanUserType
+import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetEblanApplicationInfosUseCase @Inject constructor(
+class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(): Flow<Map<EblanUser, List<EblanApplicationInfo>>> = eblanApplicationInfoRepository.eblanApplicationInfos
-        .map { eblanApplicationInfos ->
+    operator fun invoke(labelFlow: Flow<String>): Flow<GetEblanApplicationInfosByLabel> = combine(
+        eblanApplicationInfoRepository.eblanApplicationInfos,
+        labelFlow,
+    ) { eblanApplicationInfos, label ->
+        val groupedEblanApplicationInfos =
             eblanApplicationInfos.filter { eblanApplicationInfo ->
-                !eblanApplicationInfo.isHidden
+                !eblanApplicationInfo.isHidden && eblanApplicationInfo.label.contains(
+                    other = label,
+                    ignoreCase = true,
+                )
             }.sortedBy { eblanApplicationInfo ->
                 eblanApplicationInfo.label.lowercase()
             }.groupBy { eblanApplicationInfo ->
                 launcherAppsWrapper.getUser(serialNumber = eblanApplicationInfo.serialNumber)
             }
+
+        val index = groupedEblanApplicationInfos.keys.toList().indexOfFirst { eblanUser ->
+            eblanUser.eblanUserType == EblanUserType.Private
         }
-        .flowOn(defaultDispatcher)
+
+        val privateEblanUser = groupedEblanApplicationInfos.keys.toList().getOrNull(index)
+
+        GetEblanApplicationInfosByLabel(
+            eblanApplicationInfos = groupedEblanApplicationInfos.filterKeys { eblanUser ->
+                eblanUser != privateEblanUser
+            },
+            privateEblanUser = privateEblanUser,
+            privateEblanApplicationInfos = groupedEblanApplicationInfos[privateEblanUser].orEmpty(),
+        )
+    }.flowOn(defaultDispatcher)
 }

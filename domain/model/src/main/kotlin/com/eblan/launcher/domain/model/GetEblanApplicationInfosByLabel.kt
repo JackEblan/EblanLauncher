@@ -17,7 +17,7 @@
  */
 package com.eblan.launcher.domain.model
 
-data class GetEblanApplicationInfos(
+data class GetEblanApplicationInfosByLabel(
     val eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
     val privateEblanUser: EblanUser?,
     val privateEblanApplicationInfos: List<EblanApplicationInfo>,

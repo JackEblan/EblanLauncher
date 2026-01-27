@@ -117,7 +117,7 @@ import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.EblanUserType
-import com.eblan.launcher.domain.model.GetEblanApplicationInfos
+import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ManagedProfileResult
@@ -151,7 +151,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     swipeY: Float,
-    getEblanApplicationInfos: GetEblanApplicationInfos,
+    getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     paddingValues: PaddingValues,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
@@ -207,7 +207,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             drag = drag,
             appDrawerSettings = appDrawerSettings,
             gridItemSource = gridItemSource,
-            getEblanApplicationInfos = getEblanApplicationInfos,
+            getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
             eblanShortcutInfosGroup = eblanShortcutInfosGroup,
             hasShortcutHostPermission = hasShortcutHostPermission,
             screenHeight = screenHeight,
@@ -240,7 +240,7 @@ private fun SharedTransitionScope.Success(
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
     gridItemSource: GridItemSource?,
-    getEblanApplicationInfos: GetEblanApplicationInfos,
+    getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     hasShortcutHostPermission: Boolean,
     screenHeight: Int,
@@ -290,7 +290,7 @@ private fun SharedTransitionScope.Success(
 
     val horizontalPagerState = rememberPagerState(
         pageCount = {
-            getEblanApplicationInfos.eblanApplicationInfos.keys.size
+            getEblanApplicationInfosByLabel.eblanApplicationInfos.keys.size
         },
     )
 
@@ -344,10 +344,10 @@ private fun SharedTransitionScope.Success(
             onChangeLabel = onGetEblanApplicationInfosByLabel,
         )
 
-        if (getEblanApplicationInfos.eblanApplicationInfos.keys.size > 1) {
+        if (getEblanApplicationInfosByLabel.eblanApplicationInfos.keys.size > 1) {
             EblanApplicationInfoTabRow(
                 currentPage = horizontalPagerState.currentPage,
-                eblanApplicationInfos = getEblanApplicationInfos.eblanApplicationInfos,
+                eblanApplicationInfos = getEblanApplicationInfosByLabel.eblanApplicationInfos,
                 klwpIntegration = klwpIntegration,
                 onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
             )
@@ -362,7 +362,7 @@ private fun SharedTransitionScope.Success(
                     paddingValues = paddingValues,
                     drag = drag,
                     appDrawerSettings = appDrawerSettings,
-                    getEblanApplicationInfos = getEblanApplicationInfos,
+                    getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
                     iconPackFilePaths = iconPackFilePaths,
                     managedProfileResult = managedProfileResult,
                     screen = screen,
@@ -392,7 +392,7 @@ private fun SharedTransitionScope.Success(
                 paddingValues = paddingValues,
                 drag = drag,
                 appDrawerSettings = appDrawerSettings,
-                getEblanApplicationInfos = getEblanApplicationInfos,
+                getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
                 iconPackFilePaths = iconPackFilePaths,
                 managedProfileResult = managedProfileResult,
                 screen = screen,
@@ -775,7 +775,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     paddingValues: PaddingValues,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
-    getEblanApplicationInfos: GetEblanApplicationInfos,
+    getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
@@ -799,7 +799,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
 
     val packageManager = LocalPackageManager.current
 
-    val eblanUser = getEblanApplicationInfos.eblanApplicationInfos.keys.toList().getOrElse(
+    val eblanUser = getEblanApplicationInfosByLabel.eblanApplicationInfos.keys.toList().getOrElse(
         index = index,
         defaultValue = {
             EblanUser(
@@ -845,7 +845,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 paddingValues = paddingValues,
                 drag = drag,
                 appDrawerSettings = appDrawerSettings,
-                getEblanApplicationInfos = getEblanApplicationInfos,
+                getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
                 iconPackFilePaths = iconPackFilePaths,
                 screen = screen,
                 textColor = textColor,
@@ -950,7 +950,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     paddingValues: PaddingValues,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
-    getEblanApplicationInfos: GetEblanApplicationInfos,
+    getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
     textColor: TextColor,
@@ -1026,7 +1026,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
         ) {
             when (eblanUser.eblanUserType) {
                 EblanUserType.Personal -> {
-                    items(getEblanApplicationInfos.eblanApplicationInfos[eblanUser].orEmpty()) { eblanApplicationInfo ->
+                    items(getEblanApplicationInfosByLabel.eblanApplicationInfos[eblanUser].orEmpty()) { eblanApplicationInfo ->
                         key(eblanApplicationInfo.serialNumber, eblanApplicationInfo.componentName) {
                             EblanApplicationInfoItem(
                                 currentPage = currentPage,
@@ -1048,8 +1048,8 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                     }
 
                     privateSpace(
-                        privateEblanUser = getEblanApplicationInfos.privateEblanUser,
-                        privateEblanApplicationInfos = getEblanApplicationInfos.privateEblanApplicationInfos,
+                        privateEblanUser = getEblanApplicationInfosByLabel.privateEblanUser,
+                        privateEblanApplicationInfos = getEblanApplicationInfosByLabel.privateEblanApplicationInfos,
                         managedProfileResult = managedProfileResult,
                         isQuietModeEnabled = isQuietModeEnabled,
                         drag = drag,
@@ -1068,7 +1068,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                 }
 
                 else -> {
-                    items(getEblanApplicationInfos.eblanApplicationInfos[eblanUser].orEmpty()) { eblanApplicationInfo ->
+                    items(getEblanApplicationInfosByLabel.eblanApplicationInfos[eblanUser].orEmpty()) { eblanApplicationInfo ->
                         key(eblanApplicationInfo.serialNumber, eblanApplicationInfo.componentName) {
                             EblanApplicationInfoItem(
                                 currentPage = currentPage,

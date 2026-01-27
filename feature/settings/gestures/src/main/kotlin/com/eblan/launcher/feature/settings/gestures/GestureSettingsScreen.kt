@@ -92,7 +92,7 @@ private fun GestureSettingsScreen(
                         doubleTap = gesturesSettingsUiState.gestureSettings.doubleTap,
                         swipeUp = gesturesSettingsUiState.gestureSettings.swipeUp,
                         swipeDown = gesturesSettingsUiState.gestureSettings.swipeDown,
-                        eblanApplicationInfos = gesturesSettingsUiState.getEblanApplicationInfos.eblanApplicationInfos,
+                        eblanApplicationInfos = gesturesSettingsUiState.eblanApplicationInfos,
                         onUpdateDoubleTap = { doubleTap ->
                             onUpdateGestureSettings(
                                 gesturesSettingsUiState.gestureSettings.copy(

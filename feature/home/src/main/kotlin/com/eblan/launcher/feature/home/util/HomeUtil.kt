@@ -17,8 +17,14 @@
  */
 package com.eblan.launcher.feature.home.util
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
+import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 
 internal fun handleActionMainIntent(
     intent: Intent,
@@ -35,6 +41,65 @@ internal fun handleActionMainIntent(
     onUpdateScreen(Screen.Pager)
 }
 
+internal fun handleEblanAction(
+    eblanAction: EblanAction,
+    launcherApps: AndroidLauncherAppsWrapper,
+    context: Context,
+    onOpenAppDrawer: () -> Unit,
+) {
+    when (eblanAction.eblanActionType) {
+        EblanActionType.OpenApp -> {
+            launcherApps.startMainActivity(
+                serialNumber = eblanAction.serialNumber,
+                componentName = eblanAction.componentName,
+                sourceBounds = Rect(),
+            )
+        }
+
+        EblanActionType.OpenNotificationPanel -> {
+            val intent = Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
+                GlobalAction.GLOBAL_ACTION_TYPE,
+                GlobalAction.Notifications.name,
+            )
+
+            context.sendBroadcast(intent)
+        }
+
+        EblanActionType.LockScreen -> {
+            val intent = Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
+                GlobalAction.GLOBAL_ACTION_TYPE,
+                GlobalAction.LockScreen.name,
+            )
+
+            context.sendBroadcast(intent)
+        }
+
+        EblanActionType.OpenQuickSettings -> {
+            val intent = Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
+                GlobalAction.GLOBAL_ACTION_TYPE,
+                GlobalAction.QuickSettings.name,
+            )
+
+            context.sendBroadcast(intent)
+        }
+
+        EblanActionType.OpenRecents -> {
+            val intent = Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
+                GlobalAction.GLOBAL_ACTION_TYPE,
+                GlobalAction.Recents.name,
+            )
+
+            context.sendBroadcast(intent)
+        }
+
+        EblanActionType.OpenAppDrawer -> {
+            onOpenAppDrawer()
+        }
+
+        EblanActionType.None -> Unit
+    }
+}
+
 internal const val KUSTOM_ACTION = "org.kustom.action.SEND_VAR"
 internal const val KUSTOM_ACTION_EXT_NAME = "org.kustom.action.EXT_NAME"
 internal const val KUSTOM_ACTION_VAR_NAME = "org.kustom.action.VAR_NAME"
@@ -43,3 +108,4 @@ internal const val KUSTOM_ACTION_VAR_VALUE = "org.kustom.action.VAR_VALUE"
 internal const val PAGE_INDICATOR_HEIGHT = 30
 internal const val EDGE_DISTANCE = 15
 internal const val DRAG_HANDLE_SIZE = 30
+internal const val GRID_ITEM_MAX_SWIPE_Y = 40

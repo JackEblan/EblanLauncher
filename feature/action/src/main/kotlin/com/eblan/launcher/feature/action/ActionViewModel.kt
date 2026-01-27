@@ -19,24 +19,22 @@ package com.eblan.launcher.feature.action
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.usecase.application.GetEblanApplicationInfosByLabelUseCase
 import com.eblan.launcher.feature.action.model.ActionUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class ActionViewModel @Inject constructor(eblanApplicationInfoRepository: EblanApplicationInfoRepository) : ViewModel() {
+class ActionViewModel @Inject constructor(getEblanApplicationInfosByLabelUseCase: GetEblanApplicationInfosByLabelUseCase) : ViewModel() {
     val actionUiState =
-        eblanApplicationInfoRepository.eblanApplicationInfos.map { eblanApplicationInfos ->
-            eblanApplicationInfos.sortedBy { eblanApplicationInfo ->
-                eblanApplicationInfo.label.lowercase()
-            }.run(ActionUiState::Success)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = ActionUiState.Loading,
-        )
+        getEblanApplicationInfosByLabelUseCase(labelFlow = emptyFlow()).map(ActionUiState::Success)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = ActionUiState.Loading,
+            )
 }

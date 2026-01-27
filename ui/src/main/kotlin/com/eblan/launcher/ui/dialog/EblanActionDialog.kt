@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.settings.gestures.dialog
+package com.eblan.launcher.ui.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,7 +33,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,9 +42,10 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 import com.eblan.launcher.designsystem.component.EblanRadioButton
 import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.feature.settings.gestures.getEblanActionSubtitle
-import com.eblan.launcher.ui.dialog.SelectApplicationDialog
+import com.eblan.launcher.domain.model.EblanUser
+import com.eblan.launcher.ui.settings.getEblanActionTypeSubtitle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,33 +53,13 @@ internal fun EblanActionDialog(
     modifier: Modifier = Modifier,
     title: String,
     eblanAction: EblanAction,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
+    eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
     onUpdateEblanAction: (EblanAction) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     var selectedEblanAction by remember { mutableStateOf(eblanAction) }
 
     var showSelectApplicationDialog by remember { mutableStateOf(false) }
-
-    val eblanActions by remember {
-        derivedStateOf {
-            listOf(
-                EblanAction.None,
-                EblanAction.OpenAppDrawer,
-                EblanAction.OpenNotificationPanel,
-                selectedEblanAction.let { eblanAction ->
-                    if (eblanAction is EblanAction.OpenApp) {
-                        EblanAction.OpenApp(componentName = eblanAction.componentName)
-                    } else {
-                        EblanAction.OpenApp(componentName = "app")
-                    }
-                },
-                EblanAction.LockScreen,
-                EblanAction.OpenQuickSettings,
-                EblanAction.OpenRecents,
-            )
-        }
-    }
 
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(
@@ -100,16 +80,20 @@ internal fun EblanActionDialog(
                     .selectableGroup()
                     .fillMaxWidth(),
             ) {
-                eblanActions.forEach { currentEblanAction ->
+                EblanActionType.entries.forEach { eblanActionType ->
                     EblanRadioButton(
-                        text = currentEblanAction.getEblanActionSubtitle(),
-                        selected = selectedEblanAction == currentEblanAction,
+                        text = eblanActionType.getEblanActionTypeSubtitle(componentName = selectedEblanAction.componentName),
+                        selected = selectedEblanAction.eblanActionType == eblanActionType,
                         onClick = {
-                            if (currentEblanAction is EblanAction.OpenApp) {
+                            if (eblanActionType == EblanActionType.OpenApp) {
                                 showSelectApplicationDialog = true
+                            } else {
+                                selectedEblanAction = EblanAction(
+                                    eblanActionType = eblanActionType,
+                                    serialNumber = 0L,
+                                    componentName = "",
+                                )
                             }
-
-                            selectedEblanAction = currentEblanAction
                         },
                     )
                 }
@@ -149,12 +133,14 @@ internal fun EblanActionDialog(
         SelectApplicationDialog(
             eblanApplicationInfos = eblanApplicationInfos,
             onDismissRequest = {
-                selectedEblanAction = EblanAction.None
-
                 showSelectApplicationDialog = false
             },
-            onUpdateEblanAction = { openAppEblanAction ->
-                selectedEblanAction = openAppEblanAction
+            onClick = { eblanApplicationInfo ->
+                selectedEblanAction = EblanAction(
+                    eblanActionType = EblanActionType.OpenApp,
+                    serialNumber = eblanApplicationInfo.serialNumber,
+                    componentName = eblanApplicationInfo.componentName,
+                )
 
                 showSelectApplicationDialog = false
             },

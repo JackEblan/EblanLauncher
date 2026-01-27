@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
-import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutConfig
@@ -67,7 +67,7 @@ import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GestureSettings
-import com.eblan.launcher.domain.model.GetEblanApplicationInfos
+import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.ManagedProfileResult
@@ -113,7 +113,7 @@ internal fun SharedTransitionScope.PagerScreen(
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
     experimentalSettings: ExperimentalSettings,
-    getEblanApplicationInfos: GetEblanApplicationInfos,
+    getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     onTapFolderGridItem: (String) -> Unit,
@@ -197,9 +197,9 @@ internal fun SharedTransitionScope.PagerScreen(
 
     val swipeY by remember {
         derivedStateOf {
-            if (swipeUpY.value < screenHeight.toFloat() && gestureSettings.swipeUp is EblanAction.OpenAppDrawer) {
+            if (swipeUpY.value < screenHeight.toFloat() && gestureSettings.swipeUp.eblanActionType == EblanActionType.OpenAppDrawer) {
                 swipeUpY
-            } else if (swipeDownY.value < screenHeight.toFloat() && gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
+            } else if (swipeDownY.value < screenHeight.toFloat() && gestureSettings.swipeDown.eblanActionType == EblanActionType.OpenAppDrawer) {
                 swipeDownY
             } else {
                 Animatable(screenHeight.toFloat())
@@ -335,7 +335,7 @@ internal fun SharedTransitionScope.PagerScreen(
                         }
                     },
                     onDragEnd = {
-                        doEblanActions(
+                        swipeEblanAction(
                             gestureSettings = gestureSettings,
                             swipeUpY = swipeUpY.value,
                             swipeDownY = swipeDownY.value,
@@ -405,13 +405,16 @@ internal fun SharedTransitionScope.PagerScreen(
         onUpdateEblanApplicationInfoGroup = { newEblanApplicationInfoGroup ->
             eblanApplicationInfoGroup = newEblanApplicationInfoGroup
         },
+        onOpenAppDrawer = {
+            showAppDrawer = true
+        },
     )
 
-    if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
+    if (gestureSettings.swipeUp.eblanActionType == EblanActionType.OpenAppDrawer || gestureSettings.swipeDown.eblanActionType == EblanActionType.OpenAppDrawer) {
         ApplicationScreen(
             currentPage = currentPage,
             swipeY = swipeY.value,
-            getEblanApplicationInfos = getEblanApplicationInfos,
+            getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
             paddingValues = paddingValues,
             drag = drag,
             appDrawerSettings = appDrawerSettings,
@@ -477,7 +480,7 @@ internal fun SharedTransitionScope.PagerScreen(
         ApplicationScreen(
             currentPage = currentPage,
             swipeY = swipeY.value,
-            getEblanApplicationInfos = getEblanApplicationInfos,
+            getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
             paddingValues = paddingValues,
             drag = drag,
             appDrawerSettings = appDrawerSettings,

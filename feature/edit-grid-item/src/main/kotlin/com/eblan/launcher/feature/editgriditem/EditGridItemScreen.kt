@@ -29,6 +29,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -43,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.IconPackInfoComponent
@@ -51,6 +54,7 @@ import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.ui.dialog.IconPackInfoFilesDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
 import com.eblan.launcher.ui.edit.CustomIcon
+import com.eblan.launcher.ui.settings.EblanActionSettings
 import com.eblan.launcher.ui.settings.GridItemSettings
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
@@ -67,11 +71,14 @@ internal fun EditGridItemRoute(
 
     val iconPackInfoComponents by viewModel.iconPackInfoComponents.collectAsStateWithLifecycle()
 
+    val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
+
     EditGridItemScreen(
         modifier = modifier,
         editGridItemUiState = editUiState,
         packageManagerIconPackInfos = packageManagerIconPackInfos,
         iconPackInfoComponents = iconPackInfoComponents,
+        eblanApplicationInfos = eblanApplicationInfos,
         onNavigateUp = onNavigateUp,
         onUpdateGridItem = viewModel::updateGridItem,
         onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
@@ -88,6 +95,7 @@ internal fun EditGridItemScreen(
     editGridItemUiState: EditGridItemUiState,
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
+    eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
     onNavigateUp: () -> Unit,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
@@ -143,10 +151,10 @@ internal fun EditGridItemScreen(
                     .padding(paddingValues),
             ) {
                 Success(
-                    modifier = modifier,
                     gridItem = editGridItemUiState.gridItem,
                     packageManagerIconPackInfos = packageManagerIconPackInfos,
                     iconPackInfoComponents = iconPackInfoComponents,
+                    eblanApplicationInfos = eblanApplicationInfos,
                     onUpdateGridItem = onUpdateGridItem,
                     onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                     onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
@@ -163,6 +171,7 @@ private fun Success(
     gridItem: GridItem,
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
+    eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
@@ -254,6 +263,28 @@ private fun Success(
                 },
             )
         }
+
+        Text(
+            modifier = Modifier.padding(15.dp),
+            text = "Grid Item Actions",
+            style = MaterialTheme.typography.bodySmall,
+        )
+
+        EblanActionSettings(
+            doubleTap = gridItem.doubleTap,
+            swipeUp = gridItem.swipeUp,
+            swipeDown = gridItem.swipeDown,
+            eblanApplicationInfos = eblanApplicationInfos,
+            onUpdateDoubleTap = { doubleTap ->
+                onUpdateGridItem(gridItem.copy(doubleTap = doubleTap))
+            },
+            onUpdateSwipeUp = { swipeUp ->
+                onUpdateGridItem(gridItem.copy(swipeUp = swipeUp))
+            },
+            onUpdateSwipeDown = { swipeDown ->
+                onUpdateGridItem(gridItem.copy(swipeDown = swipeDown))
+            },
+        )
     }
 }
 
@@ -714,32 +745,4 @@ private fun EditShortcutConfig(
             },
         )
     }
-}
-
-private fun getGridItem(gridItem: GridItem, customIcon: String?): GridItem = when (val data = gridItem.data) {
-    is GridItemData.ApplicationInfo -> {
-        val newData = data.copy(customIcon = customIcon)
-
-        gridItem.copy(data = newData)
-    }
-
-    is GridItemData.Folder -> {
-        val newData = data.copy(icon = customIcon)
-
-        gridItem.copy(data = newData)
-    }
-
-    is GridItemData.ShortcutConfig -> {
-        val newData = data.copy(customIcon = customIcon)
-
-        gridItem.copy(data = newData)
-    }
-
-    is GridItemData.ShortcutInfo -> {
-        val newData = data.copy(customIcon = customIcon)
-
-        gridItem.copy(data = newData)
-    }
-
-    else -> gridItem
 }

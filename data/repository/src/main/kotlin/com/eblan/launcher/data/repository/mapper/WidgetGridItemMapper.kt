@@ -18,6 +18,8 @@
 package com.eblan.launcher.data.repository.mapper
 
 import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.WidgetGridItem
@@ -52,6 +54,21 @@ internal fun WidgetGridItemEntity.asGridItem(): GridItem = GridItem(
     associate = associate,
     override = override,
     gridItemSettings = gridItemSettings,
+    doubleTap = EblanAction(
+        eblanActionType = EblanActionType.None,
+        serialNumber = 0L,
+        componentName = "",
+    ),
+    swipeUp = EblanAction(
+        eblanActionType = EblanActionType.None,
+        serialNumber = 0L,
+        componentName = "",
+    ),
+    swipeDown = EblanAction(
+        eblanActionType = EblanActionType.None,
+        serialNumber = 0L,
+        componentName = "",
+    ),
 )
 
 internal fun WidgetGridItemEntity.asModel(): WidgetGridItem = WidgetGridItem(

@@ -161,12 +161,18 @@ class Migration4To5Test {
             assertTrue(cursor.moveToFirst())
 
             // Row 1
-            assertEquals("com.example.app/.MainActivity", cursor.getString(0))
-            assertEquals(1, cursor.getInt(1))
-            assertEquals("com.example.app", cursor.getString(2))
-            assertEquals("Original App", cursor.getString(3))
-            assertNull(cursor.getString(4)) // customIcon
-            assertNull(cursor.getString(5)) // customLabel
+            assertEquals(
+                "com.example.app/.MainActivity",
+                cursor.getString(cursor.getColumnIndexOrThrow("componentName")),
+            )
+            assertEquals(1, cursor.getInt(cursor.getColumnIndexOrThrow("serialNumber")))
+            assertEquals(
+                "com.example.app",
+                cursor.getString(cursor.getColumnIndexOrThrow("packageName")),
+            )
+            assertEquals("Original App", cursor.getString(cursor.getColumnIndexOrThrow("label")))
+            assertNull(cursor.getString(cursor.getColumnIndexOrThrow("customIcon")))
+            assertNull(cursor.getString(cursor.getColumnIndexOrThrow("customLabel")))
         }
 
         // EblanAppWidgetProviderInfoEntity
@@ -175,43 +181,51 @@ class Migration4To5Test {
                 assertTrue(cursor.moveToFirst())
 
                 // Row 1
-                assertEquals("com.example.clock", cursor.getString(0))
-                assertEquals("Clock", cursor.getString(1))
+                assertEquals(
+                    "com.example.clock",
+                    cursor.getString(cursor.getColumnIndexOrThrow("componentName")),
+                )
+                assertEquals("Clock", cursor.getString(cursor.getColumnIndexOrThrow("label")))
             }
 
         // ApplicationInfoGridItemEntity
         dbV5.query("SELECT id, label, customIcon, customLabel FROM `ApplicationInfoGridItemEntity` ORDER BY serialNumber")
-            .use { c ->
-                assertTrue(c.moveToFirst())
-                assertEquals("item1", c.getString(0))
-                assertEquals("Browser", c.getString(1))
-                assertNull(c.getString(2))
-                assertNull(c.getString(3))
+            .use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals("item1", cursor.getString(cursor.getColumnIndexOrThrow("id")))
+                assertEquals("Browser", cursor.getString(cursor.getColumnIndexOrThrow("label")))
+                assertNull(cursor.getString(cursor.getColumnIndexOrThrow("customIcon")))
+                assertNull(cursor.getString(cursor.getColumnIndexOrThrow("customLabel")))
             }
 
         // WidgetGridItemEntity
-        dbV5.query("SELECT id, label FROM `WidgetGridItemEntity` ORDER BY serialNumber").use { c ->
-            assertTrue(c.moveToFirst())
-            assertEquals("Clock", c.getString(1))
-        }
+        dbV5.query("SELECT id, label FROM `WidgetGridItemEntity` ORDER BY serialNumber")
+            .use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals("Clock", cursor.getString(cursor.getColumnIndexOrThrow("label")))
+            }
 
         // FolderGridItemEntity
-        dbV5.query("SELECT label, pageCount, icon, iconSize FROM `FolderGridItemEntity`").use { c ->
-            assertTrue(c.moveToFirst())
-            assertEquals("Work Apps", c.getString(0))
-            assertEquals(3, c.getInt(1))
-            assertNull(c.getString(2)) // icon = NULL (new column)
-            assertEquals(64, c.getInt(3))
-        }
+        dbV5.query("SELECT label, pageCount, icon, iconSize FROM `FolderGridItemEntity`")
+            .use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals("Work Apps", cursor.getString(cursor.getColumnIndexOrThrow("label")))
+                assertEquals(3, cursor.getInt(cursor.getColumnIndexOrThrow("pageCount")))
+                assertNull(cursor.getString(cursor.getColumnIndexOrThrow("icon")))
+                assertEquals(64, cursor.getInt(cursor.getColumnIndexOrThrow("iconSize")))
+            }
 
         // ShortcutConfigGridItemEntity
         dbV5.query("SELECT activityLabel, iconSize, customIcon, customLabel FROM `ShortcutConfigGridItemEntity`")
-            .use { c ->
-                assertTrue(c.moveToFirst())
-                assertEquals("Browser", c.getString(0))
-                assertEquals(56, c.getInt(1))
-                assertNull(c.getString(2)) // customIcon
-                assertNull(c.getString(3)) // customLabel
+            .use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals(
+                    "Browser",
+                    cursor.getString(cursor.getColumnIndexOrThrow("activityLabel")),
+                )
+                assertEquals(56, cursor.getInt(cursor.getColumnIndexOrThrow("iconSize")))
+                assertNull(cursor.getString(cursor.getColumnIndexOrThrow("customIcon")))
+                assertNull(cursor.getString(cursor.getColumnIndexOrThrow("customLabel")))
             }
     }
 }

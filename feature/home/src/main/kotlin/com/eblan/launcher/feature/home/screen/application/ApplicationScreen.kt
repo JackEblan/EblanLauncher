@@ -28,7 +28,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -109,6 +108,8 @@ import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
@@ -116,13 +117,11 @@ import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.EblanUserType
-import com.eblan.launcher.domain.model.GetEblanApplicationInfos
+import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
@@ -131,7 +130,9 @@ import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
+import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
+import com.eblan.launcher.feature.home.util.getVerticalArrangement
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.ui.SearchBar
@@ -150,7 +151,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     swipeY: Float,
-    getEblanApplicationInfos: GetEblanApplicationInfos,
+    getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     paddingValues: PaddingValues,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
@@ -206,7 +207,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             drag = drag,
             appDrawerSettings = appDrawerSettings,
             gridItemSource = gridItemSource,
-            getEblanApplicationInfos = getEblanApplicationInfos,
+            getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
             eblanShortcutInfosGroup = eblanShortcutInfosGroup,
             hasShortcutHostPermission = hasShortcutHostPermission,
             screenHeight = screenHeight,
@@ -239,7 +240,7 @@ private fun SharedTransitionScope.Success(
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
     gridItemSource: GridItemSource?,
-    getEblanApplicationInfos: GetEblanApplicationInfos,
+    getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     hasShortcutHostPermission: Boolean,
     screenHeight: Int,
@@ -289,7 +290,7 @@ private fun SharedTransitionScope.Success(
 
     val horizontalPagerState = rememberPagerState(
         pageCount = {
-            getEblanApplicationInfos.eblanApplicationInfos.keys.size
+            getEblanApplicationInfosByLabel.eblanApplicationInfos.keys.size
         },
     )
 
@@ -343,10 +344,10 @@ private fun SharedTransitionScope.Success(
             onChangeLabel = onGetEblanApplicationInfosByLabel,
         )
 
-        if (getEblanApplicationInfos.eblanApplicationInfos.keys.size > 1) {
+        if (getEblanApplicationInfosByLabel.eblanApplicationInfos.keys.size > 1) {
             EblanApplicationInfoTabRow(
                 currentPage = horizontalPagerState.currentPage,
-                eblanApplicationInfos = getEblanApplicationInfos.eblanApplicationInfos,
+                eblanApplicationInfos = getEblanApplicationInfosByLabel.eblanApplicationInfos,
                 klwpIntegration = klwpIntegration,
                 onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
             )
@@ -361,7 +362,7 @@ private fun SharedTransitionScope.Success(
                     paddingValues = paddingValues,
                     drag = drag,
                     appDrawerSettings = appDrawerSettings,
-                    getEblanApplicationInfos = getEblanApplicationInfos,
+                    getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
                     iconPackFilePaths = iconPackFilePaths,
                     managedProfileResult = managedProfileResult,
                     screen = screen,
@@ -391,7 +392,7 @@ private fun SharedTransitionScope.Success(
                 paddingValues = paddingValues,
                 drag = drag,
                 appDrawerSettings = appDrawerSettings,
-                getEblanApplicationInfos = getEblanApplicationInfos,
+                getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
                 iconPackFilePaths = iconPackFilePaths,
                 managedProfileResult = managedProfileResult,
                 screen = screen,
@@ -540,17 +541,11 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     val icon = iconPackFilePaths[eblanApplicationInfo.componentName] ?: eblanApplicationInfo.icon
 
-    val horizontalAlignment = when (appDrawerSettings.gridItemSettings.horizontalAlignment) {
-        HorizontalAlignment.Start -> Alignment.Start
-        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
-        HorizontalAlignment.End -> Alignment.End
-    }
+    val horizontalAlignment =
+        getHorizontalAlignment(horizontalAlignment = appDrawerSettings.gridItemSettings.horizontalAlignment)
 
-    val verticalArrangement = when (appDrawerSettings.gridItemSettings.verticalArrangement) {
-        VerticalArrangement.Top -> Arrangement.Top
-        VerticalArrangement.Center -> Arrangement.Center
-        VerticalArrangement.Bottom -> Arrangement.Bottom
-    }
+    val verticalArrangement =
+        getVerticalArrangement(verticalArrangement = appDrawerSettings.gridItemSettings.verticalArrangement)
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -648,6 +643,21 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                                         associate = Associate.Grid,
                                         override = false,
                                         gridItemSettings = appDrawerSettings.gridItemSettings,
+                                        doubleTap = EblanAction(
+                                            eblanActionType = EblanActionType.None,
+                                            serialNumber = 0L,
+                                            componentName = "",
+                                        ),
+                                        swipeUp = EblanAction(
+                                            eblanActionType = EblanActionType.None,
+                                            serialNumber = 0L,
+                                            componentName = "",
+                                        ),
+                                        swipeDown = EblanAction(
+                                            eblanActionType = EblanActionType.None,
+                                            serialNumber = 0L,
+                                            componentName = "",
+                                        ),
                                     ),
                                 ),
                                 graphicsLayer.toImageBitmap(),
@@ -765,7 +775,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     paddingValues: PaddingValues,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
-    getEblanApplicationInfos: GetEblanApplicationInfos,
+    getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
@@ -789,7 +799,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
 
     val packageManager = LocalPackageManager.current
 
-    val eblanUser = getEblanApplicationInfos.eblanApplicationInfos.keys.toList().getOrElse(
+    val eblanUser = getEblanApplicationInfosByLabel.eblanApplicationInfos.keys.toList().getOrElse(
         index = index,
         defaultValue = {
             EblanUser(
@@ -835,7 +845,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 paddingValues = paddingValues,
                 drag = drag,
                 appDrawerSettings = appDrawerSettings,
-                getEblanApplicationInfos = getEblanApplicationInfos,
+                getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
                 iconPackFilePaths = iconPackFilePaths,
                 screen = screen,
                 textColor = textColor,
@@ -940,7 +950,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     paddingValues: PaddingValues,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
-    getEblanApplicationInfos: GetEblanApplicationInfos,
+    getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
     textColor: TextColor,
@@ -1016,7 +1026,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
         ) {
             when (eblanUser.eblanUserType) {
                 EblanUserType.Personal -> {
-                    items(getEblanApplicationInfos.eblanApplicationInfos[eblanUser].orEmpty()) { eblanApplicationInfo ->
+                    items(getEblanApplicationInfosByLabel.eblanApplicationInfos[eblanUser].orEmpty()) { eblanApplicationInfo ->
                         key(eblanApplicationInfo.serialNumber, eblanApplicationInfo.componentName) {
                             EblanApplicationInfoItem(
                                 currentPage = currentPage,
@@ -1038,8 +1048,8 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                     }
 
                     privateSpace(
-                        privateEblanUser = getEblanApplicationInfos.privateEblanUser,
-                        privateEblanApplicationInfos = getEblanApplicationInfos.privateEblanApplicationInfos,
+                        privateEblanUser = getEblanApplicationInfosByLabel.privateEblanUser,
+                        privateEblanApplicationInfos = getEblanApplicationInfosByLabel.privateEblanApplicationInfos,
                         managedProfileResult = managedProfileResult,
                         isQuietModeEnabled = isQuietModeEnabled,
                         drag = drag,
@@ -1058,7 +1068,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                 }
 
                 else -> {
-                    items(getEblanApplicationInfos.eblanApplicationInfos[eblanUser].orEmpty()) { eblanApplicationInfo ->
+                    items(getEblanApplicationInfosByLabel.eblanApplicationInfos[eblanUser].orEmpty()) { eblanApplicationInfo ->
                         key(eblanApplicationInfo.serialNumber, eblanApplicationInfo.componentName) {
                             EblanApplicationInfoItem(
                                 currentPage = currentPage,

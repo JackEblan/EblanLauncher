@@ -32,7 +32,7 @@ import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.usecase.iconpack.UpdateIconPackInfoByPackageNameUseCase
+import com.eblan.launcher.domain.usecase.iconpack.UpdateIconPackInfoByComponentNameUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -47,7 +47,7 @@ class AddPackageUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
-    private val updateIconPackInfoByPackageNameUseCase: UpdateIconPackInfoByPackageNameUseCase,
+    private val updateIconPackInfoByComponentNameUseCase: UpdateIconPackInfoByComponentNameUseCase,
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
@@ -81,10 +81,7 @@ class AddPackageUseCase @Inject constructor(
                     packageName = launcherAppsActivityInfo.packageName,
                 )
 
-                updateIconPackInfoByPackageNameUseCase(
-                    packageName = launcherAppsActivityInfo.packageName,
-                    componentName = launcherAppsActivityInfo.componentName,
-                )
+                updateIconPackInfoByComponentNameUseCase(componentName = launcherAppsActivityInfo.componentName)
             }
 
             addEblanShortcutInfos()

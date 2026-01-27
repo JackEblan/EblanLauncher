@@ -21,6 +21,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.GridItemSettings
 
 @Entity
@@ -39,4 +40,7 @@ data class FolderGridItemEntity(
     val pageCount: Int,
     val icon: String?,
     @Embedded val gridItemSettings: GridItemSettings,
+    @Embedded(prefix = "doubleTap_") val doubleTap: EblanAction,
+    @Embedded(prefix = "swipeUp_") val swipeUp: EblanAction,
+    @Embedded(prefix = "swipeDown_") val swipeDown: EblanAction,
 )

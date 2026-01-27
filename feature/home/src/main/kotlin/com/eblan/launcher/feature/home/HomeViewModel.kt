@@ -23,7 +23,7 @@ import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.FolderDataById
-import com.eblan.launcher.domain.model.GetEblanApplicationInfos
+import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemData
@@ -36,9 +36,9 @@ import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
-import com.eblan.launcher.domain.usecase.application.GetEblanAppWidgetProviderInfosUseCase
-import com.eblan.launcher.domain.usecase.application.GetEblanApplicationInfosUseCase
-import com.eblan.launcher.domain.usecase.application.GetEblanShortcutConfigsUseCase
+import com.eblan.launcher.domain.usecase.application.GetEblanAppWidgetProviderInfosByLabelUseCase
+import com.eblan.launcher.domain.usecase.application.GetEblanApplicationInfosByLabelUseCase
+import com.eblan.launcher.domain.usecase.application.GetEblanShortcutConfigsByLabelUseCase
 import com.eblan.launcher.domain.usecase.application.GetEblanShortcutInfosUseCase
 import com.eblan.launcher.domain.usecase.grid.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
@@ -91,9 +91,9 @@ internal class HomeViewModel @Inject constructor(
     eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     getIconPackFilePathsUseCase: GetIconPackFilePathsUseCase,
     private val moveGridItemOutsideFolderUseCase: MoveGridItemOutsideFolderUseCase,
-    getEblanApplicationInfosUseCase: GetEblanApplicationInfosUseCase,
-    getEblanAppWidgetProviderInfosUseCase: GetEblanAppWidgetProviderInfosUseCase,
-    getEblanShortcutConfigsUseCase: GetEblanShortcutConfigsUseCase,
+    getEblanApplicationInfosByLabelUseCase: GetEblanApplicationInfosByLabelUseCase,
+    getEblanAppWidgetProviderInfosByLabelUseCase: GetEblanAppWidgetProviderInfosByLabelUseCase,
+    getEblanShortcutConfigsByLabelUseCase: GetEblanShortcutConfigsByLabelUseCase,
     private val gridRepository: GridRepository,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
@@ -160,11 +160,11 @@ internal class HomeViewModel @Inject constructor(
 
     private val _eblanApplicationInfoLabel = MutableStateFlow("")
 
-    val getEblanApplicationInfos =
-        getEblanApplicationInfosUseCase(labelFlow = _eblanApplicationInfoLabel).stateIn(
+    val getEblanApplicationInfosByLabel =
+        getEblanApplicationInfosByLabelUseCase(labelFlow = _eblanApplicationInfoLabel).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = GetEblanApplicationInfos(
+            initialValue = GetEblanApplicationInfosByLabel(
                 eblanApplicationInfos = emptyMap(),
                 privateEblanUser = null,
                 privateEblanApplicationInfos = emptyList(),
@@ -174,7 +174,7 @@ internal class HomeViewModel @Inject constructor(
     private val _eblanAppWidgetProviderInfoLabel = MutableStateFlow("")
 
     val eblanAppWidgetProviderInfos =
-        getEblanAppWidgetProviderInfosUseCase(labelFlow = _eblanAppWidgetProviderInfoLabel).stateIn(
+        getEblanAppWidgetProviderInfosByLabelUseCase(labelFlow = _eblanAppWidgetProviderInfoLabel).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyMap(),
@@ -183,7 +183,7 @@ internal class HomeViewModel @Inject constructor(
     private val _eblanShortcutConfigLabel = MutableStateFlow("")
 
     val eblanShortcutConfigs =
-        getEblanShortcutConfigsUseCase(labelFlow = _eblanShortcutConfigLabel).stateIn(
+        getEblanShortcutConfigsByLabelUseCase(labelFlow = _eblanShortcutConfigLabel).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyMap(),

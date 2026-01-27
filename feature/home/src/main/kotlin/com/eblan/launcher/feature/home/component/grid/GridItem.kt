@@ -56,11 +56,11 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
-import com.eblan.launcher.domain.model.HorizontalAlignment
-import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.util.getHorizontalAlignment
+import com.eblan.launcher.feature.home.util.getVerticalArrangement
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalSettings
@@ -215,8 +215,11 @@ internal fun ApplicationInfoGridItemContent(
 
     val icon = iconPackFilePaths[data.componentName] ?: data.icon
 
-    val hasNotifications = statusBarNotifications[data.packageName] != null &&
-        (statusBarNotifications[data.packageName] ?: 0) > 0
+    val hasNotifications =
+        statusBarNotifications[data.packageName] != null && (
+            statusBarNotifications[data.packageName]
+                ?: 0
+            ) > 0
 
     Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
         AsyncImage(
@@ -336,11 +339,10 @@ internal fun SharedTransitionScope.FolderGridItemContent(
         )
     } else {
         Box(
-            modifier = commonModifier
-                .background(
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(5.dp),
-                ),
+            modifier = commonModifier.background(
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(5.dp),
+            ),
         ) {
             FlowRow(
                 modifier = Modifier.matchParentSize(),
@@ -349,20 +351,20 @@ internal fun SharedTransitionScope.FolderGridItemContent(
                 maxItemsInEachRow = 3,
                 maxLines = 3,
             ) {
-                data.gridItems
-                    .sortedWith(compareBy({ it.startRow }, { it.startColumn }))
+                data.gridItems.sortedWith(compareBy({ it.startRow }, { it.startColumn }))
                     .forEach { gridItem ->
-                        val folderGridItemModifier = Modifier
-                            .sharedElementWithCallerManagedVisibility(
-                                rememberSharedContentState(
-                                    key = SharedElementKey(
-                                        id = gridItem.id,
-                                        screen = screen,
+                        val folderGridItemModifier =
+                            Modifier
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(
+                                        key = SharedElementKey(
+                                            id = gridItem.id,
+                                            screen = screen,
+                                        ),
                                     ),
-                                ),
-                                visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
-                            )
-                            .size((gridItemSettings.iconSize * 0.25).dp)
+                                    visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
+                                )
+                                .size((gridItemSettings.iconSize * 0.25).dp)
 
                         when (val currentData = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
@@ -431,8 +433,7 @@ internal fun SharedTransitionScope.FolderGridItemContent(
                                 }
 
                                 AsyncImage(
-                                    model = ImageRequest.Builder(LocalContext.current)
-                                        .data(icon)
+                                    model = ImageRequest.Builder(LocalContext.current).data(icon)
                                         .addLastModifiedToFileCacheKey(true).build(),
                                     contentDescription = null,
                                     modifier = folderGridItemModifier,
@@ -550,17 +551,11 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
     screen: Screen,
     isScrollInProgress: Boolean,
 ) {
-    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
-        HorizontalAlignment.Start -> Alignment.Start
-        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
-        HorizontalAlignment.End -> Alignment.End
-    }
+    val horizontalAlignment =
+        getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
 
-    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
-        VerticalArrangement.Top -> Arrangement.Top
-        VerticalArrangement.Center -> Arrangement.Center
-        VerticalArrangement.Bottom -> Arrangement.Bottom
-    }
+    val verticalArrangement =
+        getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -568,16 +563,15 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
         verticalArrangement = verticalArrangement,
     ) {
         ApplicationInfoGridItemContent(
-            modifier = Modifier
-                .sharedElementWithCallerManagedVisibility(
-                    rememberSharedContentState(
-                        key = SharedElementKey(
-                            id = gridItem.id,
-                            screen = screen,
-                        ),
+            modifier = Modifier.sharedElementWithCallerManagedVisibility(
+                rememberSharedContentState(
+                    key = SharedElementKey(
+                        id = gridItem.id,
+                        screen = screen,
                     ),
-                    visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                 ),
+                visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
+            ),
             data = data,
             textColor = textColor,
             gridItemSettings = gridItemSettings,
@@ -600,17 +594,11 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
     screen: Screen,
     isScrollInProgress: Boolean,
 ) {
-    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
-        HorizontalAlignment.Start -> Alignment.Start
-        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
-        HorizontalAlignment.End -> Alignment.End
-    }
+    val horizontalAlignment =
+        getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
 
-    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
-        VerticalArrangement.Top -> Arrangement.Top
-        VerticalArrangement.Center -> Arrangement.Center
-        VerticalArrangement.Bottom -> Arrangement.Bottom
-    }
+    val verticalArrangement =
+        getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -618,16 +606,15 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
         verticalArrangement = verticalArrangement,
     ) {
         ShortcutInfoGridItemContent(
-            modifier = Modifier
-                .sharedElementWithCallerManagedVisibility(
-                    sharedContentState = rememberSharedContentState(
-                        key = SharedElementKey(
-                            id = gridItem.id,
-                            screen = screen,
-                        ),
+            modifier = Modifier.sharedElementWithCallerManagedVisibility(
+                sharedContentState = rememberSharedContentState(
+                    key = SharedElementKey(
+                        id = gridItem.id,
+                        screen = screen,
                     ),
-                    visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                 ),
+                visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
+            ),
             data = data,
             textColor = textColor,
             gridItemSettings = gridItemSettings,
@@ -649,17 +636,11 @@ private fun SharedTransitionScope.FolderGridItem(
     screen: Screen,
     isScrollInProgress: Boolean,
 ) {
-    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
-        HorizontalAlignment.Start -> Alignment.Start
-        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
-        HorizontalAlignment.End -> Alignment.End
-    }
+    val horizontalAlignment =
+        getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
 
-    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
-        VerticalArrangement.Top -> Arrangement.Top
-        VerticalArrangement.Center -> Arrangement.Center
-        VerticalArrangement.Bottom -> Arrangement.Bottom
-    }
+    val verticalArrangement =
+        getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -667,16 +648,15 @@ private fun SharedTransitionScope.FolderGridItem(
         verticalArrangement = verticalArrangement,
     ) {
         FolderGridItemContent(
-            modifier = Modifier
-                .sharedElementWithCallerManagedVisibility(
-                    sharedContentState = rememberSharedContentState(
-                        key = SharedElementKey(
-                            id = gridItem.id,
-                            screen = screen,
-                        ),
+            modifier = Modifier.sharedElementWithCallerManagedVisibility(
+                sharedContentState = rememberSharedContentState(
+                    key = SharedElementKey(
+                        id = gridItem.id,
+                        screen = screen,
                     ),
-                    visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                 ),
+                visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
+            ),
             gridItemSettings = gridItemSettings,
             data = data,
             iconPackFilePaths = iconPackFilePaths,
@@ -747,17 +727,11 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
     screen: Screen,
     isScrollInProgress: Boolean,
 ) {
-    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
-        HorizontalAlignment.Start -> Alignment.Start
-        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
-        HorizontalAlignment.End -> Alignment.End
-    }
+    val horizontalAlignment =
+        getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
 
-    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
-        VerticalArrangement.Top -> Arrangement.Top
-        VerticalArrangement.Center -> Arrangement.Center
-        VerticalArrangement.Bottom -> Arrangement.Bottom
-    }
+    val verticalArrangement =
+        getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -765,16 +739,15 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
         verticalArrangement = verticalArrangement,
     ) {
         ShortcutConfigGridItemContent(
-            modifier = Modifier
-                .sharedElementWithCallerManagedVisibility(
-                    sharedContentState = rememberSharedContentState(
-                        key = SharedElementKey(
-                            id = gridItem.id,
-                            screen = screen,
-                        ),
+            modifier = Modifier.sharedElementWithCallerManagedVisibility(
+                sharedContentState = rememberSharedContentState(
+                    key = SharedElementKey(
+                        id = gridItem.id,
+                        screen = screen,
                     ),
-                    visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
                 ),
+                visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
+            ),
             data = data,
             textColor = textColor,
             gridItemSettings = gridItemSettings,

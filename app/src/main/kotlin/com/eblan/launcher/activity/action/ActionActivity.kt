@@ -47,6 +47,7 @@ import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.Theme
 import com.eblan.launcher.feature.action.ActionScreen
 import com.eblan.launcher.model.ActivityUiState
+import com.eblan.launcher.ui.settings.getEblanActionTypeSubtitle
 import com.eblan.launcher.util.handleEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
@@ -118,15 +119,8 @@ class ActionActivity : ComponentActivity() {
 
             val shortcutId = Uuid.random().toHexString()
 
-            val shortcutName = when (eblanAction) {
-                EblanAction.LockScreen -> "Lock Screen"
-                EblanAction.None -> "None"
-                is EblanAction.OpenApp -> "Open ${eblanAction.componentName}"
-                EblanAction.OpenAppDrawer -> "Open App Drawer"
-                EblanAction.OpenNotificationPanel -> "Open Notification Panel"
-                EblanAction.OpenQuickSettings -> "Open Quick Settings"
-                EblanAction.OpenRecents -> "Open Recents"
-            }
+            val shortcutName =
+                eblanAction.eblanActionType.getEblanActionTypeSubtitle(componentName = eblanAction.componentName)
 
             val bitmap = ContextCompat.getDrawable(
                 applicationContext,

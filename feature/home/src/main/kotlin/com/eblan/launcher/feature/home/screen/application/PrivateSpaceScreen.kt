@@ -72,6 +72,8 @@ import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.GridItem
@@ -366,6 +368,21 @@ private fun PrivateSpaceEblanApplicationInfoItem(
                                         associate = Associate.Grid,
                                         override = false,
                                         gridItemSettings = appDrawerSettings.gridItemSettings,
+                                        doubleTap = EblanAction(
+                                            eblanActionType = EblanActionType.None,
+                                            serialNumber = 0L,
+                                            componentName = "",
+                                        ),
+                                        swipeUp = EblanAction(
+                                            eblanActionType = EblanActionType.None,
+                                            serialNumber = 0L,
+                                            componentName = "",
+                                        ),
+                                        swipeDown = EblanAction(
+                                            eblanActionType = EblanActionType.None,
+                                            serialNumber = 0L,
+                                            componentName = "",
+                                        ),
                                     ),
                                 ),
                                 null,

@@ -345,24 +345,6 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
-    override fun startMainActivity(
-        componentName: String,
-        sourceBounds: Rect,
-    ) {
-        try {
-            if (isUserAvailable(userHandle = myUserHandle())) {
-                launcherApps.startMainActivity(
-                    ComponentName.unflattenFromString(componentName),
-                    myUserHandle(),
-                    sourceBounds,
-                    Bundle.EMPTY,
-                )
-            }
-        } catch (e: SecurityException) {
-            e.printStackTrace()
-        }
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun getPinItemRequest(intent: Intent): LauncherApps.PinItemRequest = launcherApps.getPinItemRequest(intent)
 

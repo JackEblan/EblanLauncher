@@ -38,4 +38,7 @@ data class ShortcutInfoGridItem(
     val customIcon: String?,
     val customShortLabel: String?,
     val gridItemSettings: GridItemSettings,
+    val doubleTap: EblanAction,
+    val swipeUp: EblanAction,
+    val swipeDown: EblanAction,
 )

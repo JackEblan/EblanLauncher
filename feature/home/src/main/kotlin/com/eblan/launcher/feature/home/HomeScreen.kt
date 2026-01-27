@@ -81,7 +81,7 @@ import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.EblanUser
-import com.eblan.launcher.domain.model.GetEblanApplicationInfos
+import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemData
@@ -142,7 +142,7 @@ internal fun HomeRoute(
 
     val pinGridItem by viewModel.pinGridItem.collectAsStateWithLifecycle()
 
-    val getEblanApplicationInfos by viewModel.getEblanApplicationInfos.collectAsStateWithLifecycle()
+    val getEblanApplicationInfos by viewModel.getEblanApplicationInfosByLabel.collectAsStateWithLifecycle()
 
     val eblanShortcutConfigs by viewModel.eblanShortcutConfigs.collectAsStateWithLifecycle()
 
@@ -165,7 +165,7 @@ internal fun HomeRoute(
         eblanShortcutInfosGroup = eblanShortcutInfosGroup,
         eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
         iconPackFilePaths = iconPackFilePaths,
-        getEblanApplicationInfos = getEblanApplicationInfos,
+        getEblanApplicationInfosByLabel = getEblanApplicationInfos,
         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
         eblanShortcutConfigs = eblanShortcutConfigs,
         onMoveGridItem = viewModel::moveGridItem,
@@ -216,7 +216,7 @@ internal fun HomeScreen(
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
-    getEblanApplicationInfos: GetEblanApplicationInfos,
+    getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     onMoveGridItem: (
@@ -449,7 +449,7 @@ internal fun HomeScreen(
                     eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                     eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
                     iconPackFilePaths = iconPackFilePaths,
-                    getEblanApplicationInfos = getEblanApplicationInfos,
+                    getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     eblanShortcutConfigs = eblanShortcutConfigs,
                     onMoveGridItem = onMoveGridItem,
@@ -534,7 +534,7 @@ private fun SharedTransitionScope.Success(
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
-    getEblanApplicationInfos: GetEblanApplicationInfos,
+    getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     onMoveGridItem: (
@@ -754,7 +754,7 @@ private fun SharedTransitionScope.Success(
                     managedProfileResult = managedProfileResult,
                     screen = targetState,
                     experimentalSettings = homeData.userData.experimentalSettings,
-                    getEblanApplicationInfos = getEblanApplicationInfos,
+                    getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     eblanShortcutConfigs = eblanShortcutConfigs,
                     onTapFolderGridItem = onShowFolder,

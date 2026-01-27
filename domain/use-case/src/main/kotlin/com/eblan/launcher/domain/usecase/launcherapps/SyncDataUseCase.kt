@@ -27,6 +27,8 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
@@ -379,6 +381,21 @@ class SyncDataUseCase @Inject constructor(
                     customIcon = null,
                     customLabel = null,
                     gridItemSettings = homeSettings.gridItemSettings,
+                    doubleTap = EblanAction(
+                        eblanActionType = EblanActionType.None,
+                        serialNumber = 0L,
+                        componentName = "",
+                    ),
+                    swipeUp = EblanAction(
+                        eblanActionType = EblanActionType.None,
+                        serialNumber = 0L,
+                        componentName = "",
+                    ),
+                    swipeDown = EblanAction(
+                        eblanActionType = EblanActionType.None,
+                        serialNumber = 0L,
+                        componentName = "",
+                    ),
                 ),
             )
         }

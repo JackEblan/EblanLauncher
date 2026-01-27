@@ -50,6 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -215,6 +217,21 @@ private fun ShortcutInfoMenuItem(
                                                 associate = Associate.Grid,
                                                 override = false,
                                                 gridItemSettings = gridItemSettings,
+                                                doubleTap = EblanAction(
+                                                    eblanActionType = EblanActionType.None,
+                                                    serialNumber = 0L,
+                                                    componentName = "",
+                                                ),
+                                                swipeUp = EblanAction(
+                                                    eblanActionType = EblanActionType.None,
+                                                    serialNumber = 0L,
+                                                    componentName = "",
+                                                ),
+                                                swipeDown = EblanAction(
+                                                    eblanActionType = EblanActionType.None,
+                                                    serialNumber = 0L,
+                                                    componentName = "",
+                                                ),
                                             ),
                                         ),
                                         graphicsLayer.toImageBitmap(),

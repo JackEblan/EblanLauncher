@@ -31,4 +31,7 @@ data class FolderGridItem(
     val pageCount: Int,
     val icon: String?,
     val gridItemSettings: GridItemSettings,
+    val doubleTap: EblanAction,
+    val swipeUp: EblanAction,
+    val swipeDown: EblanAction,
 )

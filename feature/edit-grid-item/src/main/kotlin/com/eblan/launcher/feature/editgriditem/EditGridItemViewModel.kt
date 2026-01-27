@@ -30,6 +30,7 @@ import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
+import com.eblan.launcher.domain.usecase.application.GetEblanApplicationInfosUseCase
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.feature.editgriditem.navigation.EditGridItemRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -52,6 +53,7 @@ internal class EditGridItemViewModel @Inject constructor(
     private val iconPackManager: IconPackManager,
     packageManagerWrapper: PackageManagerWrapper,
     private val gridRepository: GridRepository,
+    getEblanApplicationInfosUseCase: GetEblanApplicationInfosUseCase,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val editGridItemRouteData = savedStateHandle.toRoute<EditGridItemRouteData>()
@@ -78,6 +80,12 @@ internal class EditGridItemViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = emptyList(),
+    )
+
+    val eblanApplicationInfos = getEblanApplicationInfosUseCase().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyMap(),
     )
 
     private val _iconPackInfoComponents = MutableStateFlow(emptyList<IconPackInfoComponent>())

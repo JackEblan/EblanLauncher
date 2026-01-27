@@ -19,7 +19,6 @@ package com.eblan.launcher.feature.home.screen.pager
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Rect
 import android.os.IBinder
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
@@ -29,20 +28,21 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.PagerState
 import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.GestureSettings
-import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.feature.home.model.Klwp
 import com.eblan.launcher.feature.home.util.KUSTOM_ACTION
 import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_EXT_NAME
 import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_NAME
 import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_VALUE
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.feature.home.util.handleEblanAction
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import kotlinx.serialization.json.Json
 
-internal fun doEblanActions(
+internal fun swipeEblanAction(
     gestureSettings: GestureSettings,
     swipeUpY: Float,
     swipeDownY: Float,
@@ -50,67 +50,24 @@ internal fun doEblanActions(
     launcherApps: AndroidLauncherAppsWrapper,
     context: Context,
 ) {
-    fun handleEblanAction(eblanAction: EblanAction) {
-        when (eblanAction) {
-            is EblanAction.OpenApp -> {
-                launcherApps.startMainActivity(
-                    componentName = eblanAction.componentName,
-                    sourceBounds = Rect(),
-                )
-            }
-
-            EblanAction.OpenNotificationPanel -> {
-                val intent =
-                    Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
-                        GlobalAction.GLOBAL_ACTION_TYPE,
-                        GlobalAction.Notifications.name,
-                    )
-
-                context.sendBroadcast(intent)
-            }
-
-            EblanAction.LockScreen -> {
-                val intent =
-                    Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
-                        GlobalAction.GLOBAL_ACTION_TYPE,
-                        GlobalAction.LockScreen.name,
-                    )
-
-                context.sendBroadcast(intent)
-            }
-
-            EblanAction.OpenQuickSettings -> {
-                val intent =
-                    Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
-                        GlobalAction.GLOBAL_ACTION_TYPE,
-                        GlobalAction.QuickSettings.name,
-                    )
-
-                context.sendBroadcast(intent)
-            }
-
-            EblanAction.OpenRecents -> {
-                val intent =
-                    Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
-                        GlobalAction.GLOBAL_ACTION_TYPE,
-                        GlobalAction.Recents.name,
-                    )
-
-                context.sendBroadcast(intent)
-            }
-
-            EblanAction.OpenAppDrawer, EblanAction.None -> Unit
-        }
-    }
-
     val swipeThreshold = 100f
 
     if (swipeUpY < screenHeight - swipeThreshold) {
-        handleEblanAction(eblanAction = gestureSettings.swipeUp)
+        handleEblanAction(
+            eblanAction = gestureSettings.swipeUp,
+            launcherApps = launcherApps,
+            context = context,
+            onOpenAppDrawer = {},
+        )
     }
 
     if (swipeDownY < screenHeight - swipeThreshold) {
-        handleEblanAction(eblanAction = gestureSettings.swipeDown)
+        handleEblanAction(
+            eblanAction = gestureSettings.swipeDown,
+            launcherApps = launcherApps,
+            context = context,
+            onOpenAppDrawer = {},
+        )
     }
 }
 
@@ -124,7 +81,7 @@ internal suspend fun resetSwipeOffset(
         eblanAction: EblanAction,
         swipeY: Animatable<Float, AnimationVector1D>,
     ) {
-        if (eblanAction is EblanAction.OpenAppDrawer) {
+        if (eblanAction.eblanActionType == EblanActionType.OpenAppDrawer) {
             val targetValue = if (swipeY.value < screenHeight - 200f) {
                 0f
             } else {
@@ -221,62 +178,14 @@ internal fun handleEblanActionIntent(
 
     val eblanAction = intent.getStringExtra(EblanAction.NAME)?.let { eblanAction ->
         Json.decodeFromString<EblanAction>(eblanAction)
-    }
+    } ?: return
 
-    when (eblanAction) {
-        is EblanAction.OpenApp -> {
-            launcherApps.startMainActivity(
-                componentName = eblanAction.componentName,
-                sourceBounds = Rect(),
-            )
-        }
-
-        EblanAction.OpenNotificationPanel -> {
-            val intent =
-                Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
-                    GlobalAction.GLOBAL_ACTION_TYPE,
-                    GlobalAction.Notifications.name,
-                )
-
-            context.sendBroadcast(intent)
-        }
-
-        EblanAction.LockScreen -> {
-            val intent =
-                Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
-                    GlobalAction.GLOBAL_ACTION_TYPE,
-                    GlobalAction.LockScreen.name,
-                )
-
-            context.sendBroadcast(intent)
-        }
-
-        EblanAction.OpenQuickSettings -> {
-            val intent =
-                Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
-                    GlobalAction.GLOBAL_ACTION_TYPE,
-                    GlobalAction.QuickSettings.name,
-                )
-
-            context.sendBroadcast(intent)
-        }
-
-        EblanAction.OpenRecents -> {
-            val intent =
-                Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
-                    GlobalAction.GLOBAL_ACTION_TYPE,
-                    GlobalAction.Recents.name,
-                )
-
-            context.sendBroadcast(intent)
-        }
-
-        EblanAction.OpenAppDrawer -> {
-            onOpenAppDrawer()
-        }
-
-        EblanAction.None, null -> Unit
-    }
+    handleEblanAction(
+        eblanAction = eblanAction,
+        launcherApps = launcherApps,
+        context = context,
+        onOpenAppDrawer = onOpenAppDrawer,
+    )
 }
 
 internal suspend fun handleApplyFling(
@@ -325,56 +234,12 @@ internal fun handleHasDoubleTap(
 ) {
     if (!hasDoubleTap) return
 
-    when (val eblanAction = gestureSettings.doubleTap) {
-        is EblanAction.OpenApp -> {
-            launcherApps.startMainActivity(
-                componentName = eblanAction.componentName,
-                sourceBounds = Rect(),
-            )
-        }
-
-        EblanAction.OpenAppDrawer -> {
-            onOpenAppDrawer()
-        }
-
-        EblanAction.OpenNotificationPanel -> {
-            val intent = Intent(GlobalAction.NAME).putExtra(
-                GlobalAction.GLOBAL_ACTION_TYPE,
-                GlobalAction.Notifications.name,
-            ).setPackage(context.packageName)
-
-            context.sendBroadcast(intent)
-        }
-
-        EblanAction.LockScreen -> {
-            val intent = Intent(GlobalAction.NAME).putExtra(
-                GlobalAction.GLOBAL_ACTION_TYPE,
-                GlobalAction.LockScreen.name,
-            ).setPackage(context.packageName)
-
-            context.sendBroadcast(intent)
-        }
-
-        EblanAction.OpenQuickSettings -> {
-            val intent = Intent(GlobalAction.NAME).putExtra(
-                GlobalAction.GLOBAL_ACTION_TYPE,
-                GlobalAction.QuickSettings.name,
-            ).setPackage(context.packageName)
-
-            context.sendBroadcast(intent)
-        }
-
-        EblanAction.OpenRecents -> {
-            val intent = Intent(GlobalAction.NAME).putExtra(
-                GlobalAction.GLOBAL_ACTION_TYPE,
-                GlobalAction.Recents.name,
-            ).setPackage(context.packageName)
-
-            context.sendBroadcast(intent)
-        }
-
-        EblanAction.None -> Unit
-    }
+    handleEblanAction(
+        eblanAction = gestureSettings.doubleTap,
+        launcherApps = launcherApps,
+        context = context,
+        onOpenAppDrawer = onOpenAppDrawer,
+    )
 }
 
 internal fun handleKlwpBroadcasts(

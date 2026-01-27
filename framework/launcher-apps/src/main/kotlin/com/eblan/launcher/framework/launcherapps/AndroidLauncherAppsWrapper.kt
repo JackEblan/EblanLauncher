@@ -37,11 +37,6 @@ interface AndroidLauncherAppsWrapper {
         sourceBounds: Rect,
     )
 
-    fun startMainActivity(
-        componentName: String,
-        sourceBounds: Rect,
-    )
-
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     fun startShortcut(
         serialNumber: Long,

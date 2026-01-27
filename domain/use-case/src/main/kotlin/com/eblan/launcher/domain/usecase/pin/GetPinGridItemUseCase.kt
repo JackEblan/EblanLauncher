@@ -22,6 +22,8 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData.ShortcutInfo
 import com.eblan.launcher.domain.model.GridItemData.Widget
@@ -96,6 +98,21 @@ class GetPinGridItemUseCase @Inject constructor(
                     associate = Associate.Grid,
                     override = false,
                     gridItemSettings = homeSettings.gridItemSettings,
+                    doubleTap = EblanAction(
+                        eblanActionType = EblanActionType.None,
+                        serialNumber = 0L,
+                        componentName = "",
+                    ),
+                    swipeUp = EblanAction(
+                        eblanActionType = EblanActionType.None,
+                        serialNumber = 0L,
+                        componentName = "",
+                    ),
+                    swipeDown = EblanAction(
+                        eblanActionType = EblanActionType.None,
+                        serialNumber = 0L,
+                        componentName = "",
+                    ),
                 )
             }
 
@@ -138,6 +155,21 @@ class GetPinGridItemUseCase @Inject constructor(
                     associate = Associate.Grid,
                     override = false,
                     gridItemSettings = homeSettings.gridItemSettings,
+                    doubleTap = EblanAction(
+                        eblanActionType = EblanActionType.None,
+                        serialNumber = 0L,
+                        componentName = "",
+                    ),
+                    swipeUp = EblanAction(
+                        eblanActionType = EblanActionType.None,
+                        serialNumber = 0L,
+                        componentName = "",
+                    ),
+                    swipeDown = EblanAction(
+                        eblanActionType = EblanActionType.None,
+                        serialNumber = 0L,
+                        componentName = "",
+                    ),
                 )
             }
         }

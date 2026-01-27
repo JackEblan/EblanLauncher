@@ -23,6 +23,8 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.grid.findAvailableRegionByPage
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
@@ -118,6 +120,21 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
             associate = Associate.Grid,
             override = false,
             gridItemSettings = homeSettings.gridItemSettings,
+            doubleTap = EblanAction(
+                eblanActionType = EblanActionType.None,
+                serialNumber = 0L,
+                componentName = "",
+            ),
+            swipeUp = EblanAction(
+                eblanActionType = EblanActionType.None,
+                serialNumber = 0L,
+                componentName = "",
+            ),
+            swipeDown = EblanAction(
+                eblanActionType = EblanActionType.None,
+                serialNumber = 0L,
+                componentName = "",
+            ),
         )
 
         val newGridItem = findAvailableRegionByPage(

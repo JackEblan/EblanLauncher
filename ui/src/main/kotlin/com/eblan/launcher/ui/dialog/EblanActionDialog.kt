@@ -64,6 +64,10 @@ internal fun EblanActionDialog(
 
     var showSelectApplicationDialog by remember { mutableStateOf(false) }
 
+    val isAccessibilityServiceEnabled = remember {
+        accessibilityManager.isAccessibilityServiceEnabled()
+    }
+
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(
             modifier = modifier
@@ -91,7 +95,7 @@ internal fun EblanActionDialog(
                             EblanActionType.OpenQuickSettings,
                             EblanActionType.OpenRecents,
                             -> {
-                                accessibilityManager.isAccessibilityServiceEnabled()
+                                isAccessibilityServiceEnabled
                             }
 
                             else -> true

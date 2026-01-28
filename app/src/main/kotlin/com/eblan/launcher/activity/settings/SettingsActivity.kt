@@ -35,10 +35,12 @@ import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.activity.main.MainActivity
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.model.Theme
+import com.eblan.launcher.framework.accessibilitymanager.AndroidAccessibilityManagerWrapper
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.settings.AndroidSettingsWrapper
 import com.eblan.launcher.model.ActivityUiState
 import com.eblan.launcher.navigation.SettingsNavHost
+import com.eblan.launcher.ui.local.LocalAccessibilityManager
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalSettings
 import com.eblan.launcher.util.handleEdgeToEdge
@@ -55,6 +57,9 @@ class SettingsActivity : ComponentActivity() {
     @Inject
     lateinit var androidSettingsWrapper: AndroidSettingsWrapper
 
+    @Inject
+    lateinit var androidAccessibilityManagerWrapper: AndroidAccessibilityManagerWrapper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -62,6 +67,7 @@ class SettingsActivity : ComponentActivity() {
             CompositionLocalProvider(
                 LocalPackageManager provides androidPackageManagerWrapper,
                 LocalSettings provides androidSettingsWrapper,
+                LocalAccessibilityManager provides androidAccessibilityManagerWrapper,
             ) {
                 val navController = rememberNavController()
 

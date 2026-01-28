@@ -27,7 +27,7 @@ import android.view.accessibility.AccessibilityEvent
 import androidx.core.content.ContextCompat
 import com.eblan.launcher.domain.model.GlobalAction
 
-internal class EblanAccessibilityService : AccessibilityService() {
+class EblanAccessibilityService : AccessibilityService() {
     private val globalActionBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {

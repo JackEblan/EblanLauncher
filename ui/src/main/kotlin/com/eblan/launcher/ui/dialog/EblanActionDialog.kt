@@ -45,6 +45,7 @@ import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanUser
+import com.eblan.launcher.ui.local.LocalAccessibilityManager
 import com.eblan.launcher.ui.settings.getEblanActionTypeSubtitle
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,6 +58,8 @@ internal fun EblanActionDialog(
     onUpdateEblanAction: (EblanAction) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
+    val accessibilityManager = LocalAccessibilityManager.current
+
     var selectedEblanAction by remember { mutableStateOf(eblanAction) }
 
     var showSelectApplicationDialog by remember { mutableStateOf(false) }
@@ -81,9 +84,24 @@ internal fun EblanActionDialog(
                     .fillMaxWidth(),
             ) {
                 EblanActionType.entries.forEach { eblanActionType ->
+                    val enabled = remember {
+                        when (eblanActionType) {
+                            EblanActionType.OpenNotificationPanel,
+                            EblanActionType.LockScreen,
+                            EblanActionType.OpenQuickSettings,
+                            EblanActionType.OpenRecents,
+                            -> {
+                                accessibilityManager.isAccessibilityServiceEnabled()
+                            }
+
+                            else -> true
+                        }
+                    }
+
                     EblanRadioButton(
                         text = eblanActionType.getEblanActionTypeSubtitle(componentName = selectedEblanAction.componentName),
                         selected = selectedEblanAction.eblanActionType == eblanActionType,
+                        enabled = enabled,
                         onClick = {
                             if (eblanActionType == EblanActionType.OpenApp) {
                                 showSelectApplicationDialog = true

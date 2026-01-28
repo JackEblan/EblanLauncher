@@ -31,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.activity.settings.SettingsActivity
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.framework.accessibilitymanager.AndroidAccessibilityManagerWrapper
 import com.eblan.launcher.framework.iconpackmanager.AndroidIconPackManager
 import com.eblan.launcher.framework.imageserializer.AndroidImageSerializer
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
@@ -43,6 +44,7 @@ import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import com.eblan.launcher.model.ActivityUiState
 import com.eblan.launcher.navigation.MainNavHost
+import com.eblan.launcher.ui.local.LocalAccessibilityManager
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalFileManager
@@ -93,6 +95,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var fileManager: FileManager
 
+    @Inject
+    lateinit var androidAccessibilityManagerWrapper: AndroidAccessibilityManagerWrapper
+
     private val viewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,6 +116,7 @@ class MainActivity : ComponentActivity() {
                 LocalSettings provides androidSettingsWrapper,
                 LocalIconPackManager provides androidIconPackManager,
                 LocalFileManager provides fileManager,
+                LocalAccessibilityManager provides androidAccessibilityManagerWrapper,
             ) {
                 val navController = rememberNavController()
 

@@ -88,18 +88,14 @@ internal fun EblanActionDialog(
                     .fillMaxWidth(),
             ) {
                 EblanActionType.entries.forEach { eblanActionType ->
-                    val enabled = remember {
-                        when (eblanActionType) {
-                            EblanActionType.OpenNotificationPanel,
-                            EblanActionType.LockScreen,
-                            EblanActionType.OpenQuickSettings,
-                            EblanActionType.OpenRecents,
-                            -> {
-                                isAccessibilityServiceEnabled
-                            }
+                    val enabled = when (eblanActionType) {
+                        EblanActionType.OpenNotificationPanel,
+                        EblanActionType.LockScreen,
+                        EblanActionType.OpenQuickSettings,
+                        EblanActionType.OpenRecents,
+                        -> isAccessibilityServiceEnabled
 
-                            else -> true
-                        }
+                        else -> true
                     }
 
                     EblanRadioButton(

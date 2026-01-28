@@ -25,6 +25,7 @@ data class GridItemSettings(
     val singleLineLabel: Boolean,
     val horizontalAlignment: HorizontalAlignment,
     val verticalArrangement: VerticalArrangement,
+    val customColor: Int,
 )
 
 enum class HorizontalAlignment {

@@ -54,6 +54,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         singleLineLabel = true
         horizontalAlignmentProto = HorizontalAlignmentProto.CenterHorizontally
         verticalArrangementProto = VerticalArrangementProto.Top
+        customColor = 0xFFFFFFFF.toInt()
     }.build()
 
     private val defaultHomeSettingsProto = HomeSettingsProto.newBuilder().apply {

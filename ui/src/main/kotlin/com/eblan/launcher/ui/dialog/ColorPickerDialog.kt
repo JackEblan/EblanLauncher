@@ -1,3 +1,20 @@
+/*
+ *
+ *   Copyright 2023 Einstein Blanco
+ *
+ *   Licensed under the GNU General Public License v3.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       https://www.gnu.org/licenses/gpl-3.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package com.eblan.launcher.ui.dialog
 
 import androidx.compose.foundation.Canvas
@@ -37,7 +54,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 
-
 @Composable
 fun ColorPickerDialog(
     modifier: Modifier = Modifier,
@@ -71,45 +87,27 @@ fun ColorPickerDialog(
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth(),
         ) {
-            // 1. Preview Box
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(currentColor),
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // 2. Saturation & Value Selection Square
-            SaturationValuePanel(
+            ColorPicker(
+                modifier = Modifier.padding(10.dp),
                 hue = hue,
+                currentColor = currentColor,
+                colorWithoutAlpha = colorWithoutAlpha,
                 saturation = saturation,
                 value = value,
+                alpha = alpha,
                 onSaturationSelected = { newSaturation ->
                     saturation = newSaturation
                 },
                 onValueSelected = { newValue ->
                     value = newValue
                 },
+                onHueSelected = { newHue ->
+                    hue = newHue
+                },
+                onAlphaSelected = { newAlpha ->
+                    alpha = newAlpha
+                },
             )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // 3. Hue Selection Bar
-            HueBar(hue = hue) {
-                hue = it
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // 4. Alpha Selection Bar
-            AlphaBar(alpha = alpha, activeColor = colorWithoutAlpha) {
-                alpha = it
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
 
             Row(
                 modifier = Modifier
@@ -138,8 +136,61 @@ fun ColorPickerDialog(
                     Text("Save")
                 }
             }
-
         }
+    }
+}
+
+@Composable
+private fun ColorPicker(
+    modifier: Modifier = Modifier,
+    hue: Float,
+    currentColor: Color,
+    colorWithoutAlpha: Color,
+    saturation: Float,
+    value: Float,
+    alpha: Float,
+    onSaturationSelected: (Float) -> Unit,
+    onValueSelected: (Float) -> Unit,
+    onHueSelected: (Float) -> Unit,
+    onAlphaSelected: (Float) -> Unit,
+) {
+    Column(modifier = modifier) {
+        // 1. Preview Box
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(currentColor),
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // 2. Saturation & Value Selection Square
+        SaturationValuePanel(
+            hue = hue,
+            saturation = saturation,
+            value = value,
+            onSaturationSelected = onSaturationSelected,
+            onValueSelected = onValueSelected,
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // 3. Hue Selection Bar
+        HueBar(
+            hue = hue,
+            onHueSelected = onHueSelected,
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // 4. Alpha Selection Bar
+        AlphaBar(
+            alpha = alpha,
+            activeColor = colorWithoutAlpha,
+            onAlphaSelected = onAlphaSelected,
+        )
     }
 }
 
@@ -226,7 +277,6 @@ private fun SaturationValueCanvas(
     }
 }
 
-
 @Composable
 private fun HueBar(
     modifier: Modifier = Modifier,
@@ -262,7 +312,13 @@ private fun HueBarCanvas(
     Canvas(modifier = modifier) {
         // Draw the rainbow gradient
         val hueColors = listOf(
-            Color.Red, Color.Yellow, Color.Green, Color.Cyan, Color.Blue, Color.Magenta, Color.Red,
+            Color.Red,
+            Color.Yellow,
+            Color.Green,
+            Color.Cyan,
+            Color.Blue,
+            Color.Magenta,
+            Color.Red,
         )
         drawRect(
             brush = Brush.horizontalGradient(hueColors),

@@ -23,9 +23,13 @@ import com.eblan.launcher.domain.model.TextColor
 internal fun getGridItemTextColor(
     systemTextColor: TextColor,
     gridItemTextColor: TextColor,
+    customColor: Int,
 ): Color = when (gridItemTextColor) {
     TextColor.System -> {
-        getSystemTextColor(textColor = systemTextColor)
+        getSystemTextColor(
+            textColor = systemTextColor,
+            customColor = customColor,
+        )
     }
 
     TextColor.Light -> {
@@ -35,9 +39,16 @@ internal fun getGridItemTextColor(
     TextColor.Dark -> {
         Color.Black
     }
+
+    TextColor.Custom -> {
+        Color(customColor)
+    }
 }
 
-internal fun getSystemTextColor(textColor: TextColor): Color = when (textColor) {
+internal fun getSystemTextColor(
+    textColor: TextColor,
+    customColor: Int,
+): Color = when (textColor) {
     TextColor.System -> {
         Color.Unspecified
     }
@@ -48,5 +59,9 @@ internal fun getSystemTextColor(textColor: TextColor): Color = when (textColor) 
 
     TextColor.Dark -> {
         Color.Black
+    }
+
+    TextColor.Custom -> {
+        Color(customColor)
     }
 }

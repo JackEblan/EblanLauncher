@@ -34,10 +34,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HorizontalAlignment
-import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
+import com.eblan.launcher.ui.dialog.TextColorDialog
 
 @Composable
 fun GridItemSettings(
@@ -172,18 +172,20 @@ fun GridItemSettings(
     }
 
     if (showTextColorDialog) {
-        RadioOptionsDialog(
+        TextColorDialog(
             title = "Text Color",
-            options = TextColor.entries,
-            selected = gridItemSettings.textColor,
-            label = {
-                it.name
-            },
+            textColor = gridItemSettings.textColor,
+            customColor = gridItemSettings.customColor,
             onDismissRequest = {
                 showTextColorDialog = false
             },
-            onUpdateClick = { textColor ->
-                onUpdateGridItemSettings(gridItemSettings.copy(textColor = textColor))
+            onUpdateClick = { textColor, customColor ->
+                onUpdateGridItemSettings(
+                    gridItemSettings.copy(
+                        textColor = textColor,
+                        customColor = customColor,
+                    ),
+                )
 
                 showTextColorDialog = false
             },

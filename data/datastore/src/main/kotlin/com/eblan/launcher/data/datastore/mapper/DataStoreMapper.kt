@@ -72,6 +72,7 @@ internal fun GridItemSettingsProto.toGridItemSettings(): GridItemSettings = Grid
     singleLineLabel = singleLineLabel,
     horizontalAlignment = horizontalAlignmentProto.toHorizontalAlignment(),
     verticalArrangement = verticalArrangementProto.toVerticalArrangement(),
+    customColor = customColor,
 )
 
 internal fun GeneralSettingsProto.toGeneralSettings(): GeneralSettings = GeneralSettings(
@@ -84,12 +85,14 @@ internal fun TextColor.toTextColorProto(): TextColorProto = when (this) {
     TextColor.System -> TextColorProto.TextColorSystem
     TextColor.Light -> TextColorProto.TextColorLight
     TextColor.Dark -> TextColorProto.TextColorDark
+    TextColor.Custom -> TextColorProto.TextColorCustom
 }
 
 internal fun TextColorProto.toTextColor(): TextColor = when (this) {
     TextColorProto.TextColorSystem, TextColorProto.UNRECOGNIZED -> TextColor.System
     TextColorProto.TextColorLight -> TextColor.Light
     TextColorProto.TextColorDark -> TextColor.Dark
+    TextColorProto.TextColorCustom -> TextColor.Custom
 }
 
 internal fun HorizontalAlignment.toHorizontalAlignmentProto(): HorizontalAlignmentProto = when (this) {
@@ -174,6 +177,7 @@ internal fun GridItemSettings.toGridItemSettingsProto(): GridItemSettingsProto =
     .setSingleLineLabel(singleLineLabel)
     .setHorizontalAlignmentProto(horizontalAlignment.toHorizontalAlignmentProto())
     .setVerticalArrangementProto(verticalArrangement.toVerticalArrangementProto())
+    .setCustomColor(customColor)
     .build()
 
 internal fun HomeSettings.toHomeSettingsProto(): HomeSettingsProto = HomeSettingsProto.newBuilder()

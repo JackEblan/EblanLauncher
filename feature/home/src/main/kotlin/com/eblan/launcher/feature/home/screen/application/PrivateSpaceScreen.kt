@@ -269,9 +269,13 @@ private fun PrivateSpaceEblanApplicationInfoItem(
         getGridItemTextColor(
             systemTextColor = textColor,
             gridItemTextColor = appDrawerSettings.gridItemSettings.textColor,
+            customColor = appDrawerSettings.gridItemSettings.customColor,
         )
     } else {
-        getSystemTextColor(textColor = appDrawerSettings.gridItemSettings.textColor)
+        getSystemTextColor(
+            textColor = appDrawerSettings.gridItemSettings.textColor,
+            customColor = appDrawerSettings.gridItemSettings.customColor,
+        )
     }
 
     val appDrawerRowsHeight = appDrawerSettings.appDrawerRowsHeight.dp

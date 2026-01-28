@@ -3,15 +3,22 @@ package com.eblan.launcher.ui.dialog
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -25,8 +32,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 
@@ -35,19 +42,15 @@ import com.eblan.launcher.designsystem.component.EblanDialogContainer
 fun ColorPickerDialog(
     modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit,
+    onColorSelected: (Int) -> Unit,
 ) {
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-
-    }
-}
-
-@Preview
-@Composable
-fun ColorPicker(modifier: Modifier = Modifier) {
     // State: Hue (0-360), Saturation (0-1), Value (0-1), Alpha (0-1)
     var hue by remember { mutableFloatStateOf(0f) }
+
     var saturation by remember { mutableFloatStateOf(1f) }
+
     var value by remember { mutableFloatStateOf(1f) }
+
     var alpha by remember { mutableFloatStateOf(1f) }
 
     val currentColor by remember {
@@ -62,43 +65,80 @@ fun ColorPicker(modifier: Modifier = Modifier) {
         }
     }
 
-    Column(modifier = Modifier.padding(24.dp)) {
-        // 1. Preview Box
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(currentColor),
-        )
+    EblanDialogContainer(onDismissRequest = onDismissRequest) {
+        Column(
+            modifier = modifier
+                .verticalScroll(rememberScrollState())
+                .fillMaxWidth(),
+        ) {
+            // 1. Preview Box
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(currentColor),
+            )
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        // 2. Saturation & Value Selection Square
-        SaturationValuePanel(
-            hue = hue,
-            saturation = saturation,
-            value = value,
-            onSaturationSelected = { newSaturation ->
-                saturation = newSaturation
-            },
-            onValueSelected = { newValue ->
-                value = newValue
-            },
-        )
+            // 2. Saturation & Value Selection Square
+            SaturationValuePanel(
+                hue = hue,
+                saturation = saturation,
+                value = value,
+                onSaturationSelected = { newSaturation ->
+                    saturation = newSaturation
+                },
+                onValueSelected = { newValue ->
+                    value = newValue
+                },
+            )
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        // 3. Hue Selection Bar
-        HueBar(hue = hue) {
-            hue = it
-        }
+            // 3. Hue Selection Bar
+            HueBar(hue = hue) {
+                hue = it
+            }
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        // 4. Alpha Selection Bar
-        AlphaBar(alpha = alpha, activeColor = colorWithoutAlpha) {
-            alpha = it
+            // 4. Alpha Selection Bar
+            AlphaBar(alpha = alpha, activeColor = colorWithoutAlpha) {
+                alpha = it
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        end = 10.dp,
+                        bottom = 10.dp,
+                    ),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                TextButton(
+                    onClick = onDismissRequest,
+                ) {
+                    Text("Cancel")
+                }
+
+                Spacer(modifier = Modifier.width(5.dp))
+
+                TextButton(
+                    onClick = {
+                        onColorSelected(currentColor.toArgb())
+
+                        onDismissRequest()
+                    },
+                ) {
+                    Text("Save")
+                }
+            }
+
         }
     }
 }

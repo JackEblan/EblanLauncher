@@ -35,6 +35,7 @@ fun EblanRadioButton(
     modifier: Modifier = Modifier,
     text: String,
     selected: Boolean,
+    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
     Row(
@@ -42,6 +43,7 @@ fun EblanRadioButton(
             .fillMaxWidth()
             .selectable(
                 selected = selected,
+                enabled = enabled,
                 onClick = onClick,
                 role = Role.RadioButton,
             )
@@ -50,6 +52,7 @@ fun EblanRadioButton(
     ) {
         RadioButton(
             selected = selected,
+            enabled = enabled,
             onClick = null,
         )
 

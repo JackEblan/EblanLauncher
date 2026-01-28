@@ -32,6 +32,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -46,7 +47,9 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.Theme
 import com.eblan.launcher.feature.action.ActionScreen
+import com.eblan.launcher.framework.accessibilitymanager.AndroidAccessibilityManagerWrapper
 import com.eblan.launcher.model.ActivityUiState
+import com.eblan.launcher.ui.local.LocalAccessibilityManager
 import com.eblan.launcher.ui.settings.getEblanActionTypeSubtitle
 import com.eblan.launcher.util.handleEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
@@ -65,42 +68,49 @@ class ActionActivity : ComponentActivity() {
     @Dispatcher(EblanDispatchers.Default)
     lateinit var defaultDispatcher: CoroutineDispatcher
 
+    @Inject
+    lateinit var androidAccessibilityManagerWrapper: AndroidAccessibilityManagerWrapper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val activityUiState by viewModel.activityUiState.collectAsStateWithLifecycle()
+            CompositionLocalProvider(
+                LocalAccessibilityManager provides androidAccessibilityManagerWrapper,
+            ) {
+                val activityUiState by viewModel.activityUiState.collectAsStateWithLifecycle()
 
-            when (val state = activityUiState) {
-                ActivityUiState.Loading -> {
-                    SideEffect {
-                        enableEdgeToEdge()
-                    }
+                when (val state = activityUiState) {
+                    ActivityUiState.Loading -> {
+                        SideEffect {
+                            enableEdgeToEdge()
+                        }
 
-                    EblanLauncherTheme(
-                        theme = Theme.System,
-                        dynamicTheme = false,
-                    ) {
-                        Surface(modifier = Modifier.fillMaxSize()) {
-                            Box(modifier = Modifier.fillMaxSize())
+                        EblanLauncherTheme(
+                            theme = Theme.System,
+                            dynamicTheme = false,
+                        ) {
+                            Surface(modifier = Modifier.fillMaxSize()) {
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
                         }
                     }
-                }
 
-                is ActivityUiState.Success -> {
-                    SideEffect {
-                        handleEdgeToEdge(theme = state.applicationTheme.theme)
-                    }
+                    is ActivityUiState.Success -> {
+                        SideEffect {
+                            handleEdgeToEdge(theme = state.applicationTheme.theme)
+                        }
 
-                    EblanLauncherTheme(
-                        theme = state.applicationTheme.theme,
-                        dynamicTheme = state.applicationTheme.dynamicTheme,
-                    ) {
-                        Surface {
-                            ActionScreen(
-                                onUpdateEblanAction = ::createShortcutResult,
-                                onFinish = ::finish,
-                            )
+                        EblanLauncherTheme(
+                            theme = state.applicationTheme.theme,
+                            dynamicTheme = state.applicationTheme.dynamicTheme,
+                        ) {
+                            Surface {
+                                ActionScreen(
+                                    onUpdateEblanAction = ::createShortcutResult,
+                                    onFinish = ::finish,
+                                )
+                            }
                         }
                     }
                 }

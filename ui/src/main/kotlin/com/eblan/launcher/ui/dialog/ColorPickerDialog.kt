@@ -20,6 +20,8 @@ package com.eblan.launcher.ui.dialog
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -215,14 +217,25 @@ private fun SaturationValuePanel(
 
         SaturationValueCanvas(
             modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(Unit) {
-                    detectDragGestures { change, _ ->
-                        onSaturationSelected((change.position.x / width).coerceIn(0f, 1f))
+                .pointerInput(key1 = Unit) {
+                    detectTapGestures(
+                        onTap = { offset ->
+                            onSaturationSelected((offset.x / width).coerceIn(0f, 1f))
 
-                        onValueSelected(1f - (change.position.y / height).coerceIn(0f, 1f))
-                    }
-                },
+                            onValueSelected(1f - (offset.y / height).coerceIn(0f, 1f))
+                        },
+                    )
+                }
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDrag = { change, _ ->
+                            onSaturationSelected((change.position.x / width).coerceIn(0f, 1f))
+
+                            onValueSelected(1f - (change.position.y / height).coerceIn(0f, 1f))
+                        },
+                    )
+                }
+                .fillMaxSize(),
             hue = hue,
             saturation = saturation,
             value = value,
@@ -293,12 +306,21 @@ private fun HueBar(
 
         HueBarCanvas(
             modifier = Modifier
-                .fillMaxSize()
+                .pointerInput(key1 = Unit) {
+                    detectTapGestures(
+                        onTap = { offset ->
+                            onHueSelected((offset.x / width).coerceIn(0f, 1f) * 360f)
+                        },
+                    )
+                }
                 .pointerInput(Unit) {
-                    detectDragGestures { change, _ ->
-                        onHueSelected((change.position.x / width).coerceIn(0f, 1f) * 360f)
-                    }
-                },
+                    detectHorizontalDragGestures(
+                        onHorizontalDrag = { change, _ ->
+                            onHueSelected((change.position.x / width).coerceIn(0f, 1f) * 360f)
+                        },
+                    )
+                }
+                .fillMaxSize(),
             hue = hue,
         )
     }
@@ -363,12 +385,21 @@ private fun AlphaBar(
 
         AlphaBarCanvas(
             modifier = Modifier
-                .fillMaxSize()
+                .pointerInput(key1 = Unit) {
+                    detectTapGestures(
+                        onTap = { offset ->
+                            onAlphaSelected((offset.x / width).coerceIn(0f, 1f))
+                        },
+                    )
+                }
                 .pointerInput(Unit) {
-                    detectDragGestures { change, _ ->
-                        onAlphaSelected((change.position.x / width).coerceIn(0f, 1f))
-                    }
-                },
+                    detectHorizontalDragGestures(
+                        onHorizontalDrag = { change, _ ->
+                            onAlphaSelected((change.position.x / width).coerceIn(0f, 1f))
+                        },
+                    )
+                }
+                .fillMaxSize(),
             alpha = alpha,
             activeColor = activeColor,
             width = width,

@@ -22,5 +22,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class EditApplicationInfoRouteData(
     val serialNumber: Long,
-    val packageName: String,
+    val componentName: String,
 )

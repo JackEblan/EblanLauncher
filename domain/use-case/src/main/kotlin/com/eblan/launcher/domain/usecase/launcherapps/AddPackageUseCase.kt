@@ -76,15 +76,18 @@ class AddPackageUseCase @Inject constructor(
                     lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
                 )
 
-                addEblanAppWidgetProviderInfos(
-                    serialNumber = launcherAppsActivityInfo.serialNumber,
-                    packageName = launcherAppsActivityInfo.packageName,
-                )
-
                 updateIconPackInfoByComponentNameUseCase(componentName = launcherAppsActivityInfo.componentName)
             }
 
-            addEblanShortcutInfos()
+            addEblanAppWidgetProviderInfos(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
+
+            addEblanShortcutInfos(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
 
             addEblanShortcutConfigs(
                 serialNumber = serialNumber,
@@ -179,9 +182,15 @@ class AddPackageUseCase @Inject constructor(
         )
     }
 
-    private suspend fun addEblanShortcutInfos() {
+    private suspend fun addEblanShortcutInfos(
+        serialNumber: Long,
+        packageName: String,
+    ) {
         val eblanShortcutInfos =
-            launcherAppsWrapper.getShortcuts()?.map { launcherAppsShortcutInfo ->
+            launcherAppsWrapper.getShortcutsByPackageName(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )?.map { launcherAppsShortcutInfo ->
                 currentCoroutineContext().ensureActive()
 
                 EblanShortcutInfo(

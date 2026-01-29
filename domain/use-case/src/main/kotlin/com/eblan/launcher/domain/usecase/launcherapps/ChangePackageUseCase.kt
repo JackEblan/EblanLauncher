@@ -82,7 +82,7 @@ class ChangePackageUseCase @Inject constructor(
             ).forEach { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
-                updateEblanApplicationInfoByPackageName(
+                updateEblanApplicationInfo(
                     componentName = launcherAppsActivityInfo.componentName,
                     packageName = launcherAppsActivityInfo.packageName,
                     serialNumber = launcherAppsActivityInfo.serialNumber,
@@ -90,44 +90,43 @@ class ChangePackageUseCase @Inject constructor(
                     label = launcherAppsActivityInfo.activityLabel,
                 )
 
-                updateEblanAppWidgetProviderInfosByPackageName(
-                    serialNumber = launcherAppsActivityInfo.serialNumber,
-                    packageName = launcherAppsActivityInfo.packageName,
-                )
-
-                updateShortcutConfigGridItemsByPackageName(
-                    serialNumber = launcherAppsActivityInfo.serialNumber,
-                    packageName = launcherAppsActivityInfo.packageName,
-                )
-
-                updateEblanShortcutConfigs(
-                    serialNumber = launcherAppsActivityInfo.serialNumber,
-                    packageName = launcherAppsActivityInfo.packageName,
-                )
-
                 updateIconPackInfoByComponentNameUseCase(componentName = launcherAppsActivityInfo.componentName)
             }
 
-            updateEblanShortcutInfosByPackageName(
+            updateEblanAppWidgetProviderInfos(
                 serialNumber = serialNumber,
                 packageName = packageName,
             )
 
-            updateShortcutInfoGridItemsByPackageName(
+            updateShortcutConfigGridItems(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
+            updateEblanShortcutConfigs(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
+
+            updateEblanShortcutInfos(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
+
+            updateShortcutInfoGridItems(
                 serialNumber = serialNumber,
                 packageName = packageName,
             )
         }
     }
 
-    private suspend fun updateEblanApplicationInfoByPackageName(
+    private suspend fun updateEblanApplicationInfo(
         componentName: String,
         packageName: String,
         serialNumber: Long,
         icon: String?,
         label: String,
     ) {
-        val eblanApplicationInfo = eblanApplicationInfoRepository.getEblanApplicationInfo(
+        val eblanApplicationInfo = eblanApplicationInfoRepository.getEblanApplicationInfoByPackageName(
             serialNumber = serialNumber,
             packageName = packageName,
         )
@@ -151,7 +150,7 @@ class ChangePackageUseCase @Inject constructor(
         }
     }
 
-    private suspend fun updateEblanAppWidgetProviderInfosByPackageName(
+    private suspend fun updateEblanAppWidgetProviderInfos(
         serialNumber: Long,
         packageName: String,
     ) {
@@ -257,7 +256,7 @@ class ChangePackageUseCase @Inject constructor(
         )
     }
 
-    private suspend fun updateEblanShortcutInfosByPackageName(
+    private suspend fun updateEblanShortcutInfos(
         serialNumber: Long,
         packageName: String,
     ) {
@@ -434,7 +433,7 @@ class ChangePackageUseCase @Inject constructor(
         widgetGridItemRepository.deleteWidgetGridItemsByPackageName(widgetGridItems = deleteWidgetGridItems)
     }
 
-    private suspend fun updateShortcutInfoGridItemsByPackageName(
+    private suspend fun updateShortcutInfoGridItems(
         serialNumber: Long,
         packageName: String,
     ) {
@@ -513,7 +512,7 @@ class ChangePackageUseCase @Inject constructor(
         }
     }
 
-    private suspend fun updateShortcutConfigGridItemsByPackageName(
+    private suspend fun updateShortcutConfigGridItems(
         serialNumber: Long,
         packageName: String,
     ) {

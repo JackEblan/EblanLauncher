@@ -28,14 +28,14 @@ interface EblanApplicationInfoRepository {
 
     suspend fun getEblanApplicationInfosByPackageName(packageName: String): List<EblanApplicationInfo>
 
-    suspend fun deleteEblanApplicationInfo(
+    suspend fun deleteEblanApplicationInfoByPackageName(
         serialNumber: Long,
         packageName: String,
     )
 
     suspend fun deleteEblanApplicationInfos(eblanApplicationInfos: List<EblanApplicationInfo>)
 
-    suspend fun getEblanApplicationInfo(
+    suspend fun getEblanApplicationInfoByPackageName(
         serialNumber: Long,
         packageName: String,
     ): EblanApplicationInfo?
@@ -47,4 +47,9 @@ interface EblanApplicationInfoRepository {
     suspend fun updateEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo)
 
     suspend fun restoreEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo)
+
+    suspend fun getEblanApplicationInfoByComponentName(
+        serialNumber: Long,
+        componentName: String,
+    ): EblanApplicationInfo?
 }

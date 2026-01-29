@@ -157,9 +157,9 @@ internal class EditApplicationInfoViewModel @Inject constructor(
         viewModelScope.launch {
             _editApplicationInfoUiState.update {
                 EditApplicationInfoUiState.Success(
-                    eblanApplicationInfo = eblanApplicationInfoRepository.getEblanApplicationInfo(
+                    eblanApplicationInfo = eblanApplicationInfoRepository.getEblanApplicationInfoByComponentName(
                         serialNumber = editApplicationInfoRouteData.serialNumber,
-                        packageName = editApplicationInfoRouteData.packageName,
+                        componentName = editApplicationInfoRouteData.componentName,
                     ),
                 )
             }

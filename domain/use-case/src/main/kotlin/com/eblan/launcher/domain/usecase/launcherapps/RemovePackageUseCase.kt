@@ -74,7 +74,7 @@ class RemovePackageUseCase @Inject constructor(
                 packageName = packageName,
             )
 
-            eblanApplicationInfoRepository.deleteEblanApplicationInfo(
+            eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(
                 serialNumber = serialNumber,
                 packageName = packageName,
             )

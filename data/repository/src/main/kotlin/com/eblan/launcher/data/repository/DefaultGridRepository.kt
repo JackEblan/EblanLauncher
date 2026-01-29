@@ -101,7 +101,7 @@ internal class DefaultGridRepository @Inject constructor(
                     }
 
                     val eblanApplicationInfo =
-                        eblanApplicationInfoRepository.getEblanApplicationInfo(
+                        eblanApplicationInfoRepository.getEblanApplicationInfoByPackageName(
                             serialNumber = data.serialNumber,
                             packageName = data.packageName,
                         )

@@ -26,7 +26,7 @@ fun NavGraphBuilder.homeScreen(
     onSettings: () -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
-        packageName: String,
+        componentName: String,
     ) -> Unit,
 ) {
     composable<HomeRouteData> {

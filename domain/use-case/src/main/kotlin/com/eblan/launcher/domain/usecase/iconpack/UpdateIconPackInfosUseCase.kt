@@ -42,7 +42,7 @@ class UpdateIconPackInfosUseCase @Inject constructor(
     suspend operator fun invoke(iconPackInfoPackageName: String) {
         withContext(ioDispatcher) {
             val eblanApplicationInfo =
-                eblanApplicationInfoRepository.getEblanApplicationInfo(
+                eblanApplicationInfoRepository.getEblanApplicationInfoByPackageName(
                     serialNumber = 0L,
                     packageName = iconPackInfoPackageName,
                 )

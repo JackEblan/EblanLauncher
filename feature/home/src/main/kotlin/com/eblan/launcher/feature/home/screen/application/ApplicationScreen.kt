@@ -183,7 +183,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     onDragEnd: (Float) -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
-        packageName: String,
+        componentName: String,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -264,7 +264,7 @@ private fun SharedTransitionScope.Success(
     onDragEnd: (Float) -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
-        packageName: String,
+        componentName: String,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {

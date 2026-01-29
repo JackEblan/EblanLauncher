@@ -110,6 +110,7 @@ fun TextColorDialog(
 
     if (showColorPickerDialog) {
         ColorPickerDialog(
+            customColor = customTextColor,
             onDismissRequest = {
                 showColorPickerDialog = false
             },

@@ -35,7 +35,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -55,16 +54,26 @@ import com.eblan.launcher.designsystem.component.EblanDialogContainer
 @Composable
 fun ColorPickerDialog(
     modifier: Modifier = Modifier,
+    customColor: Int,
     onDismissRequest: () -> Unit,
     onColorSelected: (Int) -> Unit,
 ) {
-    var hue by remember { mutableFloatStateOf(0f) }
+    val hsv = FloatArray(3).apply {
+        android.graphics.Color.RGBToHSV(
+            android.graphics.Color.red(customColor),
+            android.graphics.Color.green(customColor),
+            android.graphics.Color.blue(customColor),
+            this,
+        )
+    }
 
-    var saturation by remember { mutableFloatStateOf(1f) }
+    var hue by remember { mutableFloatStateOf(hsv[0]) }
 
-    var value by remember { mutableFloatStateOf(1f) }
+    var saturation by remember { mutableFloatStateOf(hsv[1]) }
 
-    var alpha by remember { mutableFloatStateOf(1f) }
+    var value by remember { mutableFloatStateOf(hsv[2]) }
+
+    var alpha by remember { mutableFloatStateOf(Color(customColor).alpha) }
 
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(
@@ -111,7 +120,9 @@ fun ColorPickerDialog(
 
                 TextButton(
                     onClick = {
-                        onColorSelected(Color.hsv(hue, saturation, value).copy(alpha = alpha).toArgb())
+                        onColorSelected(
+                            Color.hsv(hue, saturation, value).copy(alpha = alpha).toArgb(),
+                        )
 
                         onDismissRequest()
                     },

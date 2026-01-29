@@ -701,6 +701,11 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
+            )
+            .padding(appDrawerSettings.gridItemSettings.padding.dp)
+            .background(
+                color = Color(appDrawerSettings.gridItemSettings.customBackgroundColor),
+                shape = RoundedCornerShape(size = appDrawerSettings.gridItemSettings.cornerRadius.dp),
             ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,

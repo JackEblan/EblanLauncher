@@ -54,8 +54,8 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         singleLineLabel = true
         horizontalAlignmentProto = HorizontalAlignmentProto.CenterHorizontally
         verticalArrangementProto = VerticalArrangementProto.Top
-        customTextColor = 0xFFFFFFFF.toInt()
-        customBackgroundColor = 0xFFFFFFFF.toInt()
+        customTextColor = 0x00000000
+        customBackgroundColor = 0x00000000
         padding = 0
         cornerRadius = 0
     }.build()

@@ -22,11 +22,14 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -369,6 +372,11 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
+            )
+            .padding(gridItemSettings.padding.dp)
+            .background(
+                color = Color(gridItemSettings.customBackgroundColor),
+                shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
             )
             .fillMaxSize(),
         horizontalAlignment = horizontalAlignment,

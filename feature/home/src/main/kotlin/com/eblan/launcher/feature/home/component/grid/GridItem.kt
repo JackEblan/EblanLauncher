@@ -580,7 +580,13 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
         getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(gridItemSettings.padding.dp)
+            .background(
+                color = Color(gridItemSettings.customBackgroundColor),
+                shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
+            ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -623,7 +629,13 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
         getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(gridItemSettings.padding.dp)
+            .background(
+                color = Color(gridItemSettings.customBackgroundColor),
+                shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
+            ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -665,7 +677,13 @@ private fun SharedTransitionScope.FolderGridItem(
         getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(gridItemSettings.padding.dp)
+            .background(
+                color = Color(gridItemSettings.customBackgroundColor),
+                shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
+            ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -756,7 +774,13 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
         getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(gridItemSettings.padding.dp)
+            .background(
+                color = Color(gridItemSettings.customBackgroundColor),
+                shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
+            ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {

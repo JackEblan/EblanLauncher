@@ -271,7 +271,6 @@ fun GridItemSettings(
         )
     }
 
-
     if (showPaddingDialog) {
         var value by remember { mutableStateOf("${gridItemSettings.padding}") }
 

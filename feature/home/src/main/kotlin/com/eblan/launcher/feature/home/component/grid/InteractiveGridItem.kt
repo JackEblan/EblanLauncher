@@ -373,12 +373,12 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                 scaleX = scale.value,
                 scaleY = scale.value,
             )
+            .fillMaxSize()
             .padding(gridItemSettings.padding.dp)
             .background(
                 color = Color(gridItemSettings.customBackgroundColor),
                 shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
-            )
-            .fillMaxSize(),
+            ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -695,7 +695,12 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                 scaleX = scale.value,
                 scaleY = scale.value,
             )
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(gridItemSettings.padding.dp)
+            .background(
+                color = Color(gridItemSettings.customBackgroundColor),
+                shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
+            ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -865,7 +870,12 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                 scaleX = scale.value,
                 scaleY = scale.value,
             )
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(gridItemSettings.padding.dp)
+            .background(
+                color = Color(gridItemSettings.customBackgroundColor),
+                shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
+            ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -1037,7 +1047,12 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                 scaleX = scale.value,
                 scaleY = scale.value,
             )
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(gridItemSettings.padding.dp)
+            .background(
+                color = Color(gridItemSettings.customBackgroundColor),
+                shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
+            ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {

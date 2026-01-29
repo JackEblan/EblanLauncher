@@ -203,8 +203,8 @@ internal fun SharedTransitionScope.FolderScreen(
             Text(
                 text = folderDataById.label,
                 color = getSystemTextColor(
-                    textColor = textColor,
-                    customTextColor = homeSettings.gridItemSettings.customTextColor,
+                    systemTextColor = textColor,
+                    systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
                 ),
                 style = MaterialTheme.typography.headlineLarge,
             )
@@ -318,8 +318,8 @@ internal fun SharedTransitionScope.FolderScreen(
             infiniteScroll = false,
             pageCount = folderDataById.pageCount,
             color = getSystemTextColor(
-                textColor = textColor,
-                customTextColor = homeSettings.gridItemSettings.customTextColor,
+                systemTextColor = textColor,
+                systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
             ),
         )
     }

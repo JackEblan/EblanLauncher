@@ -82,10 +82,8 @@ import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ManagedProfileResult
-import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.getVerticalArrangement
@@ -105,8 +103,6 @@ internal fun LazyGridScope.privateSpace(
     appDrawerSettings: AppDrawerSettings,
     paddingValues: PaddingValues,
     iconPackFilePaths: Map<String, String>,
-    textColor: TextColor,
-    klwpIntegration: Boolean,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -139,8 +135,6 @@ internal fun LazyGridScope.privateSpace(
                 appDrawerSettings = appDrawerSettings,
                 paddingValues = paddingValues,
                 iconPackFilePaths = iconPackFilePaths,
-                textColor = textColor,
-                klwpIntegration = klwpIntegration,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdatePopupMenu = onUpdatePopupMenu,
@@ -244,8 +238,6 @@ private fun PrivateSpaceEblanApplicationInfoItem(
     appDrawerSettings: AppDrawerSettings,
     paddingValues: PaddingValues,
     iconPackFilePaths: Map<String, String>,
-    textColor: TextColor,
-    klwpIntegration: Boolean,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -268,19 +260,10 @@ private fun PrivateSpaceEblanApplicationInfoItem(
 
     val launcherApps = LocalLauncherApps.current
 
-    val textColor = if (klwpIntegration) {
-        getGridItemTextColor(
-            systemTextColor = textColor,
-            systemCustomTextColor = appDrawerSettings.gridItemSettings.customTextColor,
-            gridItemTextColor = appDrawerSettings.gridItemSettings.textColor,
-            gridItemCustomTextColor = appDrawerSettings.gridItemSettings.customTextColor,
-        )
-    } else {
-        getSystemTextColor(
-            textColor = appDrawerSettings.gridItemSettings.textColor,
-            customTextColor = appDrawerSettings.gridItemSettings.customTextColor,
-        )
-    }
+    val textColor = getSystemTextColor(
+        systemTextColor = appDrawerSettings.gridItemSettings.textColor,
+        systemCustomTextColor = appDrawerSettings.gridItemSettings.customTextColor,
+    )
 
     val appDrawerRowsHeight = appDrawerSettings.appDrawerRowsHeight.dp
 

@@ -180,8 +180,8 @@ internal fun SharedTransitionScope.ResizeScreen(
             infiniteScroll = homeSettings.infiniteScroll,
             pageCount = homeSettings.pageCount,
             color = getSystemTextColor(
-                textColor = textColor,
-                customTextColor = homeSettings.gridItemSettings.customTextColor,
+                systemTextColor = textColor,
+                systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
             ),
         )
 
@@ -307,23 +307,17 @@ private fun ResizeOverlay(
         lockMovement: Boolean,
     ) -> Unit,
 ) {
-    val currentGridItemSettings = if (gridItem.override) {
-        gridItem.gridItemSettings
-    } else {
-        gridItemSettings
-    }
-
     val currentTextColor = if (gridItem.override) {
         getGridItemTextColor(
             systemTextColor = textColor,
             systemCustomTextColor = gridItemSettings.customTextColor,
-            gridItemTextColor = currentGridItemSettings.textColor,
-            gridItemCustomTextColor = currentGridItemSettings.customTextColor,
+            gridItemTextColor = gridItem.gridItemSettings.textColor,
+            gridItemCustomTextColor = gridItem.gridItemSettings.customTextColor,
         )
     } else {
         getSystemTextColor(
-            textColor = textColor,
-            customTextColor = gridItem.gridItemSettings.customTextColor,
+            systemTextColor = textColor,
+            systemCustomTextColor = gridItemSettings.customTextColor,
         )
     }
 

@@ -40,14 +40,13 @@ class UpdateIconPackInfosUseCase @Inject constructor(
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(iconPackInfoPackageName: String) {
-        withContext(ioDispatcher) {
-            val eblanApplicationInfo =
-                eblanApplicationInfoRepository.getEblanApplicationInfoByPackageName(
-                    serialNumber = 0L,
-                    packageName = iconPackInfoPackageName,
-                )
+        if (iconPackInfoPackageName.isEmpty()) return
 
-            if (iconPackInfoPackageName.isNotEmpty() && eblanApplicationInfo != null) {
+        withContext(ioDispatcher) {
+            eblanApplicationInfoRepository.getEblanApplicationInfoByPackageName(
+                serialNumber = 0L,
+                packageName = iconPackInfoPackageName,
+            ).forEach { eblanApplicationInfo ->
                 val appFilter =
                     iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 
@@ -56,8 +55,8 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                     iconPackInfoPackageName,
                 ).apply { if (!exists()) mkdirs() }
 
-                val installedPackageNames = launcherAppsWrapper.getActivityList()
-                    .onEach { launcherAppsActivityInfo ->
+                val installedPackageNames =
+                    launcherAppsWrapper.getActivityList().onEach { launcherAppsActivityInfo ->
                         ensureActive()
 
                         cacheIconPackFile(
@@ -67,8 +66,7 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                             iconPackInfoDirectory = iconPackDirectory,
                             componentName = launcherAppsActivityInfo.componentName,
                         )
-                    }
-                    .map { launcherAppsActivityInfo ->
+                    }.map { launcherAppsActivityInfo ->
                         ensureActive()
 
                         launcherAppsActivityInfo.componentName.hashCode().toString()
@@ -83,8 +81,7 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                 )
 
                 iconPackDirectory.listFiles()
-                    ?.filter { it.isFile && it.name !in installedPackageNames }
-                    ?.forEach {
+                    ?.filter { it.isFile && it.name !in installedPackageNames }?.forEach {
                         ensureActive()
 
                         it.delete()

@@ -53,7 +53,7 @@ interface EblanApplicationInfoDao {
     suspend fun getEblanApplicationInfoEntityByPackageName(
         serialNumber: Long,
         packageName: String,
-    ): EblanApplicationInfoEntity?
+    ): List<EblanApplicationInfoEntity>
 
     @Upsert(entity = EblanApplicationInfoEntity::class)
     suspend fun upsertSyncEblanApplicationInfoEntities(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)

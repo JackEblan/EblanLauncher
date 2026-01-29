@@ -38,7 +38,7 @@ interface EblanApplicationInfoRepository {
     suspend fun getEblanApplicationInfoByPackageName(
         serialNumber: Long,
         packageName: String,
-    ): EblanApplicationInfo?
+    ): List<EblanApplicationInfo>
 
     suspend fun upsertSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)
 

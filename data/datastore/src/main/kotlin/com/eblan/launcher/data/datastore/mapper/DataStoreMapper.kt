@@ -72,7 +72,10 @@ internal fun GridItemSettingsProto.toGridItemSettings(): GridItemSettings = Grid
     singleLineLabel = singleLineLabel,
     horizontalAlignment = horizontalAlignmentProto.toHorizontalAlignment(),
     verticalArrangement = verticalArrangementProto.toVerticalArrangement(),
-    customColor = customColor,
+    customTextColor = customTextColor,
+    customBackgroundColor = customBackgroundColor,
+    padding = padding,
+    cornerRadius = cornerRadius,
 )
 
 internal fun GeneralSettingsProto.toGeneralSettings(): GeneralSettings = GeneralSettings(
@@ -177,7 +180,10 @@ internal fun GridItemSettings.toGridItemSettingsProto(): GridItemSettingsProto =
     .setSingleLineLabel(singleLineLabel)
     .setHorizontalAlignmentProto(horizontalAlignment.toHorizontalAlignmentProto())
     .setVerticalArrangementProto(verticalArrangement.toVerticalArrangementProto())
-    .setCustomColor(customColor)
+    .setCustomTextColor(customTextColor)
+    .setCustomBackgroundColor(customBackgroundColor)
+    .setPadding(padding)
+    .setCornerRadius(cornerRadius)
     .build()
 
 internal fun HomeSettings.toHomeSettingsProto(): HomeSettingsProto = HomeSettingsProto.newBuilder()

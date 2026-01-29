@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.VerticalArrangement
+import com.eblan.launcher.ui.dialog.ColorPickerDialog
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
 import com.eblan.launcher.ui.dialog.TextColorDialog
@@ -50,6 +51,12 @@ fun GridItemSettings(
     var showTextColorDialog by remember { mutableStateOf(false) }
 
     var showTextSizeDialog by remember { mutableStateOf(false) }
+
+    var showBackgroundColorDialog by remember { mutableStateOf(false) }
+
+    var showPaddingDialog by remember { mutableStateOf(false) }
+
+    var showCornerRadiusDialog by remember { mutableStateOf(false) }
 
     var showHorizontalAlignment by remember { mutableStateOf(false) }
 
@@ -92,6 +99,36 @@ fun GridItemSettings(
                 subtitle = "${gridItemSettings.textSize}",
                 onClick = {
                     showTextSizeDialog = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Background Color",
+                subtitle = "${gridItemSettings.customBackgroundColor}",
+                onClick = {
+                    showBackgroundColorDialog = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Padding",
+                subtitle = "${gridItemSettings.padding}",
+                onClick = {
+                    showPaddingDialog = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Corner Radius",
+                subtitle = "${gridItemSettings.cornerRadius}",
+                onClick = {
+                    showCornerRadiusDialog = true
                 },
             )
 
@@ -175,15 +212,15 @@ fun GridItemSettings(
         TextColorDialog(
             title = "Text Color",
             textColor = gridItemSettings.textColor,
-            customColor = gridItemSettings.customColor,
+            customTextColor = gridItemSettings.customTextColor,
             onDismissRequest = {
                 showTextColorDialog = false
             },
-            onUpdateClick = { textColor, customColor ->
+            onUpdateClick = { textColor, customTextColor ->
                 onUpdateGridItemSettings(
                     gridItemSettings.copy(
                         textColor = textColor,
-                        customColor = customColor,
+                        customTextColor = customTextColor,
                     ),
                 )
 
@@ -214,6 +251,78 @@ fun GridItemSettings(
                     onUpdateGridItemSettings(gridItemSettings.copy(textSize = value.toInt()))
 
                     showTextSizeDialog = false
+                } catch (_: NumberFormatException) {
+                    isError = true
+                }
+            },
+        )
+    }
+
+    if (showBackgroundColorDialog) {
+        ColorPickerDialog(
+            onDismissRequest = {
+                showBackgroundColorDialog = false
+            },
+            onColorSelected = { newCustomColor ->
+                onUpdateGridItemSettings(gridItemSettings.copy(customBackgroundColor = newCustomColor))
+
+                showBackgroundColorDialog = false
+            },
+        )
+    }
+
+
+    if (showPaddingDialog) {
+        var value by remember { mutableStateOf("${gridItemSettings.padding}") }
+
+        var isError by remember { mutableStateOf(false) }
+
+        SingleTextFieldDialog(
+            title = "Padding",
+            textFieldTitle = "Padding",
+            value = value,
+            isError = isError,
+            keyboardType = KeyboardType.Number,
+            onValueChange = {
+                value = it
+            },
+            onDismissRequest = {
+                showPaddingDialog = false
+            },
+            onUpdateClick = {
+                try {
+                    onUpdateGridItemSettings(gridItemSettings.copy(padding = value.toInt()))
+
+                    showPaddingDialog = false
+                } catch (_: NumberFormatException) {
+                    isError = true
+                }
+            },
+        )
+    }
+
+    if (showCornerRadiusDialog) {
+        var value by remember { mutableStateOf("${gridItemSettings.cornerRadius}") }
+
+        var isError by remember { mutableStateOf(false) }
+
+        SingleTextFieldDialog(
+            title = "Corner Radius",
+            textFieldTitle = "Corner Radius",
+            value = value,
+            isError = isError,
+            keyboardType = KeyboardType.Number,
+            onValueChange = {
+                value = it
+            },
+            onDismissRequest = {
+                showCornerRadiusDialog = false
+            },
+            onUpdateClick = {
+                try {
+                    onUpdateGridItemSettings(gridItemSettings.copy(cornerRadius = value.toInt()))
+
+                    showCornerRadiusDialog = false
                 } catch (_: NumberFormatException) {
                     isError = true
                 }

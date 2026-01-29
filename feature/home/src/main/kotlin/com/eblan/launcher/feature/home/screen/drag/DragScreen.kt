@@ -412,7 +412,7 @@ internal fun SharedTransitionScope.DragScreen(
             pageCount = homeSettings.pageCount,
             color = getSystemTextColor(
                 textColor = textColor,
-                customColor = homeSettings.gridItemSettings.customColor,
+                color = homeSettings.gridItemSettings.customTextColor,
             ),
         )
 

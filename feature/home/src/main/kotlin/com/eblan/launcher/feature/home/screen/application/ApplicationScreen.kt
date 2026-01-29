@@ -530,12 +530,12 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         getGridItemTextColor(
             systemTextColor = textColor,
             gridItemTextColor = appDrawerSettings.gridItemSettings.textColor,
-            customColor = appDrawerSettings.gridItemSettings.customColor,
+            color = appDrawerSettings.gridItemSettings.customTextColor,
         )
     } else {
         getSystemTextColor(
             textColor = appDrawerSettings.gridItemSettings.textColor,
-            customColor = appDrawerSettings.gridItemSettings.customColor,
+            color = appDrawerSettings.gridItemSettings.customTextColor,
         )
     }
 

@@ -93,13 +93,13 @@ internal fun SharedTransitionScope.GridItemContent(
         val currentTextColor = if (gridItem.override) {
             getGridItemTextColor(
                 systemTextColor = textColor,
-                gridItemTextColor = gridItem.gridItemSettings.textColor,
-                customColor = gridItem.gridItemSettings.customColor,
+                gridItemTextColor = currentGridItemSettings.textColor,
+                color = currentGridItemSettings.customTextColor,
             )
         } else {
             getSystemTextColor(
                 textColor = textColor,
-                customColor = currentGridItemSettings.customColor,
+                color = currentGridItemSettings.customTextColor,
             )
         }
 

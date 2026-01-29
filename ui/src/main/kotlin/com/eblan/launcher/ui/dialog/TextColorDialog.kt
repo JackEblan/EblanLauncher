@@ -43,7 +43,7 @@ fun TextColorDialog(
     title: String,
     modifier: Modifier = Modifier,
     textColor: TextColor,
-    customColor: Int,
+    customTextColor: Int,
     onDismissRequest: () -> Unit,
     onUpdateClick: (
         textColor: TextColor,
@@ -52,7 +52,7 @@ fun TextColorDialog(
 ) {
     var selectedTextColor by remember { mutableStateOf(textColor) }
 
-    var selectedCustomColor by remember { mutableIntStateOf(customColor) }
+    var selectedCustomTextColor by remember { mutableIntStateOf(customTextColor) }
 
     var showColorPickerDialog by remember { mutableStateOf(false) }
 
@@ -98,7 +98,7 @@ fun TextColorDialog(
                     onClick = {
                         onUpdateClick(
                             selectedTextColor,
-                            selectedCustomColor,
+                            selectedCustomTextColor,
                         )
                     },
                 ) {
@@ -116,7 +116,7 @@ fun TextColorDialog(
             onColorSelected = { newCustomColor ->
                 selectedTextColor = TextColor.Custom
 
-                selectedCustomColor = newCustomColor
+                selectedCustomTextColor = newCustomColor
 
                 showColorPickerDialog = false
             },

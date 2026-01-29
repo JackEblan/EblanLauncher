@@ -11,7 +11,10 @@ message GridItemSettingsProto {
   bool singleLineLabel = 5;
   HorizontalAlignmentProto horizontalAlignmentProto = 6;
   VerticalArrangementProto verticalArrangementProto = 7;
-  int32 customColor = 8;
+  int32 customTextColor = 8;
+  int32 customBackgroundColor = 9;
+  int32 padding = 10;
+  int32 cornerRadius = 11;
 }
 
 enum TextColorProto {

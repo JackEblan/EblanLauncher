@@ -180,7 +180,7 @@ internal fun SharedTransitionScope.ResizeScreen(
             pageCount = homeSettings.pageCount,
             color = getSystemTextColor(
                 textColor = textColor,
-                customColor = homeSettings.gridItemSettings.customColor,
+                color = homeSettings.gridItemSettings.customTextColor,
             ),
         )
 
@@ -307,12 +307,12 @@ private fun ResizeOverlay(
         getGridItemTextColor(
             systemTextColor = textColor,
             gridItemTextColor = gridItem.gridItemSettings.textColor,
-            customColor = gridItem.gridItemSettings.customColor,
+            color = gridItem.gridItemSettings.customTextColor,
         )
     } else {
         getSystemTextColor(
             textColor = textColor,
-            customColor = gridItem.gridItemSettings.customColor,
+            color = gridItem.gridItemSettings.customTextColor,
         )
     }
 

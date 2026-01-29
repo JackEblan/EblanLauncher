@@ -402,7 +402,7 @@ private fun TextColorSettingsRow(
         TextColor.Custom -> {
             CustomColorSettingsRow(
                 modifier = modifier,
-                title = "Custom Text Color",
+                title = "Text Color",
                 customColor = gridItemSettings.customTextColor,
                 onClick = onClick,
             )

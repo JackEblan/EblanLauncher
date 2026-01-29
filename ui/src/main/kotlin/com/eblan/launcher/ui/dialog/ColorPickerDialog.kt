@@ -18,17 +18,13 @@
 package com.eblan.launcher.ui.dialog
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -62,7 +58,6 @@ fun ColorPickerDialog(
     onDismissRequest: () -> Unit,
     onColorSelected: (Int) -> Unit,
 ) {
-    // State: Hue (0-360), Saturation (0-1), Value (0-1), Alpha (0-1)
     var hue by remember { mutableFloatStateOf(0f) }
 
     var saturation by remember { mutableFloatStateOf(1f) }
@@ -77,12 +72,6 @@ fun ColorPickerDialog(
         }
     }
 
-    val colorWithoutAlpha by remember {
-        derivedStateOf {
-            Color.hsv(hue, saturation, value)
-        }
-    }
-
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(
             modifier = modifier
@@ -92,8 +81,6 @@ fun ColorPickerDialog(
             ColorPicker(
                 modifier = Modifier.padding(10.dp),
                 hue = hue,
-                currentColor = currentColor,
-                colorWithoutAlpha = colorWithoutAlpha,
                 saturation = saturation,
                 value = value,
                 alpha = alpha,
@@ -146,8 +133,6 @@ fun ColorPickerDialog(
 private fun ColorPicker(
     modifier: Modifier = Modifier,
     hue: Float,
-    currentColor: Color,
-    colorWithoutAlpha: Color,
     saturation: Float,
     value: Float,
     alpha: Float,
@@ -157,19 +142,7 @@ private fun ColorPicker(
     onAlphaSelected: (Float) -> Unit,
 ) {
     Column(modifier = modifier) {
-        // 1. Preview Box
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(currentColor),
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // 2. Saturation & Value Selection Square
-        SaturationValuePanel(
+        SaturationValueCanvas(
             hue = hue,
             saturation = saturation,
             value = value,
@@ -179,66 +152,16 @@ private fun ColorPicker(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 3. Hue Selection Bar
-        HueBar(
+        HueCanvas(
             hue = hue,
             onHueSelected = onHueSelected,
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 4. Alpha Selection Bar
-        AlphaBar(
+        AlphaCanvas(
             alpha = alpha,
-            activeColor = colorWithoutAlpha,
             onAlphaSelected = onAlphaSelected,
-        )
-    }
-}
-
-@Composable
-private fun SaturationValuePanel(
-    modifier: Modifier = Modifier,
-    hue: Float,
-    saturation: Float,
-    value: Float,
-    onSaturationSelected: (Float) -> Unit,
-    onValueSelected: (Float) -> Unit,
-) {
-    BoxWithConstraints(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(300.dp)
-            .clip(RoundedCornerShape(12.dp)),
-    ) {
-        val width = constraints.maxWidth.toFloat()
-
-        val height = constraints.maxHeight.toFloat()
-
-        SaturationValueCanvas(
-            modifier = Modifier
-                .pointerInput(key1 = Unit) {
-                    detectTapGestures(
-                        onTap = { offset ->
-                            onSaturationSelected((offset.x / width).coerceIn(0f, 1f))
-
-                            onValueSelected(1f - (offset.y / height).coerceIn(0f, 1f))
-                        },
-                    )
-                }
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDrag = { change, _ ->
-                            onSaturationSelected((change.position.x / width).coerceIn(0f, 1f))
-
-                            onValueSelected(1f - (change.position.y / height).coerceIn(0f, 1f))
-                        },
-                    )
-                }
-                .fillMaxSize(),
-            hue = hue,
-            saturation = saturation,
-            value = value,
         )
     }
 }
@@ -249,30 +172,50 @@ private fun SaturationValueCanvas(
     hue: Float,
     saturation: Float,
     value: Float,
+    onSaturationSelected: (Float) -> Unit,
+    onValueSelected: (Float) -> Unit,
 ) {
-    Canvas(modifier = modifier) {
-        // Background: Hue color
+    Canvas(
+        modifier = modifier
+            .pointerInput(key1 = Unit) {
+                detectTapGestures(
+                    onTap = { offset ->
+                        onSaturationSelected((offset.x / size.width).coerceIn(0f, 1f))
+
+                        onValueSelected(1f - (offset.y / size.height).coerceIn(0f, 1f))
+                    },
+                )
+            }
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDrag = { change, _ ->
+                        onSaturationSelected((change.position.x / size.width).coerceIn(0f, 1f))
+
+                        onValueSelected(1f - (change.position.y / size.height).coerceIn(0f, 1f))
+                    },
+                )
+            }
+            .fillMaxWidth()
+            .height(300.dp)
+            .clip(RoundedCornerShape(12.dp)),
+    ) {
         drawRect(color = Color.hsv(hue, 1f, 1f))
 
-        // Layer 1: White to Transparent (Saturation)
         drawRect(
             brush = Brush.horizontalGradient(
                 colors = listOf(Color.White, Color.Transparent),
             ),
         )
 
-        // Layer 2: Transparent to Black (Value/Brightness)
         drawRect(
             brush = Brush.verticalGradient(
                 colors = listOf(Color.Transparent, Color.Black),
             ),
         )
 
-        // Indicator
         val indicatorX = saturation * size.width
         val indicatorY = (1f - value) * size.height
 
-        // Draw shadow/outline for the indicator
         drawCircle(
             color = Color.Black,
             radius = 12f,
@@ -280,7 +223,6 @@ private fun SaturationValueCanvas(
             style = Stroke(width = 4f),
         )
 
-        // Draw the white ring
         drawCircle(
             color = Color.White,
             radius = 12f,
@@ -291,48 +233,31 @@ private fun SaturationValueCanvas(
 }
 
 @Composable
-private fun HueBar(
+private fun HueCanvas(
     modifier: Modifier = Modifier,
     hue: Float,
     onHueSelected: (Float) -> Unit,
 ) {
-    BoxWithConstraints(
+    Canvas(
         modifier = modifier
+            .pointerInput(key1 = Unit) {
+                detectTapGestures(
+                    onTap = { offset ->
+                        onHueSelected((offset.x / size.width).coerceIn(0f, 1f) * 360f)
+                    },
+                )
+            }
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onHorizontalDrag = { change, _ ->
+                        onHueSelected((change.position.x / size.width).coerceIn(0f, 1f) * 360f)
+                    },
+                )
+            }
             .fillMaxWidth()
             .height(40.dp)
             .clip(RoundedCornerShape(20.dp)),
     ) {
-        val width = constraints.maxWidth.toFloat()
-
-        HueBarCanvas(
-            modifier = Modifier
-                .pointerInput(key1 = Unit) {
-                    detectTapGestures(
-                        onTap = { offset ->
-                            onHueSelected((offset.x / width).coerceIn(0f, 1f) * 360f)
-                        },
-                    )
-                }
-                .pointerInput(Unit) {
-                    detectHorizontalDragGestures(
-                        onHorizontalDrag = { change, _ ->
-                            onHueSelected((change.position.x / width).coerceIn(0f, 1f) * 360f)
-                        },
-                    )
-                }
-                .fillMaxSize(),
-            hue = hue,
-        )
-    }
-}
-
-@Composable
-private fun HueBarCanvas(
-    modifier: Modifier,
-    hue: Float,
-) {
-    Canvas(modifier = modifier) {
-        // Draw the rainbow gradient
         val hueColors = listOf(
             Color.Red,
             Color.Yellow,
@@ -347,17 +272,14 @@ private fun HueBarCanvas(
             size = size,
         )
 
-        // Indicator (Vertical Line)
         val selectorX = (hue / 360f) * size.width
 
-        // White vertical line
         drawRect(
             color = Color.White,
             topLeft = Offset(selectorX - 4f, 0f),
             size = Size(8f, size.height),
         )
 
-        // Black outline for the line (to make it visible on light colors)
         drawRect(
             color = Color.Black.copy(alpha = 0.4f),
             topLeft = Offset(selectorX - 4f, 0f),
@@ -368,101 +290,67 @@ private fun HueBarCanvas(
 }
 
 @Composable
-private fun AlphaBar(
+private fun AlphaCanvas(
     alpha: Float,
-    activeColor: Color,
     onAlphaSelected: (Float) -> Unit,
 ) {
-    BoxWithConstraints(
+    Canvas(
         modifier = Modifier
+            .pointerInput(Unit) {
+                detectTapGestures { offset ->
+                    onAlphaSelected((offset.x / size.width).coerceIn(0f, 1f))
+                }
+            }
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures { change, _ ->
+                    onAlphaSelected((change.position.x / size.width).coerceIn(0f, 1f))
+                    change.consume()
+                }
+            }
             .fillMaxWidth()
             .height(40.dp)
             .clip(RoundedCornerShape(20.dp)),
     ) {
-        val width = constraints.maxWidth.toFloat()
-
-        val height = constraints.maxHeight.toFloat()
-
-        AlphaBarCanvas(
-            modifier = Modifier
-                .pointerInput(key1 = Unit) {
-                    detectTapGestures(
-                        onTap = { offset ->
-                            onAlphaSelected((offset.x / width).coerceIn(0f, 1f))
-                        },
-                    )
-                }
-                .pointerInput(Unit) {
-                    detectHorizontalDragGestures(
-                        onHorizontalDrag = { change, _ ->
-                            onAlphaSelected((change.position.x / width).coerceIn(0f, 1f))
-                        },
-                    )
-                }
-                .fillMaxSize(),
-            alpha = alpha,
-            activeColor = activeColor,
-            width = width,
-            height = height,
-        )
-    }
-}
-
-@Composable
-private fun AlphaBarCanvas(
-    modifier: Modifier,
-    alpha: Float,
-    activeColor: Color,
-    width: Float,
-    height: Float,
-) {
-    Canvas(modifier = modifier) {
-        // Draw the checkerboard pattern
         val squareSize = 20.dp.toPx()
-        var isBlackSquareStartOfRow = false
-        var y = 0f
-        while (y < height) {
-            var x = 0f
-            var isBlackSquare = isBlackSquareStartOfRow
-            while (x < width) {
-                val squareColor =
-                    if (isBlackSquare) Color.Black.copy(alpha = 0.4f) else Color.White.copy(alpha = 0.4f)
+
+        val columns = kotlin.math.ceil(size.width / squareSize).toInt()
+        val rows = kotlin.math.ceil(size.height / squareSize).toInt()
+
+        for (column in 0 until columns) {
+            val columnAlpha =
+                ((column * squareSize) / size.width).coerceIn(0f, 1f)
+
+            val black = Color.Black.copy(alpha = 0.4f * columnAlpha)
+            val white = Color.White.copy(alpha = 0.4f * columnAlpha)
+
+            for (row in 0 until rows) {
+                val isBlack = (row + column) % 2 == 0
+
                 drawRect(
-                    color = squareColor,
-                    topLeft = Offset(x, y),
+                    color = if (isBlack) black else white,
+                    topLeft = Offset(
+                        x = column * squareSize,
+                        y = row * squareSize,
+                    ),
                     size = Size(squareSize, squareSize),
                 )
-                isBlackSquare = !isBlackSquare
-                x += squareSize
             }
-            isBlackSquareStartOfRow = !isBlackSquareStartOfRow
-            y += squareSize
         }
 
-        // Draw the transparent to opaque gradient on top of the checkerboard
-        drawRect(
-            brush = Brush.horizontalGradient(
-                colors = listOf(Color.Transparent, activeColor.copy(alpha = 1f)),
-            ),
-            size = size,
-        )
+        val selectorX = alpha.coerceIn(0f, 1f) * size.width
 
-        // Indicator (Vertical Line)
-        val selectorX = alpha * size.width
-
-        // White vertical line
-        drawRect(
+        drawLine(
             color = Color.White,
-            topLeft = Offset(selectorX - 4f, 0f),
-            size = Size(8f, size.height),
+            start = Offset(selectorX, 0f),
+            end = Offset(selectorX, size.height),
+            strokeWidth = 8f,
         )
 
-        // Black outline for the line (to make it visible on light colors)
-        drawRect(
+        drawLine(
             color = Color.Black.copy(alpha = 0.4f),
-            topLeft = Offset(selectorX - 4f, 0f),
-            size = Size(8f, size.height),
-            style = Stroke(width = 1f),
+            start = Offset(selectorX, 0f),
+            end = Offset(selectorX, size.height),
+            strokeWidth = 1f,
         )
     }
 }

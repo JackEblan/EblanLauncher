@@ -55,7 +55,7 @@ internal fun EblanActionDialog(
     title: String,
     eblanAction: EblanAction,
     eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
-    onUpdateEblanAction: (EblanAction) -> Unit,
+    onSelectEblanAction: (EblanAction) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     val accessibilityManager = LocalAccessibilityManager.current
@@ -136,9 +136,7 @@ internal fun EblanActionDialog(
 
                 TextButton(
                     onClick = {
-                        onUpdateEblanAction(selectedEblanAction)
-
-                        onDismissRequest()
+                        onSelectEblanAction(selectedEblanAction)
                     },
                 ) {
                     Text("Save")

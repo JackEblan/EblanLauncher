@@ -106,7 +106,11 @@ fun EblanActionSettings(
             title = "Double Tap",
             eblanAction = doubleTap,
             eblanApplicationInfos = eblanApplicationInfos,
-            onUpdateEblanAction = onUpdateDoubleTap,
+            onSelectEblanAction = { newEblanAction ->
+                onUpdateDoubleTap(newEblanAction)
+
+                showDoubleTapDialog = false
+            },
             onDismissRequest = {
                 showDoubleTapDialog = false
             },
@@ -118,7 +122,11 @@ fun EblanActionSettings(
             title = "Swipe Up",
             eblanAction = swipeUp,
             eblanApplicationInfos = eblanApplicationInfos,
-            onUpdateEblanAction = onUpdateSwipeUp,
+            onSelectEblanAction = { newEblanAction ->
+                onUpdateSwipeUp(newEblanAction)
+
+                showSwipeUpDialog = false
+            },
             onDismissRequest = {
                 showSwipeUpDialog = false
             },
@@ -130,7 +138,11 @@ fun EblanActionSettings(
             title = "Swipe Down",
             eblanAction = swipeDown,
             eblanApplicationInfos = eblanApplicationInfos,
-            onUpdateEblanAction = onUpdateSwipeDown,
+            onSelectEblanAction = { newEblanAction ->
+                onUpdateSwipeDown(newEblanAction)
+
+                showSwipeDownDialog = false
+            },
             onDismissRequest = {
                 showSwipeDownDialog = false
             },

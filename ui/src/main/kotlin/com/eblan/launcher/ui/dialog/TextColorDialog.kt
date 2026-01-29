@@ -115,7 +115,7 @@ fun TextColorDialog(
             onDismissRequest = {
                 showColorPickerDialog = false
             },
-            onColorSelected = { newCustomColor ->
+            onSelectColor = { newCustomColor ->
                 selectedTextColor = TextColor.Custom
 
                 selectedCustomTextColor = newCustomColor

@@ -274,7 +274,7 @@ fun GridItemSettings(
             onDismissRequest = {
                 showBackgroundColorDialog = false
             },
-            onColorSelected = { newCustomColor ->
+            onSelectColor = { newCustomColor ->
                 onUpdateGridItemSettings(gridItemSettings.copy(customBackgroundColor = newCustomColor))
 
                 showBackgroundColorDialog = false

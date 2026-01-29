@@ -58,7 +58,7 @@ fun ColorPickerDialog(
     title: String,
     customColor: Int,
     onDismissRequest: () -> Unit,
-    onColorSelected: (Int) -> Unit,
+    onSelectColor: (Int) -> Unit,
 ) {
     val hsv = FloatArray(3).apply {
         android.graphics.Color.RGBToHSV(
@@ -130,11 +130,9 @@ fun ColorPickerDialog(
 
                 TextButton(
                     onClick = {
-                        onColorSelected(
+                        onSelectColor(
                             Color.hsv(hue, saturation, value).copy(alpha = alpha).toArgb(),
                         )
-
-                        onDismissRequest()
                     },
                 ) {
                     Text("Save")

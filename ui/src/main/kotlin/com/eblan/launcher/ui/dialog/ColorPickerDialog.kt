@@ -66,12 +66,6 @@ fun ColorPickerDialog(
 
     var alpha by remember { mutableFloatStateOf(1f) }
 
-    val currentColor by remember {
-        derivedStateOf {
-            Color.hsv(hue, saturation, value).copy(alpha = alpha)
-        }
-    }
-
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(
             modifier = modifier
@@ -117,7 +111,7 @@ fun ColorPickerDialog(
 
                 TextButton(
                     onClick = {
-                        onColorSelected(currentColor.toArgb())
+                        onColorSelected(Color.hsv(hue, saturation, value).copy(alpha = alpha).toArgb())
 
                         onDismissRequest()
                     },

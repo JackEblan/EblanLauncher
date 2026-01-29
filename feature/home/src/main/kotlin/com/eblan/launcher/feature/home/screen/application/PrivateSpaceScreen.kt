@@ -271,13 +271,14 @@ private fun PrivateSpaceEblanApplicationInfoItem(
     val textColor = if (klwpIntegration) {
         getGridItemTextColor(
             systemTextColor = textColor,
+            systemCustomTextColor = appDrawerSettings.gridItemSettings.customTextColor,
             gridItemTextColor = appDrawerSettings.gridItemSettings.textColor,
-            color = appDrawerSettings.gridItemSettings.customTextColor,
+            gridItemCustomTextColor = appDrawerSettings.gridItemSettings.customTextColor,
         )
     } else {
         getSystemTextColor(
             textColor = appDrawerSettings.gridItemSettings.textColor,
-            color = appDrawerSettings.gridItemSettings.customTextColor,
+            customTextColor = appDrawerSettings.gridItemSettings.customTextColor,
         )
     }
 

@@ -319,7 +319,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             pageCount = homeSettings.pageCount,
             color = getSystemTextColor(
                 textColor = textColor,
-                color = homeSettings.gridItemSettings.customTextColor,
+                customTextColor = homeSettings.gridItemSettings.customTextColor,
             ),
         )
 

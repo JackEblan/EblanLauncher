@@ -45,6 +45,7 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.TextColor
@@ -180,7 +181,7 @@ internal fun SharedTransitionScope.ResizeScreen(
             pageCount = homeSettings.pageCount,
             color = getSystemTextColor(
                 textColor = textColor,
-                color = homeSettings.gridItemSettings.customTextColor,
+                customTextColor = homeSettings.gridItemSettings.customTextColor,
             ),
         )
 
@@ -240,6 +241,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                 height = height,
                 textColor = textColor,
                 lockMovement = lockMovement,
+                gridItemSettings = homeSettings.gridItemSettings,
                 onResizeGridItem = onResizeGridItem,
             )
         }
@@ -275,6 +277,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                 height = height,
                 textColor = textColor,
                 lockMovement = lockMovement,
+                gridItemSettings = homeSettings.gridItemSettings,
                 onResizeGridItem = onResizeGridItem,
             )
         }
@@ -296,6 +299,7 @@ private fun ResizeOverlay(
     height: Int,
     textColor: TextColor,
     lockMovement: Boolean,
+    gridItemSettings: GridItemSettings,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
@@ -303,16 +307,23 @@ private fun ResizeOverlay(
         lockMovement: Boolean,
     ) -> Unit,
 ) {
+    val currentGridItemSettings = if (gridItem.override) {
+        gridItem.gridItemSettings
+    } else {
+        gridItemSettings
+    }
+
     val currentTextColor = if (gridItem.override) {
         getGridItemTextColor(
             systemTextColor = textColor,
-            gridItemTextColor = gridItem.gridItemSettings.textColor,
-            color = gridItem.gridItemSettings.customTextColor,
+            systemCustomTextColor = gridItemSettings.customTextColor,
+            gridItemTextColor = currentGridItemSettings.textColor,
+            gridItemCustomTextColor = currentGridItemSettings.customTextColor,
         )
     } else {
         getSystemTextColor(
             textColor = textColor,
-            color = gridItem.gridItemSettings.customTextColor,
+            customTextColor = gridItem.gridItemSettings.customTextColor,
         )
     }
 

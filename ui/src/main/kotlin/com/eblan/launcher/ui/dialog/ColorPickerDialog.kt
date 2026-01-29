@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -54,6 +55,7 @@ import com.eblan.launcher.designsystem.component.EblanDialogContainer
 @Composable
 fun ColorPickerDialog(
     modifier: Modifier = Modifier,
+    title: String,
     customColor: Int,
     onDismissRequest: () -> Unit,
     onColorSelected: (Int) -> Unit,
@@ -81,6 +83,14 @@ fun ColorPickerDialog(
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth(),
         ) {
+            Text(
+                modifier = Modifier.padding(10.dp),
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
             ColorPicker(
                 modifier = Modifier.padding(10.dp),
                 hue = hue,
@@ -260,7 +270,7 @@ private fun HueCanvas(
                 )
             }
             .fillMaxWidth()
-            .height(40.dp)
+            .height(20.dp)
             .clip(RoundedCornerShape(20.dp)),
     ) {
         val hueColors = listOf(
@@ -281,13 +291,13 @@ private fun HueCanvas(
 
         drawRect(
             color = Color.White,
-            topLeft = Offset(selectorX - 4f, 0f),
+            topLeft = Offset(selectorX, 0f),
             size = Size(8f, size.height),
         )
 
         drawRect(
             color = Color.Black.copy(alpha = 0.4f),
-            topLeft = Offset(selectorX - 4f, 0f),
+            topLeft = Offset(selectorX, 0f),
             size = Size(8f, size.height),
             style = Stroke(width = 1f),
         )
@@ -313,10 +323,10 @@ private fun AlphaCanvas(
                 }
             }
             .fillMaxWidth()
-            .height(40.dp)
+            .height(20.dp)
             .clip(RoundedCornerShape(20.dp)),
     ) {
-        val squareSize = 20.dp.toPx()
+        val squareSize = size.height / 2
 
         val columns = kotlin.math.ceil(size.width / squareSize).toInt()
         val rows = kotlin.math.ceil(size.height / squareSize).toInt()
@@ -344,18 +354,17 @@ private fun AlphaCanvas(
 
         val selectorX = alpha.coerceIn(0f, 1f) * size.width
 
-        drawLine(
+        drawRect(
             color = Color.White,
-            start = Offset(selectorX, 0f),
-            end = Offset(selectorX, size.height),
-            strokeWidth = 8f,
+            topLeft = Offset(selectorX, 0f),
+            size = Size(8f, size.height),
         )
 
-        drawLine(
+        drawRect(
             color = Color.Black.copy(alpha = 0.4f),
-            start = Offset(selectorX, 0f),
-            end = Offset(selectorX, size.height),
-            strokeWidth = 1f,
+            topLeft = Offset(selectorX, 0f),
+            size = Size(8f, size.height),
+            style = Stroke(width = 1f),
         )
     }
 }

@@ -269,6 +269,7 @@ fun GridItemSettings(
 
     if (showBackgroundColorDialog) {
         ColorPickerDialog(
+            title = "Background Color",
             customColor = gridItemSettings.customBackgroundColor,
             onDismissRequest = {
                 showBackgroundColorDialog = false

@@ -38,12 +38,13 @@ class GetEblanApplicationInfosUseCase @Inject constructor(
         .map { eblanApplicationInfos ->
             eblanApplicationInfos.filter { eblanApplicationInfo ->
                 !eblanApplicationInfo.isHidden
-            }.sortedBy { eblanApplicationInfo ->
-                eblanApplicationInfo.label.lowercase()
-            }.groupBy { eblanApplicationInfo ->
+            }.sortedWith(
+                compareBy(
+                    { it.serialNumber },
+                    { it.label.lowercase() },
+                ),
+            ).groupBy { eblanApplicationInfo ->
                 launcherAppsWrapper.getUser(serialNumber = eblanApplicationInfo.serialNumber)
-            }.toSortedMap { eblanUser, _ ->
-                eblanUser.serialNumber.toInt()
             }
         }
         .flowOn(defaultDispatcher)

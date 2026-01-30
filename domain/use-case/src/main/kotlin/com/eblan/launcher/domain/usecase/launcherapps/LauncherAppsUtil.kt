@@ -21,11 +21,11 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutConfig
-import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
-import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
+import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.ShortcutConfigGridItem
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
@@ -44,7 +44,7 @@ import kotlinx.coroutines.flow.first
 import java.io.File
 
 internal suspend fun updateApplicationInfoGridItems(
-    launcherAppsActivityInfos: List<LauncherAppsActivityInfo>,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
     applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
 ) {
     val updateApplicationInfoGridItems = mutableListOf<UpdateApplicationInfoGridItem>()
@@ -59,21 +59,21 @@ internal suspend fun updateApplicationInfoGridItems(
     }.forEach { applicationInfoGridItem ->
         currentCoroutineContext().ensureActive()
 
-        val launcherAppsActivityInfo =
-            launcherAppsActivityInfos.find { launcherAppsActivityInfo ->
+        val eblanApplicationInfo =
+            eblanApplicationInfos.find { eblanApplicationInfo ->
                 currentCoroutineContext().ensureActive()
 
-                launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber &&
-                    launcherAppsActivityInfo.componentName == applicationInfoGridItem.componentName
+                eblanApplicationInfo.serialNumber == applicationInfoGridItem.serialNumber &&
+                        eblanApplicationInfo.componentName == applicationInfoGridItem.componentName
             }
 
-        if (launcherAppsActivityInfo != null) {
+        if (eblanApplicationInfo != null) {
             updateApplicationInfoGridItems.add(
                 UpdateApplicationInfoGridItem(
                     id = applicationInfoGridItem.id,
-                    componentName = launcherAppsActivityInfo.componentName,
-                    icon = launcherAppsActivityInfo.activityIcon,
-                    label = launcherAppsActivityInfo.activityLabel,
+                    componentName = eblanApplicationInfo.componentName,
+                    icon = eblanApplicationInfo.icon,
+                    label = eblanApplicationInfo.label,
                 ),
             )
         } else {
@@ -91,7 +91,7 @@ internal suspend fun updateApplicationInfoGridItems(
 }
 
 internal suspend fun updateShortcutInfoGridItems(
-    launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>?,
+    eblanShortcutInfos: List<EblanShortcutInfo>?,
     shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     fileManager: FileManager,
     packageManagerWrapper: PackageManagerWrapper,
@@ -102,25 +102,25 @@ internal suspend fun updateShortcutInfoGridItems(
 
     val shortcutInfoGridItems = shortcutInfoGridItemRepository.shortcutInfoGridItems.first()
 
-    if (launcherAppsShortcutInfos != null) {
+    if (eblanShortcutInfos != null) {
         shortcutInfoGridItems.filterNot { shortcutInfoGridItem ->
             shortcutInfoGridItem.override
         }.forEach { shortcutInfoGridItem ->
             currentCoroutineContext().ensureActive()
 
-            val launcherAppsShortcutInfo =
-                launcherAppsShortcutInfos.find { launcherAppsShortcutInfo ->
+            val eblanShortcutInfo =
+                eblanShortcutInfos.find { eblanShortcutInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber &&
-                        launcherAppsShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId
+                    eblanShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber &&
+                            eblanShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId
                 }
 
-            if (launcherAppsShortcutInfo != null) {
+            if (eblanShortcutInfo != null) {
                 val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
 
                 val componentName =
-                    packageManagerWrapper.getComponentName(packageName = launcherAppsShortcutInfo.packageName)
+                    packageManagerWrapper.getComponentName(packageName = eblanShortcutInfo.packageName)
 
                 val eblanApplicationInfoIcon = if (componentName != null) {
                     val file = File(
@@ -132,11 +132,11 @@ internal suspend fun updateShortcutInfoGridItems(
                 } else {
                     val file = File(
                         directory,
-                        launcherAppsShortcutInfo.packageName.hashCode().toString(),
+                        eblanShortcutInfo.packageName.hashCode().toString(),
                     )
 
                     packageManagerWrapper.getApplicationIcon(
-                        packageName = launcherAppsShortcutInfo.packageName,
+                        packageName = eblanShortcutInfo.packageName,
                         file = file,
                     )
                 }
@@ -144,10 +144,10 @@ internal suspend fun updateShortcutInfoGridItems(
                 updateShortcutInfoGridItems.add(
                     UpdateShortcutInfoGridItem(
                         id = shortcutInfoGridItem.id,
-                        shortLabel = launcherAppsShortcutInfo.shortLabel,
-                        longLabel = launcherAppsShortcutInfo.longLabel,
-                        isEnabled = launcherAppsShortcutInfo.isEnabled,
-                        icon = launcherAppsShortcutInfo.icon,
+                        shortLabel = eblanShortcutInfo.shortLabel,
+                        longLabel = eblanShortcutInfo.longLabel,
+                        isEnabled = eblanShortcutInfo.isEnabled,
+                        icon = eblanShortcutInfo.icon,
                         eblanApplicationInfoIcon = eblanApplicationInfoIcon,
                     ),
                 )
@@ -187,7 +187,7 @@ internal suspend fun updateShortcutConfigGridItems(
                 currentCoroutineContext().ensureActive()
 
                 eblanShortcutConfig.serialNumber == shortcutConfigGridItem.serialNumber &&
-                    eblanShortcutConfig.componentName == shortcutConfigGridItem.componentName
+                        eblanShortcutConfig.componentName == shortcutConfigGridItem.componentName
             }
 
         if (shortcutConfigActivityInfo != null) {
@@ -228,7 +228,7 @@ internal suspend fun updateShortcutConfigGridItems(
 }
 
 internal suspend fun updateWidgetGridItems(
-    appWidgetManagerAppWidgetProviderInfos: List<AppWidgetManagerAppWidgetProviderInfo>,
+    eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>,
     fileManager: FileManager,
     packageManagerWrapper: PackageManagerWrapper,
     widgetGridItemRepository: WidgetGridItemRepository,
@@ -246,18 +246,19 @@ internal suspend fun updateWidgetGridItems(
     }.forEach { widgetGridItem ->
         currentCoroutineContext().ensureActive()
 
-        val appWidgetManagerAppWidgetProviderInfo =
-            appWidgetManagerAppWidgetProviderInfos.find { appWidgetManagerAppWidgetProviderInfo ->
+        val eblanAppWidgetProviderInfo =
+            eblanAppWidgetProviderInfos.find { eblanAppWidgetProviderInfo ->
                 currentCoroutineContext().ensureActive()
 
-                appWidgetManagerAppWidgetProviderInfo.componentName == widgetGridItem.componentName
+                eblanAppWidgetProviderInfo.serialNumber == widgetGridItem.serialNumber &&
+                        eblanAppWidgetProviderInfo.componentName == widgetGridItem.componentName
             }
 
-        if (appWidgetManagerAppWidgetProviderInfo != null) {
+        if (eblanAppWidgetProviderInfo != null) {
             val directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR)
 
             val componentName =
-                packageManagerWrapper.getComponentName(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
+                packageManagerWrapper.getComponentName(packageName = eblanAppWidgetProviderInfo.packageName)
 
             val icon = if (componentName != null) {
                 val file = File(
@@ -269,11 +270,11 @@ internal suspend fun updateWidgetGridItems(
             } else {
                 val file = File(
                     directory,
-                    appWidgetManagerAppWidgetProviderInfo.packageName.hashCode().toString(),
+                    eblanAppWidgetProviderInfo.packageName.hashCode().toString(),
                 )
 
                 packageManagerWrapper.getApplicationIcon(
-                    packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                    packageName = eblanAppWidgetProviderInfo.packageName,
                     file = file,
                 )
             }
@@ -281,20 +282,20 @@ internal suspend fun updateWidgetGridItems(
             updateWidgetGridItems.add(
                 UpdateWidgetGridItem(
                     id = widgetGridItem.id,
-                    componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
-                    configure = appWidgetManagerAppWidgetProviderInfo.configure,
-                    minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,
-                    minHeight = appWidgetManagerAppWidgetProviderInfo.minHeight,
-                    resizeMode = appWidgetManagerAppWidgetProviderInfo.resizeMode,
-                    minResizeWidth = appWidgetManagerAppWidgetProviderInfo.minResizeWidth,
-                    minResizeHeight = appWidgetManagerAppWidgetProviderInfo.minResizeHeight,
-                    maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
-                    maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
-                    targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
-                    targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
+                    componentName = eblanAppWidgetProviderInfo.componentName,
+                    configure = eblanAppWidgetProviderInfo.configure,
+                    minWidth = eblanAppWidgetProviderInfo.minWidth,
+                    minHeight = eblanAppWidgetProviderInfo.minHeight,
+                    resizeMode = eblanAppWidgetProviderInfo.resizeMode,
+                    minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
+                    minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
+                    maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
+                    maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
+                    targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
+                    targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
                     icon = icon,
                     label = packageManagerWrapper.getApplicationLabel(
-                        packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                        packageName = eblanAppWidgetProviderInfo.packageName,
                     ).toString(),
                 ),
             )

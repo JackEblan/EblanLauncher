@@ -101,10 +101,10 @@ class ChangePackageUseCase @Inject constructor(
 
         val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
 
-        val oldSyncEblanApplicationInfosBySerialNumberAndPackageName =
+        val oldSyncEblanApplicationInfosByPackageName =
             eblanApplicationInfoRepository.getEblanApplicationInfosByPackageName(
-                packageName = packageName,
                 serialNumber = serialNumber,
+                packageName = packageName,
             ).map { eblanApplicationInfo ->
                 SyncEblanApplicationInfo(
                     serialNumber = eblanApplicationInfo.serialNumber,
@@ -116,7 +116,7 @@ class ChangePackageUseCase @Inject constructor(
                 )
             }
 
-        val newSyncEblanApplicationInfosBySerialNumberAndPackageName = buildList {
+        val newSyncEblanApplicationInfosByPackageName = buildList {
             launcherAppsWrapper.getActivityList(
                 serialNumber = serialNumber,
                 packageName = packageName,
@@ -165,14 +165,14 @@ class ChangePackageUseCase @Inject constructor(
             }
         }
 
-        if (oldSyncEblanApplicationInfosBySerialNumberAndPackageName !=
-            newSyncEblanApplicationInfosBySerialNumberAndPackageName
+        if (oldSyncEblanApplicationInfosByPackageName !=
+            newSyncEblanApplicationInfosByPackageName
         ) {
             val syncEblanApplicationInfosToDelete =
-                oldSyncEblanApplicationInfosBySerialNumberAndPackageName - newSyncEblanApplicationInfosBySerialNumberAndPackageName.toSet()
+                oldSyncEblanApplicationInfosByPackageName - newSyncEblanApplicationInfosByPackageName.toSet()
 
             eblanApplicationInfoRepository.upsertSyncEblanApplicationInfos(
-                syncEblanApplicationInfos = newSyncEblanApplicationInfosBySerialNumberAndPackageName,
+                syncEblanApplicationInfos = newSyncEblanApplicationInfosByPackageName,
             )
 
             eblanApplicationInfoRepository.deleteSyncEblanApplicationInfos(

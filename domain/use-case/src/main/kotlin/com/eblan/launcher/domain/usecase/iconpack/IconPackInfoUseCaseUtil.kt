@@ -30,6 +30,8 @@ suspend fun updateIconPackInfoByComponentName(
     fileManager: FileManager,
     iconPackManager: IconPackManager,
 ) {
+    if (iconPackInfoPackageName.isEmpty()) return
+
     val iconPackDirectory = File(
         fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
         iconPackInfoPackageName,
@@ -37,15 +39,13 @@ suspend fun updateIconPackInfoByComponentName(
 
     val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 
-    if (iconPackInfoPackageName.isNotEmpty()) {
-        cacheIconPackFile(
-            iconPackManager = iconPackManager,
-            appFilter = appFilter,
-            iconPackInfoPackageName = iconPackInfoPackageName,
-            iconPackInfoDirectory = iconPackDirectory,
-            componentName = componentName,
-        )
-    }
+    cacheIconPackFile(
+        iconPackManager = iconPackManager,
+        appFilter = appFilter,
+        iconPackInfoPackageName = iconPackInfoPackageName,
+        iconPackInfoDirectory = iconPackDirectory,
+        componentName = componentName,
+    )
 }
 
 internal suspend fun cacheIconPackFile(

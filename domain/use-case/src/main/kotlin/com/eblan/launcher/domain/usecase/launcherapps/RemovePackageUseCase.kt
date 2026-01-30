@@ -131,8 +131,7 @@ class RemovePackageUseCase @Inject constructor(
                 .none { eblanApplicationInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    eblanApplicationInfo.packageName == packageName &&
-                        eblanApplicationInfo.serialNumber != serialNumber
+                    eblanApplicationInfo.packageName == packageName
                 }
 
         if (eblanApplicationInfo != null && isUnique) {
@@ -212,8 +211,7 @@ class RemovePackageUseCase @Inject constructor(
             ).none { eblanShortcutInfo ->
                 currentCoroutineContext().ensureActive()
 
-                eblanShortcutInfo.packageName == packageName &&
-                    eblanShortcutInfo.serialNumber != serialNumber
+                eblanShortcutInfo.packageName == packageName
             }
 
             if (isUnique) {
@@ -259,8 +257,7 @@ class RemovePackageUseCase @Inject constructor(
             ).none { eblanShortcutConfig ->
                 currentCoroutineContext().ensureActive()
 
-                eblanShortcutConfig.packageName == packageName &&
-                    eblanShortcutConfig.serialNumber != serialNumber
+                eblanShortcutConfig.packageName == packageName
             }
 
             if (isUnique) {

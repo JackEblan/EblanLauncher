@@ -78,46 +78,51 @@ internal suspend fun updateEblanApplicationInfos(
 
     val newEblanShortcutConfigs = mutableListOf<EblanShortcutConfig>()
 
-    val newSyncEblanApplicationInfos =
-        launcherAppsActivityInfos.onEach { launcherAppsActivityInfo ->
+    val newSyncEblanApplicationInfos = buildList {
+        launcherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
+            currentCoroutineContext().ensureActive()
+
             updateIconPackInfoByComponentName(
                 componentName = launcherAppsActivityInfo.componentName,
                 iconPackInfoPackageName = iconPackInfoPackageName,
                 fileManager = fileManager,
                 iconPackManager = iconPackManager,
             )
-        }.map { launcherAppsActivityInfo ->
-            currentCoroutineContext().ensureActive()
 
             newEblanShortcutConfigs.addAll(
-                launcherAppsWrapper.getShortcutConfigActivityList(
-                    serialNumber = launcherAppsActivityInfo.serialNumber,
-                    packageName = launcherAppsActivityInfo.packageName,
-                ).map { shortcutConfigActivity ->
-                    currentCoroutineContext().ensureActive()
-
-                    EblanShortcutConfig(
-                        componentName = shortcutConfigActivity.componentName,
-                        packageName = shortcutConfigActivity.packageName,
-                        serialNumber = shortcutConfigActivity.serialNumber,
-                        activityIcon = shortcutConfigActivity.activityIcon,
-                        activityLabel = shortcutConfigActivity.activityLabel,
-                        applicationIcon = launcherAppsActivityInfo.activityIcon,
-                        applicationLabel = launcherAppsActivityInfo.activityLabel,
-                        lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
+                launcherAppsWrapper
+                    .getShortcutConfigActivityList(
+                        serialNumber = launcherAppsActivityInfo.serialNumber,
+                        packageName = launcherAppsActivityInfo.packageName,
                     )
-                },
+                    .map { shortcutConfigActivity ->
+                        currentCoroutineContext().ensureActive()
+
+                        EblanShortcutConfig(
+                            componentName = shortcutConfigActivity.componentName,
+                            packageName = shortcutConfigActivity.packageName,
+                            serialNumber = shortcutConfigActivity.serialNumber,
+                            activityIcon = shortcutConfigActivity.activityIcon,
+                            activityLabel = shortcutConfigActivity.activityLabel,
+                            applicationIcon = launcherAppsActivityInfo.activityIcon,
+                            applicationLabel = launcherAppsActivityInfo.activityLabel,
+                            lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
+                        )
+                    },
             )
 
-            SyncEblanApplicationInfo(
-                serialNumber = launcherAppsActivityInfo.serialNumber,
-                componentName = launcherAppsActivityInfo.componentName,
-                packageName = launcherAppsActivityInfo.packageName,
-                icon = launcherAppsActivityInfo.activityIcon,
-                label = launcherAppsActivityInfo.activityLabel,
-                lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
+            add(
+                SyncEblanApplicationInfo(
+                    serialNumber = launcherAppsActivityInfo.serialNumber,
+                    componentName = launcherAppsActivityInfo.componentName,
+                    packageName = launcherAppsActivityInfo.packageName,
+                    icon = launcherAppsActivityInfo.activityIcon,
+                    label = launcherAppsActivityInfo.activityLabel,
+                    lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
+                ),
             )
         }
+    }
 
     if (oldSyncEblanApplicationInfos != newSyncEblanApplicationInfos) {
         val upsertEblanApplicationInfosToDelete =
@@ -134,13 +139,14 @@ internal suspend fun updateEblanApplicationInfos(
         upsertEblanApplicationInfosToDelete.forEach { eblanApplicationInfoToDelete ->
             currentCoroutineContext().ensureActive()
 
-            val isUnique = newSyncEblanApplicationInfos.none { newEblanApplicationInfo ->
-                currentCoroutineContext().ensureActive()
+            val isUniquePackageName =
+                newSyncEblanApplicationInfos.none { newSyncEblanApplicationInfo ->
+                    currentCoroutineContext().ensureActive()
 
-                newEblanApplicationInfo.packageName == eblanApplicationInfoToDelete.packageName && newEblanApplicationInfo.serialNumber != eblanApplicationInfoToDelete.serialNumber
-            }
+                    newSyncEblanApplicationInfo.packageName == eblanApplicationInfoToDelete.packageName
+                }
 
-            if (isUnique) {
+            if (isUniquePackageName) {
                 eblanApplicationInfoToDelete.icon?.let { icon ->
                     val iconFile = File(icon)
 
@@ -156,7 +162,7 @@ internal suspend fun updateEblanApplicationInfos(
 
                 val iconPackFile = File(
                     iconPacksDirectory,
-                    eblanApplicationInfoToDelete.packageName,
+                    eblanApplicationInfoToDelete.componentName.hashCode().toString(),
                 )
 
                 if (iconPackFile.exists()) {
@@ -429,8 +435,8 @@ internal suspend fun updateIconPackInfos(
             iconPackInfoPackageName,
         ).apply { if (!exists()) mkdirs() }
 
-        val installedPackageNames =
-            launcherAppsActivityInfos.onEach { launcherAppsActivityInfo ->
+        val installedPackageNames = buildList {
+            launcherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
                 cacheIconPackFile(
@@ -440,11 +446,10 @@ internal suspend fun updateIconPackInfos(
                     iconPackInfoDirectory = iconPackDirectory,
                     componentName = launcherAppsActivityInfo.componentName,
                 )
-            }.map { launcherAppsActivityInfo ->
-                currentCoroutineContext().ensureActive()
 
-                launcherAppsActivityInfo.componentName.hashCode().toString()
+                add(launcherAppsActivityInfo.componentName.hashCode().toString())
             }
+        }
 
         iconPackDirectory.listFiles()?.filter { it.isFile && it.name !in installedPackageNames }
             ?.forEach {
@@ -552,26 +557,36 @@ private suspend fun updateEblanShortcutConfigs(
         eblanShortcutConfigsToDelete.forEach { eblanShortcutConfigToDelete ->
             currentCoroutineContext().ensureActive()
 
-            val isUnique = newEblanShortcutConfigs.none { newEblanShortcutConfig ->
-                currentCoroutineContext().ensureActive()
+            val isUniqueComponentName =
+                newEblanShortcutConfigs.none { newEblanShortcutConfig ->
+                    currentCoroutineContext().ensureActive()
 
-                newEblanShortcutConfig.packageName == eblanShortcutConfigToDelete.packageName && newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber
-            }
+                    newEblanShortcutConfig.componentName == eblanShortcutConfigToDelete.componentName
+                }
 
-            if (isUnique) {
+            val isUniquePackageName =
+                newEblanShortcutConfigs.none { newEblanShortcutConfig ->
+                    currentCoroutineContext().ensureActive()
+
+                    newEblanShortcutConfig.packageName == eblanShortcutConfigToDelete.packageName
+                }
+
+            if (isUniqueComponentName) {
                 eblanShortcutConfigToDelete.activityIcon?.let { activityIcon ->
                     val activityIconFile = File(activityIcon)
 
                     if (activityIconFile.exists()) {
                         activityIconFile.delete()
                     }
+                }
+            }
 
-                    eblanShortcutConfigToDelete.applicationIcon?.let { applicationIcon ->
-                        val applicationIconFile = File(applicationIcon)
+            if (isUniquePackageName) {
+                eblanShortcutConfigToDelete.applicationIcon?.let { applicationIcon ->
+                    val applicationIconFile = File(applicationIcon)
 
-                        if (applicationIconFile.exists()) {
-                            applicationIconFile.delete()
-                        }
+                    if (applicationIconFile.exists()) {
+                        applicationIconFile.delete()
                     }
                 }
             }
@@ -608,7 +623,7 @@ private suspend fun updateShortcutConfigGridItems(
             eblanShortcutConfigs.find { eblanShortcutConfig ->
                 currentCoroutineContext().ensureActive()
 
-                eblanShortcutConfig.packageName == shortcutConfigGridItem.packageName && eblanShortcutConfig.serialNumber == shortcutConfigGridItem.serialNumber
+                eblanShortcutConfig.componentName == shortcutConfigGridItem.componentName && eblanShortcutConfig.serialNumber == shortcutConfigGridItem.serialNumber
             }
 
         if (shortcutConfigActivityInfo != null) {
@@ -668,7 +683,7 @@ private suspend fun updateApplicationInfoGridItems(
             launcherAppsActivityInfos.find { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
-                launcherAppsActivityInfo.packageName == applicationInfoGridItem.packageName && launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber
+                launcherAppsActivityInfo.componentName == applicationInfoGridItem.componentName && launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber
             }
 
         if (launcherAppsActivityInfo != null) {

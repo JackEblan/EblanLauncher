@@ -42,6 +42,8 @@ class GetEblanApplicationInfosUseCase @Inject constructor(
                 eblanApplicationInfo.label.lowercase()
             }.groupBy { eblanApplicationInfo ->
                 launcherAppsWrapper.getUser(serialNumber = eblanApplicationInfo.serialNumber)
+            }.toSortedMap { eblanUser, _ ->
+                eblanUser.serialNumber.toInt()
             }
         }
         .flowOn(defaultDispatcher)

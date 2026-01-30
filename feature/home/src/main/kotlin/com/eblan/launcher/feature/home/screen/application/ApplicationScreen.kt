@@ -1300,7 +1300,7 @@ private fun SearchBar(
     }
 
     LaunchedEffect(key1 = swipeY) {
-        if (swipeY == screenHeight.toFloat()) {
+        if (swipeY.roundToInt() >= screenHeight) {
             onGetEblanApplicationInfosByLabel("")
 
             textFieldState.clearText()

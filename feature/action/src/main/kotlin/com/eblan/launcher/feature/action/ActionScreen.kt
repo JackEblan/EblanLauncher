@@ -113,7 +113,7 @@ internal fun ActionScreen(
 
                 is ActionUiState.Success -> {
                     Success(
-                        eblanApplicationInfos = actionUiState.getEblanApplicationInfosByLabel.eblanApplicationInfos,
+                        eblanApplicationInfos = actionUiState.eblanApplicationInfos,
                         onUpdateEblanAction = onUpdateEblanAction,
                     )
                 }

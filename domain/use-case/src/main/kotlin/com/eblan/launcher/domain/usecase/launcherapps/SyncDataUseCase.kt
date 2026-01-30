@@ -193,10 +193,10 @@ class SyncDataUseCase @Inject constructor(
 
                 val isUniqueComponentName =
                     eblanApplicationInfoRepository.getEblanApplicationInfos()
-                        .none { newSyncEblanApplicationInfo ->
+                        .none { eblanApplicationInfo ->
                             currentCoroutineContext().ensureActive()
 
-                            newSyncEblanApplicationInfo.serialNumber != syncEblanApplicationInfoToDelete.serialNumber && newSyncEblanApplicationInfo.componentName == syncEblanApplicationInfoToDelete.componentName
+                            eblanApplicationInfo.serialNumber != syncEblanApplicationInfoToDelete.serialNumber && eblanApplicationInfo.componentName == syncEblanApplicationInfoToDelete.componentName
                         }
 
                 if (isUniqueComponentName) {
@@ -404,10 +404,10 @@ class SyncDataUseCase @Inject constructor(
                 currentCoroutineContext().ensureActive()
 
                 val isUniqueShortcutId = eblanShortcutInfoRepository.getEblanShortcutInfos()
-                    .none { launcherAppsShortcutInfo ->
+                    .none { eblanShortcutInfo ->
                         currentCoroutineContext().ensureActive()
 
-                        launcherAppsShortcutInfo.serialNumber != eblanShortcutInfoToDelete.serialNumber && launcherAppsShortcutInfo.shortcutId == eblanShortcutInfoToDelete.shortcutId
+                        eblanShortcutInfo.serialNumber != eblanShortcutInfoToDelete.serialNumber && eblanShortcutInfo.shortcutId == eblanShortcutInfoToDelete.shortcutId
                     }
 
                 if (isUniqueShortcutId) {
@@ -451,10 +451,10 @@ class SyncDataUseCase @Inject constructor(
                 currentCoroutineContext().ensureActive()
 
                 val isUniqueComponentName = eblanShortcutConfigRepository.getEblanShortcutConfigs()
-                    .none { newEblanShortcutConfig ->
+                    .none { eblanShortcutConfig ->
                         currentCoroutineContext().ensureActive()
 
-                        newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber && newEblanShortcutConfig.componentName == eblanShortcutConfigToDelete.componentName
+                        eblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber && eblanShortcutConfig.componentName == eblanShortcutConfigToDelete.componentName
                     }
 
                 if (isUniqueComponentName) {

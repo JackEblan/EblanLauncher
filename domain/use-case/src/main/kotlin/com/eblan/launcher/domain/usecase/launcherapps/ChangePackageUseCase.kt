@@ -180,11 +180,11 @@ class ChangePackageUseCase @Inject constructor(
 
                 val isUniqueComponentName =
                     eblanApplicationInfoRepository.getEblanApplicationInfos()
-                        .none { launcherAppsActivityInfo ->
+                        .none { eblanApplicationInfo ->
                             currentCoroutineContext().ensureActive()
 
-                            launcherAppsActivityInfo.serialNumber != syncEblanApplicationInfoToDelete.serialNumber &&
-                                launcherAppsActivityInfo.componentName == syncEblanApplicationInfoToDelete.componentName
+                            eblanApplicationInfo.serialNumber != syncEblanApplicationInfoToDelete.serialNumber &&
+                                eblanApplicationInfo.componentName == syncEblanApplicationInfoToDelete.componentName
                         }
 
                 if (isUniqueComponentName) {
@@ -393,11 +393,11 @@ class ChangePackageUseCase @Inject constructor(
 
                 val isUniqueShortcutId =
                     eblanShortcutInfoRepository.getEblanShortcutInfos()
-                        .none { launcherAppsShortcutInfo ->
+                        .none { eblanShortcutInfo ->
                             currentCoroutineContext().ensureActive()
 
-                            launcherAppsShortcutInfo.serialNumber != eblanShortcutInfoToDelete.serialNumber &&
-                                launcherAppsShortcutInfo.shortcutId == eblanShortcutInfoToDelete.shortcutId
+                            eblanShortcutInfo.serialNumber != eblanShortcutInfoToDelete.serialNumber &&
+                                eblanShortcutInfo.shortcutId == eblanShortcutInfoToDelete.shortcutId
                         }
 
                 if (isUniqueShortcutId) {
@@ -449,11 +449,11 @@ class ChangePackageUseCase @Inject constructor(
 
                 val isUniqueComponentName =
                     eblanShortcutConfigRepository.getEblanShortcutConfigs()
-                        .none { newEblanShortcutConfig ->
+                        .none { eblanShortcutConfig ->
                             currentCoroutineContext().ensureActive()
 
-                            newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber &&
-                                newEblanShortcutConfig.componentName == eblanShortcutConfigToDelete.componentName
+                            eblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber &&
+                                eblanShortcutConfig.componentName == eblanShortcutConfigToDelete.componentName
                         }
 
                 val isUniquePackageName =

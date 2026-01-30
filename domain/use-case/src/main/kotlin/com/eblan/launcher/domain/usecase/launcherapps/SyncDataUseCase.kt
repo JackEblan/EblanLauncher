@@ -328,11 +328,20 @@ class SyncDataUseCase @Inject constructor(
             eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfoToDelete ->
                 currentCoroutineContext().ensureActive()
 
-                eblanAppWidgetProviderInfoToDelete.icon?.let { icon ->
-                    val iconFile = File(icon)
+                val isUniquePackageName = eblanApplicationInfoRepository.getEblanApplicationInfos()
+                    .none { eblanApplicationInfo ->
+                        currentCoroutineContext().ensureActive()
 
-                    if (iconFile.exists()) {
-                        iconFile.delete()
+                        eblanApplicationInfo.packageName == eblanAppWidgetProviderInfoToDelete.packageName
+                    }
+
+                if (isUniquePackageName) {
+                    eblanAppWidgetProviderInfoToDelete.icon?.let { icon ->
+                        val iconFile = File(icon)
+
+                        if (iconFile.exists()) {
+                            iconFile.delete()
+                        }
                     }
                 }
 

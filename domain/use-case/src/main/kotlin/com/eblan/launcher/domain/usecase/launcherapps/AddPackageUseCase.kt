@@ -21,6 +21,7 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
@@ -32,7 +33,7 @@ import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.usecase.iconpack.UpdateIconPackInfoByComponentNameUseCase
+import com.eblan.launcher.domain.usecase.iconpack.updateIconPackInfoByComponentName
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -47,11 +48,11 @@ class AddPackageUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
-    private val updateIconPackInfoByComponentNameUseCase: UpdateIconPackInfoByComponentNameUseCase,
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
     private val fileManager: FileManager,
+    private val iconPackManager: IconPackManager,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -59,7 +60,9 @@ class AddPackageUseCase @Inject constructor(
         packageName: String,
     ) {
         withContext(defaultDispatcher) {
-            if (!userDataRepository.userData.first().experimentalSettings.syncData) return@withContext
+            val userData = userDataRepository.userData.first()
+
+            if (!userData.experimentalSettings.syncData) return@withContext
 
             launcherAppsWrapper.getActivityList(
                 serialNumber = serialNumber,
@@ -76,15 +79,23 @@ class AddPackageUseCase @Inject constructor(
                     lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
                 )
 
-                addEblanAppWidgetProviderInfos(
-                    serialNumber = launcherAppsActivityInfo.serialNumber,
-                    packageName = launcherAppsActivityInfo.packageName,
+                updateIconPackInfoByComponentName(
+                    componentName = launcherAppsActivityInfo.componentName,
+                    iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+                    fileManager = fileManager,
+                    iconPackManager = iconPackManager,
                 )
-
-                updateIconPackInfoByComponentNameUseCase(componentName = launcherAppsActivityInfo.componentName)
             }
 
-            addEblanShortcutInfos()
+            addEblanAppWidgetProviderInfos(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
+
+            addEblanShortcutInfos(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
 
             addEblanShortcutConfigs(
                 serialNumber = serialNumber,
@@ -179,9 +190,15 @@ class AddPackageUseCase @Inject constructor(
         )
     }
 
-    private suspend fun addEblanShortcutInfos() {
+    private suspend fun addEblanShortcutInfos(
+        serialNumber: Long,
+        packageName: String,
+    ) {
         val eblanShortcutInfos =
-            launcherAppsWrapper.getShortcuts()?.map { launcherAppsShortcutInfo ->
+            launcherAppsWrapper.getShortcutsByPackageName(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )?.map { launcherAppsShortcutInfo ->
                 currentCoroutineContext().ensureActive()
 
                 EblanShortcutInfo(

@@ -136,7 +136,7 @@ internal fun SharedTransitionScope.PagerScreen(
     onDeleteGridItem: (GridItem) -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
-        packageName: String,
+        componentName: String,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onResetOverlay: () -> Unit,

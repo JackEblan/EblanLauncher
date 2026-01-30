@@ -46,16 +46,11 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(
         eblanApplicationInfoDao.upsertEblanApplicationInfoEntity(entity = eblanApplicationInfo.asEntity())
     }
 
-    override suspend fun getEblanApplicationInfosByPackageName(packageName: String): List<EblanApplicationInfo> = eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByPackageName(packageName = packageName)
-        .map { entity ->
-            entity.asModel()
-        }
-
-    override suspend fun deleteEblanApplicationInfo(
+    override suspend fun deleteEblanApplicationInfoByPackageName(
         serialNumber: Long,
         packageName: String,
     ) {
-        eblanApplicationInfoDao.deleteEblanApplicationInfoEntity(
+        eblanApplicationInfoDao.deleteEblanApplicationInfoEntityByPackageName(
             serialNumber = serialNumber,
             packageName = packageName,
         )
@@ -68,14 +63,6 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(
 
         eblanApplicationInfoDao.deleteEblanApplicationInfoEntities(entities = entities)
     }
-
-    override suspend fun getEblanApplicationInfo(
-        serialNumber: Long,
-        packageName: String,
-    ): EblanApplicationInfo? = eblanApplicationInfoDao.getEblanApplicationInfoEntity(
-        serialNumber = serialNumber,
-        packageName = packageName,
-    )?.asModel()
 
     override suspend fun upsertSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>) {
         eblanApplicationInfoDao.upsertSyncEblanApplicationInfoEntities(syncEblanApplicationInfos = syncEblanApplicationInfos)
@@ -106,5 +93,23 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(
                 ),
             )
         }
+    }
+
+    override suspend fun getEblanApplicationInfoByComponentName(
+        serialNumber: Long,
+        componentName: String,
+    ): EblanApplicationInfo? = eblanApplicationInfoDao.getEblanApplicationInfoEntityByComponentName(
+        serialNumber = serialNumber,
+        componentName = componentName,
+    )?.asModel()
+
+    override suspend fun getEblanApplicationInfosByPackageName(
+        serialNumber: Long,
+        packageName: String,
+    ): List<EblanApplicationInfo> = eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByPackageName(
+        serialNumber = serialNumber,
+        packageName = packageName,
+    ).map { entity ->
+        entity.asModel()
     }
 }

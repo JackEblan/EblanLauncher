@@ -72,7 +72,7 @@ internal fun PopupApplicationInfoMenu(
     onDismissRequest: () -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
-        packageName: String,
+        componentName: String,
     ) -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
@@ -153,7 +153,7 @@ internal fun PopupApplicationInfoMenu(
 
                     onEditApplicationInfo(
                         applicationInfo.serialNumber,
-                        applicationInfo.packageName,
+                        applicationInfo.componentName,
                     )
                 },
                 onTapShortcutInfo = { serialNumber, packageName, shortcutId ->

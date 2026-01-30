@@ -40,14 +40,16 @@ class UpdateIconPackInfosUseCase @Inject constructor(
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(iconPackInfoPackageName: String) {
+        if (iconPackInfoPackageName.isEmpty()) return
+
         withContext(ioDispatcher) {
             val eblanApplicationInfo =
-                eblanApplicationInfoRepository.getEblanApplicationInfo(
+                eblanApplicationInfoRepository.getEblanApplicationInfosByPackageName(
                     serialNumber = 0L,
                     packageName = iconPackInfoPackageName,
-                )
+                ).firstOrNull()
 
-            if (iconPackInfoPackageName.isNotEmpty() && eblanApplicationInfo != null) {
+            if (eblanApplicationInfo != null) {
                 val appFilter =
                     iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 
@@ -56,8 +58,8 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                     iconPackInfoPackageName,
                 ).apply { if (!exists()) mkdirs() }
 
-                val installedPackageNames = launcherAppsWrapper.getActivityList()
-                    .onEach { launcherAppsActivityInfo ->
+                val installedPackageNames = buildList {
+                    launcherAppsWrapper.getActivityList().forEach { launcherAppsActivityInfo ->
                         ensureActive()
 
                         cacheIconPackFile(
@@ -67,12 +69,10 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                             iconPackInfoDirectory = iconPackDirectory,
                             componentName = launcherAppsActivityInfo.componentName,
                         )
-                    }
-                    .map { launcherAppsActivityInfo ->
-                        ensureActive()
 
-                        launcherAppsActivityInfo.componentName.hashCode().toString()
+                        add(launcherAppsActivityInfo.componentName.hashCode().toString())
                     }
+                }
 
                 eblanIconPackInfoRepository.upsertEblanIconPackInfo(
                     eblanIconPackInfo = EblanIconPackInfo(
@@ -83,8 +83,7 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                 )
 
                 iconPackDirectory.listFiles()
-                    ?.filter { it.isFile && it.name !in installedPackageNames }
-                    ?.forEach {
+                    ?.filter { it.isFile && it.name !in installedPackageNames }?.forEach {
                         ensureActive()
 
                         it.delete()

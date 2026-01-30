@@ -127,7 +127,7 @@ internal fun HomeRoute(
     onSettings: () -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
-        packageName: String,
+        componentName: String,
     ) -> Unit,
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
@@ -291,7 +291,7 @@ internal fun HomeScreen(
     ) -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
-        packageName: String,
+        componentName: String,
     ) -> Unit,
     onMoveGridItemOutsideFolder: (
         folderId: String,
@@ -612,7 +612,7 @@ private fun SharedTransitionScope.Success(
     ) -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
-        packageName: String,
+        componentName: String,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onMoveGridItemOutsideFolder: (

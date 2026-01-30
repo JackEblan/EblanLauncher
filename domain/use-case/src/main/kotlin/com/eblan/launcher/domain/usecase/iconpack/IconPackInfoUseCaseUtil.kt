@@ -17,11 +17,36 @@
  */
 package com.eblan.launcher.domain.usecase.iconpack
 
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import java.io.File
+
+suspend fun updateIconPackInfoByComponentName(
+    componentName: String,
+    iconPackInfoPackageName: String,
+    fileManager: FileManager,
+    iconPackManager: IconPackManager,
+) {
+    if (iconPackInfoPackageName.isEmpty()) return
+
+    val iconPackDirectory = File(
+        fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
+        iconPackInfoPackageName,
+    ).apply { if (!exists()) mkdirs() }
+
+    val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
+
+    cacheIconPackFile(
+        iconPackManager = iconPackManager,
+        appFilter = appFilter,
+        iconPackInfoPackageName = iconPackInfoPackageName,
+        iconPackInfoDirectory = iconPackDirectory,
+        componentName = componentName,
+    )
+}
 
 internal suspend fun cacheIconPackFile(
     iconPackManager: IconPackManager,

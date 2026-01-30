@@ -439,20 +439,21 @@ class ChangePackageUseCase @Inject constructor(
                 eblanShortcutConfigs = eblanShortcutConfigsToDelete,
             )
 
+            val eblanShortcutConfigs = eblanShortcutConfigRepository.eblanShortcutConfigs.first()
+
             eblanShortcutConfigsToDelete.forEach { eblanShortcutConfigToDelete ->
                 currentCoroutineContext().ensureActive()
 
                 val isUniqueComponentName =
-                    eblanShortcutConfigRepository.eblanShortcutConfigs.first()
-                        .none { newEblanShortcutConfig ->
-                            currentCoroutineContext().ensureActive()
+                    eblanShortcutConfigs.none { newEblanShortcutConfig ->
+                        currentCoroutineContext().ensureActive()
 
-                            newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber &&
-                                newEblanShortcutConfig.componentName == eblanShortcutConfigToDelete.componentName
-                        }
+                        newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber &&
+                            newEblanShortcutConfig.componentName == eblanShortcutConfigToDelete.componentName
+                    }
 
                 val isUniquePackageName =
-                    newEblanShortcutConfigs.none { newEblanShortcutConfig ->
+                    eblanShortcutConfigs.none { newEblanShortcutConfig ->
                         currentCoroutineContext().ensureActive()
 
                         newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber &&
@@ -487,52 +488,5 @@ class ChangePackageUseCase @Inject constructor(
                 packageManagerWrapper = packageManagerWrapper,
             )
         }
-    }
-
-    private suspend fun updateApplicationInfoGridItems(
-        launcherAppsActivityInfos: List<LauncherAppsActivityInfo>,
-        applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
-    ) {
-        val updateApplicationInfoGridItems = mutableListOf<UpdateApplicationInfoGridItem>()
-
-        val deleteApplicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
-
-        val applicationInfoGridItems =
-            applicationInfoGridItemRepository.applicationInfoGridItems.first()
-
-        applicationInfoGridItems.filterNot { applicationInfoGridItem ->
-            applicationInfoGridItem.override
-        }.forEach { applicationInfoGridItem ->
-            currentCoroutineContext().ensureActive()
-
-            val launcherAppsActivityInfo =
-                launcherAppsActivityInfos.find { launcherAppsActivityInfo ->
-                    currentCoroutineContext().ensureActive()
-
-                    launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber &&
-                        launcherAppsActivityInfo.componentName == applicationInfoGridItem.componentName
-                }
-
-            if (launcherAppsActivityInfo != null) {
-                updateApplicationInfoGridItems.add(
-                    UpdateApplicationInfoGridItem(
-                        id = applicationInfoGridItem.id,
-                        componentName = launcherAppsActivityInfo.componentName,
-                        icon = launcherAppsActivityInfo.activityIcon,
-                        label = launcherAppsActivityInfo.activityLabel,
-                    ),
-                )
-            } else {
-                deleteApplicationInfoGridItems.add(applicationInfoGridItem)
-            }
-        }
-
-        applicationInfoGridItemRepository.updateApplicationInfoGridItems(
-            updateApplicationInfoGridItems = updateApplicationInfoGridItems,
-        )
-
-        applicationInfoGridItemRepository.deleteApplicationInfoGridItems(
-            applicationInfoGridItems = deleteApplicationInfoGridItems,
-        )
     }
 }

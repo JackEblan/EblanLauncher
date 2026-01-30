@@ -38,7 +38,6 @@ import com.eblan.launcher.domain.model.FastLauncherAppsShortcutInfo
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
-import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
@@ -230,7 +229,10 @@ class SyncDataUseCase @Inject constructor(
 
             updateEblanShortcutConfigs(newEblanShortcutConfigs = newEblanShortcutConfigs)
 
-            updateApplicationInfoGridItems(launcherAppsActivityInfos = launcherAppsActivityInfos)
+            updateApplicationInfoGridItems(
+                launcherAppsActivityInfos = launcherAppsActivityInfos,
+                applicationInfoGridItemRepository = applicationInfoGridItemRepository,
+            )
         }
 
         insertApplicationInfoGridItems(
@@ -575,49 +577,6 @@ class SyncDataUseCase @Inject constructor(
             experimentalSettings = experimentalSettings.copy(
                 firstLaunch = false,
             ),
-        )
-    }
-
-    private suspend fun updateApplicationInfoGridItems(launcherAppsActivityInfos: List<LauncherAppsActivityInfo>) {
-        val updateApplicationInfoGridItems = mutableListOf<UpdateApplicationInfoGridItem>()
-
-        val deleteApplicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
-
-        val applicationInfoGridItems =
-            applicationInfoGridItemRepository.applicationInfoGridItems.first()
-
-        applicationInfoGridItems.filterNot { applicationInfoGridItem ->
-            applicationInfoGridItem.override
-        }.forEach { applicationInfoGridItem ->
-            currentCoroutineContext().ensureActive()
-
-            val launcherAppsActivityInfo =
-                launcherAppsActivityInfos.find { launcherAppsActivityInfo ->
-                    currentCoroutineContext().ensureActive()
-
-                    launcherAppsActivityInfo.componentName == applicationInfoGridItem.componentName && launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber
-                }
-
-            if (launcherAppsActivityInfo != null) {
-                updateApplicationInfoGridItems.add(
-                    UpdateApplicationInfoGridItem(
-                        id = applicationInfoGridItem.id,
-                        componentName = launcherAppsActivityInfo.componentName,
-                        icon = launcherAppsActivityInfo.activityIcon,
-                        label = launcherAppsActivityInfo.activityLabel,
-                    ),
-                )
-            } else {
-                deleteApplicationInfoGridItems.add(applicationInfoGridItem)
-            }
-        }
-
-        applicationInfoGridItemRepository.updateApplicationInfoGridItems(
-            updateApplicationInfoGridItems = updateApplicationInfoGridItems,
-        )
-
-        applicationInfoGridItemRepository.deleteApplicationInfoGridItems(
-            applicationInfoGridItems = deleteApplicationInfoGridItems,
         )
     }
 }

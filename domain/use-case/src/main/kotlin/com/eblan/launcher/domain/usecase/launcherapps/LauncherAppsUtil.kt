@@ -22,14 +22,18 @@ import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.EblanShortcutConfig
+import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
 import com.eblan.launcher.domain.model.ShortcutConfigGridItem
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
+import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
 import com.eblan.launcher.domain.model.UpdateShortcutConfigGridItem
 import com.eblan.launcher.domain.model.UpdateShortcutInfoGridItem
 import com.eblan.launcher.domain.model.UpdateWidgetGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
+import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -39,45 +43,51 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import java.io.File
 
-internal suspend fun updateIconPackInfos(
-    iconPackInfoPackageName: String,
-    iconPackManager: IconPackManager,
-    launcherAppsWrapper: LauncherAppsWrapper,
-    fileManager: FileManager,
+internal suspend fun updateApplicationInfoGridItems(
+    launcherAppsActivityInfos: List<LauncherAppsActivityInfo>,
+    applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
 ) {
-    if (iconPackInfoPackageName.isNotEmpty()) {
-        val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
+    val updateApplicationInfoGridItems = mutableListOf<UpdateApplicationInfoGridItem>()
 
-        val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
+    val deleteApplicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
 
-        val iconPackDirectory = File(
-            fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
-            iconPackInfoPackageName,
-        ).apply { if (!exists()) mkdirs() }
+    val applicationInfoGridItems =
+        applicationInfoGridItemRepository.applicationInfoGridItems.first()
 
-        val installedPackageNames = buildList {
-            launcherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
+    applicationInfoGridItems.filterNot { applicationInfoGridItem ->
+        applicationInfoGridItem.override
+    }.forEach { applicationInfoGridItem ->
+        currentCoroutineContext().ensureActive()
+
+        val launcherAppsActivityInfo =
+            launcherAppsActivityInfos.find { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
-                cacheIconPackFile(
-                    iconPackManager = iconPackManager,
-                    appFilter = appFilter,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
-                    iconPackInfoDirectory = iconPackDirectory,
+                launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber &&
+                    launcherAppsActivityInfo.componentName == applicationInfoGridItem.componentName
+            }
+
+        if (launcherAppsActivityInfo != null) {
+            updateApplicationInfoGridItems.add(
+                UpdateApplicationInfoGridItem(
+                    id = applicationInfoGridItem.id,
                     componentName = launcherAppsActivityInfo.componentName,
-                )
-
-                add(launcherAppsActivityInfo.componentName.hashCode().toString())
-            }
+                    icon = launcherAppsActivityInfo.activityIcon,
+                    label = launcherAppsActivityInfo.activityLabel,
+                ),
+            )
+        } else {
+            deleteApplicationInfoGridItems.add(applicationInfoGridItem)
         }
-
-        iconPackDirectory.listFiles()?.filter { it.isFile && it.name !in installedPackageNames }
-            ?.forEach {
-                currentCoroutineContext().ensureActive()
-
-                it.delete()
-            }
     }
+
+    applicationInfoGridItemRepository.updateApplicationInfoGridItems(
+        updateApplicationInfoGridItems = updateApplicationInfoGridItems,
+    )
+
+    applicationInfoGridItemRepository.deleteApplicationInfoGridItems(
+        applicationInfoGridItems = deleteApplicationInfoGridItems,
+    )
 }
 
 internal suspend fun updateShortcutInfoGridItems(
@@ -296,4 +306,45 @@ internal suspend fun updateWidgetGridItems(
     widgetGridItemRepository.updateWidgetGridItems(updateWidgetGridItems = updateWidgetGridItems)
 
     widgetGridItemRepository.deleteWidgetGridItemsByPackageName(widgetGridItems = deleteWidgetGridItems)
+}
+
+internal suspend fun updateIconPackInfos(
+    iconPackInfoPackageName: String,
+    iconPackManager: IconPackManager,
+    launcherAppsWrapper: LauncherAppsWrapper,
+    fileManager: FileManager,
+) {
+    if (iconPackInfoPackageName.isNotEmpty()) {
+        val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
+
+        val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
+
+        val iconPackDirectory = File(
+            fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
+            iconPackInfoPackageName,
+        ).apply { if (!exists()) mkdirs() }
+
+        val installedPackageNames = buildList {
+            launcherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
+                currentCoroutineContext().ensureActive()
+
+                cacheIconPackFile(
+                    iconPackManager = iconPackManager,
+                    appFilter = appFilter,
+                    iconPackInfoPackageName = iconPackInfoPackageName,
+                    iconPackInfoDirectory = iconPackDirectory,
+                    componentName = launcherAppsActivityInfo.componentName,
+                )
+
+                add(launcherAppsActivityInfo.componentName.hashCode().toString())
+            }
+        }
+
+        iconPackDirectory.listFiles()?.filter { it.isFile && it.name !in installedPackageNames }
+            ?.forEach {
+                currentCoroutineContext().ensureActive()
+
+                it.delete()
+            }
+    }
 }

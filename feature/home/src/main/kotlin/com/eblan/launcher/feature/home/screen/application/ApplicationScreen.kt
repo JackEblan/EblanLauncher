@@ -54,12 +54,16 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
@@ -77,6 +81,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -120,9 +125,7 @@ import com.eblan.launcher.domain.model.EblanUserType
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.ManagedProfileResult
-import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
@@ -130,16 +133,18 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
-import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.getVerticalArrangement
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
-import com.eblan.launcher.ui.SearchBar
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalUserManager
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -217,6 +222,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             managedProfileResult = managedProfileResult,
             screen = screen,
             klwpIntegration = klwpIntegration,
+            swipeY = swipeY,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -249,6 +255,7 @@ private fun SharedTransitionScope.Success(
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
     klwpIntegration: Boolean,
+    swipeY: Float,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -298,23 +305,11 @@ private fun SharedTransitionScope.Success(
 
     var eblanApplicationInfoGroup by remember { mutableStateOf<EblanApplicationInfoGroup?>(null) }
 
-    val searchBarState = rememberSearchBarState()
-
     LaunchedEffect(key1 = isPressHome) {
         if (isPressHome) {
             showPopupApplicationMenu = false
 
             onDismiss()
-        }
-
-        if (isPressHome && searchBarState.currentValue == SearchBarValue.Expanded) {
-            searchBarState.animateToCollapsed()
-        }
-    }
-
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start && searchBarState.currentValue == SearchBarValue.Expanded) {
-            searchBarState.animateToCollapsed()
         }
     }
 
@@ -337,9 +332,12 @@ private fun SharedTransitionScope.Success(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
-            searchBarState = searchBarState,
-            title = "Search Applications",
+            isPressHome = isPressHome,
+            drag = drag,
+            swipeY = swipeY,
+            screenHeight = screenHeight,
             onChangeLabel = onGetEblanApplicationInfosByLabel,
+            onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
         )
 
         if (getEblanApplicationInfosByLabel.eblanApplicationInfos.keys.size > 1) {
@@ -1264,4 +1262,67 @@ private fun ScrollBarThumb(
                 ),
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class, FlowPreview::class)
+@Composable
+private fun SearchBar(
+    modifier: Modifier = Modifier,
+    isPressHome: Boolean,
+    drag: Drag,
+    swipeY: Float,
+    screenHeight: Int,
+    onChangeLabel: (String) -> Unit,
+    onGetEblanApplicationInfosByLabel: (String) -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+
+    val searchBarState = rememberSearchBarState()
+
+    val textFieldState = rememberTextFieldState()
+
+    LaunchedEffect(key1 = textFieldState) {
+        snapshotFlow { textFieldState.text }.debounce(500L).onEach { text ->
+            onChangeLabel(text.toString())
+        }.collect()
+    }
+
+    LaunchedEffect(key1 = isPressHome) {
+        if (isPressHome && searchBarState.currentValue == SearchBarValue.Expanded) {
+            searchBarState.animateToCollapsed()
+        }
+    }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Start && searchBarState.currentValue == SearchBarValue.Expanded) {
+            searchBarState.animateToCollapsed()
+        }
+    }
+
+    LaunchedEffect(key1 = swipeY) {
+        if (swipeY == screenHeight.toFloat()) {
+            onGetEblanApplicationInfosByLabel("")
+
+            textFieldState.clearText()
+        }
+    }
+
+    SearchBar(
+        state = searchBarState,
+        modifier = modifier,
+        inputField = {
+            SearchBarDefaults.InputField(
+                searchBarState = searchBarState,
+                textFieldState = textFieldState,
+                leadingIcon = {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Search,
+                        contentDescription = null,
+                    )
+                },
+                onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
+                placeholder = { Text(text = "Search Applications") },
+            )
+        },
+    )
 }

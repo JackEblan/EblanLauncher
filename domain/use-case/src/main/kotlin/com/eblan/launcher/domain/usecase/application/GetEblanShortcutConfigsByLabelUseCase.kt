@@ -45,12 +45,13 @@ class GetEblanShortcutConfigsByLabelUseCase @Inject constructor(
                     other = label,
                     ignoreCase = true,
                 )
-        }.sortedBy { eblanShortcutConfig ->
-            eblanShortcutConfig.applicationLabel?.lowercase()
-        }.groupBy { eblanShortcutConfig ->
+        }.sortedWith(
+            compareBy(
+                { it.serialNumber },
+                { it.applicationLabel?.lowercase() },
+            ),
+        ).groupBy { eblanShortcutConfig ->
             launcherAppsWrapper.getUser(serialNumber = eblanShortcutConfig.serialNumber)
-        }.toSortedMap { eblanUser, _ ->
-            eblanUser.serialNumber.toInt()
         }.mapValues { entry ->
             entry.value.groupBy { eblanShortcutConfig ->
                 EblanApplicationInfoGroup(

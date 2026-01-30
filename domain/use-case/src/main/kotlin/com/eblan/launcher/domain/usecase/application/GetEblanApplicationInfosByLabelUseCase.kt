@@ -44,12 +44,13 @@ class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
                     other = label,
                     ignoreCase = true,
                 )
-            }.sortedBy { eblanApplicationInfo ->
-                eblanApplicationInfo.label.lowercase()
-            }.groupBy { eblanApplicationInfo ->
+            }.sortedWith(
+                compareBy(
+                    { it.serialNumber },
+                    { it.label.lowercase() },
+                ),
+            ).groupBy { eblanApplicationInfo ->
                 launcherAppsWrapper.getUser(serialNumber = eblanApplicationInfo.serialNumber)
-            }.toSortedMap { eblanUser, _ ->
-                eblanUser.serialNumber.toInt()
             }
 
         val index = groupedEblanApplicationInfos.keys.toList().indexOfFirst { eblanUser ->

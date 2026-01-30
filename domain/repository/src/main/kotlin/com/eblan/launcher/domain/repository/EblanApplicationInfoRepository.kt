@@ -33,11 +33,6 @@ interface EblanApplicationInfoRepository {
 
     suspend fun deleteEblanApplicationInfos(eblanApplicationInfos: List<EblanApplicationInfo>)
 
-    suspend fun getEblanApplicationInfoByPackageName(
-        serialNumber: Long,
-        packageName: String,
-    ): List<EblanApplicationInfo>
-
     suspend fun upsertSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)
 
     suspend fun deleteSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)

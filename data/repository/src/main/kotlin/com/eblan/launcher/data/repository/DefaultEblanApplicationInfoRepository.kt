@@ -64,16 +64,6 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(
         eblanApplicationInfoDao.deleteEblanApplicationInfoEntities(entities = entities)
     }
 
-    override suspend fun getEblanApplicationInfoByPackageName(
-        serialNumber: Long,
-        packageName: String,
-    ): List<EblanApplicationInfo> = eblanApplicationInfoDao.getEblanApplicationInfoEntityByPackageName(
-        serialNumber = serialNumber,
-        packageName = packageName,
-    ).map { entity ->
-        entity.asModel()
-    }
-
     override suspend fun upsertSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>) {
         eblanApplicationInfoDao.upsertSyncEblanApplicationInfoEntities(syncEblanApplicationInfos = syncEblanApplicationInfos)
     }

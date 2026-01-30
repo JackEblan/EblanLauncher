@@ -32,6 +32,11 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
             }
         }
 
+    override suspend fun getEblanShortcutInfos(): List<EblanShortcutInfo> = eblanShortcutInfoDao.getEblanShortcutInfoEntityList()
+        .map { eblanShortcutInfoEntity ->
+            eblanShortcutInfoEntity.asModel()
+        }
+
     override suspend fun upsertEblanShortcutInfos(eblanShortcutInfos: List<EblanShortcutInfo>) {
         val entities = eblanShortcutInfos.map { eblanShortcutInfo ->
             eblanShortcutInfo.asEntity()

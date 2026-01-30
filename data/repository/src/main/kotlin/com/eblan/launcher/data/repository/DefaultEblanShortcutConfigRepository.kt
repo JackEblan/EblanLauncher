@@ -32,6 +32,11 @@ internal class DefaultEblanShortcutConfigRepository @Inject constructor(private 
             }
         }
 
+    override suspend fun getEblanShortcutConfigs(): List<EblanShortcutConfig> = eblanShortcutConfigDao.getEblanShortcutConfigEntityList()
+        .map { eblanShortcutConfigEntity ->
+            eblanShortcutConfigEntity.asModel()
+        }
+
     override suspend fun upsertEblanShortcutConfigs(eblanShortcutConfigs: List<EblanShortcutConfig>) {
         val entities = eblanShortcutConfigs.map { eblanShortcutConfig ->
             eblanShortcutConfig.asEntity()

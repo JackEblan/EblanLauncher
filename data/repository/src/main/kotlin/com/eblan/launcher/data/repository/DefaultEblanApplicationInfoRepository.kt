@@ -42,6 +42,11 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(
             }
         }
 
+    override suspend fun getEblanApplicationInfos(): List<EblanApplicationInfo> = eblanApplicationInfoDao.getEblanApplicationInfoEntityList()
+        .map { eblanApplicationInfoEntity ->
+            eblanApplicationInfoEntity.asModel()
+        }
+
     override suspend fun upsertEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
         eblanApplicationInfoDao.upsertEblanApplicationInfoEntity(entity = eblanApplicationInfo.asEntity())
     }

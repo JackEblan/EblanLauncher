@@ -23,6 +23,8 @@ import kotlinx.coroutines.flow.Flow
 interface EblanShortcutConfigRepository {
     val eblanShortcutConfigs: Flow<List<EblanShortcutConfig>>
 
+    suspend fun getEblanShortcutConfigs(): List<EblanShortcutConfig>
+
     suspend fun upsertEblanShortcutConfigs(eblanShortcutConfigs: List<EblanShortcutConfig>)
 
     suspend fun upsertEblanShortcutConfig(eblanShortcutConfig: EblanShortcutConfig)

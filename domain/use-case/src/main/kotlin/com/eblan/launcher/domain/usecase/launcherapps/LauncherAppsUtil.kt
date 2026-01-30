@@ -64,7 +64,7 @@ internal suspend fun updateApplicationInfoGridItems(
                 currentCoroutineContext().ensureActive()
 
                 eblanApplicationInfo.serialNumber == applicationInfoGridItem.serialNumber &&
-                        eblanApplicationInfo.componentName == applicationInfoGridItem.componentName
+                    eblanApplicationInfo.componentName == applicationInfoGridItem.componentName
             }
 
         if (eblanApplicationInfo != null) {
@@ -113,7 +113,7 @@ internal suspend fun updateShortcutInfoGridItems(
                     currentCoroutineContext().ensureActive()
 
                     eblanShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber &&
-                            eblanShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId
+                        eblanShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId
                 }
 
             if (eblanShortcutInfo != null) {
@@ -187,7 +187,7 @@ internal suspend fun updateShortcutConfigGridItems(
                 currentCoroutineContext().ensureActive()
 
                 eblanShortcutConfig.serialNumber == shortcutConfigGridItem.serialNumber &&
-                        eblanShortcutConfig.componentName == shortcutConfigGridItem.componentName
+                    eblanShortcutConfig.componentName == shortcutConfigGridItem.componentName
             }
 
         if (shortcutConfigActivityInfo != null) {
@@ -251,7 +251,7 @@ internal suspend fun updateWidgetGridItems(
                 currentCoroutineContext().ensureActive()
 
                 eblanAppWidgetProviderInfo.serialNumber == widgetGridItem.serialNumber &&
-                        eblanAppWidgetProviderInfo.componentName == widgetGridItem.componentName
+                    eblanAppWidgetProviderInfo.componentName == widgetGridItem.componentName
             }
 
         if (eblanAppWidgetProviderInfo != null) {

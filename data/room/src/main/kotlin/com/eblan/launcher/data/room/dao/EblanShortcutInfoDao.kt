@@ -30,6 +30,9 @@ interface EblanShortcutInfoDao {
     @Query("SELECT * FROM EblanShortcutInfoEntity")
     fun getEblanShortcutInfoEntities(): Flow<List<EblanShortcutInfoEntity>>
 
+    @Query("SELECT * FROM EblanShortcutInfoEntity")
+    fun getEblanShortcutInfoEntityList(): List<EblanShortcutInfoEntity>
+
     @Upsert
     suspend fun upsertEblanShortcutInfoEntities(entities: List<EblanShortcutInfoEntity>)
 

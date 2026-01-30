@@ -179,12 +179,12 @@ class ChangePackageUseCase @Inject constructor(
                 currentCoroutineContext().ensureActive()
 
                 val isUniqueComponentName =
-                    eblanApplicationInfoRepository.eblanApplicationInfos.first()
+                    eblanApplicationInfoRepository.getEblanApplicationInfos()
                         .none { launcherAppsActivityInfo ->
                             currentCoroutineContext().ensureActive()
 
                             launcherAppsActivityInfo.serialNumber != syncEblanApplicationInfoToDelete.serialNumber &&
-                                    launcherAppsActivityInfo.componentName == syncEblanApplicationInfoToDelete.componentName
+                                launcherAppsActivityInfo.componentName == syncEblanApplicationInfoToDelete.componentName
                         }
 
                 if (isUniqueComponentName) {
@@ -214,7 +214,7 @@ class ChangePackageUseCase @Inject constructor(
         }
 
         updateApplicationInfoGridItems(
-            eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.first(),
+            eblanApplicationInfos = eblanApplicationInfoRepository.getEblanApplicationInfos(),
             applicationInfoGridItemRepository = applicationInfoGridItemRepository,
         )
 
@@ -235,21 +235,21 @@ class ChangePackageUseCase @Inject constructor(
             appWidgetManagerWrapper.getInstalledProviders()
                 .filter { appWidgetManagerAppWidgetProviderInfo ->
                     appWidgetManagerAppWidgetProviderInfo.serialNumber == serialNumber &&
-                            appWidgetManagerAppWidgetProviderInfo.packageName == packageName
+                        appWidgetManagerAppWidgetProviderInfo.packageName == packageName
                 }
 
         val oldEblanAppWidgetProviderInfosByPackageName =
-            eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.first()
+            eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfos()
                 .filter { appWidgetManagerAppWidgetProviderInfo ->
                     appWidgetManagerAppWidgetProviderInfo.serialNumber == serialNumber &&
-                            appWidgetManagerAppWidgetProviderInfo.packageName == packageName
+                        appWidgetManagerAppWidgetProviderInfo.packageName == packageName
                 }
 
         val newEblanAppWidgetProviderInfosByPackageName =
             appWidgetManagerAppWidgetProviderInfosByPackageName
                 .filter { appWidgetManagerAppWidgetProviderInfo ->
                     appWidgetManagerAppWidgetProviderInfo.serialNumber == serialNumber &&
-                            appWidgetManagerAppWidgetProviderInfo.packageName == packageName
+                        appWidgetManagerAppWidgetProviderInfo.packageName == packageName
                 }.map { appWidgetManagerAppWidgetProviderInfo ->
                     currentCoroutineContext().ensureActive()
 
@@ -333,7 +333,7 @@ class ChangePackageUseCase @Inject constructor(
             }
 
             updateWidgetGridItems(
-                eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.first(),
+                eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfos(),
                 fileManager = fileManager,
                 packageManagerWrapper = packageManagerWrapper,
                 widgetGridItemRepository = widgetGridItemRepository,
@@ -354,9 +354,9 @@ class ChangePackageUseCase @Inject constructor(
             ) ?: return
 
         val oldEblanShortcutInfosByPackageName =
-            eblanShortcutInfoRepository.eblanShortcutInfos.first().filter { eblanShortcutInfo ->
+            eblanShortcutInfoRepository.getEblanShortcutInfos().filter { eblanShortcutInfo ->
                 eblanShortcutInfo.serialNumber == serialNumber &&
-                        eblanShortcutInfo.packageName == packageName
+                    eblanShortcutInfo.packageName == packageName
             }
 
         val newEblanShortcutInfosByPackageName =
@@ -392,12 +392,12 @@ class ChangePackageUseCase @Inject constructor(
                 currentCoroutineContext().ensureActive()
 
                 val isUniqueShortcutId =
-                    eblanShortcutInfoRepository.eblanShortcutInfos.first()
+                    eblanShortcutInfoRepository.getEblanShortcutInfos()
                         .none { launcherAppsShortcutInfo ->
                             currentCoroutineContext().ensureActive()
 
                             launcherAppsShortcutInfo.serialNumber != eblanShortcutInfoToDelete.serialNumber &&
-                                    launcherAppsShortcutInfo.shortcutId == eblanShortcutInfoToDelete.shortcutId
+                                launcherAppsShortcutInfo.shortcutId == eblanShortcutInfoToDelete.shortcutId
                         }
 
                 if (isUniqueShortcutId) {
@@ -412,7 +412,7 @@ class ChangePackageUseCase @Inject constructor(
             }
 
             updateShortcutInfoGridItems(
-                eblanShortcutInfos = eblanShortcutInfoRepository.eblanShortcutInfos.first(),
+                eblanShortcutInfos = eblanShortcutInfoRepository.getEblanShortcutInfos(),
                 shortcutInfoGridItemRepository = shortcutInfoGridItemRepository,
                 fileManager = fileManager,
                 packageManagerWrapper = packageManagerWrapper,
@@ -426,10 +426,10 @@ class ChangePackageUseCase @Inject constructor(
         newEblanShortcutConfigs: List<EblanShortcutConfig>,
     ) {
         val oldEblanShortcutConfigsByPackageName =
-            eblanShortcutConfigRepository.eblanShortcutConfigs.first()
+            eblanShortcutConfigRepository.getEblanShortcutConfigs()
                 .filter { eblanShortcutConfig ->
                     eblanShortcutConfig.serialNumber == serialNumber &&
-                            eblanShortcutConfig.packageName == packageName
+                        eblanShortcutConfig.packageName == packageName
                 }
 
         if (oldEblanShortcutConfigsByPackageName != newEblanShortcutConfigs) {
@@ -444,26 +444,26 @@ class ChangePackageUseCase @Inject constructor(
                 eblanShortcutConfigs = eblanShortcutConfigsToDelete,
             )
 
-            val eblanShortcutConfigs = eblanShortcutConfigRepository.eblanShortcutConfigs.first()
-
             eblanShortcutConfigsToDelete.forEach { eblanShortcutConfigToDelete ->
                 currentCoroutineContext().ensureActive()
 
                 val isUniqueComponentName =
-                    eblanShortcutConfigs.none { newEblanShortcutConfig ->
-                        currentCoroutineContext().ensureActive()
+                    eblanShortcutConfigRepository.getEblanShortcutConfigs()
+                        .none { newEblanShortcutConfig ->
+                            currentCoroutineContext().ensureActive()
 
-                        newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber &&
+                            newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber &&
                                 newEblanShortcutConfig.componentName == eblanShortcutConfigToDelete.componentName
-                    }
+                        }
 
                 val isUniquePackageName =
-                    eblanShortcutConfigs.none { newEblanShortcutConfig ->
-                        currentCoroutineContext().ensureActive()
+                    eblanShortcutConfigRepository.getEblanShortcutConfigs()
+                        .none { newEblanShortcutConfig ->
+                            currentCoroutineContext().ensureActive()
 
-                        newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber &&
+                            newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber &&
                                 newEblanShortcutConfig.packageName == eblanShortcutConfigToDelete.packageName
-                    }
+                        }
 
                 if (isUniqueComponentName) {
                     eblanShortcutConfigToDelete.activityIcon?.let { activityIcon ->
@@ -487,7 +487,7 @@ class ChangePackageUseCase @Inject constructor(
             }
 
             updateShortcutConfigGridItems(
-                eblanShortcutConfigs = eblanShortcutConfigRepository.eblanShortcutConfigs.first(),
+                eblanShortcutConfigs = eblanShortcutConfigRepository.getEblanShortcutConfigs(),
                 shortcutConfigGridItemRepository = shortcutConfigGridItemRepository,
                 fileManager = fileManager,
                 packageManagerWrapper = packageManagerWrapper,

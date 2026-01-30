@@ -106,14 +106,13 @@ class SyncDataUseCase @Inject constructor(
 
     private suspend fun updateEblanApplicationInfos(userData: UserData) {
         val oldFastEblanLauncherAppsActivityInfo =
-            eblanApplicationInfoRepository.eblanApplicationInfos.first()
-                .map { eblanApplicationInfo ->
-                    FastLauncherAppsActivityInfo(
-                        serialNumber = eblanApplicationInfo.serialNumber,
-                        packageName = eblanApplicationInfo.packageName,
-                        lastUpdateTime = eblanApplicationInfo.lastUpdateTime,
-                    )
-                }
+            eblanApplicationInfoRepository.getEblanApplicationInfos().map { eblanApplicationInfo ->
+                FastLauncherAppsActivityInfo(
+                    serialNumber = eblanApplicationInfo.serialNumber,
+                    packageName = eblanApplicationInfo.packageName,
+                    lastUpdateTime = eblanApplicationInfo.lastUpdateTime,
+                )
+            }
 
         val newFastLauncherAppsActivityInfo = launcherAppsWrapper.getFastActivityList()
 
@@ -122,17 +121,16 @@ class SyncDataUseCase @Inject constructor(
         val newEblanShortcutConfigs = mutableListOf<EblanShortcutConfig>()
 
         val oldSyncEblanApplicationInfos =
-            eblanApplicationInfoRepository.eblanApplicationInfos.first()
-                .map { eblanApplicationInfo ->
-                    SyncEblanApplicationInfo(
-                        serialNumber = eblanApplicationInfo.serialNumber,
-                        componentName = eblanApplicationInfo.componentName,
-                        packageName = eblanApplicationInfo.packageName,
-                        icon = eblanApplicationInfo.icon,
-                        label = eblanApplicationInfo.label,
-                        lastUpdateTime = eblanApplicationInfo.lastUpdateTime,
-                    )
-                }
+            eblanApplicationInfoRepository.getEblanApplicationInfos().map { eblanApplicationInfo ->
+                SyncEblanApplicationInfo(
+                    serialNumber = eblanApplicationInfo.serialNumber,
+                    componentName = eblanApplicationInfo.componentName,
+                    packageName = eblanApplicationInfo.packageName,
+                    icon = eblanApplicationInfo.icon,
+                    label = eblanApplicationInfo.label,
+                    lastUpdateTime = eblanApplicationInfo.lastUpdateTime,
+                )
+            }
 
         val newSyncEblanApplicationInfos = buildList {
             launcherAppsWrapper.getActivityList().forEach { launcherAppsActivityInfo ->
@@ -194,7 +192,7 @@ class SyncDataUseCase @Inject constructor(
                 currentCoroutineContext().ensureActive()
 
                 val isUniqueComponentName =
-                    eblanApplicationInfoRepository.eblanApplicationInfos.first()
+                    eblanApplicationInfoRepository.getEblanApplicationInfos()
                         .none { newSyncEblanApplicationInfo ->
                             currentCoroutineContext().ensureActive()
 
@@ -229,13 +227,13 @@ class SyncDataUseCase @Inject constructor(
             updateEblanShortcutConfigs(newEblanShortcutConfigs = newEblanShortcutConfigs)
 
             updateApplicationInfoGridItems(
-                eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.first(),
+                eblanApplicationInfos = eblanApplicationInfoRepository.getEblanApplicationInfos(),
                 applicationInfoGridItemRepository = applicationInfoGridItemRepository,
             )
         }
 
         insertApplicationInfoGridItems(
-            eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.first(),
+            eblanApplicationInfos = eblanApplicationInfoRepository.getEblanApplicationInfos(),
             experimentalSettings = userData.experimentalSettings,
             homeSettings = userData.homeSettings,
         )
@@ -245,7 +243,7 @@ class SyncDataUseCase @Inject constructor(
         if (!packageManagerWrapper.hasSystemFeatureAppWidgets) return
 
         val oldFastAppWidgetManagerAppWidgetProviderInfos =
-            eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.first()
+            eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfos()
                 .map { eblanAppWidgetProviderInfo ->
                     FastAppWidgetManagerAppWidgetProviderInfo(
                         serialNumber = eblanAppWidgetProviderInfo.serialNumber,
@@ -262,7 +260,7 @@ class SyncDataUseCase @Inject constructor(
         val appWidgetManagerAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProviders()
 
         val oldEblanAppWidgetProviderInfos =
-            eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.first()
+            eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfos()
 
         val newEblanAppWidgetProviderInfos =
             appWidgetManagerAppWidgetProviderInfos.map { appWidgetManagerAppWidgetProviderInfo ->
@@ -348,7 +346,7 @@ class SyncDataUseCase @Inject constructor(
             }
 
             updateWidgetGridItems(
-                eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.first(),
+                eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfos(),
                 fileManager = fileManager,
                 packageManagerWrapper = packageManagerWrapper,
                 widgetGridItemRepository = widgetGridItemRepository,
@@ -360,7 +358,7 @@ class SyncDataUseCase @Inject constructor(
         if (!launcherAppsWrapper.hasShortcutHostPermission) return
 
         val oldFastLauncherAppsShortcutInfos =
-            eblanShortcutInfoRepository.eblanShortcutInfos.first().map { eblanShortcutInfo ->
+            eblanShortcutInfoRepository.getEblanShortcutInfos().map { eblanShortcutInfo ->
                 FastLauncherAppsShortcutInfo(
                     packageName = eblanShortcutInfo.packageName,
                     serialNumber = eblanShortcutInfo.serialNumber,
@@ -374,7 +372,7 @@ class SyncDataUseCase @Inject constructor(
 
         val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcuts() ?: return
 
-        val oldEblanShortcutInfos = eblanShortcutInfoRepository.eblanShortcutInfos.first()
+        val oldEblanShortcutInfos = eblanShortcutInfoRepository.getEblanShortcutInfos()
 
         val newEblanShortcutInfos = launcherAppsShortcutInfos.map { launcherAppsShortcutInfo ->
             currentCoroutineContext().ensureActive()
@@ -405,7 +403,7 @@ class SyncDataUseCase @Inject constructor(
             eblanShortcutInfosToDelete.forEach { eblanShortcutInfoToDelete ->
                 currentCoroutineContext().ensureActive()
 
-                val isUniqueShortcutId = eblanShortcutInfoRepository.eblanShortcutInfos.first()
+                val isUniqueShortcutId = eblanShortcutInfoRepository.getEblanShortcutInfos()
                     .none { launcherAppsShortcutInfo ->
                         currentCoroutineContext().ensureActive()
 
@@ -424,7 +422,7 @@ class SyncDataUseCase @Inject constructor(
             }
 
             updateShortcutInfoGridItems(
-                eblanShortcutInfos = eblanShortcutInfoRepository.eblanShortcutInfos.first(),
+                eblanShortcutInfos = eblanShortcutInfoRepository.getEblanShortcutInfos(),
                 shortcutInfoGridItemRepository = shortcutInfoGridItemRepository,
                 fileManager = fileManager,
                 packageManagerWrapper = packageManagerWrapper,
@@ -435,7 +433,7 @@ class SyncDataUseCase @Inject constructor(
     private suspend fun updateEblanShortcutConfigs(
         newEblanShortcutConfigs: List<EblanShortcutConfig>,
     ) {
-        val oldEblanShortcutConfigs = eblanShortcutConfigRepository.eblanShortcutConfigs.first()
+        val oldEblanShortcutConfigs = eblanShortcutConfigRepository.getEblanShortcutConfigs()
 
         if (oldEblanShortcutConfigs != newEblanShortcutConfigs) {
             val eblanShortcutConfigsToDelete =
@@ -452,13 +450,12 @@ class SyncDataUseCase @Inject constructor(
             eblanShortcutConfigsToDelete.forEach { eblanShortcutConfigToDelete ->
                 currentCoroutineContext().ensureActive()
 
-                val isUniqueComponentName =
-                    eblanShortcutConfigRepository.eblanShortcutConfigs.first()
-                        .none { newEblanShortcutConfig ->
-                            currentCoroutineContext().ensureActive()
+                val isUniqueComponentName = eblanShortcutConfigRepository.getEblanShortcutConfigs()
+                    .none { newEblanShortcutConfig ->
+                        currentCoroutineContext().ensureActive()
 
-                            newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber && newEblanShortcutConfig.componentName == eblanShortcutConfigToDelete.componentName
-                        }
+                        newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber && newEblanShortcutConfig.componentName == eblanShortcutConfigToDelete.componentName
+                    }
 
                 if (isUniqueComponentName) {
                     eblanShortcutConfigToDelete.activityIcon?.let { activityIcon ->
@@ -472,7 +469,7 @@ class SyncDataUseCase @Inject constructor(
             }
 
             updateShortcutConfigGridItems(
-                eblanShortcutConfigs = eblanShortcutConfigRepository.eblanShortcutConfigs.first(),
+                eblanShortcutConfigs = eblanShortcutConfigRepository.getEblanShortcutConfigs(),
                 shortcutConfigGridItemRepository = shortcutConfigGridItemRepository,
                 fileManager = fileManager,
                 packageManagerWrapper = packageManagerWrapper,

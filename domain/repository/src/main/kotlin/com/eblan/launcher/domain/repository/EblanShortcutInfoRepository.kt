@@ -23,6 +23,8 @@ import kotlinx.coroutines.flow.Flow
 interface EblanShortcutInfoRepository {
     val eblanShortcutInfos: Flow<List<EblanShortcutInfo>>
 
+    suspend fun getEblanShortcutInfos(): List<EblanShortcutInfo>
+
     suspend fun upsertEblanShortcutInfos(eblanShortcutInfos: List<EblanShortcutInfo>)
 
     suspend fun deleteEblanShortcutInfos(eblanShortcutInfos: List<EblanShortcutInfo>)

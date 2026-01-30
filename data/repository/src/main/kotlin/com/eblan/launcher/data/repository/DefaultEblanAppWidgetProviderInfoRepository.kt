@@ -32,6 +32,11 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
             }
         }
 
+    override suspend fun getEblanAppWidgetProviderInfos(): List<EblanAppWidgetProviderInfo> = eblanAppWidgetProviderInfoDao.getEblanAppWidgetProviderInfoEntityList()
+        .map { eblanAppWidgetProviderInfoEntity ->
+            eblanAppWidgetProviderInfoEntity.asModel()
+        }
+
     override suspend fun upsertEblanAppWidgetProviderInfos(eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>) {
         val entities = eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfo ->
             eblanAppWidgetProviderInfo.asEntity()

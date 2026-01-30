@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.Flow
 interface EblanApplicationInfoRepository {
     val eblanApplicationInfos: Flow<List<EblanApplicationInfo>>
 
+    suspend fun getEblanApplicationInfos(): List<EblanApplicationInfo>
+
     suspend fun upsertEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo)
 
     suspend fun deleteEblanApplicationInfoByPackageName(

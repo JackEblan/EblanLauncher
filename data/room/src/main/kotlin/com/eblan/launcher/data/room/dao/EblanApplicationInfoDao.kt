@@ -37,9 +37,6 @@ interface EblanApplicationInfoDao {
     @Upsert
     suspend fun upsertEblanApplicationInfoEntity(entity: EblanApplicationInfoEntity)
 
-    @Query("SELECT * FROM EblanApplicationInfoEntity WHERE packageName = :packageName")
-    suspend fun getEblanApplicationInfoEntitiesByPackageName(packageName: String): List<EblanApplicationInfoEntity>
-
     @Query("DELETE FROM EblanApplicationInfoEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
     suspend fun deleteEblanApplicationInfoEntityByPackageName(
         serialNumber: Long,
@@ -69,4 +66,10 @@ interface EblanApplicationInfoDao {
         serialNumber: Long,
         componentName: String,
     ): EblanApplicationInfoEntity?
+
+    @Query("SELECT * FROM EblanApplicationInfoEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
+    suspend fun getEblanApplicationInfoEntitiesByPackageName(
+        serialNumber: Long,
+        packageName: String,
+    ): List<EblanApplicationInfoEntity>
 }

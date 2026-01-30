@@ -58,8 +58,8 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                     iconPackInfoPackageName,
                 ).apply { if (!exists()) mkdirs() }
 
-                val installedPackageNames =
-                    launcherAppsWrapper.getActivityList().onEach { launcherAppsActivityInfo ->
+                val installedPackageNames = buildList {
+                    launcherAppsWrapper.getActivityList().forEach { launcherAppsActivityInfo ->
                         ensureActive()
 
                         cacheIconPackFile(
@@ -69,11 +69,10 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                             iconPackInfoDirectory = iconPackDirectory,
                             componentName = launcherAppsActivityInfo.componentName,
                         )
-                    }.map { launcherAppsActivityInfo ->
-                        ensureActive()
 
-                        launcherAppsActivityInfo.componentName.hashCode().toString()
+                        add(launcherAppsActivityInfo.componentName.hashCode().toString())
                     }
+                }
 
                 eblanIconPackInfoRepository.upsertEblanIconPackInfo(
                     eblanIconPackInfo = EblanIconPackInfo(

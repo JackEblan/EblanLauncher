@@ -43,10 +43,13 @@ class UpdateIconPackInfosUseCase @Inject constructor(
         if (iconPackInfoPackageName.isEmpty()) return
 
         withContext(ioDispatcher) {
-            eblanApplicationInfoRepository.getEblanApplicationInfoByPackageName(
-                serialNumber = 0L,
-                packageName = iconPackInfoPackageName,
-            ).forEach { eblanApplicationInfo ->
+            val eblanApplicationInfo =
+                eblanApplicationInfoRepository.getEblanApplicationInfoByPackageName(
+                    serialNumber = 0L,
+                    packageName = iconPackInfoPackageName,
+                ).firstOrNull()
+
+            if (eblanApplicationInfo != null) {
                 val appFilter =
                     iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 

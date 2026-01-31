@@ -22,6 +22,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 
@@ -188,60 +190,68 @@ private fun SaturationValueCanvas(
     onSaturationSelected: (Float) -> Unit,
     onValueSelected: (Float) -> Unit,
 ) {
-    Canvas(
+    Box(
         modifier = modifier
-            .pointerInput(key1 = Unit) {
-                detectTapGestures(
-                    onTap = { offset ->
-                        onSaturationSelected((offset.x / size.width).coerceIn(0f, 1f))
-
-                        onValueSelected(1f - (offset.y / size.height).coerceIn(0f, 1f))
-                    },
-                )
-            }
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDrag = { change, _ ->
-                        onSaturationSelected((change.position.x / size.width).coerceIn(0f, 1f))
-
-                        onValueSelected(1f - (change.position.y / size.height).coerceIn(0f, 1f))
-                    },
-                )
-            }
             .fillMaxWidth()
-            .height(300.dp)
-            .clip(RoundedCornerShape(12.dp)),
+            .height(300.dp),
     ) {
-        drawRect(color = Color.hsv(hue, 1f, 1f))
+        Canvas(
+            modifier = Modifier
+                .pointerInput(key1 = Unit) {
+                    detectTapGestures(
+                        onTap = { offset ->
+                            onSaturationSelected((offset.x / size.width).coerceIn(0f, 1f))
 
-        drawRect(
-            brush = Brush.horizontalGradient(
-                colors = listOf(Color.White, Color.Transparent),
-            ),
-        )
+                            onValueSelected(1f - (offset.y / size.height).coerceIn(0f, 1f))
+                        },
+                    )
+                }
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDrag = { change, _ ->
+                            onSaturationSelected((change.position.x / size.width).coerceIn(0f, 1f))
 
-        drawRect(
-            brush = Brush.verticalGradient(
-                colors = listOf(Color.Transparent, Color.Black),
-            ),
-        )
+                            onValueSelected(1f - (change.position.y / size.height).coerceIn(0f, 1f))
+                        },
+                    )
+                }
+                .matchParentSize()
+                .clip(RoundedCornerShape(5.dp)),
+        ) {
+            drawRect(color = Color.hsv(hue, 1f, 1f))
 
-        val indicatorX = saturation * size.width
-        val indicatorY = (1f - value) * size.height
+            drawRect(
+                brush = Brush.horizontalGradient(
+                    colors = listOf(Color.White, Color.Transparent),
+                ),
+            )
 
-        drawCircle(
-            color = Color.Black,
-            radius = 12f,
-            center = Offset(indicatorX, indicatorY),
-            style = Stroke(width = 4f),
-        )
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color.Transparent, Color.Black),
+                ),
+            )
+        }
 
-        drawCircle(
-            color = Color.White,
-            radius = 12f,
-            center = Offset(indicatorX, indicatorY),
-            style = Stroke(width = 2f),
-        )
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val indicatorX = saturation * size.width
+
+            val indicatorY = (1f - value) * size.height
+
+            drawCircle(
+                color = Color.Black,
+                radius = 5.dp.toPx(),
+                center = Offset(indicatorX, indicatorY),
+                style = Stroke(width = 3.dp.toPx()),
+            )
+
+            drawCircle(
+                color = Color.White,
+                radius = 5.dp.toPx(),
+                center = Offset(indicatorX, indicatorY),
+                style = Stroke(width = 3.dp.toPx()),
+            )
+        }
     }
 }
 
@@ -269,7 +279,7 @@ private fun HueCanvas(
             }
             .fillMaxWidth()
             .height(20.dp)
-            .clip(RoundedCornerShape(20.dp)),
+            .clip(RoundedCornerShape(5.dp)),
     ) {
         val hueColors = listOf(
             Color.Red,
@@ -280,35 +290,39 @@ private fun HueCanvas(
             Color.Magenta,
             Color.Red,
         )
+
         drawRect(
             brush = Brush.horizontalGradient(hueColors),
             size = size,
         )
 
-        val selectorX = (hue / 360f) * size.width
+        val indicatorSize = 5.dp.toPx()
+
+        val indicatorX = ((hue / 360f) * size.width).coerceIn(0f..size.width - indicatorSize)
 
         drawRect(
             color = Color.White,
-            topLeft = Offset(selectorX, 0f),
-            size = Size(8f, size.height),
+            topLeft = Offset(indicatorX, 0f),
+            size = Size(indicatorSize, size.height),
         )
 
         drawRect(
             color = Color.Black.copy(alpha = 0.4f),
-            topLeft = Offset(selectorX, 0f),
-            size = Size(8f, size.height),
-            style = Stroke(width = 1f),
+            topLeft = Offset(indicatorX, 0f),
+            size = Size(indicatorSize, size.height),
+            style = Stroke(width = Dp.Hairline.toPx()),
         )
     }
 }
 
 @Composable
 private fun AlphaCanvas(
+    modifier: Modifier = Modifier,
     alpha: Float,
     onAlphaSelected: (Float) -> Unit,
 ) {
     Canvas(
-        modifier = Modifier
+        modifier = modifier
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
                     onAlphaSelected((offset.x / size.width).coerceIn(0f, 1f))
@@ -317,12 +331,11 @@ private fun AlphaCanvas(
             .pointerInput(Unit) {
                 detectHorizontalDragGestures { change, _ ->
                     onAlphaSelected((change.position.x / size.width).coerceIn(0f, 1f))
-                    change.consume()
                 }
             }
             .fillMaxWidth()
             .height(20.dp)
-            .clip(RoundedCornerShape(20.dp)),
+            .clip(RoundedCornerShape(5.dp)),
     ) {
         val squareSize = size.height / 2
 
@@ -330,8 +343,7 @@ private fun AlphaCanvas(
         val rows = kotlin.math.ceil(size.height / squareSize).toInt()
 
         for (column in 0 until columns) {
-            val columnAlpha =
-                ((column * squareSize) / size.width).coerceIn(0f, 1f)
+            val columnAlpha = ((column * squareSize) / size.width).coerceIn(0f, 1f)
 
             val black = Color.Black.copy(alpha = 0.4f * columnAlpha)
             val white = Color.White.copy(alpha = 0.4f * columnAlpha)
@@ -350,19 +362,21 @@ private fun AlphaCanvas(
             }
         }
 
-        val selectorX = alpha.coerceIn(0f, 1f) * size.width
+        val indicatorSize = 5.dp.toPx()
+
+        val indicatorX = (alpha * size.width).coerceIn(0f..size.width - indicatorSize)
 
         drawRect(
             color = Color.White,
-            topLeft = Offset(selectorX, 0f),
-            size = Size(8f, size.height),
+            topLeft = Offset(indicatorX, 0f),
+            size = Size(indicatorSize, size.height),
         )
 
         drawRect(
             color = Color.Black.copy(alpha = 0.4f),
-            topLeft = Offset(selectorX, 0f),
-            size = Size(8f, size.height),
-            style = Stroke(width = 1f),
+            topLeft = Offset(indicatorX, 0f),
+            size = Size(indicatorSize, size.height),
+            style = Stroke(width = Dp.Hairline.toPx()),
         )
     }
 }

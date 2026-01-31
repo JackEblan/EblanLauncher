@@ -1,0 +1,6 @@
+- Refactor: Improve application list sorting and update SearchBar component
+- Refactor: Use `componentName` to identify applications
+- Feat: Add ColorPickerDialog composable
+- Feat: Add Accessibility Manager and disable actions if service is disabled
+- Grid item gesture actions
+- Refactor: Use service context for BroadcastReceiver registration

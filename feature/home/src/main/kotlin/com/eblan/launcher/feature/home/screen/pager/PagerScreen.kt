@@ -38,13 +38,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ImageBitmap
@@ -82,8 +79,6 @@ import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalLayoutApi::class)
@@ -181,13 +176,9 @@ internal fun SharedTransitionScope.PagerScreen(
 
     val gridHeight = screenHeight - verticalPadding
 
-    var lastSwipeUpY by rememberSaveable { mutableFloatStateOf(screenHeight.toFloat()) }
+    val swipeUpY = remember { Animatable(screenHeight.toFloat()) }
 
-    var lastSwipeDownY by rememberSaveable { mutableFloatStateOf(screenHeight.toFloat()) }
-
-    val swipeUpY = remember { Animatable(lastSwipeUpY) }
-
-    val swipeDownY = remember { Animatable(lastSwipeDownY) }
+    val swipeDownY = remember { Animatable(screenHeight.toFloat()) }
 
     val wallpaperManagerWrapper = LocalWallpaperManager.current
 
@@ -309,18 +300,6 @@ internal fun SharedTransitionScope.PagerScreen(
             isApplicationScreenVisible = isApplicationScreenVisible,
             context = context,
         )
-    }
-
-    LaunchedEffect(key1 = swipeY) {
-        snapshotFlow { swipeY.value }.onEach { swipeY ->
-            if (swipeY == screenHeight.toFloat()) {
-                lastSwipeUpY = screenHeight.toFloat()
-                lastSwipeDownY = screenHeight.toFloat()
-            } else {
-                lastSwipeUpY = 0f
-                lastSwipeDownY = 0f
-            }
-        }.collect()
     }
 
     HorizontalPagerScreen(

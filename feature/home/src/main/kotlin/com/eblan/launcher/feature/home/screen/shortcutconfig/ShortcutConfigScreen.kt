@@ -40,7 +40,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
@@ -542,23 +541,18 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         if (expanded) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                items(eblanShortcutConfigs[eblanApplicationInfoGroup].orEmpty()) { eblanShortcutConfig ->
-                    EblanShortcutConfigItem(
-                        eblanShortcutConfig = eblanShortcutConfig,
-                        drag = drag,
-                        onUpdateGridItemOffset = onUpdateGridItemOffset,
-                        onLongPressGridItem = onLongPressGridItem,
-                        currentPage = currentPage,
-                        gridItemSettings = gridItemSettings,
-                        screen = screen,
-                        onDraggingGridItem = onDraggingGridItem,
-                        onUpdateSharedElementKey = onUpdateSharedElementKey,
-                    )
-                }
+            eblanShortcutConfigs[eblanApplicationInfoGroup]?.forEach { eblanShortcutConfig ->
+                EblanShortcutConfigItem(
+                    eblanShortcutConfig = eblanShortcutConfig,
+                    drag = drag,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onLongPressGridItem = onLongPressGridItem,
+                    currentPage = currentPage,
+                    gridItemSettings = gridItemSettings,
+                    screen = screen,
+                    onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                )
             }
         }
     }
@@ -711,8 +705,8 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                     },
                 )
             }
-            .size(100.dp)
-            .padding(10.dp)
+            .fillMaxWidth()
+            .padding(20.dp)
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
@@ -720,18 +714,8 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        if (!isDragging) {
-            Text(
-                text = eblanShortcutConfig.activityLabel.toString(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodySmall,
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Box(
-                modifier = Modifier.size(gridItemSettings.iconSize.dp),
-            ) {
+        Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
+            if (!isDragging) {
                 AsyncImage(
                     model = eblanShortcutConfig.activityIcon,
                     contentDescription = null,
@@ -775,5 +759,20 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(
+            modifier = Modifier.alpha(
+                if (isDragging) {
+                    0f
+                } else {
+                    1f
+                },
+            ),
+            text = eblanShortcutConfig.activityLabel.toString(),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodySmall,
+        )
     }
 }

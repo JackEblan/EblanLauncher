@@ -58,7 +58,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
-import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -1130,16 +1129,29 @@ private fun Modifier.swipeGestures(
                 },
                 onDragEnd = {
                     scope.launch {
-                        swipeEblanAction(
-                            swipeY = swipeY.value,
-                            swipeUp = gridItem.swipeUp,
-                            swipeDown = gridItem.swipeDown,
-                            launcherApps = launcherApps,
-                            context = context,
-                            maxSwipeY = maxSwipeY,
-                            onOpenAppDrawer = onOpenAppDrawer,
-                        )
-                        swipeY.animateTo(0f)
+                        when {
+                            swipeY.value <= -maxSwipeY -> {
+                                swipeY.animateTo(0f)
+
+                                handleEblanAction(
+                                    eblanAction = gridItem.swipeUp,
+                                    launcherApps = launcherApps,
+                                    context = context,
+                                    onOpenAppDrawer = onOpenAppDrawer,
+                                )
+                            }
+
+                            swipeY.value >= maxSwipeY -> {
+                                swipeY.animateTo(0f)
+
+                                handleEblanAction(
+                                    eblanAction = gridItem.swipeDown,
+                                    launcherApps = launcherApps,
+                                    context = context,
+                                    onOpenAppDrawer = onOpenAppDrawer,
+                                )
+                            }
+                        }
                     }
                 },
             )
@@ -1151,36 +1163,6 @@ private fun Modifier.swipeGestures(
         }
     } else {
         this
-    }
-}
-
-private fun swipeEblanAction(
-    swipeY: Float,
-    swipeUp: EblanAction,
-    swipeDown: EblanAction,
-    launcherApps: AndroidLauncherAppsWrapper,
-    context: Context,
-    maxSwipeY: Int,
-    onOpenAppDrawer: () -> Unit,
-) {
-    when {
-        swipeY <= -maxSwipeY -> {
-            handleEblanAction(
-                eblanAction = swipeUp,
-                launcherApps = launcherApps,
-                context = context,
-                onOpenAppDrawer = onOpenAppDrawer,
-            )
-        }
-
-        swipeY >= maxSwipeY -> {
-            handleEblanAction(
-                eblanAction = swipeDown,
-                launcherApps = launcherApps,
-                context = context,
-                onOpenAppDrawer = onOpenAppDrawer,
-            )
-        }
     }
 }
 

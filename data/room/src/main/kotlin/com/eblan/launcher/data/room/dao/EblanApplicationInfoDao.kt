@@ -20,9 +20,11 @@ package com.eblan.launcher.data.room.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
+import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntityWithTags
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import kotlinx.coroutines.flow.Flow
 
@@ -69,4 +71,29 @@ interface EblanApplicationInfoDao {
         serialNumber: Long,
         packageName: String,
     ): List<EblanApplicationInfoEntity>
+
+    @Query(
+        """
+        SELECT app.*
+        FROM EblanApplicationInfoEntity AS app
+        INNER JOIN EblanApplicationInfoTagCrossRefEntity AS ref
+            ON app.componentName = ref.componentName
+           AND app.serialNumber = ref.serialNumber
+        WHERE ref.id = :tagId
+    """,
+    )
+    suspend fun getEblanApplicationInfoEntitiesByTagId(tagId: Long): List<EblanApplicationInfoEntity>
+
+    @Transaction
+    @Query(
+        """
+        SELECT * 
+        FROM EblanApplicationInfoEntity
+        WHERE componentName = :componentName AND serialNumber = :serialNumber
+    """,
+    )
+    suspend fun getEblanApplicationInfoEntityTags(
+        componentName: String,
+        serialNumber: Long,
+    ): EblanApplicationInfoEntityWithTags
 }

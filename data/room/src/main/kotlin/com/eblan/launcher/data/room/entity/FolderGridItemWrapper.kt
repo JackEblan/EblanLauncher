@@ -20,7 +20,7 @@ package com.eblan.launcher.data.room.entity
 import androidx.room.Embedded
 import androidx.room.Relation
 
-data class FolderGridItemWrapperEntity(
+data class FolderGridItemWrapper(
     @Embedded val folderGridItemEntity: FolderGridItemEntity,
 
     @Relation(

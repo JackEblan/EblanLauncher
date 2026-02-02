@@ -17,21 +17,26 @@
  */
 package com.eblan.launcher.feature.editapplicationinfo
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -40,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -51,6 +57,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.EblanApplicationInfoTagUi
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
+import com.eblan.launcher.feature.editapplicationinfo.dialog.UpdateTagDialog
 import com.eblan.launcher.feature.editapplicationinfo.model.EditApplicationInfoUiState
 import com.eblan.launcher.ui.dialog.IconPackInfoFilesDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
@@ -86,6 +93,8 @@ internal fun EditApplicationInfoRoute(
         onUpdateGridItemCustomIcon = viewModel::updateEblanApplicationInfoCustomIcon,
         onSearchIconPackInfoComponent = viewModel::searchIconPackInfoComponent,
         onAddEblanApplicationInfoTag = viewModel::addEblanApplicationInfoTag,
+        onUpdateEblanApplicationInfoTag = viewModel::updateEblanApplicationInfoTag,
+        onDeleteEblanApplicationInfoTag = viewModel::deleteEblanApplicationInfoTag,
         onAddEblanApplicationInfoCrossRef = viewModel::addEblanApplicationInfoTagCrossRef,
         onDeleteEblanApplicationInfoCrossRef = viewModel::deleteEblanApplicationInfoTagCrossRef,
     )
@@ -110,6 +119,8 @@ internal fun EditApplicationInfoScreen(
     ) -> Unit,
     onSearchIconPackInfoComponent: (String) -> Unit,
     onAddEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onUpdateEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onDeleteEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
     onAddEblanApplicationInfoCrossRef: (Long) -> Unit,
     onDeleteEblanApplicationInfoCrossRef: (Long) -> Unit,
 ) {
@@ -159,6 +170,8 @@ internal fun EditApplicationInfoScreen(
                     onUpdateGridItemCustomIcon = onUpdateGridItemCustomIcon,
                     onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
                     onAddEblanApplicationInfoTag = onAddEblanApplicationInfoTag,
+                    onUpdateEblanApplicationInfoTag = onUpdateEblanApplicationInfoTag,
+                    onDeleteEblanApplicationInfoTag = onDeleteEblanApplicationInfoTag,
                     onAddEblanApplicationInfoCrossRef = onAddEblanApplicationInfoCrossRef,
                     onDeleteEblanApplicationInfoCrossRef = onDeleteEblanApplicationInfoCrossRef,
                 )
@@ -183,6 +196,8 @@ private fun Success(
     ) -> Unit,
     onSearchIconPackInfoComponent: (String) -> Unit,
     onAddEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onUpdateEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onDeleteEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
     onAddEblanApplicationInfoCrossRef: (Long) -> Unit,
     onDeleteEblanApplicationInfoCrossRef: (Long) -> Unit,
 ) {
@@ -202,6 +217,8 @@ private fun Success(
         Tags(
             eblanApplicationInfoTagsUi = eblanApplicationInfoTagsUi,
             onAddEblanApplicationInfoTag = onAddEblanApplicationInfoTag,
+            onUpdateEblanApplicationInfoTag = onUpdateEblanApplicationInfoTag,
+            onDeleteEblanApplicationInfoTag = onDeleteEblanApplicationInfoTag,
             onAddEblanApplicationInfoCrossRef = onAddEblanApplicationInfoCrossRef,
             onDeleteEblanApplicationInfoCrossRef = onDeleteEblanApplicationInfoCrossRef,
         )
@@ -301,15 +318,24 @@ private fun Tags(
     modifier: Modifier = Modifier,
     eblanApplicationInfoTagsUi: List<EblanApplicationInfoTagUi>,
     onAddEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onUpdateEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onDeleteEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
     onAddEblanApplicationInfoCrossRef: (Long) -> Unit,
     onDeleteEblanApplicationInfoCrossRef: (Long) -> Unit,
 ) {
     var showAddTagDialog by remember { mutableStateOf(false) }
 
+    var showUpdateTagDialog by remember { mutableStateOf(false) }
+
+    var selectedEblanApplicationInfoTagUi by remember {
+        mutableStateOf<EblanApplicationInfoTagUi?>(null)
+    }
+
     FlowRow(modifier = modifier.fillMaxWidth()) {
         eblanApplicationInfoTagsUi.forEach { eblanApplicationInfoTagUi ->
-            FilterChip(
+            EblanApplicationInfoTagUiItem(
                 modifier = Modifier.padding(5.dp),
+                eblanApplicationInfoTagUi = eblanApplicationInfoTagUi,
                 onClick = {
                     if (eblanApplicationInfoTagUi.selected) {
                         onDeleteEblanApplicationInfoCrossRef(eblanApplicationInfoTagUi.id)
@@ -317,36 +343,18 @@ private fun Tags(
                         onAddEblanApplicationInfoCrossRef(eblanApplicationInfoTagUi.id)
                     }
                 },
-                label = {
-                    Text(text = eblanApplicationInfoTagUi.name)
-                },
-                selected = eblanApplicationInfoTagUi.selected,
-                leadingIcon = if (eblanApplicationInfoTagUi.selected) {
-                    {
-                        Icon(
-                            imageVector = EblanLauncherIcons.Done,
-                            contentDescription = null,
-                            modifier = Modifier.size(FilterChipDefaults.IconSize),
-                        )
-                    }
-                } else {
-                    null
+                onLongClick = {
+                    showUpdateTagDialog = true
+
+                    selectedEblanApplicationInfoTagUi = eblanApplicationInfoTagUi
                 },
             )
         }
 
-        AssistChip(
+        AddEblanApplicationInfoTagItem(
             modifier = Modifier.padding(5.dp),
             onClick = {
                 showAddTagDialog = true
-            },
-            label = { Text("Add Tag") },
-            leadingIcon = {
-                Icon(
-                    imageVector = EblanLauncherIcons.Add,
-                    contentDescription = null,
-                    modifier = Modifier.size(AssistChipDefaults.IconSize),
-                )
             },
         )
     }
@@ -378,5 +386,81 @@ private fun Tags(
                 }
             },
         )
+    }
+
+    if (showUpdateTagDialog) {
+        UpdateTagDialog(
+            eblanApplicationInfoTagUi = selectedEblanApplicationInfoTagUi,
+            onDismissRequest = {
+                showUpdateTagDialog = false
+            },
+            onUpdateEblanApplicationInfoTag = onUpdateEblanApplicationInfoTag,
+            onDeleteEblanApplicationInfoTag = onDeleteEblanApplicationInfoTag,
+        )
+    }
+}
+
+@Composable
+private fun EblanApplicationInfoTagUiItem(
+    modifier: Modifier = Modifier,
+    eblanApplicationInfoTagUi: EblanApplicationInfoTagUi,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+) {
+    OutlinedCard(modifier = modifier.animateContentSize()) {
+        Row(
+            modifier = Modifier
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                )
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (eblanApplicationInfoTagUi.selected) {
+                Icon(
+                    imageVector = EblanLauncherIcons.Done,
+                    contentDescription = null,
+                    modifier = Modifier.size(FilterChipDefaults.IconSize),
+                )
+
+                Spacer(modifier = Modifier.width(5.dp))
+            }
+
+            Text(
+                text = eblanApplicationInfoTagUi.name,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AddEblanApplicationInfoTagItem(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    OutlinedCard(modifier = modifier) {
+        Row(
+            modifier = Modifier
+                .combinedClickable(onClick = onClick)
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = EblanLauncherIcons.Add,
+                contentDescription = null,
+                modifier = Modifier.size(FilterChipDefaults.IconSize),
+            )
+
+            Spacer(modifier = Modifier.width(5.dp))
+
+            Text(
+                text = "Add",
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        }
     }
 }

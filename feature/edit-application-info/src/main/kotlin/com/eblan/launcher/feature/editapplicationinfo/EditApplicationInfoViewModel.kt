@@ -176,6 +176,18 @@ internal class EditApplicationInfoViewModel @Inject constructor(
         }
     }
 
+    fun updateEblanApplicationInfoTag(eblanApplicationInfoTag: EblanApplicationInfoTag) {
+        viewModelScope.launch {
+            eblanApplicationInfoTagRepository.updateEblanApplicationInfoTag(eblanApplicationInfoTag = eblanApplicationInfoTag)
+        }
+    }
+
+    fun deleteEblanApplicationInfoTag(eblanApplicationInfoTag: EblanApplicationInfoTag) {
+        viewModelScope.launch {
+            eblanApplicationInfoTagRepository.deleteEblanApplicationInfoTag(eblanApplicationInfoTag = eblanApplicationInfoTag)
+        }
+    }
+
     fun addEblanApplicationInfoTagCrossRef(id: Long) {
         viewModelScope.launch {
             eblanApplicationInfoTagCrossRefRepository.insertEblanApplicationInfoTagCrossRef(

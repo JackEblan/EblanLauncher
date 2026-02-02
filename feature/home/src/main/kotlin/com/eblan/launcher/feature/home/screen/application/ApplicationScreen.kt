@@ -28,6 +28,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -45,11 +46,13 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberOverscrollEffect
@@ -57,7 +60,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExpandedDockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -118,6 +124,7 @@ import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.EblanUser
@@ -1319,10 +1326,8 @@ private fun SearchBar(
         }
     }
 
-    SearchBar(
-        state = searchBarState,
-        modifier = modifier,
-        inputField = {
+    val inputField =
+        @Composable {
             SearchBarDefaults.InputField(
                 searchBarState = searchBarState,
                 textFieldState = textFieldState,
@@ -1335,6 +1340,59 @@ private fun SearchBar(
                 onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
                 placeholder = { Text(text = "Search Applications") },
             )
+        }
+
+    SearchBar(
+        state = searchBarState,
+        modifier = modifier,
+        inputField = inputField,
+    )
+
+    ExpandedDockedSearchBar(
+        modifier = Modifier.fillMaxWidth(),
+        state = searchBarState, inputField = inputField,
+    ) {
+        LazyRow(modifier = Modifier.fillMaxWidth()) {
+            items(
+                items = List(5) { index ->
+                    EblanApplicationInfoTag(
+                        id = index + 1,
+                        componentName = "com.example.app${index % 2}",
+                        serialNumber = 100L + (index % 2),
+                        name = "Tag${index + 1}",
+                    )
+                },
+            ) {
+                TagFilterChip(name = it.name)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TagFilterChip(
+    modifier: Modifier = Modifier,
+    name: String,
+) {
+    var selected by remember { mutableStateOf(false) }
+
+    FilterChip(
+        modifier = modifier.padding(5.dp),
+        onClick = { selected = !selected },
+        label = {
+            Text(text = name)
+        },
+        selected = selected,
+        leadingIcon = if (selected) {
+            {
+                Icon(
+                    imageVector = EblanLauncherIcons.Done,
+                    contentDescription = null,
+                    modifier = Modifier.size(FilterChipDefaults.IconSize),
+                )
+            }
+        } else {
+            null
         },
     )
 }

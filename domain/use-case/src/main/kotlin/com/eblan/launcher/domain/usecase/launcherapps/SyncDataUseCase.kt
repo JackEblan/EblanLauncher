@@ -305,11 +305,12 @@ class SyncDataUseCase @Inject constructor(
                     maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
                     maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
                     preview = appWidgetManagerAppWidgetProviderInfo.preview,
-                    icon = icon,
-                    label = packageManagerWrapper.getApplicationLabel(
+                    applicationIcon = icon,
+                    applicationLabel = packageManagerWrapper.getApplicationLabel(
                         packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
                     ).toString(),
                     lastUpdateTime = appWidgetManagerAppWidgetProviderInfo.lastUpdateTime,
+                    label = appWidgetManagerAppWidgetProviderInfo.label,
                 )
             }
 
@@ -336,7 +337,7 @@ class SyncDataUseCase @Inject constructor(
                     }
 
                 if (isUniquePackageName) {
-                    eblanAppWidgetProviderInfoToDelete.icon?.let { icon ->
+                    eblanAppWidgetProviderInfoToDelete.applicationIcon?.let { icon ->
                         val iconFile = File(icon)
 
                         if (iconFile.exists()) {

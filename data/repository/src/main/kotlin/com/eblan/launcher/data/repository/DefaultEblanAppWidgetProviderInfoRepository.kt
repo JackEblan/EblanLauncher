@@ -80,9 +80,10 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         maxResizeWidth = maxResizeWidth,
         maxResizeHeight = maxResizeHeight,
         preview = preview,
-        label = label,
-        icon = icon,
+        applicationLabel = applicationLabel,
+        applicationIcon = applicationIcon,
         lastUpdateTime = lastUpdateTime,
+        label = label,
     )
 
     private fun EblanAppWidgetProviderInfoEntity.asModel(): EblanAppWidgetProviderInfo = EblanAppWidgetProviderInfo(
@@ -100,8 +101,9 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         maxResizeWidth = maxResizeWidth,
         maxResizeHeight = maxResizeHeight,
         preview = preview,
-        icon = icon,
-        label = label,
+        applicationIcon = applicationIcon,
+        applicationLabel = applicationLabel,
         lastUpdateTime = lastUpdateTime,
+        label = label,
     )
 }

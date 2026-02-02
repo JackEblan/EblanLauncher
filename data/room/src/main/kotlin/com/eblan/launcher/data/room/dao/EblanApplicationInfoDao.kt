@@ -81,7 +81,7 @@ interface EblanApplicationInfoDao {
         WHERE ref.id = :tagId
     """,
     )
-    suspend fun getEblanApplicationInfoEntitiesByTagId(tagId: Long): List<EblanApplicationInfoEntity>
+    fun getEblanApplicationInfoEntitiesByTagId(tagId: Long): Flow<List<EblanApplicationInfoEntity>>
 
     @Query(
         """
@@ -93,8 +93,8 @@ interface EblanApplicationInfoDao {
           AND ref.serialNumber = :serialNumber
     """,
     )
-    suspend fun getEblanApplicationInfoTagEntities(
-        componentName: String,
+    fun getEblanApplicationInfoTagEntities(
         serialNumber: Long,
-    ): List<EblanApplicationInfoTagEntity>
+        componentName: String,
+    ): Flow<List<EblanApplicationInfoTagEntity>>
 }

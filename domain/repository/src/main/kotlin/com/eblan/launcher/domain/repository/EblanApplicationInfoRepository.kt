@@ -54,10 +54,10 @@ interface EblanApplicationInfoRepository {
         packageName: String,
     ): List<EblanApplicationInfo>
 
-    suspend fun getEblanApplicationInfosByTagId(tagId: Long): List<EblanApplicationInfo>
+    fun getEblanApplicationInfosByTagId(tagId: Long): Flow<List<EblanApplicationInfo>>
 
-    suspend fun getEblanApplicationInfoTags(
-        componentName: String,
+    fun getEblanApplicationInfoTags(
         serialNumber: Long,
-    ): List<EblanApplicationInfoTag>
+        componentName: String,
+    ): Flow<List<EblanApplicationInfoTag>>
 }

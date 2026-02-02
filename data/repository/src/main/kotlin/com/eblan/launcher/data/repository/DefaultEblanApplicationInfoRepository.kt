@@ -28,6 +28,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -120,19 +121,23 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(
         entity.asModel()
     }
 
-    override suspend fun getEblanApplicationInfosByTagId(tagId: Long): List<EblanApplicationInfo> = eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByTagId(tagId = tagId)
-        .map { entity ->
-            entity.asModel()
+    override fun getEblanApplicationInfosByTagId(tagId: Long): Flow<List<EblanApplicationInfo>> = eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByTagId(tagId = tagId)
+        .map { entities ->
+            entities.map { entity ->
+                entity.asModel()
+            }
         }
 
-    override suspend fun getEblanApplicationInfoTags(
-        componentName: String,
+    override fun getEblanApplicationInfoTags(
         serialNumber: Long,
-    ): List<EblanApplicationInfoTag> = eblanApplicationInfoDao.getEblanApplicationInfoTagEntities(
-        componentName = componentName,
+        componentName: String,
+    ): Flow<List<EblanApplicationInfoTag>> = eblanApplicationInfoDao.getEblanApplicationInfoTagEntities(
         serialNumber = serialNumber,
-    ).map { entity ->
-        entity.asModel()
+        componentName = componentName,
+    ).map { entities ->
+        entities.map { entity ->
+            entity.asModel()
+        }
     }
 
     private fun EblanApplicationInfoTagEntity.asModel(): EblanApplicationInfoTag = EblanApplicationInfoTag(

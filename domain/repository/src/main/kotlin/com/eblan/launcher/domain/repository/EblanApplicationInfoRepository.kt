@@ -56,6 +56,8 @@ interface EblanApplicationInfoRepository {
 
     fun getEblanApplicationInfosByTagId(tagId: Long): Flow<List<EblanApplicationInfo>>
 
+    fun getEblanApplicationInfosByTagIdList(tagId: Long): List<EblanApplicationInfo>
+
     fun getEblanApplicationInfoTags(
         serialNumber: Long,
         componentName: String,

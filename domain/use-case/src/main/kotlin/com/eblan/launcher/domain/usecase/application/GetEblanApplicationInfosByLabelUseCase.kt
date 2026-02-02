@@ -34,12 +34,22 @@ class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
     private val launcherAppsWrapper: LauncherAppsWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(labelFlow: Flow<String>): Flow<GetEblanApplicationInfosByLabel> = combine(
+    operator fun invoke(
+        labelFlow: Flow<String>,
+        eblanApplicationInfoTagFlow: Flow<Long?>,
+    ): Flow<GetEblanApplicationInfosByLabel> = combine(
         eblanApplicationInfoRepository.eblanApplicationInfos,
         labelFlow,
-    ) { eblanApplicationInfos, label ->
+        eblanApplicationInfoTagFlow,
+    ) { eblanApplicationInfos, label, tagId ->
+        val currentEblanApplicationInfos = if (tagId != null) {
+            eblanApplicationInfoRepository.getEblanApplicationInfosByTagIdList(tagId = tagId)
+        } else {
+            eblanApplicationInfos
+        }
+
         val groupedEblanApplicationInfos =
-            eblanApplicationInfos.filter { eblanApplicationInfo ->
+            currentEblanApplicationInfos.filter { eblanApplicationInfo ->
                 !eblanApplicationInfo.isHidden && eblanApplicationInfo.label.contains(
                     other = label,
                     ignoreCase = true,

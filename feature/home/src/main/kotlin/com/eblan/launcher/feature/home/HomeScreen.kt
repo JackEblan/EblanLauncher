@@ -77,6 +77,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
@@ -154,6 +155,8 @@ internal fun HomeRoute(
 
     val iconPackFilePaths by viewModel.iconPackFilePaths.collectAsStateWithLifecycle()
 
+    val eblanApplicationInfoTags by viewModel.eblanApplicationInfoTags.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -168,6 +171,7 @@ internal fun HomeRoute(
         getEblanApplicationInfosByLabel = getEblanApplicationInfos,
         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
         eblanShortcutConfigs = eblanShortcutConfigs,
+        eblanApplicationInfoTags = eblanApplicationInfoTags,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -200,6 +204,7 @@ internal fun HomeRoute(
         onEditApplicationInfo = onEditApplicationInfo,
         onMoveGridItemOutsideFolder = viewModel::moveGridItemOutsideFolder,
         onShowFolderWhenDragging = viewModel::showFolderWhenDragging,
+        onGetEblanApplicationInfosByTagId = viewModel::getEblanApplicationInfosByTagId,
     )
 }
 
@@ -219,6 +224,7 @@ internal fun HomeScreen(
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -300,6 +306,7 @@ internal fun HomeScreen(
         screen: Screen,
     ) -> Unit,
     onShowFolderWhenDragging: (String) -> Unit,
+    onGetEblanApplicationInfosByTagId: (Long) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -452,6 +459,7 @@ internal fun HomeScreen(
                     getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     eblanShortcutConfigs = eblanShortcutConfigs,
+                    eblanApplicationInfoTags = eblanApplicationInfoTags,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -502,6 +510,7 @@ internal fun HomeScreen(
 
                         sharedElementKey = null
                     },
+                    onGetEblanApplicationInfosByTagId = onGetEblanApplicationInfosByTagId,
                 )
 
                 OverlayImage(
@@ -537,6 +546,7 @@ private fun SharedTransitionScope.Success(
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -623,6 +633,7 @@ private fun SharedTransitionScope.Success(
     ) -> Unit,
     onShowFolderWhenDragging: (String) -> Unit,
     onResetOverlay: () -> Unit,
+    onGetEblanApplicationInfosByTagId: (Long) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -757,6 +768,7 @@ private fun SharedTransitionScope.Success(
                     getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     eblanShortcutConfigs = eblanShortcutConfigs,
+                    eblanApplicationInfoTags = eblanApplicationInfoTags,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(
@@ -786,6 +798,7 @@ private fun SharedTransitionScope.Success(
                     onEditApplicationInfo = onEditApplicationInfo,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onResetOverlay = onResetOverlay,
+                    onGetEblanApplicationInfosByTagId = onGetEblanApplicationInfosByTagId,
                 )
             }
 

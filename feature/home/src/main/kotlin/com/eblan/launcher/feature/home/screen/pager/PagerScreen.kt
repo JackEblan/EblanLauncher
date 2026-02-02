@@ -397,7 +397,6 @@ internal fun SharedTransitionScope.PagerScreen(
             paddingValues = paddingValues,
             drag = drag,
             appDrawerSettings = appDrawerSettings,
-            screenHeight = screenHeight,
             eblanShortcutInfosGroup = eblanShortcutInfosGroup,
             hasShortcutHostPermission = hasShortcutHostPermission,
             eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
@@ -412,6 +411,10 @@ internal fun SharedTransitionScope.PagerScreen(
             klwpIntegration = experimentalSettings.klwpIntegration,
             alpha = alpha,
             cornerSize = cornerSize,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            columns = homeSettings.columns,
+            rows = homeSettings.rows,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -462,7 +465,6 @@ internal fun SharedTransitionScope.PagerScreen(
             paddingValues = paddingValues,
             drag = drag,
             appDrawerSettings = appDrawerSettings,
-            screenHeight = screenHeight,
             eblanShortcutInfosGroup = eblanShortcutInfosGroup,
             hasShortcutHostPermission = hasShortcutHostPermission,
             eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
@@ -477,6 +479,10 @@ internal fun SharedTransitionScope.PagerScreen(
             klwpIntegration = experimentalSettings.klwpIntegration,
             alpha = alpha,
             cornerSize = cornerSize,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            columns = homeSettings.columns,
+            rows = homeSettings.rows,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -521,9 +527,12 @@ internal fun SharedTransitionScope.PagerScreen(
             gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
             drag = drag,
-            screenHeight = screenHeight,
             isPressHome = isPressHome,
             screen = screen,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            columns = homeSettings.columns,
+            rows = homeSettings.rows,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
@@ -568,9 +577,12 @@ internal fun SharedTransitionScope.PagerScreen(
             gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
             drag = drag,
-            screenHeight = screenHeight,
             isPressHome = isPressHome,
             screen = screen,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            columns = homeSettings.columns,
+            rows = homeSettings.rows,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {

@@ -204,7 +204,7 @@ internal fun HomeRoute(
         onEditApplicationInfo = onEditApplicationInfo,
         onMoveGridItemOutsideFolder = viewModel::moveGridItemOutsideFolder,
         onShowFolderWhenDragging = viewModel::showFolderWhenDragging,
-        onGetEblanApplicationInfosByTagId = viewModel::getEblanApplicationInfosByTagId,
+        onGetEblanApplicationInfosByTagIds = viewModel::getEblanApplicationInfosByTagId,
     )
 }
 
@@ -306,7 +306,7 @@ internal fun HomeScreen(
         screen: Screen,
     ) -> Unit,
     onShowFolderWhenDragging: (String) -> Unit,
-    onGetEblanApplicationInfosByTagId: (Long) -> Unit,
+    onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -510,7 +510,7 @@ internal fun HomeScreen(
 
                         sharedElementKey = null
                     },
-                    onGetEblanApplicationInfosByTagId = onGetEblanApplicationInfosByTagId,
+                    onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
                 )
 
                 OverlayImage(
@@ -633,7 +633,7 @@ private fun SharedTransitionScope.Success(
     ) -> Unit,
     onShowFolderWhenDragging: (String) -> Unit,
     onResetOverlay: () -> Unit,
-    onGetEblanApplicationInfosByTagId: (Long) -> Unit,
+    onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -798,7 +798,7 @@ private fun SharedTransitionScope.Success(
                     onEditApplicationInfo = onEditApplicationInfo,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onResetOverlay = onResetOverlay,
-                    onGetEblanApplicationInfosByTagId = onGetEblanApplicationInfosByTagId,
+                    onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
                 )
             }
 

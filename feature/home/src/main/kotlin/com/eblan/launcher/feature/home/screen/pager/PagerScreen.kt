@@ -137,8 +137,8 @@ internal fun SharedTransitionScope.PagerScreen(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onResetOverlay: () -> Unit,
-    onGetEblanApplicationInfosByTagId: (Long) -> Unit,
-    ) {
+    onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
+) {
     val context = LocalContext.current
 
     val density = LocalDensity.current
@@ -448,7 +448,7 @@ internal fun SharedTransitionScope.PagerScreen(
             },
             onEditApplicationInfo = onEditApplicationInfo,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
-            onGetEblanApplicationInfosByTagId = onGetEblanApplicationInfosByTagId,
+            onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
         )
     }
 
@@ -523,7 +523,7 @@ internal fun SharedTransitionScope.PagerScreen(
             },
             onEditApplicationInfo = onEditApplicationInfo,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
-            onGetEblanApplicationInfosByTagId = onGetEblanApplicationInfosByTagId,
+            onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
         )
     }
 

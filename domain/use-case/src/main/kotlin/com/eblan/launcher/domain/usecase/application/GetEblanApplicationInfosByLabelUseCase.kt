@@ -36,14 +36,15 @@ class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
 ) {
     operator fun invoke(
         labelFlow: Flow<String>,
-        eblanApplicationInfoTagFlow: Flow<Long?>,
+        eblanApplicationInfoTagIdsFlow: Flow<List<Long>?>,
     ): Flow<GetEblanApplicationInfosByLabel> = combine(
         eblanApplicationInfoRepository.eblanApplicationInfos,
         labelFlow,
-        eblanApplicationInfoTagFlow,
-    ) { eblanApplicationInfos, label, tagId ->
-        val currentEblanApplicationInfos = if (tagId != null) {
-            eblanApplicationInfoRepository.getEblanApplicationInfosByTagIdList(tagId = tagId)
+        eblanApplicationInfoTagIdsFlow,
+    ) { eblanApplicationInfos, label, tagIds ->
+        println(tagIds?.size)
+        val currentEblanApplicationInfos = if (tagIds != null && tagIds.isNotEmpty()) {
+            eblanApplicationInfoRepository.getEblanApplicationInfosByTagId(tagIds = tagIds)
         } else {
             eblanApplicationInfos
         }

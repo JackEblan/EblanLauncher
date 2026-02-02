@@ -77,6 +77,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -196,8 +197,8 @@ internal fun SharedTransitionScope.ApplicationScreen(
         componentName: String,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onGetEblanApplicationInfosByTagId: (Long) -> Unit,
-    ) {
+    onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
+) {
     Surface(
         modifier = modifier
             .offset {
@@ -242,7 +243,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             onDragEnd = onDragEnd,
             onEditApplicationInfo = onEditApplicationInfo,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
-            onGetEblanApplicationInfosByTagId = onGetEblanApplicationInfosByTagId,
+            onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
         )
     }
 }
@@ -289,8 +290,8 @@ private fun SharedTransitionScope.Success(
         componentName: String,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onGetEblanApplicationInfosByTagId: (Long) -> Unit,
-    ) {
+    onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
+) {
     val density = LocalDensity.current
 
     var showPopupApplicationMenu by remember { mutableStateOf(false) }
@@ -352,7 +353,7 @@ private fun SharedTransitionScope.Success(
             eblanApplicationInfoTags = eblanApplicationInfoTags,
             onChangeLabel = onGetEblanApplicationInfosByLabel,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-            onGetEblanApplicationInfosByTagId = onGetEblanApplicationInfosByTagId,
+            onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
         )
 
         if (getEblanApplicationInfosByLabel.eblanApplicationInfos.keys.size > 1) {
@@ -1293,11 +1294,13 @@ private fun SearchBar(
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     onChangeLabel: (String) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
-    onGetEblanApplicationInfosByTagId: (Long) -> Unit,
+    onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
 
     var expanded by remember { mutableStateOf(false) }
+
+    val selectedTagIds = remember { mutableStateListOf<Long>() }
 
     LaunchedEffect(key1 = Unit) {
         snapshotFlow { query }.debounce(500L).onEach { text ->
@@ -1325,6 +1328,12 @@ private fun SearchBar(
         }
     }
 
+    LaunchedEffect(key1 = Unit) {
+        snapshotFlow { selectedTagIds.toList() }.onEach { selectedTagIds ->
+            onGetEblanApplicationInfosByTagIds(selectedTagIds)
+        }.collect()
+    }
+
     DockedSearchBar(
         modifier = modifier
             .fillMaxWidth()
@@ -1349,10 +1358,10 @@ private fun SearchBar(
         LazyRow(modifier = Modifier.fillMaxWidth()) {
             items(eblanApplicationInfoTags) { eblanApplicationInfoTag ->
                 TagFilterChip(
-                    name = eblanApplicationInfoTag.name,
-                    onClick = {
-                        onGetEblanApplicationInfosByTagId(eblanApplicationInfoTag.id)
-                    },
+                    eblanApplicationInfoTag = eblanApplicationInfoTag,
+                    selectedTagIds = selectedTagIds,
+                    onAddId = selectedTagIds::add,
+                    onRemoveId = selectedTagIds::remove,
                 )
             }
         }
@@ -1362,23 +1371,25 @@ private fun SearchBar(
 @Composable
 private fun TagFilterChip(
     modifier: Modifier = Modifier,
-    name: String,
-    onClick: () -> Unit,
+    eblanApplicationInfoTag: EblanApplicationInfoTag,
+    selectedTagIds: List<Long>,
+    onAddId: (Long) -> Unit,
+    onRemoveId: (Long) -> Unit,
 ) {
-    var selected by remember { mutableStateOf(false) }
-
     FilterChip(
         modifier = modifier.padding(5.dp),
         onClick = {
-            selected = !selected
-
-            onClick()
+            if (eblanApplicationInfoTag.id in selectedTagIds) {
+                onRemoveId(eblanApplicationInfoTag.id)
+            } else {
+                onAddId(eblanApplicationInfoTag.id)
+            }
         },
         label = {
-            Text(text = name)
+            Text(text = eblanApplicationInfoTag.name)
         },
-        selected = selected,
-        leadingIcon = if (selected) {
+        selected = eblanApplicationInfoTag.id in selectedTagIds,
+        leadingIcon = if (eblanApplicationInfoTag.id in selectedTagIds) {
             {
                 Icon(
                     imageVector = EblanLauncherIcons.Done,

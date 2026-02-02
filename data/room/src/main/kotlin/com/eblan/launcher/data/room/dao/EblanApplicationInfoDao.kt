@@ -85,15 +85,15 @@ interface EblanApplicationInfoDao {
 
     @Query(
         """
-        SELECT app.*
-        FROM EblanApplicationInfoEntity AS app
-        INNER JOIN EblanApplicationInfoTagCrossRefEntity AS ref
-            ON app.componentName = ref.componentName
-           AND app.serialNumber = ref.serialNumber
-        WHERE ref.id = :tagId
+    SELECT DISTINCT app.*
+    FROM EblanApplicationInfoEntity AS app
+    INNER JOIN EblanApplicationInfoTagCrossRefEntity AS ref
+        ON app.componentName = ref.componentName
+       AND app.serialNumber = ref.serialNumber
+    WHERE ref.id IN (:tagIds)
     """,
     )
-    fun getEblanApplicationInfoEntitiesByTagIdList(tagId: Long): List<EblanApplicationInfoEntity>
+    fun getEblanApplicationInfoEntitiesByTagId(tagIds: List<Long>): List<EblanApplicationInfoEntity>
 
     @Query(
         """

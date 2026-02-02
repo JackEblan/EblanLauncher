@@ -5,7 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 
 @Entity(
-    primaryKeys = ["componentName", "serialNumber", "tagId"],
+    primaryKeys = ["componentName", "serialNumber", "id"],
     foreignKeys = [
         ForeignKey(
             entity = EblanApplicationInfoEntity::class,

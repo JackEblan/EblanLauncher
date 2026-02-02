@@ -10,7 +10,7 @@ interface EblanApplicationInfoTagCrossRefDao {
 
     // CREATE (link tag ↔ app)
     @Insert
-    suspend fun insertEblanApplicationInfoTagCrossRefEntity(eblanApplicationInfoTagCrossRefEntity: EblanApplicationInfoTagCrossRefEntity)
+    suspend fun insertEblanApplicationInfoTagCrossRefEntity(entity: EblanApplicationInfoTagCrossRefEntity)
 
     // DELETE (unlink one tag from one app)
     @Query(

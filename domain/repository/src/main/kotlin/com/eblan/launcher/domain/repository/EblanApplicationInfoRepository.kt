@@ -18,6 +18,7 @@
 package com.eblan.launcher.domain.repository
 
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import kotlinx.coroutines.flow.Flow
 
@@ -52,4 +53,11 @@ interface EblanApplicationInfoRepository {
         serialNumber: Long,
         packageName: String,
     ): List<EblanApplicationInfo>
+
+    suspend fun getEblanApplicationInfosByTagId(tagId: Long): List<EblanApplicationInfo>
+
+    suspend fun getEblanApplicationInfoTags(
+        componentName: String,
+        serialNumber: Long,
+    ): List<EblanApplicationInfoTag>
 }

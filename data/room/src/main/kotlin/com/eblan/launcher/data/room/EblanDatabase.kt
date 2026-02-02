@@ -33,6 +33,8 @@ import com.eblan.launcher.data.room.dao.WidgetGridItemDao
 import com.eblan.launcher.data.room.entity.ApplicationInfoGridItemEntity
 import com.eblan.launcher.data.room.entity.EblanAppWidgetProviderInfoEntity
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
+import com.eblan.launcher.data.room.entity.EblanApplicationInfoTagCrossRefEntity
+import com.eblan.launcher.data.room.entity.EblanApplicationInfoTagEntity
 import com.eblan.launcher.data.room.entity.EblanIconPackInfoEntity
 import com.eblan.launcher.data.room.entity.EblanShortcutConfigEntity
 import com.eblan.launcher.data.room.entity.EblanShortcutInfoEntity
@@ -55,6 +57,8 @@ import com.eblan.launcher.data.room.migration.AutoMigration8To9
         EblanIconPackInfoEntity::class,
         EblanShortcutConfigEntity::class,
         ShortcutConfigGridItemEntity::class,
+        EblanApplicationInfoTagCrossRefEntity::class,
+        EblanApplicationInfoTagEntity::class,
     ],
     version = 9,
     exportSchema = true,

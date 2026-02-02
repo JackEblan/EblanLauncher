@@ -28,7 +28,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -1356,9 +1355,7 @@ private fun SearchBar(
             items(
                 items = List(5) { index ->
                     EblanApplicationInfoTag(
-                        id = index + 1,
-                        componentName = "com.example.app${index % 2}",
-                        serialNumber = 100L + (index % 2),
+                        id = index.toLong() + 1,
                         name = "Tag${index + 1}",
                     )
                 },

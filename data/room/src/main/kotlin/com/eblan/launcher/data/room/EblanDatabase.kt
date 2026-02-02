@@ -41,6 +41,7 @@ import com.eblan.launcher.data.room.entity.ShortcutConfigGridItemEntity
 import com.eblan.launcher.data.room.entity.ShortcutInfoGridItemEntity
 import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
 import com.eblan.launcher.data.room.migration.AutoMigration5To6
+import com.eblan.launcher.data.room.migration.AutoMigration8To9
 
 @Database(
     entities = [
@@ -55,7 +56,7 @@ import com.eblan.launcher.data.room.migration.AutoMigration5To6
         EblanShortcutConfigEntity::class,
         ShortcutConfigGridItemEntity::class,
     ],
-    version = 8,
+    version = 9,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(
@@ -70,6 +71,11 @@ import com.eblan.launcher.data.room.migration.AutoMigration5To6
         AutoMigration(
             from = 6,
             to = 7,
+        ),
+        AutoMigration(
+            from = 8,
+            to = 9,
+            spec = AutoMigration8To9::class,
         ),
     ],
 )

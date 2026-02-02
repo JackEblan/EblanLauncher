@@ -476,7 +476,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
 
-    val preview = eblanAppWidgetProviderInfo.preview ?: eblanAppWidgetProviderInfo.icon
+    val preview = eblanAppWidgetProviderInfo.preview ?: eblanAppWidgetProviderInfo.applicationIcon
 
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -541,8 +541,8 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                                         maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
                                         maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
                                         preview = eblanAppWidgetProviderInfo.preview,
-                                        label = eblanAppWidgetProviderInfo.label,
-                                        icon = eblanAppWidgetProviderInfo.icon,
+                                        label = eblanAppWidgetProviderInfo.applicationLabel,
+                                        icon = eblanAppWidgetProviderInfo.applicationIcon,
                                         gridItemSettings = gridItemSettings,
                                     ),
                                 ),
@@ -651,6 +651,16 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                     },
                 ),
                 text = text,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+
+        eblanAppWidgetProviderInfo.label?.let { description ->
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = description,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodySmall,
             )

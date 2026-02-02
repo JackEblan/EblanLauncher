@@ -174,7 +174,7 @@ class RemovePackageUseCase @Inject constructor(
         ).forEach { eblanAppWidgetProviderInfo ->
             currentCoroutineContext().ensureActive()
 
-            eblanAppWidgetProviderInfo.icon?.let { icon ->
+            eblanAppWidgetProviderInfo.applicationIcon?.let { icon ->
                 val iconFile = File(icon)
 
                 if (iconFile.exists()) {

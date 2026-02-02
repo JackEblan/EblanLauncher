@@ -15,23 +15,21 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.data.room.migration
 
-data class AppWidgetManagerAppWidgetProviderInfo(
-    val serialNumber: Long,
-    val packageName: String,
-    val componentName: String,
-    val configure: String?,
-    val targetCellWidth: Int,
-    val targetCellHeight: Int,
-    val minWidth: Int,
-    val minHeight: Int,
-    val resizeMode: Int,
-    val minResizeWidth: Int,
-    val minResizeHeight: Int,
-    val maxResizeWidth: Int,
-    val maxResizeHeight: Int,
-    val preview: String?,
-    val lastUpdateTime: Long,
-    val label: String?,
+import androidx.room.RenameColumn
+import androidx.room.migration.AutoMigrationSpec
+
+@RenameColumn.Entries(
+    RenameColumn(
+        tableName = "EblanAppWidgetProviderInfoEntity",
+        fromColumnName = "icon",
+        toColumnName = "applicationIcon",
+    ),
+    RenameColumn(
+        tableName = "EblanAppWidgetProviderInfoEntity",
+        fromColumnName = "label",
+        toColumnName = "applicationLabel",
+    ),
 )
+class AutoMigration8To9 : AutoMigrationSpec

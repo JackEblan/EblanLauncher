@@ -112,6 +112,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
                 maxResizeHeight = maxResizeHeight,
                 preview = preview,
                 lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = provider.packageName),
+                label = loadLabel(context.packageManager),
             )
         } else {
             AppWidgetManagerAppWidgetProviderInfo(
@@ -130,6 +131,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
                 maxResizeHeight = 0,
                 preview = preview,
                 lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = provider.packageName),
+                label = null,
             )
         }
     }

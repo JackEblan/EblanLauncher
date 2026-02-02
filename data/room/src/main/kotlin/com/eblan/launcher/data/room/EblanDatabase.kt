@@ -23,6 +23,8 @@ import androidx.room.RoomDatabase
 import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
 import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
+import com.eblan.launcher.data.room.dao.EblanApplicationInfoTagCrossRefDao
+import com.eblan.launcher.data.room.dao.EblanApplicationInfoTagDao
 import com.eblan.launcher.data.room.dao.EblanIconPackInfoDao
 import com.eblan.launcher.data.room.dao.EblanShortcutConfigDao
 import com.eblan.launcher.data.room.dao.EblanShortcutInfoDao
@@ -103,6 +105,10 @@ internal abstract class EblanDatabase : RoomDatabase() {
     abstract fun eblanShortcutConfigDao(): EblanShortcutConfigDao
 
     abstract fun shortcutConfigGridItemDao(): ShortcutConfigGridItemDao
+
+    abstract fun eblanApplicationInfoTagCrossRefDao(): EblanApplicationInfoTagCrossRefDao
+
+    abstract fun eblanApplicationInfoTagDao(): EblanApplicationInfoTagDao
 
     companion object {
         const val DATABASE_NAME = "Eblan.db"

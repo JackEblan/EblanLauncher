@@ -44,11 +44,10 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(
             }
         }
 
-    override suspend fun getEblanApplicationInfos(): List<EblanApplicationInfo> =
-        eblanApplicationInfoDao.getEblanApplicationInfoEntityList()
-            .map { eblanApplicationInfoEntity ->
-                eblanApplicationInfoEntity.asModel()
-            }
+    override suspend fun getEblanApplicationInfos(): List<EblanApplicationInfo> = eblanApplicationInfoDao.getEblanApplicationInfoEntityList()
+        .map { eblanApplicationInfoEntity ->
+            eblanApplicationInfoEntity.asModel()
+        }
 
     override suspend fun upsertEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
         eblanApplicationInfoDao.upsertEblanApplicationInfoEntity(entity = eblanApplicationInfo.asEntity())
@@ -114,19 +113,17 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(
     override suspend fun getEblanApplicationInfosByPackageName(
         serialNumber: Long,
         packageName: String,
-    ): List<EblanApplicationInfo> =
-        eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByPackageName(
-            serialNumber = serialNumber,
-            packageName = packageName,
-        ).map { entity ->
+    ): List<EblanApplicationInfo> = eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByPackageName(
+        serialNumber = serialNumber,
+        packageName = packageName,
+    ).map { entity ->
+        entity.asModel()
+    }
+
+    override suspend fun getEblanApplicationInfosByTagId(tagId: Long): List<EblanApplicationInfo> = eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByTagId(tagId = tagId)
+        .map { entity ->
             entity.asModel()
         }
-
-    override suspend fun getEblanApplicationInfosByTagId(tagId: Long): List<EblanApplicationInfo> =
-        eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByTagId(tagId = tagId)
-            .map { entity ->
-                entity.asModel()
-            }
 
     override suspend fun getEblanApplicationInfoTags(
         componentName: String,
@@ -138,9 +135,8 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(
         entity.asModel()
     }
 
-    private fun EblanApplicationInfoTagEntity.asModel(): EblanApplicationInfoTag =
-        EblanApplicationInfoTag(
-            id = id,
-            name = name,
-        )
+    private fun EblanApplicationInfoTagEntity.asModel(): EblanApplicationInfoTag = EblanApplicationInfoTag(
+        id = id,
+        name = name,
+    )
 }

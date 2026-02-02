@@ -121,5 +121,4 @@ internal interface RepositoryModule {
     @Binds
     @Singleton
     fun eblanApplicationInfoTagRepository(impl: DefaultEblanApplicationInfoTagRepository): EblanApplicationInfoTagRepository
-
 }

@@ -21,6 +21,8 @@ import com.eblan.launcher.data.room.EblanDatabase
 import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
 import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
+import com.eblan.launcher.data.room.dao.EblanApplicationInfoTagCrossRefDao
+import com.eblan.launcher.data.room.dao.EblanApplicationInfoTagDao
 import com.eblan.launcher.data.room.dao.EblanIconPackInfoDao
 import com.eblan.launcher.data.room.dao.EblanShortcutConfigDao
 import com.eblan.launcher.data.room.dao.EblanShortcutInfoDao
@@ -77,4 +79,12 @@ internal object DaoModule {
     @Provides
     @Singleton
     fun shortcutConfigGridItemDao(eblanDatabase: EblanDatabase): ShortcutConfigGridItemDao = eblanDatabase.shortcutConfigGridItemDao()
+
+    @Provides
+    @Singleton
+    fun eblanApplicationInfoTagCrossRefDao(eblanDatabase: EblanDatabase): EblanApplicationInfoTagCrossRefDao = eblanDatabase.eblanApplicationInfoTagCrossRefDao()
+
+    @Provides
+    @Singleton
+    fun eblanApplicationInfoTagDao(eblanDatabase: EblanDatabase): EblanApplicationInfoTagDao = eblanDatabase.eblanApplicationInfoTagDao()
 }

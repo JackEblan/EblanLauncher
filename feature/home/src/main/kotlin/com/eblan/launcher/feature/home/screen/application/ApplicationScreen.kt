@@ -1349,7 +1349,8 @@ private fun SearchBar(
 
     ExpandedDockedSearchBar(
         modifier = Modifier.fillMaxWidth(),
-        state = searchBarState, inputField = inputField,
+        state = searchBarState,
+        inputField = inputField,
     ) {
         LazyRow(modifier = Modifier.fillMaxWidth()) {
             items(

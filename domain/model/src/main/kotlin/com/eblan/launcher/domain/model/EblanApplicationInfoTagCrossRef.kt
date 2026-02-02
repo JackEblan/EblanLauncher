@@ -15,16 +15,10 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.repository
+package com.eblan.launcher.domain.model
 
-import com.eblan.launcher.domain.model.EblanApplicationInfoTagCrossRef
-
-interface EblanApplicationInfoTagCrossRefRepository {
-    suspend fun insertEblanApplicationInfoTagCrossRef(eblanApplicationInfoTagCrossRef: EblanApplicationInfoTagCrossRef)
-
-    suspend fun deleteEblanApplicationInfoTagCrossRef(
-        componentName: String,
-        serialNumber: Long,
-        tagId: Long,
-    )
-}
+data class EblanApplicationInfoTagCrossRef(
+    val componentName: String,
+    val serialNumber: Long,
+    val id: Long,
+)

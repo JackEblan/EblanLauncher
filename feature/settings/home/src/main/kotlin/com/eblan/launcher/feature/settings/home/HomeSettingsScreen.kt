@@ -139,7 +139,7 @@ private fun Success(
         ) {
             SettingsColumn(
                 title = "Grid",
-                subtitle = "Number of columns and rows",
+                subtitle = "${homeSettings.columns}x${homeSettings.rows}",
                 onClick = {
                     showGridDialog = true
                 },
@@ -192,7 +192,7 @@ private fun Success(
         ) {
             SettingsColumn(
                 title = "Dock Grid",
-                subtitle = "Number of columns and rows",
+                subtitle = "${homeSettings.dockColumns}x${homeSettings.dockRows}",
                 onClick = {
                     showDockGridDialog = true
                 },
@@ -202,7 +202,7 @@ private fun Success(
 
             SettingsColumn(
                 title = "Dock Height",
-                subtitle = "Height of the dock",
+                subtitle = "${homeSettings.dockHeight}",
                 onClick = {
                     showDockHeightDialog = true
                 },
@@ -212,7 +212,7 @@ private fun Success(
 
             SettingsColumn(
                 title = "Dock Page Count",
-                subtitle = "Dock page count",
+                subtitle = "${homeSettings.dockPageCount}",
                 onClick = {
                     showDockPageCountDialog = true
                 },

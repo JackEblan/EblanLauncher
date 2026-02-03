@@ -58,6 +58,7 @@ import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
@@ -111,6 +112,7 @@ internal fun SharedTransitionScope.PagerScreen(
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEditGridItem: (String) -> Unit,
@@ -135,6 +137,7 @@ internal fun SharedTransitionScope.PagerScreen(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onResetOverlay: () -> Unit,
+    onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -415,6 +418,7 @@ internal fun SharedTransitionScope.PagerScreen(
             screenHeight = screenHeight,
             columns = homeSettings.columns,
             rows = homeSettings.rows,
+            eblanApplicationInfoTags = eblanApplicationInfoTags,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -444,6 +448,7 @@ internal fun SharedTransitionScope.PagerScreen(
             },
             onEditApplicationInfo = onEditApplicationInfo,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
+            onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
         )
     }
 
@@ -483,6 +488,7 @@ internal fun SharedTransitionScope.PagerScreen(
             screenHeight = screenHeight,
             columns = homeSettings.columns,
             rows = homeSettings.rows,
+            eblanApplicationInfoTags = eblanApplicationInfoTags,
             onDismiss = {
                 scope.launch {
                     swipeY.animateTo(
@@ -517,6 +523,7 @@ internal fun SharedTransitionScope.PagerScreen(
             },
             onEditApplicationInfo = onEditApplicationInfo,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
+            onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
         )
     }
 

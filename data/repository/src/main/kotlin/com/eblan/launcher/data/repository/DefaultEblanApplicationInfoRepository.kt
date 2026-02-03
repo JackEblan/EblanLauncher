@@ -20,12 +20,15 @@ package com.eblan.launcher.data.repository
 import com.eblan.launcher.data.repository.mapper.asEntity
 import com.eblan.launcher.data.repository.mapper.asModel
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
+import com.eblan.launcher.data.room.entity.EblanApplicationInfoTagEntity
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -117,4 +120,35 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(
     ).map { entity ->
         entity.asModel()
     }
+
+    override fun getEblanApplicationInfosByTagId(tagId: Long): Flow<List<EblanApplicationInfo>> = eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByTagId(tagId = tagId)
+        .map { entities ->
+            entities.map { entity ->
+                entity.asModel()
+            }
+        }
+
+    override fun getEblanApplicationInfosByTagId(tagIds: List<Long>): Flow<List<EblanApplicationInfo>> = eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByTagId(tagIds = tagIds)
+        .map { entities ->
+            entities.map { entity ->
+                entity.asModel()
+            }
+        }
+
+    override fun getEblanApplicationInfoTags(
+        serialNumber: Long,
+        componentName: String,
+    ): Flow<List<EblanApplicationInfoTag>> = eblanApplicationInfoDao.getEblanApplicationInfoTagEntities(
+        serialNumber = serialNumber,
+        componentName = componentName,
+    ).map { entities ->
+        entities.map { entity ->
+            entity.asModel()
+        }
+    }
+
+    private fun EblanApplicationInfoTagEntity.asModel(): EblanApplicationInfoTag = EblanApplicationInfoTag(
+        id = id,
+        name = name,
+    )
 }

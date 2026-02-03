@@ -26,9 +26,14 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfoTag
+import com.eblan.launcher.domain.model.EblanApplicationInfoTagCrossRef
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.EblanApplicationInfoTagCrossRefRepository
+import com.eblan.launcher.domain.repository.EblanApplicationInfoTagRepository
+import com.eblan.launcher.domain.usecase.application.GetEblanApplicationInfoTagUseCase
 import com.eblan.launcher.feature.editapplicationinfo.model.EditApplicationInfoUiState
 import com.eblan.launcher.feature.editapplicationinfo.navigation.EditApplicationInfoRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -49,6 +54,9 @@ internal class EditApplicationInfoViewModel @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     packageManagerWrapper: PackageManagerWrapper,
     private val iconPackManager: IconPackManager,
+    getEblanApplicationInfoTagUseCase: GetEblanApplicationInfoTagUseCase,
+    private val eblanApplicationInfoTagRepository: EblanApplicationInfoTagRepository,
+    private val eblanApplicationInfoTagCrossRefRepository: EblanApplicationInfoTagCrossRefRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val editApplicationInfoRouteData =
@@ -85,6 +93,15 @@ internal class EditApplicationInfoViewModel @Inject constructor(
     private var iconPackInfoComponentsJob: Job? = null
 
     private var appFilter = emptyList<IconPackInfoComponent>()
+
+    val eblanApplicationInfoTagsUi = getEblanApplicationInfoTagUseCase(
+        serialNumber = editApplicationInfoRouteData.serialNumber,
+        componentName = editApplicationInfoRouteData.componentName,
+    ).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList(),
+    )
 
     fun updateEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
         viewModelScope.launch {
@@ -150,6 +167,46 @@ internal class EditApplicationInfoViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    fun addEblanApplicationInfoTag(eblanApplicationInfoTag: EblanApplicationInfoTag) {
+        viewModelScope.launch {
+            eblanApplicationInfoTagRepository.insertEblanApplicationInfoTag(eblanApplicationInfoTag = eblanApplicationInfoTag)
+        }
+    }
+
+    fun updateEblanApplicationInfoTag(eblanApplicationInfoTag: EblanApplicationInfoTag) {
+        viewModelScope.launch {
+            eblanApplicationInfoTagRepository.updateEblanApplicationInfoTag(eblanApplicationInfoTag = eblanApplicationInfoTag)
+        }
+    }
+
+    fun deleteEblanApplicationInfoTag(eblanApplicationInfoTag: EblanApplicationInfoTag) {
+        viewModelScope.launch {
+            eblanApplicationInfoTagRepository.deleteEblanApplicationInfoTag(eblanApplicationInfoTag = eblanApplicationInfoTag)
+        }
+    }
+
+    fun addEblanApplicationInfoTagCrossRef(id: Long) {
+        viewModelScope.launch {
+            eblanApplicationInfoTagCrossRefRepository.insertEblanApplicationInfoTagCrossRef(
+                eblanApplicationInfoTagCrossRef = EblanApplicationInfoTagCrossRef(
+                    componentName = editApplicationInfoRouteData.componentName,
+                    serialNumber = editApplicationInfoRouteData.serialNumber,
+                    id = id,
+                ),
+            )
+        }
+    }
+
+    fun deleteEblanApplicationInfoTagCrossRef(id: Long) {
+        viewModelScope.launch {
+            eblanApplicationInfoTagCrossRefRepository.deleteEblanApplicationInfoTagCrossRef(
+                componentName = editApplicationInfoRouteData.componentName,
+                serialNumber = editApplicationInfoRouteData.serialNumber,
+                tagId = id,
+            )
         }
     }
 

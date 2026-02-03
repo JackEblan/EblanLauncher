@@ -18,12 +18,12 @@
 package com.eblan.launcher.data.repository.mapper
 
 import com.eblan.launcher.data.room.entity.FolderGridItemEntity
-import com.eblan.launcher.data.room.entity.FolderGridItemWrapperEntity
+import com.eblan.launcher.data.room.entity.FolderGridItemWrapper
 import com.eblan.launcher.domain.model.FolderGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 
-internal fun FolderGridItemWrapperEntity.asGridItem(): GridItem = GridItem(
+internal fun FolderGridItemWrapper.asGridItem(): GridItem = GridItem(
     id = folderGridItemEntity.id,
     folderId = folderGridItemEntity.folderId,
     page = folderGridItemEntity.page,
@@ -40,7 +40,7 @@ internal fun FolderGridItemWrapperEntity.asGridItem(): GridItem = GridItem(
     swipeDown = folderGridItemEntity.swipeDown,
 )
 
-internal fun FolderGridItemWrapperEntity.asFolderGridItemData(): GridItemData.Folder {
+internal fun FolderGridItemWrapper.asFolderGridItemData(): GridItemData.Folder {
     val applicationInfos = applicationInfos.map { applicationInfoGridItemEntity ->
         applicationInfoGridItemEntity.asGridItem()
     }

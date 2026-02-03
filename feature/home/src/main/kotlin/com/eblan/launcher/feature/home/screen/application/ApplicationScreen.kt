@@ -45,38 +45,39 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.input.clearText
-import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -118,6 +119,7 @@ import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.EblanUser
@@ -176,6 +178,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     screenHeight: Int,
     columns: Int,
     rows: Int,
+    eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -194,6 +197,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
         componentName: String,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -229,6 +233,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             screenHeight = screenHeight,
             columns = columns,
             rows = rows,
+            eblanApplicationInfoTags = eblanApplicationInfoTags,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -238,11 +243,12 @@ internal fun SharedTransitionScope.ApplicationScreen(
             onDragEnd = onDragEnd,
             onEditApplicationInfo = onEditApplicationInfo,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
+            onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class, FlowPreview::class)
 @Composable
 private fun SharedTransitionScope.Success(
     modifier: Modifier = Modifier,
@@ -265,6 +271,7 @@ private fun SharedTransitionScope.Success(
     screenHeight: Int,
     columns: Int,
     rows: Int,
+    eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -283,6 +290,7 @@ private fun SharedTransitionScope.Success(
         componentName: String,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -314,9 +322,41 @@ private fun SharedTransitionScope.Success(
 
     var eblanApplicationInfoGroup by remember { mutableStateOf<EblanApplicationInfoGroup?>(null) }
 
+    var query by remember { mutableStateOf("") }
+
+    var expanded by remember { mutableStateOf(false) }
+
+    val selectedTagIds = remember { mutableStateListOf<Long>() }
+
+    LaunchedEffect(key1 = Unit) {
+        snapshotFlow { query }.debounce(500L).onEach { text ->
+            onGetEblanApplicationInfosByLabel(text)
+
+            showPopupApplicationMenu = false
+        }.collect()
+    }
+
+    LaunchedEffect(key1 = swipeY) {
+        if (swipeY.roundToInt() >= screenHeight && query.isNotBlank()) {
+            onGetEblanApplicationInfosByLabel("")
+
+            query = ""
+
+            selectedTagIds.clear()
+        }
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        snapshotFlow { selectedTagIds.toList() }.onEach { selectedTagIds ->
+            onGetEblanApplicationInfosByTagIds(selectedTagIds)
+        }.collect()
+    }
+
     LaunchedEffect(key1 = isPressHome) {
         if (isPressHome) {
             showPopupApplicationMenu = false
+
+            expanded = false
 
             onDismiss()
         }
@@ -338,15 +378,18 @@ private fun SharedTransitionScope.Success(
             ),
     ) {
         SearchBar(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            isPressHome = isPressHome,
-            drag = drag,
-            swipeY = swipeY,
-            screenHeight = screenHeight,
-            onChangeLabel = onGetEblanApplicationInfosByLabel,
-            onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+            query = query,
+            expanded = expanded,
+            eblanApplicationInfoTags = eblanApplicationInfoTags,
+            selectedTagIds = selectedTagIds,
+            onQueryChange = { newQuery ->
+                query = newQuery
+            },
+            onExpandedChange = { newExpanded ->
+                expanded = newExpanded
+            },
+            onAddId = selectedTagIds::add,
+            onRemoveId = selectedTagIds::remove,
         )
 
         if (getEblanApplicationInfosByLabel.eblanApplicationInfos.keys.size > 1) {
@@ -1280,61 +1323,78 @@ private fun ScrollBarThumb(
 @Composable
 private fun SearchBar(
     modifier: Modifier = Modifier,
-    isPressHome: Boolean,
-    drag: Drag,
-    swipeY: Float,
-    screenHeight: Int,
-    onChangeLabel: (String) -> Unit,
-    onGetEblanApplicationInfosByLabel: (String) -> Unit,
+    query: String,
+    expanded: Boolean,
+    eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
+    selectedTagIds: List<Long>,
+    onQueryChange: (String) -> Unit,
+    onExpandedChange: (Boolean) -> Unit,
+    onAddId: (Long) -> Unit,
+    onRemoveId: (Long) -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
-    val searchBarState = rememberSearchBarState()
-
-    val textFieldState = rememberTextFieldState()
-
-    LaunchedEffect(key1 = textFieldState) {
-        snapshotFlow { textFieldState.text }.debounce(500L).onEach { text ->
-            onChangeLabel(text.toString())
-        }.collect()
-    }
-
-    LaunchedEffect(key1 = isPressHome) {
-        if (isPressHome && searchBarState.currentValue == SearchBarValue.Expanded) {
-            searchBarState.animateToCollapsed()
-        }
-    }
-
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start && searchBarState.currentValue == SearchBarValue.Expanded) {
-            searchBarState.animateToCollapsed()
-        }
-    }
-
-    LaunchedEffect(key1 = swipeY) {
-        if (swipeY.roundToInt() >= screenHeight && textFieldState.text.isNotBlank()) {
-            onGetEblanApplicationInfosByLabel("")
-
-            textFieldState.clearText()
-        }
-    }
-
-    SearchBar(
-        state = searchBarState,
-        modifier = modifier,
+    DockedSearchBar(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(10.dp),
         inputField = {
             SearchBarDefaults.InputField(
-                searchBarState = searchBarState,
-                textFieldState = textFieldState,
-                leadingIcon = {
-                    Icon(
-                        imageVector = EblanLauncherIcons.Search,
-                        contentDescription = null,
-                    )
-                },
-                onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
-                placeholder = { Text(text = "Search Applications") },
+                modifier = Modifier.fillMaxWidth(),
+                query = query,
+                onQueryChange = onQueryChange,
+                onSearch = { onExpandedChange(false) },
+                expanded = expanded,
+                onExpandedChange = onExpandedChange,
+                placeholder = { Text("Search Applications") },
+                leadingIcon = { Icon(EblanLauncherIcons.Search, contentDescription = null) },
             )
+        },
+        expanded = expanded,
+        onExpandedChange = onExpandedChange,
+    ) {
+        LazyRow(modifier = Modifier.fillMaxWidth()) {
+            items(eblanApplicationInfoTags) { eblanApplicationInfoTag ->
+                TagFilterChip(
+                    eblanApplicationInfoTag = eblanApplicationInfoTag,
+                    selectedTagIds = selectedTagIds,
+                    onAddId = onAddId,
+                    onRemoveId = onRemoveId,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TagFilterChip(
+    modifier: Modifier = Modifier,
+    eblanApplicationInfoTag: EblanApplicationInfoTag,
+    selectedTagIds: List<Long>,
+    onAddId: (Long) -> Unit,
+    onRemoveId: (Long) -> Unit,
+) {
+    FilterChip(
+        modifier = modifier.padding(5.dp),
+        onClick = {
+            if (eblanApplicationInfoTag.id in selectedTagIds) {
+                onRemoveId(eblanApplicationInfoTag.id)
+            } else {
+                onAddId(eblanApplicationInfoTag.id)
+            }
+        },
+        label = {
+            Text(text = eblanApplicationInfoTag.name)
+        },
+        selected = eblanApplicationInfoTag.id in selectedTagIds,
+        leadingIcon = if (eblanApplicationInfoTag.id in selectedTagIds) {
+            {
+                Icon(
+                    imageVector = EblanLauncherIcons.Done,
+                    contentDescription = null,
+                    modifier = Modifier.size(FilterChipDefaults.IconSize),
+                )
+            }
+        } else {
+            null
         },
     )
 }

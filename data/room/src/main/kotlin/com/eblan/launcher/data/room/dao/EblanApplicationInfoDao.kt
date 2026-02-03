@@ -23,6 +23,7 @@ import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
+import com.eblan.launcher.data.room.entity.EblanApplicationInfoTagEntity
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import kotlinx.coroutines.flow.Flow
 
@@ -69,4 +70,43 @@ interface EblanApplicationInfoDao {
         serialNumber: Long,
         packageName: String,
     ): List<EblanApplicationInfoEntity>
+
+    @Query(
+        """
+        SELECT app.*
+        FROM EblanApplicationInfoEntity AS app
+        INNER JOIN EblanApplicationInfoTagCrossRefEntity AS ref
+            ON app.componentName = ref.componentName
+           AND app.serialNumber = ref.serialNumber
+        WHERE ref.id = :tagId
+    """,
+    )
+    fun getEblanApplicationInfoEntitiesByTagId(tagId: Long): Flow<List<EblanApplicationInfoEntity>>
+
+    @Query(
+        """
+    SELECT DISTINCT app.*
+    FROM EblanApplicationInfoEntity AS app
+    INNER JOIN EblanApplicationInfoTagCrossRefEntity AS ref
+        ON app.componentName = ref.componentName
+       AND app.serialNumber = ref.serialNumber
+    WHERE ref.id IN (:tagIds)
+    """,
+    )
+    fun getEblanApplicationInfoEntitiesByTagId(tagIds: List<Long>): Flow<List<EblanApplicationInfoEntity>>
+
+    @Query(
+        """
+        SELECT tag.*
+        FROM EblanApplicationInfoTagEntity AS tag
+        INNER JOIN EblanApplicationInfoTagCrossRefEntity AS ref
+            ON tag.id = ref.id
+        WHERE ref.componentName = :componentName
+          AND ref.serialNumber = :serialNumber
+    """,
+    )
+    fun getEblanApplicationInfoTagEntities(
+        serialNumber: Long,
+        componentName: String,
+    ): Flow<List<EblanApplicationInfoTagEntity>>
 }

@@ -17,15 +17,26 @@
  */
 package com.eblan.launcher.feature.editapplicationinfo
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -34,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -41,8 +53,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfoTag
+import com.eblan.launcher.domain.model.EblanApplicationInfoTagUi
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
+import com.eblan.launcher.feature.editapplicationinfo.dialog.UpdateTagDialog
 import com.eblan.launcher.feature.editapplicationinfo.model.EditApplicationInfoUiState
 import com.eblan.launcher.ui.dialog.IconPackInfoFilesDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
@@ -62,18 +77,26 @@ internal fun EditApplicationInfoRoute(
 
     val iconPackInfoComponents by viewModel.iconPackInfoComponents.collectAsStateWithLifecycle()
 
+    val eblanApplicationInfoTagsUi by viewModel.eblanApplicationInfoTagsUi.collectAsStateWithLifecycle()
+
     EditApplicationInfoScreen(
         modifier = modifier,
         editApplicationInfoUiState = editApplicationInfoUiState,
         onNavigateUp = onNavigateUp,
         packageManagerIconPackInfos = packageManagerIconPackInfos,
         iconPackInfoComponents = iconPackInfoComponents,
+        eblanApplicationInfoTagsUi = eblanApplicationInfoTagsUi,
         onUpdateEblanApplicationInfo = viewModel::updateEblanApplicationInfo,
         onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
         onRestoreEblanApplicationInfo = viewModel::restoreEblanApplicationInfo,
         onResetIconPackInfoPackageName = viewModel::resetIconPackInfoPackageName,
         onUpdateGridItemCustomIcon = viewModel::updateEblanApplicationInfoCustomIcon,
         onSearchIconPackInfoComponent = viewModel::searchIconPackInfoComponent,
+        onAddEblanApplicationInfoTag = viewModel::addEblanApplicationInfoTag,
+        onUpdateEblanApplicationInfoTag = viewModel::updateEblanApplicationInfoTag,
+        onDeleteEblanApplicationInfoTag = viewModel::deleteEblanApplicationInfoTag,
+        onAddEblanApplicationInfoCrossRef = viewModel::addEblanApplicationInfoTagCrossRef,
+        onDeleteEblanApplicationInfoCrossRef = viewModel::deleteEblanApplicationInfoTagCrossRef,
     )
 }
 
@@ -85,6 +108,7 @@ internal fun EditApplicationInfoScreen(
     onNavigateUp: () -> Unit,
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
+    eblanApplicationInfoTagsUi: List<EblanApplicationInfoTagUi>,
     onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
     onRestoreEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
@@ -94,10 +118,13 @@ internal fun EditApplicationInfoScreen(
         eblanApplicationInfo: EblanApplicationInfo,
     ) -> Unit,
     onSearchIconPackInfoComponent: (String) -> Unit,
+    onAddEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onUpdateEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onDeleteEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onAddEblanApplicationInfoCrossRef: (Long) -> Unit,
+    onDeleteEblanApplicationInfoCrossRef: (Long) -> Unit,
 ) {
-    if (editApplicationInfoUiState is EditApplicationInfoUiState.Success &&
-        editApplicationInfoUiState.eblanApplicationInfo != null
-    ) {
+    if (editApplicationInfoUiState is EditApplicationInfoUiState.Success && editApplicationInfoUiState.eblanApplicationInfo != null) {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -136,11 +163,17 @@ internal fun EditApplicationInfoScreen(
                     eblanApplicationInfo = editApplicationInfoUiState.eblanApplicationInfo,
                     packageManagerIconPackInfos = packageManagerIconPackInfos,
                     iconPackInfoComponents = iconPackInfoComponents,
+                    eblanApplicationInfoTagsUi = eblanApplicationInfoTagsUi,
                     onUpdateEblanApplicationInfo = onUpdateEblanApplicationInfo,
                     onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                     onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
                     onUpdateGridItemCustomIcon = onUpdateGridItemCustomIcon,
                     onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
+                    onAddEblanApplicationInfoTag = onAddEblanApplicationInfoTag,
+                    onUpdateEblanApplicationInfoTag = onUpdateEblanApplicationInfoTag,
+                    onDeleteEblanApplicationInfoTag = onDeleteEblanApplicationInfoTag,
+                    onAddEblanApplicationInfoCrossRef = onAddEblanApplicationInfoCrossRef,
+                    onDeleteEblanApplicationInfoCrossRef = onDeleteEblanApplicationInfoCrossRef,
                 )
             }
         }
@@ -153,6 +186,7 @@ private fun Success(
     eblanApplicationInfo: EblanApplicationInfo,
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
+    eblanApplicationInfoTagsUi: List<EblanApplicationInfoTagUi>,
     onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
@@ -161,6 +195,11 @@ private fun Success(
         eblanApplicationInfo: EblanApplicationInfo,
     ) -> Unit,
     onSearchIconPackInfoComponent: (String) -> Unit,
+    onAddEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onUpdateEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onDeleteEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onAddEblanApplicationInfoCrossRef: (Long) -> Unit,
+    onDeleteEblanApplicationInfoCrossRef: (Long) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
@@ -175,6 +214,15 @@ private fun Success(
             .fillMaxWidth()
             .padding(horizontal = 15.dp),
     ) {
+        Tags(
+            eblanApplicationInfoTagsUi = eblanApplicationInfoTagsUi,
+            onAddEblanApplicationInfoTag = onAddEblanApplicationInfoTag,
+            onUpdateEblanApplicationInfoTag = onUpdateEblanApplicationInfoTag,
+            onDeleteEblanApplicationInfoTag = onDeleteEblanApplicationInfoTag,
+            onAddEblanApplicationInfoCrossRef = onAddEblanApplicationInfoCrossRef,
+            onDeleteEblanApplicationInfoCrossRef = onDeleteEblanApplicationInfoCrossRef,
+        )
+
         CustomIcon(
             customIcon = eblanApplicationInfo.customIcon,
             packageManagerIconPackInfos = packageManagerIconPackInfos,
@@ -260,6 +308,158 @@ private fun Success(
                         isError = true
                     }
                 },
+            )
+        }
+    }
+}
+
+@Composable
+private fun Tags(
+    modifier: Modifier = Modifier,
+    eblanApplicationInfoTagsUi: List<EblanApplicationInfoTagUi>,
+    onAddEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onUpdateEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onDeleteEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onAddEblanApplicationInfoCrossRef: (Long) -> Unit,
+    onDeleteEblanApplicationInfoCrossRef: (Long) -> Unit,
+) {
+    var showAddTagDialog by remember { mutableStateOf(false) }
+
+    var showUpdateTagDialog by remember { mutableStateOf(false) }
+
+    var selectedEblanApplicationInfoTagUi by remember {
+        mutableStateOf<EblanApplicationInfoTagUi?>(null)
+    }
+
+    FlowRow(modifier = modifier.fillMaxWidth()) {
+        eblanApplicationInfoTagsUi.forEach { eblanApplicationInfoTagUi ->
+            EblanApplicationInfoTagUiItem(
+                modifier = Modifier.padding(5.dp),
+                eblanApplicationInfoTagUi = eblanApplicationInfoTagUi,
+                onClick = {
+                    if (eblanApplicationInfoTagUi.selected) {
+                        onDeleteEblanApplicationInfoCrossRef(eblanApplicationInfoTagUi.id)
+                    } else {
+                        onAddEblanApplicationInfoCrossRef(eblanApplicationInfoTagUi.id)
+                    }
+                },
+                onLongClick = {
+                    showUpdateTagDialog = true
+
+                    selectedEblanApplicationInfoTagUi = eblanApplicationInfoTagUi
+                },
+            )
+        }
+
+        AddEblanApplicationInfoTagItem(
+            modifier = Modifier.padding(5.dp),
+            onClick = {
+                showAddTagDialog = true
+            },
+        )
+    }
+
+    if (showAddTagDialog) {
+        var value by remember { mutableStateOf("") }
+
+        var isError by remember { mutableStateOf(false) }
+
+        SingleTextFieldDialog(
+            title = "Add Tag",
+            textFieldTitle = "Add Tag",
+            value = value,
+            isError = isError,
+            keyboardType = KeyboardType.Text,
+            onValueChange = {
+                value = it
+            },
+            onDismissRequest = {
+                showAddTagDialog = false
+            },
+            onUpdateClick = {
+                if (value.isNotBlank()) {
+                    onAddEblanApplicationInfoTag(EblanApplicationInfoTag(name = value))
+
+                    showAddTagDialog = false
+                } else {
+                    isError = true
+                }
+            },
+        )
+    }
+
+    if (showUpdateTagDialog) {
+        UpdateTagDialog(
+            eblanApplicationInfoTagUi = selectedEblanApplicationInfoTagUi,
+            onDismissRequest = {
+                showUpdateTagDialog = false
+            },
+            onUpdateEblanApplicationInfoTag = onUpdateEblanApplicationInfoTag,
+            onDeleteEblanApplicationInfoTag = onDeleteEblanApplicationInfoTag,
+        )
+    }
+}
+
+@Composable
+private fun EblanApplicationInfoTagUiItem(
+    modifier: Modifier = Modifier,
+    eblanApplicationInfoTagUi: EblanApplicationInfoTagUi,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+) {
+    OutlinedCard(modifier = modifier.animateContentSize()) {
+        Row(
+            modifier = Modifier
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                )
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (eblanApplicationInfoTagUi.selected) {
+                Icon(
+                    imageVector = EblanLauncherIcons.Done,
+                    contentDescription = null,
+                    modifier = Modifier.size(FilterChipDefaults.IconSize),
+                )
+
+                Spacer(modifier = Modifier.width(5.dp))
+            }
+
+            Text(
+                text = eblanApplicationInfoTagUi.name,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AddEblanApplicationInfoTagItem(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    OutlinedCard(modifier = modifier) {
+        Row(
+            modifier = Modifier
+                .combinedClickable(onClick = onClick)
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = EblanLauncherIcons.Add,
+                contentDescription = null,
+                modifier = Modifier.size(FilterChipDefaults.IconSize),
+            )
+
+            Spacer(modifier = Modifier.width(5.dp))
+
+            Text(
+                text = "Add",
+                style = MaterialTheme.typography.bodyLarge,
             )
         }
     }

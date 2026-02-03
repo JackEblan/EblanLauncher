@@ -32,6 +32,7 @@ import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
+import com.eblan.launcher.domain.repository.EblanApplicationInfoTagRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
@@ -95,6 +96,7 @@ internal class HomeViewModel @Inject constructor(
     getEblanAppWidgetProviderInfosByLabelUseCase: GetEblanAppWidgetProviderInfosByLabelUseCase,
     getEblanShortcutConfigsByLabelUseCase: GetEblanShortcutConfigsByLabelUseCase,
     private val gridRepository: GridRepository,
+    eblanApplicationInfoTagRepository: EblanApplicationInfoTagRepository,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -160,8 +162,13 @@ internal class HomeViewModel @Inject constructor(
 
     private val _eblanApplicationInfoLabel = MutableStateFlow("")
 
+    private val _eblanApplicationInfoTagIds = MutableStateFlow<List<Long>?>(null)
+
     val getEblanApplicationInfosByLabel =
-        getEblanApplicationInfosByLabelUseCase(labelFlow = _eblanApplicationInfoLabel).stateIn(
+        getEblanApplicationInfosByLabelUseCase(
+            labelFlow = _eblanApplicationInfoLabel,
+            eblanApplicationInfoTagIdsFlow = _eblanApplicationInfoTagIds,
+        ).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = GetEblanApplicationInfosByLabel(
@@ -187,6 +194,13 @@ internal class HomeViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyMap(),
+        )
+
+    val eblanApplicationInfoTags =
+        eblanApplicationInfoTagRepository.eblanApplicationInfoTags.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList(),
         )
 
     fun moveGridItem(
@@ -695,6 +709,12 @@ internal class HomeViewModel @Inject constructor(
 
                 showFolderGridCache(gridItems = folderDataById.gridItems)
             }
+        }
+    }
+
+    fun getEblanApplicationInfosByTagId(tagIds: List<Long>) {
+        _eblanApplicationInfoTagIds.update {
+            tagIds
         }
     }
 }

@@ -20,6 +20,8 @@ package com.eblan.launcher.data.repository.di
 import com.eblan.launcher.data.repository.DefaultApplicationInfoGridItemRepository
 import com.eblan.launcher.data.repository.DefaultEblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.data.repository.DefaultEblanApplicationInfoRepository
+import com.eblan.launcher.data.repository.DefaultEblanApplicationInfoTagCrossRefRepository
+import com.eblan.launcher.data.repository.DefaultEblanApplicationInfoTagRepository
 import com.eblan.launcher.data.repository.DefaultEblanIconPackInfoRepository
 import com.eblan.launcher.data.repository.DefaultEblanShortcutConfigRepository
 import com.eblan.launcher.data.repository.DefaultEblanShortcutInfoRepository
@@ -34,6 +36,8 @@ import com.eblan.launcher.data.repository.DefaultWidgetGridItemRepository
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.EblanApplicationInfoTagCrossRefRepository
+import com.eblan.launcher.domain.repository.EblanApplicationInfoTagRepository
 import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
@@ -109,4 +113,12 @@ internal interface RepositoryModule {
     @Binds
     @Singleton
     fun gridRepository(impl: DefaultGridRepository): GridRepository
+
+    @Binds
+    @Singleton
+    fun eblanApplicationInfoTagCrossRefRepository(impl: DefaultEblanApplicationInfoTagCrossRefRepository): EblanApplicationInfoTagCrossRefRepository
+
+    @Binds
+    @Singleton
+    fun eblanApplicationInfoTagRepository(impl: DefaultEblanApplicationInfoTagRepository): EblanApplicationInfoTagRepository
 }

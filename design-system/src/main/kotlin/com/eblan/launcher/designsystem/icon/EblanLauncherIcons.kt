@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeveloperMode
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Gesture
@@ -74,4 +75,5 @@ object EblanLauncherIcons {
     val Search = Icons.Default.Search
     val Lock = Icons.Default.Lock
     val LockOpen = Icons.Default.LockOpen
+    val Done = Icons.Default.Done
 }

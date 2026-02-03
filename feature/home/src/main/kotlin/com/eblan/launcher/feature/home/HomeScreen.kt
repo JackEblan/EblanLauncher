@@ -75,6 +75,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanApplicationInfoTag
@@ -656,6 +657,21 @@ private fun SharedTransitionScope.Success(
         },
     )
 
+    val dockGridHorizontalPagerState = rememberPagerState(
+        initialPage = if (homeData.userData.homeSettings.dockInfiniteScroll) {
+            (Int.MAX_VALUE / 2) + homeData.userData.homeSettings.initialPage
+        } else {
+            homeData.userData.homeSettings.initialPage
+        },
+        pageCount = {
+            if (homeData.userData.homeSettings.dockInfiniteScroll) {
+                Int.MAX_VALUE
+            } else {
+                homeData.userData.homeSettings.dockPageCount
+            }
+        },
+    )
+
     val folderGridHorizontalPagerState = rememberPagerState(
         pageCount = {
             when (screen) {
@@ -687,12 +703,43 @@ private fun SharedTransitionScope.Success(
         }
     }
 
+    val dockCurrentPage by remember(
+        key1 = dockGridHorizontalPagerState,
+        key2 = homeData.userData.homeSettings,
+    ) {
+        derivedStateOf {
+            calculatePage(
+                index = dockGridHorizontalPagerState.currentPage,
+                infiniteScroll = homeData.userData.homeSettings.dockInfiniteScroll,
+                pageCount = homeData.userData.homeSettings.dockPageCount,
+            )
+        }
+    }
+
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     var managedProfileResult by remember { mutableStateOf<ManagedProfileResult?>(null) }
 
     var statusBarNotifications by remember {
         mutableStateOf<Map<String, Int>>(emptyMap())
+    }
+
+    val gridItemSourceCurrentPage by remember {
+        derivedStateOf {
+            when (gridItemSource?.gridItem?.associate) {
+                Associate.Grid -> {
+                    currentPage
+                }
+
+                Associate.Dock -> {
+                    dockCurrentPage
+                }
+
+                null -> {
+                    0
+                }
+            }
+        }
     }
 
     LaunchedEffect(key1 = pinGridItem) {
@@ -745,7 +792,7 @@ private fun SharedTransitionScope.Success(
                     gridItems = homeData.gridItems,
                     gridItemsByPage = homeData.gridItemsByPage,
                     drag = drag,
-                    dockGridItems = homeData.dockGridItems,
+                    dockGridItemsByPage = homeData.dockGridItemsByPage,
                     textColor = homeData.textColor,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
@@ -757,7 +804,8 @@ private fun SharedTransitionScope.Success(
                     gridItemSource = gridItemSource,
                     homeSettings = homeData.userData.homeSettings,
                     gridHorizontalPagerState = gridHorizontalPagerState,
-                    currentPage = currentPage,
+                    dockGridHorizontalPagerState = dockGridHorizontalPagerState,
+                    currentPage = gridItemSourceCurrentPage,
                     statusBarNotifications = statusBarNotifications,
                     eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                     eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
@@ -816,7 +864,7 @@ private fun SharedTransitionScope.Success(
                     moveGridItemResult = movedGridItemResult,
                     homeSettings = homeData.userData.homeSettings,
                     gridHorizontalPagerState = gridHorizontalPagerState,
-                    currentPage = currentPage,
+                    currentPage = gridItemSourceCurrentPage,
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
@@ -837,7 +885,7 @@ private fun SharedTransitionScope.Success(
 
             Screen.Resize -> {
                 ResizeScreen(
-                    currentPage = currentPage,
+                    currentPage = gridItemSourceCurrentPage,
                     gridItemCache = gridItemCache,
                     gridItem = gridItemSource?.gridItem,
                     screenWidth = screenWidth,

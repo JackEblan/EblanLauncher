@@ -202,6 +202,8 @@ internal fun HomeSettings.toHomeSettingsProto(): HomeSettingsProto = HomeSetting
     .setFolderRows(folderRows)
     .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
     .setLockScreenOrientation(lockScreenOrientation)
+    .setDockPageCount(dockPageCount)
+    .setDockInfiniteScroll(dockInfiniteScroll)
     .build()
 
 internal fun AppDrawerSettings.toAppDrawerSettingsProto(): AppDrawerSettingsProto = AppDrawerSettingsProto.newBuilder()

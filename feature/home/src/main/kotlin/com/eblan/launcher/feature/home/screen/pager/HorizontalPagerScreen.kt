@@ -76,13 +76,14 @@ import com.eblan.launcher.ui.local.LocalWallpaperManager
 internal fun SharedTransitionScope.HorizontalPagerScreen(
     modifier: Modifier = Modifier,
     gridHorizontalPagerState: PagerState,
+    dockGridHorizontalPagerState: PagerState,
     currentPage: Int,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
     gridWidth: Int,
     gridHeight: Int,
     paddingValues: PaddingValues,
-    dockGridItems: List<GridItem>,
+    dockGridItemsByPage: Map<Int, List<GridItem>>,
     textColor: TextColor,
     gridItemSource: GridItemSource?,
     drag: Drag,
@@ -323,7 +324,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         )
 
         HorizontalPager(
-            state = gridHorizontalPagerState,
+            state = dockGridHorizontalPagerState,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeight)
@@ -340,7 +341,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
 
             GridLayout(
                 modifier = Modifier.fillMaxSize(),
-                gridItems = dockGridItems,
+                gridItems = dockGridItemsByPage[page],
                 columns = homeSettings.dockColumns,
                 rows = homeSettings.dockRows,
             ) { gridItem ->
@@ -363,7 +364,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     drag = drag,
                     statusBarNotifications = statusBarNotifications,
-                    isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+                    isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
                     onTapApplicationInfo = { serialNumber, componentName ->

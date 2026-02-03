@@ -248,7 +248,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class, FlowPreview::class)
 @Composable
 private fun SharedTransitionScope.Success(
     modifier: Modifier = Modifier,
@@ -322,9 +322,41 @@ private fun SharedTransitionScope.Success(
 
     var eblanApplicationInfoGroup by remember { mutableStateOf<EblanApplicationInfoGroup?>(null) }
 
+    var query by remember { mutableStateOf("") }
+
+    var expanded by remember { mutableStateOf(false) }
+
+    val selectedTagIds = remember { mutableStateListOf<Long>() }
+
+    LaunchedEffect(key1 = Unit) {
+        snapshotFlow { query }.debounce(500L).onEach { text ->
+            onGetEblanApplicationInfosByLabel(text)
+
+            showPopupApplicationMenu = false
+        }.collect()
+    }
+
+    LaunchedEffect(key1 = swipeY) {
+        if (swipeY.roundToInt() >= screenHeight && query.isNotBlank()) {
+            onGetEblanApplicationInfosByLabel("")
+
+            query = ""
+
+            selectedTagIds.clear()
+        }
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        snapshotFlow { selectedTagIds.toList() }.onEach { selectedTagIds ->
+            onGetEblanApplicationInfosByTagIds(selectedTagIds)
+        }.collect()
+    }
+
     LaunchedEffect(key1 = isPressHome) {
         if (isPressHome) {
             showPopupApplicationMenu = false
+
+            expanded = false
 
             onDismiss()
         }
@@ -346,14 +378,18 @@ private fun SharedTransitionScope.Success(
             ),
     ) {
         SearchBar(
-            isPressHome = isPressHome,
-            drag = drag,
-            swipeY = swipeY,
-            screenHeight = screenHeight,
+            query = query,
+            expanded = expanded,
             eblanApplicationInfoTags = eblanApplicationInfoTags,
-            onChangeLabel = onGetEblanApplicationInfosByLabel,
-            onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-            onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
+            selectedTagIds = selectedTagIds,
+            onQueryChange = { newQuery ->
+                query = newQuery
+            },
+            onExpandedChange = { newExpanded ->
+                expanded = newExpanded
+            },
+            onAddId = selectedTagIds::add,
+            onRemoveId = selectedTagIds::remove,
         )
 
         if (getEblanApplicationInfosByLabel.eblanApplicationInfos.keys.size > 1) {
@@ -1287,55 +1323,15 @@ private fun ScrollBarThumb(
 @Composable
 private fun SearchBar(
     modifier: Modifier = Modifier,
-    isPressHome: Boolean,
-    drag: Drag,
-    swipeY: Float,
-    screenHeight: Int,
+    query: String,
+    expanded: Boolean,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
-    onChangeLabel: (String) -> Unit,
-    onGetEblanApplicationInfosByLabel: (String) -> Unit,
-    onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
+    selectedTagIds: List<Long>,
+    onQueryChange: (String) -> Unit,
+    onExpandedChange: (Boolean) -> Unit,
+    onAddId: (Long) -> Unit,
+    onRemoveId: (Long) -> Unit,
 ) {
-    var query by remember { mutableStateOf("") }
-
-    var expanded by remember { mutableStateOf(false) }
-
-    val selectedTagIds = remember { mutableStateListOf<Long>() }
-
-    LaunchedEffect(key1 = Unit) {
-        snapshotFlow { query }.debounce(500L).onEach { text ->
-            onChangeLabel(text)
-        }.collect()
-    }
-
-    LaunchedEffect(key1 = isPressHome) {
-        if (isPressHome && expanded) {
-            expanded = false
-        }
-    }
-
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start && expanded) {
-            expanded = false
-        }
-    }
-
-    LaunchedEffect(key1 = swipeY) {
-        if (swipeY.roundToInt() >= screenHeight && query.isNotBlank()) {
-            onGetEblanApplicationInfosByLabel("")
-
-            query = ""
-
-            selectedTagIds.clear()
-        }
-    }
-
-    LaunchedEffect(key1 = Unit) {
-        snapshotFlow { selectedTagIds.toList() }.onEach { selectedTagIds ->
-            onGetEblanApplicationInfosByTagIds(selectedTagIds)
-        }.collect()
-    }
-
     DockedSearchBar(
         modifier = modifier
             .fillMaxWidth()
@@ -1344,26 +1340,24 @@ private fun SearchBar(
             SearchBarDefaults.InputField(
                 modifier = Modifier.fillMaxWidth(),
                 query = query,
-                onQueryChange = { newQuery ->
-                    query = newQuery
-                },
-                onSearch = { expanded = false },
+                onQueryChange = onQueryChange,
+                onSearch = { onExpandedChange(false) },
                 expanded = expanded,
-                onExpandedChange = { expanded = it },
+                onExpandedChange = onExpandedChange,
                 placeholder = { Text("Search Applications") },
                 leadingIcon = { Icon(EblanLauncherIcons.Search, contentDescription = null) },
             )
         },
         expanded = expanded,
-        onExpandedChange = { expanded = it },
+        onExpandedChange = onExpandedChange,
     ) {
         LazyRow(modifier = Modifier.fillMaxWidth()) {
             items(eblanApplicationInfoTags) { eblanApplicationInfoTag ->
                 TagFilterChip(
                     eblanApplicationInfoTag = eblanApplicationInfoTag,
                     selectedTagIds = selectedTagIds,
-                    onAddId = selectedTagIds::add,
-                    onRemoveId = selectedTagIds::remove,
+                    onAddId = onAddId,
+                    onRemoveId = onRemoveId,
                 )
             }
         }

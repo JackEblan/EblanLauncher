@@ -23,7 +23,6 @@ import android.os.Build
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -323,7 +322,8 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             ),
         )
 
-        Box(
+        HorizontalPager(
+            state = gridHorizontalPagerState,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeight)
@@ -331,9 +331,15 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                     end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                 ),
-        ) {
+        ) { index ->
+            val page = calculatePage(
+                index = index,
+                infiniteScroll = homeSettings.infiniteScroll,
+                pageCount = homeSettings.pageCount,
+            )
+
             GridLayout(
-                modifier = Modifier.matchParentSize(),
+                modifier = Modifier.fillMaxSize(),
                 gridItems = dockGridItems,
                 columns = homeSettings.dockColumns,
                 rows = homeSettings.dockRows,

@@ -56,6 +56,8 @@ internal fun HomeSettingsProto.toHomeSettings(): HomeSettings = HomeSettings(
     folderRows = folderRows,
     gridItemSettings = gridItemSettingsProto.toGridItemSettings(),
     lockScreenOrientation = lockScreenOrientation,
+    dockPageCount = dockPageCount,
+    dockInfiniteScroll = dockInfiniteScroll,
 )
 
 internal fun AppDrawerSettingsProto.toAppDrawerSettings(): AppDrawerSettings = AppDrawerSettings(

@@ -125,6 +125,8 @@ private fun Success(
 
     var showDockHeightDialog by remember { mutableStateOf(false) }
 
+    var showDockPageCountDialog by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -148,7 +150,7 @@ private fun Success(
             SettingsSwitch(
                 checked = homeSettings.infiniteScroll,
                 title = "Infinite Scrolling",
-                subtitle = "Seamless loop from last page back to first",
+                subtitle = "Seamless loop page scroll",
                 onCheckedChange = { infiniteScroll ->
                     onUpdateHomeSettings(homeSettings.copy(infiniteScroll = infiniteScroll))
                 },
@@ -203,6 +205,27 @@ private fun Success(
                 subtitle = "Height of the dock",
                 onClick = {
                     showDockHeightDialog = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Dock Page Count",
+                subtitle = "Dock page count",
+                onClick = {
+                    showDockPageCountDialog = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsSwitch(
+                checked = homeSettings.dockInfiniteScroll,
+                title = "Dock Infinite Scroll",
+                subtitle = "Seamless loop page scroll",
+                onCheckedChange = { dockInfiniteScroll ->
+                    onUpdateHomeSettings(homeSettings.copy(dockInfiniteScroll = dockInfiniteScroll))
                 },
             )
         }
@@ -353,6 +376,39 @@ private fun Success(
                     )
 
                     showDockHeightDialog = false
+                } catch (_: NumberFormatException) {
+                    isError = true
+                }
+            },
+        )
+    }
+
+    if (showDockPageCountDialog) {
+        var value by remember { mutableStateOf("${homeSettings.dockPageCount}") }
+
+        var isError by remember { mutableStateOf(false) }
+
+        SingleTextFieldDialog(
+            title = "Dock Page Count",
+            textFieldTitle = "Dock Page Count",
+            value = value,
+            isError = isError,
+            keyboardType = KeyboardType.Number,
+            onValueChange = {
+                value = it
+            },
+            onDismissRequest = {
+                showDockPageCountDialog = false
+            },
+            onUpdateClick = {
+                try {
+                    onUpdateHomeSettings(
+                        homeSettings.copy(
+                            dockPageCount = value.toInt(),
+                        ),
+                    )
+
+                    showDockPageCountDialog = false
                 } catch (_: NumberFormatException) {
                     isError = true
                 }

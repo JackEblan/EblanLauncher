@@ -184,15 +184,29 @@ internal fun SharedTransitionScope.EditPageScreen(
                             columns = homeSettings.columns,
                             rows = homeSettings.rows,
                             { gridItem ->
+                                val smallGridItem = gridItem.let { gridItem ->
+                                    gridItem.copy(
+                                        gridItemSettings = gridItem.gridItemSettings.copy(
+                                            iconSize = gridItem.gridItemSettings.iconSize / 2,
+                                            textSize = gridItem.gridItemSettings.textSize / 2,
+                                        ),
+                                    )
+                                }
+
+                                val smallGridItemSettings = homeSettings.gridItemSettings.copy(
+                                    iconSize = gridItem.gridItemSettings.iconSize / 2,
+                                    textSize = gridItem.gridItemSettings.textSize / 2,
+                                )
+
                                 GridItemContent(
-                                    gridItem = gridItem,
+                                    gridItem = smallGridItem,
                                     textColor = textColor,
-                                    gridItemSettings = homeSettings.gridItemSettings,
+                                    gridItemSettings = smallGridItemSettings,
                                     isDragging = false,
                                     statusBarNotifications = emptyMap(),
                                     hasShortcutHostPermission = hasShortcutHostPermission,
                                     iconPackFilePaths = iconPackFilePaths,
-                                    drag = Drag.End,
+                                    drag = Drag.None,
                                     screen = screen,
                                     isScrollInProgress = false,
                                 )

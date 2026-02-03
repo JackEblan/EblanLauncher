@@ -125,8 +125,6 @@ private fun Success(
 
     var showDockHeightDialog by remember { mutableStateOf(false) }
 
-    var showDockPageCountDialog by remember { mutableStateOf(false) }
-
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -205,16 +203,6 @@ private fun Success(
                 subtitle = "${homeSettings.dockHeight}",
                 onClick = {
                     showDockHeightDialog = true
-                },
-            )
-
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-            SettingsColumn(
-                title = "Dock Page Count",
-                subtitle = "${homeSettings.dockPageCount}",
-                onClick = {
-                    showDockPageCountDialog = true
                 },
             )
 
@@ -383,44 +371,6 @@ private fun Success(
                     )
 
                     showDockHeightDialog = false
-                }
-            },
-        )
-    }
-
-    if (showDockPageCountDialog) {
-        var value by remember { mutableStateOf("${homeSettings.dockPageCount}") }
-
-        var isError by remember { mutableStateOf(false) }
-
-        SingleTextFieldDialog(
-            title = "Dock Page Count",
-            textFieldTitle = "Dock Page Count",
-            value = value,
-            isError = isError,
-            keyboardType = KeyboardType.Number,
-            onValueChange = {
-                value = it
-            },
-            onDismissRequest = {
-                showDockPageCountDialog = false
-            },
-            onUpdateClick = {
-                val dockPageCount = try {
-                    value.toInt()
-                } catch (_: NumberFormatException) {
-                    isError = true
-                    0
-                }
-
-                if (dockPageCount > 0) {
-                    onUpdateHomeSettings(
-                        homeSettings.copy(
-                            dockPageCount = value.toInt(),
-                        ),
-                    )
-
-                    showDockPageCountDialog = false
                 }
             },
         )

@@ -33,4 +33,5 @@ data class HomeSettings(
     val lockScreenOrientation: Boolean,
     val dockPageCount: Int,
     val dockInfiniteScroll: Boolean,
+    val dockInitialPage: Int,
 )

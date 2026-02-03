@@ -264,11 +264,15 @@ internal fun HomeScreen(
     onCancelFolderDragGridCache: () -> Unit,
     onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
-    onEditPage: (List<GridItem>) -> Unit,
+    onEditPage: (
+        gridItems: List<GridItem>,
+        associate: Associate,
+    ) -> Unit,
     onSaveEditPage: (
         id: Int,
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
+        associate: Associate,
     ) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
@@ -586,11 +590,15 @@ private fun SharedTransitionScope.Success(
     onCancelFolderDragGridCache: () -> Unit,
     onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
-    onEditPage: (List<GridItem>) -> Unit,
+    onEditPage: (
+        gridItems: List<GridItem>,
+        associate: Associate,
+    ) -> Unit,
     onSaveEditPage: (
         id: Int,
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
+        associate: Associate,
     ) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
@@ -834,7 +842,11 @@ private fun SharedTransitionScope.Success(
                         )
                     },
                     onSettings = onSettings,
-                    onEditPage = onEditPage,
+                    onEditPage = { gridItems, newAssociate ->
+                        associate = newAssociate
+
+                        onEditPage(gridItems, newAssociate)
+                    },
                     onLongPressGridItem = { newGridItemSource, imageBitmap ->
                         gridItemSource = newGridItemSource
 
@@ -929,6 +941,7 @@ private fun SharedTransitionScope.Success(
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = targetState,
+                    associate = associate,
                     onSaveEditPage = onSaveEditPage,
                     onUpdateScreen = onUpdateScreen,
                 )

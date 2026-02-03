@@ -19,6 +19,7 @@ package com.eblan.launcher.domain.usecase.page
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
@@ -36,6 +37,7 @@ class UpdatePageItemsUseCase @Inject constructor(
         id: Int,
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
+        associate: Associate,
     ) {
         withContext(defaultDispatcher) {
             val homeSettings = userDataRepository.userData.first().homeSettings
@@ -52,12 +54,25 @@ class UpdatePageItemsUseCase @Inject constructor(
 
             val newInitialPage = pageItems.indexOfFirst { it.id == id }
 
-            userDataRepository.updateHomeSettings(
-                homeSettings = homeSettings.copy(
-                    pageCount = pageItems.size,
-                    initialPage = newInitialPage,
-                ),
-            )
+            when (associate) {
+                Associate.Grid -> {
+                    userDataRepository.updateHomeSettings(
+                        homeSettings = homeSettings.copy(
+                            pageCount = pageItems.size,
+                            initialPage = newInitialPage,
+                        ),
+                    )
+                }
+
+                Associate.Dock -> {
+                    userDataRepository.updateHomeSettings(
+                        homeSettings = homeSettings.copy(
+                            dockPageCount = pageItems.size,
+                            dockInitialPage = newInitialPage,
+                        ),
+                    )
+                }
+            }
 
             gridRepository.updateGridItems(gridItems = gridItems)
         }

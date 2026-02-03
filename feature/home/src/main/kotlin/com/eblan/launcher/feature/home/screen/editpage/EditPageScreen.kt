@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -59,6 +60,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.core.util.Consumer
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.TextColor
@@ -81,13 +83,17 @@ internal fun SharedTransitionScope.EditPageScreen(
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
+    associate: Associate?,
     onSaveEditPage: (
         id: Int,
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
+        associate: Associate,
     ) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
 ) {
+    requireNotNull(associate)
+
     val density = LocalDensity.current
 
     val topPadding = with(density) {
@@ -106,7 +112,14 @@ internal fun SharedTransitionScope.EditPageScreen(
 
     val pageItemsToDelete = remember { mutableStateListOf<PageItem>() }
 
-    var selectedId by remember { mutableIntStateOf(homeSettings.initialPage) }
+    var selectedId by remember {
+        mutableIntStateOf(
+            when (associate) {
+                Associate.Grid -> homeSettings.initialPage
+                Associate.Dock -> homeSettings.dockInitialPage
+            },
+        )
+    }
 
     val lazyListState = rememberLazyListState()
 
@@ -114,10 +127,6 @@ internal fun SharedTransitionScope.EditPageScreen(
         rememberLazyColumnDragDropState(lazyListState = lazyListState) { from, to ->
             currentPageItems = currentPageItems.toMutableList().apply { add(to, removeAt(from)) }
         }
-
-    val cardHeight = with(density) {
-        (gridHeight - homeSettings.dockHeight).toDp()
-    }
 
     val isAtTop by remember(key1 = lazyListState) {
         derivedStateOf {
@@ -128,6 +137,24 @@ internal fun SharedTransitionScope.EditPageScreen(
     val activity = LocalActivity.current as ComponentActivity
 
     val scope = rememberCoroutineScope()
+
+    val columns = when (associate) {
+        Associate.Grid -> homeSettings.columns
+        Associate.Dock -> homeSettings.dockColumns
+    }
+
+    val rows = when (associate) {
+        Associate.Grid -> homeSettings.rows
+        Associate.Dock -> homeSettings.dockRows
+    }
+
+    val cardHeight = when (associate) {
+        Associate.Grid -> with(density) {
+            gridHeight.toDp() - homeSettings.dockHeight.dp
+        }
+
+        Associate.Dock -> homeSettings.dockHeight.dp
+    }
 
     DisposableEffect(key1 = activity) {
         val listener = Consumer<Intent> { intent ->
@@ -163,24 +190,28 @@ internal fun SharedTransitionScope.EditPageScreen(
                 key = { _, pageItem -> pageItem.id },
             ) { index, pageItem ->
                 DraggableItem(
-                    modifier = Modifier.padding(10.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
                     lazyColumnDragDropState = lazyColumnDragDropState,
                     index = index,
                 ) {
                     Column(
                         modifier = Modifier
-                            .height(cardHeight)
+                            .fillMaxWidth()
                             .background(
                                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
                                 shape = RoundedCornerShape(8.dp),
                             ),
                     ) {
                         GridLayout(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(cardHeight),
                             gridItems = pageItem.gridItems,
-                            columns = homeSettings.columns,
-                            rows = homeSettings.rows,
-                            { gridItem ->
+                            columns = columns,
+                            rows = rows,
+                            content = { gridItem ->
                                 GridItemContent(
                                     gridItem = gridItem,
                                     textColor = textColor,
@@ -242,6 +273,7 @@ internal fun SharedTransitionScope.EditPageScreen(
                         selectedId,
                         currentPageItems,
                         pageItemsToDelete,
+                        associate,
                     )
                 },
             )

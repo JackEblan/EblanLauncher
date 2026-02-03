@@ -21,4 +21,5 @@ message HomeSettingsProto {
   bool lockScreenOrientation = 13;
   int32 dockPageCount = 14;
   bool dockInfiniteScroll = 15;
+  int32 dockInitialPage = 16;
 }

@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutInfo
@@ -67,7 +68,10 @@ internal fun SettingsPopup(
     gridItems: List<GridItem>,
     hasSystemFeatureAppWidgets: Boolean,
     onSettings: () -> Unit,
-    onEditPage: (List<GridItem>) -> Unit,
+    onEditPage: (
+        gridItems: List<GridItem>,
+        associate: Associate,
+    ) -> Unit,
     onWidgets: () -> Unit,
     onShortcutConfigActivities: () -> Unit,
     onWallpaper: () -> Unit,
@@ -88,11 +92,21 @@ internal fun SettingsPopup(
                 onDismissRequest()
             },
             onEditPage = {
-                onEditPage(gridItems)
+                onEditPage(
+                    gridItems,
+                    Associate.Grid,
+                )
 
                 onDismissRequest()
             },
+            onEditDockPage = {
+                onEditPage(
+                    gridItems,
+                    Associate.Dock,
+                )
 
+                onDismissRequest()
+            },
             onWidgets = {
                 onWidgets()
 
@@ -159,11 +173,13 @@ internal fun GridItemPopup(
     Layout(
         modifier = modifier
             .pointerInput(Unit) {
-                detectTapGestures(onPress = {
-                    awaitRelease()
+                detectTapGestures(
+                    onPress = {
+                        awaitRelease()
 
-                    onDismissRequest()
-                })
+                        onDismissRequest()
+                    },
+                )
             }
             .fillMaxSize()
             .padding(paddingValues),
@@ -223,6 +239,7 @@ private fun SettingsMenu(
     hasSystemFeatureAppWidgets: Boolean,
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
+    onEditDockPage: () -> Unit,
     onWidgets: () -> Unit,
     onShortcutConfigActivities: () -> Unit,
     onWallpaper: () -> Unit,
@@ -245,6 +262,14 @@ private fun SettingsMenu(
                     imageVector = EblanLauncherIcons.Pages,
                     title = "Edit Pages",
                     onClick = onEditPage,
+                )
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                PopupMenuRow(
+                    imageVector = EblanLauncherIcons.Pages,
+                    title = "Edit Dock Pages",
+                    onClick = onEditDockPage,
                 )
 
                 if (hasSystemFeatureAppWidgets) {

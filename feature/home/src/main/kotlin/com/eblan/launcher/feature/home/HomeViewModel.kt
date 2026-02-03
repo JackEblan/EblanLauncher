@@ -127,7 +127,7 @@ internal class HomeViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = GridItemCache(
             gridItemsCacheByPage = emptyMap(),
-            dockGridItemsCache = emptyList(),
+            dockGridItemsCache = emptyMap(),
             folderGridItemsCacheByPage = emptyMap(),
         ),
     )

@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,6 +56,7 @@ import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
+import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 
@@ -67,7 +69,6 @@ internal fun SharedTransitionScope.ResizeScreen(
     gridItem: GridItem?,
     screenWidth: Int,
     screenHeight: Int,
-    dockGridItemsCache: List<GridItem>,
     textColor: TextColor,
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
@@ -78,6 +79,7 @@ internal fun SharedTransitionScope.ResizeScreen(
     moveGridItemResult: MoveGridItemResult?,
     screen: Screen,
     gridHorizontalPagerState: PagerState,
+    dockGridHorizontalPagerState: PagerState,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
@@ -185,28 +187,49 @@ internal fun SharedTransitionScope.ResizeScreen(
             ),
         )
 
-        GridLayout(
+        HorizontalPager(
+            state = dockGridHorizontalPagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(dockHeight),
-            gridItems = dockGridItemsCache,
-            columns = homeSettings.dockColumns,
-            rows = homeSettings.dockRows,
-            { gridItem ->
-                GridItemContent(
-                    gridItem = gridItem,
-                    textColor = textColor,
-                    gridItemSettings = homeSettings.gridItemSettings,
-                    isDragging = false,
-                    statusBarNotifications = statusBarNotifications,
-                    hasShortcutHostPermission = hasShortcutHostPermission,
-                    drag = Drag.End,
-                    iconPackFilePaths = iconPackFilePaths,
-                    screen = screen,
-                    isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
-                )
-            },
-        )
+                .height(dockHeight)
+                .padding(
+                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                ),
+        ) { index ->
+            val page = calculatePage(
+                index = index,
+                infiniteScroll = homeSettings.dockInfiniteScroll,
+                pageCount = homeSettings.dockPageCount,
+            )
+
+            GridLayout(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(dockHeight)
+                    .padding(
+                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                    ),
+                gridItems = gridItemCache.dockGridItemsCache[page],
+                columns = homeSettings.dockColumns,
+                rows = homeSettings.dockRows,
+                { gridItem ->
+                    GridItemContent(
+                        gridItem = gridItem,
+                        textColor = textColor,
+                        gridItemSettings = homeSettings.gridItemSettings,
+                        isDragging = false,
+                        statusBarNotifications = statusBarNotifications,
+                        hasShortcutHostPermission = hasShortcutHostPermission,
+                        drag = Drag.End,
+                        iconPackFilePaths = iconPackFilePaths,
+                        screen = screen,
+                        isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+                    )
+                },
+            )
+        }
     }
 
     when (currentGridItem.associate) {
@@ -326,7 +349,7 @@ private fun ResizeOverlay(
         is GridItemData.ShortcutInfo,
         is GridItemData.Folder,
         is GridItemData.ShortcutConfig,
-        -> {
+            -> {
             GridItemResizeOverlay(
                 gridItem = gridItem,
                 gridWidth = gridWidth,

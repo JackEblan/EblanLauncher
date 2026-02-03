@@ -368,7 +368,14 @@ private fun Success(
                 showDockHeightDialog = false
             },
             onUpdateClick = {
-                try {
+                val dockHeight = try {
+                    value.toInt()
+                } catch (_: NumberFormatException) {
+                    isError = true
+                    0
+                }
+
+                if (dockHeight > 0) {
                     onUpdateHomeSettings(
                         homeSettings.copy(
                             dockHeight = value.toInt(),
@@ -376,8 +383,6 @@ private fun Success(
                     )
 
                     showDockHeightDialog = false
-                } catch (_: NumberFormatException) {
-                    isError = true
                 }
             },
         )
@@ -401,7 +406,14 @@ private fun Success(
                 showDockPageCountDialog = false
             },
             onUpdateClick = {
-                try {
+                val dockPageCount = try {
+                    value.toInt()
+                } catch (_: NumberFormatException) {
+                    isError = true
+                    0
+                }
+
+                if (dockPageCount > 0) {
                     onUpdateHomeSettings(
                         homeSettings.copy(
                             dockPageCount = value.toInt(),
@@ -409,8 +421,6 @@ private fun Success(
                     )
 
                     showDockPageCountDialog = false
-                } catch (_: NumberFormatException) {
-                    isError = true
                 }
             },
         )

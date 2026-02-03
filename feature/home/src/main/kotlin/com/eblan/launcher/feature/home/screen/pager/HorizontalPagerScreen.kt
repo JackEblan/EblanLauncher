@@ -152,6 +152,8 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         paddingValues.calculateTopPadding().roundToPx()
     }
 
+    val dockTopPadding = topPadding + gridHeight - dockHeightPx
+
     val pageIndicatorHeightPx = with(density) {
         PAGE_INDICATOR_HEIGHT.dp.roundToPx()
     }
@@ -335,8 +337,8 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         ) { index ->
             val page = calculatePage(
                 index = index,
-                infiniteScroll = homeSettings.infiniteScroll,
-                pageCount = homeSettings.pageCount,
+                infiniteScroll = homeSettings.dockInfiniteScroll,
+                pageCount = homeSettings.dockPageCount,
             )
 
             GridLayout(
@@ -370,7 +372,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     onTapApplicationInfo = { serialNumber, componentName ->
                         val sourceBoundsX = x + leftPadding
 
-                        val sourceBoundsY = y + topPadding
+                        val sourceBoundsY = y + dockTopPadding
 
                         launcherApps.startMainActivity(
                             serialNumber = serialNumber,
@@ -386,7 +388,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
                         val sourceBoundsX = x + leftPadding
 
-                        val sourceBoundsY = y + topPadding
+                        val sourceBoundsY = y + dockTopPadding
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
                             launcherApps.startShortcut(

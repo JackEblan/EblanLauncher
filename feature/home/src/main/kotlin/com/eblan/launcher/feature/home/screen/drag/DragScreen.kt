@@ -88,11 +88,11 @@ internal fun SharedTransitionScope.DragScreen(
     screenWidth: Int,
     screenHeight: Int,
     paddingValues: PaddingValues,
-    dockGridItemsCache: List<GridItem>,
     textColor: TextColor,
     moveGridItemResult: MoveGridItemResult?,
     homeSettings: HomeSettings,
     gridHorizontalPagerState: PagerState,
+    dockGridHorizontalPagerState: PagerState,
     currentPage: Int,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
@@ -416,7 +416,8 @@ internal fun SharedTransitionScope.DragScreen(
             ),
         )
 
-        GridLayout(
+        HorizontalPager(
+            state = dockGridHorizontalPagerState,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeight)
@@ -424,26 +425,42 @@ internal fun SharedTransitionScope.DragScreen(
                     start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                     end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                 ),
-            gridItems = dockGridItemsCache,
-            columns = homeSettings.dockColumns,
-            rows = homeSettings.dockRows,
-            { gridItem ->
-                val isDragging =
-                    (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
+        ) { index ->
+            val page = calculatePage(
+                index = index,
+                infiniteScroll = homeSettings.dockInfiniteScroll,
+                pageCount = homeSettings.dockPageCount,
+            )
 
-                GridItemContent(
-                    gridItem = gridItem,
-                    textColor = textColor,
-                    gridItemSettings = homeSettings.gridItemSettings,
-                    isDragging = isDragging,
-                    statusBarNotifications = statusBarNotifications,
-                    hasShortcutHostPermission = hasShortcutHostPermission,
-                    drag = drag,
-                    iconPackFilePaths = iconPackFilePaths,
-                    screen = screen,
-                    isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
-                )
-            },
-        )
+            GridLayout(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(dockHeight)
+                    .padding(
+                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                    ),
+                gridItems = gridItemCache.dockGridItemsCache[page],
+                columns = homeSettings.dockColumns,
+                rows = homeSettings.dockRows,
+                { gridItem ->
+                    val isDragging =
+                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
+
+                    GridItemContent(
+                        gridItem = gridItem,
+                        textColor = textColor,
+                        gridItemSettings = homeSettings.gridItemSettings,
+                        isDragging = isDragging,
+                        statusBarNotifications = statusBarNotifications,
+                        hasShortcutHostPermission = hasShortcutHostPermission,
+                        drag = drag,
+                        iconPackFilePaths = iconPackFilePaths,
+                        screen = screen,
+                        isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+                    )
+                },
+            )
+        }
     }
 }

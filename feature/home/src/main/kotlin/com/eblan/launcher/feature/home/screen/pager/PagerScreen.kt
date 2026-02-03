@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
@@ -89,7 +90,7 @@ internal fun SharedTransitionScope.PagerScreen(
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
     drag: Drag,
-    dockGridItems: List<GridItem>,
+    dockGridItemsByPage: Map<Int, List<GridItem>>,
     textColor: TextColor,
     screenWidth: Int,
     screenHeight: Int,
@@ -101,6 +102,7 @@ internal fun SharedTransitionScope.PagerScreen(
     gridItemSource: GridItemSource?,
     homeSettings: HomeSettings,
     gridHorizontalPagerState: PagerState,
+    dockGridHorizontalPagerState: PagerState,
     currentPage: Int,
     statusBarNotifications: Map<String, Int>,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
@@ -118,7 +120,10 @@ internal fun SharedTransitionScope.PagerScreen(
     onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
     onSettings: () -> Unit,
-    onEditPage: (List<GridItem>) -> Unit,
+    onEditPage: (
+        gridItems: List<GridItem>,
+        associate: Associate,
+    ) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -346,13 +351,14 @@ internal fun SharedTransitionScope.PagerScreen(
             }
             .alpha(pagerAlpha),
         gridHorizontalPagerState = gridHorizontalPagerState,
+        dockGridHorizontalPagerState = dockGridHorizontalPagerState,
         currentPage = currentPage,
         gridItems = gridItems,
         gridItemsByPage = gridItemsByPage,
         gridWidth = gridWidth,
         gridHeight = gridHeight,
         paddingValues = paddingValues,
-        dockGridItems = dockGridItems,
+        dockGridItemsByPage = dockGridItemsByPage,
         textColor = textColor,
         drag = drag,
         hasShortcutHostPermission = hasShortcutHostPermission,

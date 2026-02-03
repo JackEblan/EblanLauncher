@@ -140,7 +140,7 @@ private fun Success(
         ) {
             SettingsColumn(
                 title = "App Drawer Grid",
-                subtitle = "Number of columns and rows height",
+                subtitle = "${appDrawerSettings.appDrawerColumns}x${appDrawerSettings.appDrawerRowsHeight}",
                 onClick = {
                     showGridDialog = true
                 },

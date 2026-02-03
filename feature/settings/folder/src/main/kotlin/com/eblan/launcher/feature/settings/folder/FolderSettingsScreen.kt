@@ -121,7 +121,7 @@ private fun Success(
         ) {
             SettingsColumn(
                 title = "Folder Grid",
-                subtitle = "Number of columns and rows",
+                subtitle = "${homeSettings.folderColumns}x${homeSettings.folderRows}",
                 onClick = {
                     showGridDialog = true
                 },

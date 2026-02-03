@@ -86,7 +86,7 @@ class GetHomeDataUseCase @Inject constructor(
                     columns = userData.homeSettings.dockColumns,
                     rows = userData.homeSettings.dockRows,
                 ) && gridItem.associate == Associate.Dock
-            }
+            }.groupBy { gridItem -> gridItem.page }
 
             val gridItemSettings = userData.homeSettings.gridItemSettings
 
@@ -105,7 +105,7 @@ class GetHomeDataUseCase @Inject constructor(
                 userData = userData,
                 gridItems = gridItems,
                 gridItemsByPage = gridItemsSpanWithinBounds,
-                dockGridItems = dockGridItemsWithinBounds,
+                dockGridItemsByPage = dockGridItemsWithinBounds,
                 hasShortcutHostPermission = launcherAppsWrapper.hasShortcutHostPermission,
                 hasSystemFeatureAppWidgets = packageManagerWrapper.hasSystemFeatureAppWidgets,
                 textColor = textColor,

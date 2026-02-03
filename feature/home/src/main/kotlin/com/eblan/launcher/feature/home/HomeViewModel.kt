@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
@@ -127,7 +128,7 @@ internal class HomeViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = GridItemCache(
             gridItemsCacheByPage = emptyMap(),
-            dockGridItemsCache = emptyList(),
+            dockGridItemsCache = emptyMap(),
             folderGridItemsCacheByPage = emptyMap(),
         ),
     )
@@ -320,14 +321,20 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun showPageCache(gridItems: List<GridItem>) {
+    fun showPageCache(
+        gridItems: List<GridItem>,
+        associate: Associate,
+    ) {
         viewModelScope.launch {
             _screen.update {
                 Screen.Loading
             }
 
             _pageItems.update {
-                cachePageItemsUseCase(gridItems = gridItems)
+                cachePageItemsUseCase(
+                    gridItems = gridItems,
+                    associate = associate,
+                )
             }
 
             delay(defaultDelay)
@@ -342,6 +349,7 @@ internal class HomeViewModel @Inject constructor(
         id: Int,
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
+        associate: Associate,
     ) {
         viewModelScope.launch {
             _screen.update {
@@ -352,6 +360,7 @@ internal class HomeViewModel @Inject constructor(
                 id = id,
                 pageItems = pageItems,
                 pageItemsToDelete = pageItemsToDelete,
+                associate = associate,
             )
 
             delay(defaultDelay)

@@ -63,11 +63,11 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 internal fun SharedTransitionScope.ResizeScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
+    dockCurrentPage: Int,
     gridItemCache: GridItemCache,
     gridItem: GridItem?,
     screenWidth: Int,
     screenHeight: Int,
-    dockGridItemsCache: List<GridItem>,
     textColor: TextColor,
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
@@ -167,7 +167,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                     drag = Drag.End,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
-                    isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+                    isScrollInProgress = false,
                 )
             },
         )
@@ -189,7 +189,7 @@ internal fun SharedTransitionScope.ResizeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeight),
-            gridItems = dockGridItemsCache,
+            gridItems = gridItemCache.dockGridItemsCache[dockCurrentPage],
             columns = homeSettings.dockColumns,
             rows = homeSettings.dockRows,
             { gridItem ->
@@ -203,7 +203,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                     drag = Drag.End,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
-                    isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+                    isScrollInProgress = false,
                 )
             },
         )

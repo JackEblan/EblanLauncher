@@ -57,7 +57,7 @@ class GetGridItemsCacheUseCase @Inject constructor(
                 columns = userData.homeSettings.dockColumns,
                 rows = userData.homeSettings.dockRows,
             ) && gridItem.associate == Associate.Dock
-        }
+        }.groupBy { gridItem -> gridItem.page }
 
         val folderGridItemsCacheByPage = folderGridItems.filter { gridItem ->
             isGridItemSpanWithinBounds(

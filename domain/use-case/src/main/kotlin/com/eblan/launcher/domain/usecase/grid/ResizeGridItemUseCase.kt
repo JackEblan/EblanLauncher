@@ -47,16 +47,8 @@ class ResizeGridItemUseCase @Inject constructor(
                 gridItem = gridItem,
                 columns = columns,
                 rows = rows,
-            ) && when (resizingGridItem.associate) {
-                Associate.Grid -> {
-                    gridItem.page == resizingGridItem.page &&
-                        gridItem.associate == resizingGridItem.associate
-                }
-
-                Associate.Dock -> {
-                    gridItem.associate == resizingGridItem.associate
-                }
-            }
+            ) && gridItem.page == resizingGridItem.page &&
+                gridItem.associate == resizingGridItem.associate
         }.toMutableList()
 
         val index =

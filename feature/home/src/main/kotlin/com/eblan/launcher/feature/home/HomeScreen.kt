@@ -75,6 +75,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanApplicationInfoTag
@@ -263,11 +264,15 @@ internal fun HomeScreen(
     onCancelFolderDragGridCache: () -> Unit,
     onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
-    onEditPage: (List<GridItem>) -> Unit,
+    onEditPage: (
+        gridItems: List<GridItem>,
+        associate: Associate,
+    ) -> Unit,
     onSaveEditPage: (
         id: Int,
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
+        associate: Associate,
     ) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
@@ -585,11 +590,15 @@ private fun SharedTransitionScope.Success(
     onCancelFolderDragGridCache: () -> Unit,
     onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
-    onEditPage: (List<GridItem>) -> Unit,
+    onEditPage: (
+        gridItems: List<GridItem>,
+        associate: Associate,
+    ) -> Unit,
     onSaveEditPage: (
         id: Int,
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
+        associate: Associate,
     ) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
@@ -656,6 +665,21 @@ private fun SharedTransitionScope.Success(
         },
     )
 
+    val dockGridHorizontalPagerState = rememberPagerState(
+        initialPage = if (homeData.userData.homeSettings.dockInfiniteScroll) {
+            (Int.MAX_VALUE / 2) + homeData.userData.homeSettings.dockInitialPage
+        } else {
+            homeData.userData.homeSettings.dockInitialPage
+        },
+        pageCount = {
+            if (homeData.userData.homeSettings.dockInfiniteScroll) {
+                Int.MAX_VALUE
+            } else {
+                homeData.userData.homeSettings.dockPageCount
+            }
+        },
+    )
+
     val folderGridHorizontalPagerState = rememberPagerState(
         pageCount = {
             when (screen) {
@@ -687,12 +711,45 @@ private fun SharedTransitionScope.Success(
         }
     }
 
+    val dockCurrentPage by remember(
+        key1 = dockGridHorizontalPagerState,
+        key2 = homeData.userData.homeSettings,
+    ) {
+        derivedStateOf {
+            calculatePage(
+                index = dockGridHorizontalPagerState.currentPage,
+                infiniteScroll = homeData.userData.homeSettings.dockInfiniteScroll,
+                pageCount = homeData.userData.homeSettings.dockPageCount,
+            )
+        }
+    }
+
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     var managedProfileResult by remember { mutableStateOf<ManagedProfileResult?>(null) }
 
     var statusBarNotifications by remember {
         mutableStateOf<Map<String, Int>>(emptyMap())
+    }
+
+    var associate by remember { mutableStateOf<Associate?>(null) }
+
+    val gridItemSourceCurrentPage by remember {
+        derivedStateOf {
+            when (associate) {
+                Associate.Grid -> {
+                    currentPage
+                }
+
+                Associate.Dock -> {
+                    dockCurrentPage
+                }
+
+                null -> {
+                    0
+                }
+            }
+        }
     }
 
     LaunchedEffect(key1 = pinGridItem) {
@@ -745,7 +802,7 @@ private fun SharedTransitionScope.Success(
                     gridItems = homeData.gridItems,
                     gridItemsByPage = homeData.gridItemsByPage,
                     drag = drag,
-                    dockGridItems = homeData.dockGridItems,
+                    dockGridItemsByPage = homeData.dockGridItemsByPage,
                     textColor = homeData.textColor,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
@@ -757,7 +814,8 @@ private fun SharedTransitionScope.Success(
                     gridItemSource = gridItemSource,
                     homeSettings = homeData.userData.homeSettings,
                     gridHorizontalPagerState = gridHorizontalPagerState,
-                    currentPage = currentPage,
+                    dockGridHorizontalPagerState = dockGridHorizontalPagerState,
+                    currentPage = gridItemSourceCurrentPage,
                     statusBarNotifications = statusBarNotifications,
                     eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                     eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
@@ -784,9 +842,15 @@ private fun SharedTransitionScope.Success(
                         )
                     },
                     onSettings = onSettings,
-                    onEditPage = onEditPage,
+                    onEditPage = { gridItems, newAssociate ->
+                        associate = newAssociate
+
+                        onEditPage(gridItems, newAssociate)
+                    },
                     onLongPressGridItem = { newGridItemSource, imageBitmap ->
                         gridItemSource = newGridItemSource
+
+                        associate = newGridItemSource.gridItem.associate
 
                         onUpdateGridItemImageBitmap(imageBitmap)
                     },
@@ -811,17 +875,18 @@ private fun SharedTransitionScope.Success(
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     paddingValues = paddingValues,
-                    dockGridItemsCache = gridItemCache.dockGridItemsCache,
                     textColor = homeData.textColor,
                     moveGridItemResult = movedGridItemResult,
                     homeSettings = homeData.userData.homeSettings,
                     gridHorizontalPagerState = gridHorizontalPagerState,
-                    currentPage = currentPage,
+                    dockGridHorizontalPagerState = dockGridHorizontalPagerState,
+                    currentPage = gridItemSourceCurrentPage,
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
                     lockMovement = homeData.userData.experimentalSettings.lockMovement,
                     screen = targetState,
+                    associate = associate,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = onResetGridCacheAfterMove,
                     onDragCancelAfterMove = onCancelGridCache,
@@ -832,17 +897,20 @@ private fun SharedTransitionScope.Success(
                     onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                     onShowFolderWhenDragging = onShowFolderWhenDragging,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onUpdateAssociate = { newAssociate ->
+                        associate = newAssociate
+                    },
                 )
             }
 
             Screen.Resize -> {
                 ResizeScreen(
                     currentPage = currentPage,
+                    dockCurrentPage = dockCurrentPage,
                     gridItemCache = gridItemCache,
                     gridItem = gridItemSource?.gridItem,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
-                    dockGridItemsCache = gridItemCache.dockGridItemsCache,
                     textColor = homeData.textColor,
                     paddingValues = paddingValues,
                     homeSettings = homeData.userData.homeSettings,
@@ -873,6 +941,7 @@ private fun SharedTransitionScope.Success(
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = targetState,
+                    associate = associate,
                     onSaveEditPage = onSaveEditPage,
                     onUpdateScreen = onUpdateScreen,
                 )
@@ -897,6 +966,8 @@ private fun SharedTransitionScope.Success(
                     onAddFolder = onAddFolder,
                     onLongPressGridItem = { newGridItemSource, imageBitmap ->
                         gridItemSource = newGridItemSource
+
+                        associate = newGridItemSource.gridItem.associate
 
                         onUpdateGridItemImageBitmap(imageBitmap)
                     },
@@ -932,6 +1003,8 @@ private fun SharedTransitionScope.Success(
                     onMoveGridItemOutsideFolder = { newGridItemSource, folderId, movingGridItem ->
                         gridItemSource = newGridItemSource
 
+                        associate = newGridItemSource.gridItem.associate
+
                         onMoveGridItemOutsideFolder(
                             folderId,
                             movingGridItem,
@@ -940,6 +1013,9 @@ private fun SharedTransitionScope.Success(
                         )
                     },
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onUpdateAssociate = { newAssociate ->
+                        associate = newAssociate
+                    },
                 )
             }
         }

@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemData
@@ -60,7 +61,6 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
@@ -88,17 +88,18 @@ internal fun SharedTransitionScope.DragScreen(
     screenWidth: Int,
     screenHeight: Int,
     paddingValues: PaddingValues,
-    dockGridItemsCache: List<GridItem>,
     textColor: TextColor,
     moveGridItemResult: MoveGridItemResult?,
     homeSettings: HomeSettings,
     gridHorizontalPagerState: PagerState,
+    dockGridHorizontalPagerState: PagerState,
     currentPage: Int,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
     lockMovement: Boolean,
     screen: Screen,
+    associate: Associate?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -129,6 +130,7 @@ internal fun SharedTransitionScope.DragScreen(
     ) -> Unit,
     onShowFolderWhenDragging: (String) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateAssociate: (Associate) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -155,8 +157,6 @@ internal fun SharedTransitionScope.DragScreen(
     val view = LocalView.current
 
     val scope = rememberCoroutineScope()
-
-    var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
     var lastAppWidgetId by remember { mutableIntStateOf(AppWidgetManager.INVALID_APPWIDGET_ID) }
 
@@ -253,23 +253,9 @@ internal fun SharedTransitionScope.DragScreen(
             paddingValues = paddingValues,
             lockMovement = lockMovement,
             screen = screen,
-            onUpdatePageDirection = { newPageDirection ->
-                pageDirection = newPageDirection
-            },
             onMoveGridItem = onMoveGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
-        )
-    }
-
-    LaunchedEffect(key1 = pageDirection) {
-        handlePageDirection(
-            currentPage = gridHorizontalPagerState.currentPage,
-            pageDirection = pageDirection,
-            onAnimateScrollToPage = { page ->
-                gridHorizontalPagerState.animateScrollToPage(page = page)
-
-                pageDirection = null
-            },
+            onUpdateAssociate = onUpdateAssociate,
         )
     }
 
@@ -355,6 +341,18 @@ internal fun SharedTransitionScope.DragScreen(
         )
     }
 
+    LaunchedEffect(key1 = dragIntOffset) {
+        handleAnimateScrollToPage(
+            density = density,
+            paddingValues = paddingValues,
+            screenWidth = screenWidth,
+            dragIntOffset = dragIntOffset,
+            associate = associate,
+            gridHorizontalPagerState = gridHorizontalPagerState,
+            dockGridHorizontalPagerState = dockGridHorizontalPagerState,
+        )
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -416,34 +414,45 @@ internal fun SharedTransitionScope.DragScreen(
             ),
         )
 
-        GridLayout(
+        HorizontalPager(
+            state = dockGridHorizontalPagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(dockHeight)
-                .padding(
-                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                ),
-            gridItems = dockGridItemsCache,
-            columns = homeSettings.dockColumns,
-            rows = homeSettings.dockRows,
-            { gridItem ->
-                val isDragging =
-                    (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
+                .height(dockHeight),
+            contentPadding = PaddingValues(
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+            ),
+        ) { index ->
+            val page = calculatePage(
+                index = index,
+                infiniteScroll = homeSettings.dockInfiniteScroll,
+                pageCount = homeSettings.dockPageCount,
+            )
 
-                GridItemContent(
-                    gridItem = gridItem,
-                    textColor = textColor,
-                    gridItemSettings = homeSettings.gridItemSettings,
-                    isDragging = isDragging,
-                    statusBarNotifications = statusBarNotifications,
-                    hasShortcutHostPermission = hasShortcutHostPermission,
-                    drag = drag,
-                    iconPackFilePaths = iconPackFilePaths,
-                    screen = screen,
-                    isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
-                )
-            },
-        )
+            GridLayout(
+                modifier = Modifier.fillMaxWidth(),
+                gridItems = gridItemCache.dockGridItemsCache[page],
+                columns = homeSettings.dockColumns,
+                rows = homeSettings.dockRows,
+                { gridItem ->
+                    val isDragging =
+                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
+
+                    GridItemContent(
+                        gridItem = gridItem,
+                        textColor = textColor,
+                        gridItemSettings = homeSettings.gridItemSettings,
+                        isDragging = isDragging,
+                        statusBarNotifications = statusBarNotifications,
+                        hasShortcutHostPermission = hasShortcutHostPermission,
+                        drag = drag,
+                        iconPackFilePaths = iconPackFilePaths,
+                        screen = screen,
+                        isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
+                    )
+                },
+            )
+        }
     }
 }

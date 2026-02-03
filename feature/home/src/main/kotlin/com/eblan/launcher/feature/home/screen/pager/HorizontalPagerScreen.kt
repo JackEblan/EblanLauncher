@@ -23,7 +23,6 @@ import android.os.Build
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -51,6 +50,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutInfo
@@ -77,13 +77,14 @@ import com.eblan.launcher.ui.local.LocalWallpaperManager
 internal fun SharedTransitionScope.HorizontalPagerScreen(
     modifier: Modifier = Modifier,
     gridHorizontalPagerState: PagerState,
+    dockGridHorizontalPagerState: PagerState,
     currentPage: Int,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
     gridWidth: Int,
     gridHeight: Int,
     paddingValues: PaddingValues,
-    dockGridItems: List<GridItem>,
+    dockGridItemsByPage: Map<Int, List<GridItem>>,
     textColor: TextColor,
     gridItemSource: GridItemSource?,
     drag: Drag,
@@ -100,7 +101,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
     onSettings: () -> Unit,
-    onEditPage: (List<GridItem>) -> Unit,
+    onEditPage: (
+        gridItems: List<GridItem>,
+        associate: Associate,
+    ) -> Unit,
     onWidgets: () -> Unit,
     onShortcutConfigActivities: () -> Unit,
     onDoubleTap: () -> Unit,
@@ -151,6 +155,8 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     val topPadding = with(density) {
         paddingValues.calculateTopPadding().roundToPx()
     }
+
+    val dockTopPadding = topPadding + gridHeight - dockHeightPx
 
     val pageIndicatorHeightPx = with(density) {
         PAGE_INDICATOR_HEIGHT.dp.roundToPx()
@@ -323,7 +329,8 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             ),
         )
 
-        Box(
+        HorizontalPager(
+            state = dockGridHorizontalPagerState,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeight)
@@ -331,10 +338,16 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                     end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                 ),
-        ) {
+        ) { index ->
+            val page = calculatePage(
+                index = index,
+                infiniteScroll = homeSettings.dockInfiniteScroll,
+                pageCount = homeSettings.dockPageCount,
+            )
+
             GridLayout(
-                modifier = Modifier.matchParentSize(),
-                gridItems = dockGridItems,
+                modifier = Modifier.fillMaxSize(),
+                gridItems = dockGridItemsByPage[page],
                 columns = homeSettings.dockColumns,
                 rows = homeSettings.dockRows,
             ) { gridItem ->
@@ -357,13 +370,13 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     drag = drag,
                     statusBarNotifications = statusBarNotifications,
-                    isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+                    isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
                     onTapApplicationInfo = { serialNumber, componentName ->
                         val sourceBoundsX = x + leftPadding
 
-                        val sourceBoundsY = y + topPadding
+                        val sourceBoundsY = y + dockTopPadding
 
                         launcherApps.startMainActivity(
                             serialNumber = serialNumber,
@@ -379,7 +392,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
                         val sourceBoundsX = x + leftPadding
 
-                        val sourceBoundsY = y + topPadding
+                        val sourceBoundsY = y + dockTopPadding
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
                             launcherApps.startShortcut(

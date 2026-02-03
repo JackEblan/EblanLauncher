@@ -21,7 +21,7 @@ data class HomeData(
     val userData: UserData,
     val gridItems: List<GridItem>,
     val gridItemsByPage: Map<Int, List<GridItem>>,
-    val dockGridItems: List<GridItem>,
+    val dockGridItemsByPage: Map<Int, List<GridItem>>,
     val hasShortcutHostPermission: Boolean,
     val hasSystemFeatureAppWidgets: Boolean,
     val textColor: TextColor,

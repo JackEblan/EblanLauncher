@@ -137,7 +137,7 @@ private fun Success(
         ) {
             SettingsColumn(
                 title = "Grid",
-                subtitle = "Number of columns and rows",
+                subtitle = "${homeSettings.columns}x${homeSettings.rows}",
                 onClick = {
                     showGridDialog = true
                 },
@@ -148,7 +148,7 @@ private fun Success(
             SettingsSwitch(
                 checked = homeSettings.infiniteScroll,
                 title = "Infinite Scrolling",
-                subtitle = "Seamless loop from last page back to first",
+                subtitle = "Seamless loop page scroll",
                 onCheckedChange = { infiniteScroll ->
                     onUpdateHomeSettings(homeSettings.copy(infiniteScroll = infiniteScroll))
                 },
@@ -190,7 +190,7 @@ private fun Success(
         ) {
             SettingsColumn(
                 title = "Dock Grid",
-                subtitle = "Number of columns and rows",
+                subtitle = "${homeSettings.dockColumns}x${homeSettings.dockRows}",
                 onClick = {
                     showDockGridDialog = true
                 },
@@ -200,9 +200,20 @@ private fun Success(
 
             SettingsColumn(
                 title = "Dock Height",
-                subtitle = "Height of the dock",
+                subtitle = "${homeSettings.dockHeight}",
                 onClick = {
                     showDockHeightDialog = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsSwitch(
+                checked = homeSettings.dockInfiniteScroll,
+                title = "Dock Infinite Scroll",
+                subtitle = "Seamless loop page scroll",
+                onCheckedChange = { dockInfiniteScroll ->
+                    onUpdateHomeSettings(homeSettings.copy(dockInfiniteScroll = dockInfiniteScroll))
                 },
             )
         }
@@ -345,16 +356,19 @@ private fun Success(
                 showDockHeightDialog = false
             },
             onUpdateClick = {
-                try {
+                val dockHeight = try {
+                    value.toInt()
+                } catch (_: NumberFormatException) {
+                    isError = true
+                    0
+                }
+
+                if (dockHeight > 0) {
                     onUpdateHomeSettings(
-                        homeSettings.copy(
-                            dockHeight = value.toInt(),
-                        ),
+                        homeSettings.copy(dockHeight = dockHeight),
                     )
 
                     showDockHeightDialog = false
-                } catch (_: NumberFormatException) {
-                    isError = true
                 }
             },
         )

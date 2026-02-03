@@ -33,13 +33,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -110,20 +108,20 @@ internal fun SharedTransitionScope.EditPageScreen(
 
     var selectedId by remember { mutableIntStateOf(homeSettings.initialPage) }
 
-    val lazyGridState = rememberLazyGridState()
+    val lazyListState = rememberLazyListState()
 
-    val gridDragAndDropState =
-        rememberLazyGridDragAndDropState(gridState = lazyGridState) { from, to ->
+    val lazyColumnDragDropState =
+        rememberLazyColumnDragDropState(lazyListState = lazyListState) { from, to ->
             currentPageItems = currentPageItems.toMutableList().apply { add(to, removeAt(from)) }
         }
 
     val cardHeight = with(density) {
-        ((gridHeight - homeSettings.dockHeight) / 2).toDp()
+        (gridHeight - homeSettings.dockHeight).toDp()
     }
 
-    val isAtTop by remember(key1 = lazyGridState) {
+    val isAtTop by remember(key1 = lazyListState) {
         derivedStateOf {
-            lazyGridState.firstVisibleItemIndex == 0 && lazyGridState.firstVisibleItemScrollOffset == 0
+            lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset == 0
         }
     }
 
@@ -153,12 +151,11 @@ internal fun SharedTransitionScope.EditPageScreen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+        LazyColumn(
             modifier = Modifier
-                .dragContainer(state = gridDragAndDropState)
+                .dragContainer(lazyColumnDragDropState = lazyColumnDragDropState)
                 .matchParentSize(),
-            state = lazyGridState,
+            state = lazyListState,
             contentPadding = paddingValues,
         ) {
             itemsIndexed(
@@ -166,8 +163,8 @@ internal fun SharedTransitionScope.EditPageScreen(
                 key = { _, pageItem -> pageItem.id },
             ) { index, pageItem ->
                 DraggableItem(
-                    modifier = Modifier.padding(5.dp),
-                    state = gridDragAndDropState,
+                    modifier = Modifier.padding(10.dp),
+                    lazyColumnDragDropState = lazyColumnDragDropState,
                     index = index,
                 ) {
                     Column(
@@ -184,24 +181,10 @@ internal fun SharedTransitionScope.EditPageScreen(
                             columns = homeSettings.columns,
                             rows = homeSettings.rows,
                             { gridItem ->
-                                val smallGridItem = gridItem.let { gridItem ->
-                                    gridItem.copy(
-                                        gridItemSettings = gridItem.gridItemSettings.copy(
-                                            iconSize = gridItem.gridItemSettings.iconSize / 2,
-                                            textSize = gridItem.gridItemSettings.textSize / 2,
-                                        ),
-                                    )
-                                }
-
-                                val smallGridItemSettings = homeSettings.gridItemSettings.copy(
-                                    iconSize = gridItem.gridItemSettings.iconSize / 2,
-                                    textSize = gridItem.gridItemSettings.textSize / 2,
-                                )
-
                                 GridItemContent(
-                                    gridItem = smallGridItem,
+                                    gridItem = gridItem,
                                     textColor = textColor,
-                                    gridItemSettings = smallGridItemSettings,
+                                    gridItemSettings = homeSettings.gridItemSettings,
                                     isDragging = false,
                                     statusBarNotifications = emptyMap(),
                                     hasShortcutHostPermission = hasShortcutHostPermission,
@@ -214,6 +197,9 @@ internal fun SharedTransitionScope.EditPageScreen(
                         )
 
                         PageButtons(
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(5.dp),
                             pageItem = pageItem,
                             selectedId = selectedId,
                             onDeleteClick = {
@@ -265,22 +251,19 @@ internal fun SharedTransitionScope.EditPageScreen(
 
 @Composable
 private fun PageButtons(
+    modifier: Modifier = Modifier,
     pageItem: PageItem,
     selectedId: Int,
     onDeleteClick: () -> Unit,
     onHomeClick: () -> Unit,
 ) {
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
+        modifier = modifier,
         shape = RoundedCornerShape(30.dp),
         tonalElevation = 10.dp,
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp),
+            modifier = Modifier.padding(5.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             IconButton(

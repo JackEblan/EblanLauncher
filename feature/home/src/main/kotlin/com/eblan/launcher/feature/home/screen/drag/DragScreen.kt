@@ -418,11 +418,11 @@ internal fun SharedTransitionScope.DragScreen(
             state = dockGridHorizontalPagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(dockHeight)
-                .padding(
-                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                ),
+                .height(dockHeight),
+            contentPadding = PaddingValues(
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+            ),
         ) { index ->
             val page = calculatePage(
                 index = index,
@@ -431,13 +431,7 @@ internal fun SharedTransitionScope.DragScreen(
             )
 
             GridLayout(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(dockHeight)
-                    .padding(
-                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                    ),
+                modifier = Modifier.fillMaxWidth(),
                 gridItems = gridItemCache.dockGridItemsCache[page],
                 columns = homeSettings.dockColumns,
                 rows = homeSettings.dockRows,

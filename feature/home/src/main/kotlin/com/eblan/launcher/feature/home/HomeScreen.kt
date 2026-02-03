@@ -667,9 +667,9 @@ private fun SharedTransitionScope.Success(
 
     val dockGridHorizontalPagerState = rememberPagerState(
         initialPage = if (homeData.userData.homeSettings.dockInfiniteScroll) {
-            (Int.MAX_VALUE / 2) + homeData.userData.homeSettings.initialPage
+            (Int.MAX_VALUE / 2) + homeData.userData.homeSettings.dockInitialPage
         } else {
-            homeData.userData.homeSettings.initialPage
+            homeData.userData.homeSettings.dockInitialPage
         },
         pageCount = {
             if (homeData.userData.homeSettings.dockInfiniteScroll) {

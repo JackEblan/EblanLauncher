@@ -365,9 +365,7 @@ private fun Success(
 
                 if (dockHeight > 0) {
                     onUpdateHomeSettings(
-                        homeSettings.copy(
-                            dockHeight = value.toInt(),
-                        ),
+                        homeSettings.copy(dockHeight = dockHeight),
                     )
 
                     showDockHeightDialog = false

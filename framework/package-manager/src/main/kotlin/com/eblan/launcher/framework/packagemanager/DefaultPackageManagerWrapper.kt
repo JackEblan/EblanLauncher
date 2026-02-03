@@ -17,8 +17,6 @@
  */
 package com.eblan.launcher.framework.packagemanager
 
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -64,16 +62,17 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         }
     }
 
-    override suspend fun getApplicationLabel(packageName: String): String? = withContext(defaultDispatcher) {
-        try {
-            val applicationInfo =
-                packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+    override suspend fun getApplicationLabel(packageName: String): String? =
+        withContext(defaultDispatcher) {
+            try {
+                val applicationInfo =
+                    packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
 
-            packageManager.getApplicationLabel(applicationInfo).toString()
-        } catch (_: PackageManager.NameNotFoundException) {
-            null
+                packageManager.getApplicationLabel(applicationInfo).toString()
+            } catch (_: PackageManager.NameNotFoundException) {
+                null
+            }
         }
-    }
 
     override fun getComponentName(packageName: String): String? {
         val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
@@ -135,16 +134,6 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         0L
     }
 
-    override fun isComponentExported(componentName: ComponentName): Boolean {
-        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
-            component = componentName
-        }
-
-        val activityInfo =
-            intent.resolveActivityInfo(packageManager, PackageManager.MATCH_DEFAULT_ONLY)
-
-        return activityInfo != null && activityInfo.exported
-    }
-
-    override fun getUserBadgedLabel(label: CharSequence, userHandle: UserHandle): CharSequence = packageManager.getUserBadgedLabel(label, userHandle)
+    override fun getUserBadgedLabel(label: CharSequence, userHandle: UserHandle): CharSequence =
+        packageManager.getUserBadgedLabel(label, userHandle)
 }

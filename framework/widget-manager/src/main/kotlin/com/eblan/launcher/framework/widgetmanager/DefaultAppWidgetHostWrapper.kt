@@ -17,9 +17,12 @@
  */
 package com.eblan.launcher.framework.widgetmanager
 
+import android.app.Activity
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.os.Bundle
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.launcher3.LauncherAppWidgetHost
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -48,5 +51,22 @@ internal class DefaultAppWidgetHostWrapper @Inject constructor(@param:Applicatio
 
     override fun deleteAppWidgetId(appWidgetId: Int) {
         appWidgetHost.deleteAppWidgetId(appWidgetId)
+    }
+
+    @Throws(ActivityNotFoundException::class)
+    override fun startAppWidgetConfigureActivityForResult(
+        activity: Activity,
+        appWidgetId: Int,
+        intentFlags: Int,
+        requestCode: Int,
+        bundle: Bundle?,
+    ) {
+        appWidgetHost.startAppWidgetConfigureActivityForResult(
+            activity,
+            appWidgetId,
+            intentFlags,
+            requestCode,
+            bundle,
+        )
     }
 }

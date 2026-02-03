@@ -1325,6 +1325,8 @@ private fun SearchBar(
             onGetEblanApplicationInfosByLabel("")
 
             query = ""
+
+            selectedTagIds.clear()
         }
     }
 

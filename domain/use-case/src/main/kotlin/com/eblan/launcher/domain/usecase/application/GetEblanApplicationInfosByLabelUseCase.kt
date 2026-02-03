@@ -24,8 +24,10 @@ import com.eblan.launcher.domain.model.EblanUserType
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
@@ -34,48 +36,51 @@ class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
     private val launcherAppsWrapper: LauncherAppsWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
+    @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(
         labelFlow: Flow<String>,
         eblanApplicationInfoTagIdsFlow: Flow<List<Long>?>,
-    ): Flow<GetEblanApplicationInfosByLabel> = combine(
-        eblanApplicationInfoRepository.eblanApplicationInfos,
-        labelFlow,
-        eblanApplicationInfoTagIdsFlow,
-    ) { eblanApplicationInfos, label, tagIds ->
-        println(tagIds?.size)
-        val currentEblanApplicationInfos = if (tagIds != null && tagIds.isNotEmpty()) {
-            eblanApplicationInfoRepository.getEblanApplicationInfosByTagId(tagIds = tagIds)
-        } else {
-            eblanApplicationInfos
+    ): Flow<GetEblanApplicationInfosByLabel> {
+        val eblanApplicationInfosFlow = eblanApplicationInfoTagIdsFlow.flatMapLatest { tagIds ->
+            if (tagIds != null && tagIds.isNotEmpty()) {
+                eblanApplicationInfoRepository.getEblanApplicationInfosByTagId(tagIds = tagIds)
+            } else {
+                eblanApplicationInfoRepository.eblanApplicationInfos
+            }
         }
 
-        val groupedEblanApplicationInfos =
-            currentEblanApplicationInfos.filter { eblanApplicationInfo ->
-                !eblanApplicationInfo.isHidden && eblanApplicationInfo.label.contains(
-                    other = label,
-                    ignoreCase = true,
-                )
-            }.sortedWith(
-                compareBy(
-                    { it.serialNumber },
-                    { it.label.lowercase() },
-                ),
-            ).groupBy { eblanApplicationInfo ->
-                launcherAppsWrapper.getUser(serialNumber = eblanApplicationInfo.serialNumber)
+        return combine(
+            eblanApplicationInfosFlow,
+            labelFlow,
+        ) { eblanApplicationInfos, label ->
+            val groupedEblanApplicationInfos =
+                eblanApplicationInfos.filter { eblanApplicationInfo ->
+                    !eblanApplicationInfo.isHidden && eblanApplicationInfo.label.contains(
+                        other = label,
+                        ignoreCase = true,
+                    )
+                }.sortedWith(
+                    compareBy(
+                        { it.serialNumber },
+                        { it.label.lowercase() },
+                    ),
+                ).groupBy { eblanApplicationInfo ->
+                    launcherAppsWrapper.getUser(serialNumber = eblanApplicationInfo.serialNumber)
+                }
+
+            val index = groupedEblanApplicationInfos.keys.toList().indexOfFirst { eblanUser ->
+                eblanUser.eblanUserType == EblanUserType.Private
             }
 
-        val index = groupedEblanApplicationInfos.keys.toList().indexOfFirst { eblanUser ->
-            eblanUser.eblanUserType == EblanUserType.Private
-        }
+            val privateEblanUser = groupedEblanApplicationInfos.keys.toList().getOrNull(index)
 
-        val privateEblanUser = groupedEblanApplicationInfos.keys.toList().getOrNull(index)
-
-        GetEblanApplicationInfosByLabel(
-            eblanApplicationInfos = groupedEblanApplicationInfos.filterKeys { eblanUser ->
-                eblanUser != privateEblanUser
-            },
-            privateEblanUser = privateEblanUser,
-            privateEblanApplicationInfos = groupedEblanApplicationInfos[privateEblanUser].orEmpty(),
-        )
-    }.flowOn(defaultDispatcher)
+            GetEblanApplicationInfosByLabel(
+                eblanApplicationInfos = groupedEblanApplicationInfos.filterKeys { eblanUser ->
+                    eblanUser != privateEblanUser
+                },
+                privateEblanUser = privateEblanUser,
+                privateEblanApplicationInfos = groupedEblanApplicationInfos[privateEblanUser].orEmpty(),
+            )
+        }.flowOn(defaultDispatcher)
+    }
 }

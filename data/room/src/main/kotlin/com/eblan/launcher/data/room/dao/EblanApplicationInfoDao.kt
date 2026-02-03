@@ -93,7 +93,7 @@ interface EblanApplicationInfoDao {
     WHERE ref.id IN (:tagIds)
     """,
     )
-    fun getEblanApplicationInfoEntitiesByTagId(tagIds: List<Long>): List<EblanApplicationInfoEntity>
+    fun getEblanApplicationInfoEntitiesByTagId(tagIds: List<Long>): Flow<List<EblanApplicationInfoEntity>>
 
     @Query(
         """

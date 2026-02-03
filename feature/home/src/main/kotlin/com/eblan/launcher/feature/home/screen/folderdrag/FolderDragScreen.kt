@@ -37,7 +37,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,6 +47,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
@@ -59,10 +59,8 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 
@@ -105,14 +103,13 @@ internal fun SharedTransitionScope.FolderDragScreen(
         movingGridItem: GridItem,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateAssociate: (Associate) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
     val context = LocalContext.current
 
     val density = LocalDensity.current
-
-    var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
     val pageIndicatorHeightPx = with(density) {
         PAGE_INDICATOR_HEIGHT.dp.roundToPx()
@@ -140,22 +137,18 @@ internal fun SharedTransitionScope.FolderDragScreen(
             screen = screen,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveGridItemOutsideFolder = onMoveGridItemOutsideFolder,
-            onUpdatePageDirection = { newPageDirection ->
-                pageDirection = newPageDirection
-            },
             onUpdateSharedElementKey = onUpdateSharedElementKey,
+            onUpdateAssociate = onUpdateAssociate,
         )
     }
 
-    LaunchedEffect(key1 = pageDirection) {
-        handlePageDirection(
-            currentPage = folderGridHorizontalPagerState.currentPage,
-            pageDirection = pageDirection,
-            onAnimateScrollToPage = { page ->
-                folderGridHorizontalPagerState.animateScrollToPage(page = page)
-
-                pageDirection = null
-            },
+    LaunchedEffect(key1 = dragIntOffset) {
+        handleAnimateScrollToPage(
+            density = density,
+            paddingValues = paddingValues,
+            screenWidth = screenWidth,
+            dragIntOffset = dragIntOffset,
+            gridHorizontalPagerState = folderGridHorizontalPagerState,
         )
     }
 

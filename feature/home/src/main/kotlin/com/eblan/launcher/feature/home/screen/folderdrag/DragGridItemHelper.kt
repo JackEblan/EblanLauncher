@@ -20,6 +20,7 @@ package com.eblan.launcher.feature.home.screen.folderdrag
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -29,11 +30,48 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.EDGE_DISTANCE
 import kotlinx.coroutines.delay
+
+internal suspend fun handleAnimateScrollToPage(
+    density: Density,
+    paddingValues: PaddingValues,
+    screenWidth: Int,
+    dragIntOffset: IntOffset,
+    gridHorizontalPagerState: PagerState,
+) {
+    val leftPadding = with(density) {
+        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val rightPadding = with(density) {
+        paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val edgeDistance = with(density) {
+        EDGE_DISTANCE.dp.roundToPx()
+    }
+
+    val horizontalPadding = leftPadding + rightPadding
+
+    val gridWidth = screenWidth - horizontalPadding
+
+    val isOnLeftGrid = dragIntOffset.x - edgeDistance < 0
+
+    val isOnRightGrid = dragIntOffset.x + edgeDistance > gridWidth
+
+    if (isOnLeftGrid) {
+        delay(500L)
+
+        gridHorizontalPagerState.animateScrollToPage(page = gridHorizontalPagerState.currentPage - 1)
+    } else if (isOnRightGrid) {
+        delay(500L)
+
+        gridHorizontalPagerState.animateScrollToPage(page = gridHorizontalPagerState.currentPage + 1)
+    }
+}
 
 internal suspend fun handleDragFolderGridItem(
     density: Density,
@@ -52,7 +90,6 @@ internal suspend fun handleDragFolderGridItem(
     lockMovement: Boolean,
     folderId: String?,
     screen: Screen,
-    onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -69,6 +106,7 @@ internal suspend fun handleDragFolderGridItem(
         movingGridItem: GridItem,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateAssociate: (Associate) -> Unit,
 ) {
     if (folderId == null ||
         drag != Drag.Dragging ||
@@ -93,10 +131,6 @@ internal suspend fun handleDragFolderGridItem(
         paddingValues.calculateBottomPadding().roundToPx()
     }
 
-    val edgeDistance = with(density) {
-        EDGE_DISTANCE.dp.roundToPx()
-    }
-
     val horizontalPadding = leftPadding + rightPadding
 
     val verticalPadding = topPadding + bottomPadding
@@ -109,21 +143,9 @@ internal suspend fun handleDragFolderGridItem(
 
     val dragY = dragIntOffset.y - topPadding - titleHeight
 
-    val isOnLeftGrid = dragIntOffset.x - edgeDistance < 0
-
-    val isOnRightGrid = dragIntOffset.x + edgeDistance > gridWidth
-
     val isOnTopGrid = dragIntOffset.y < topPadding + titleHeight
 
-    if (isOnLeftGrid && !isOnTopGrid) {
-        delay(500L)
-
-        onUpdatePageDirection(PageDirection.Left)
-    } else if (isOnRightGrid && !isOnTopGrid) {
-        delay(500L)
-
-        onUpdatePageDirection(PageDirection.Right)
-    } else if (isOnTopGrid) {
+    if (isOnTopGrid) {
         delay(100L)
 
         onUpdateSharedElementKey(
@@ -146,6 +168,8 @@ internal suspend fun handleDragFolderGridItem(
         )
     } else {
         delay(100L)
+
+        onUpdateAssociate(Associate.Grid)
 
         val cellWidth = gridWidth / columns
 

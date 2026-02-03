@@ -55,7 +55,7 @@ class MoveGridItemUseCase @Inject constructor(
                     columns = columns,
                     rows = rows,
                 ) && gridItem.page == movingGridItem.page &&
-                        gridItem.associate == movingGridItem.associate
+                    gridItem.associate == movingGridItem.associate
             }.toMutableList()
 
             val index =

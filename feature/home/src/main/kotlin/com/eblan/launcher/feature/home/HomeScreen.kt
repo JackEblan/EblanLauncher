@@ -893,7 +893,8 @@ private fun SharedTransitionScope.Success(
 
             Screen.Resize -> {
                 ResizeScreen(
-                    currentPage = gridItemSourceCurrentPage,
+                    currentPage = currentPage,
+                    dockCurrentPage = dockCurrentPage,
                     gridItemCache = gridItemCache,
                     gridItem = gridItemSource?.gridItem,
                     screenWidth = screenWidth,
@@ -908,7 +909,6 @@ private fun SharedTransitionScope.Success(
                     moveGridItemResult = movedGridItemResult,
                     screen = targetState,
                     gridHorizontalPagerState = gridHorizontalPagerState,
-                    dockGridHorizontalPagerState = dockGridHorizontalPagerState,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResetGridCacheAfterResize,
                     onResizeCancel = onCancelGridCache,
@@ -990,6 +990,8 @@ private fun SharedTransitionScope.Success(
                     onMoveGridItemOutsideFolder = { newGridItemSource, folderId, movingGridItem ->
                         gridItemSource = newGridItemSource
 
+                        associate = newGridItemSource.gridItem.associate
+
                         onMoveGridItemOutsideFolder(
                             folderId,
                             movingGridItem,
@@ -998,6 +1000,9 @@ private fun SharedTransitionScope.Success(
                         )
                     },
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onUpdateAssociate = { newAssociate ->
+                        associate = newAssociate
+                    },
                 )
             }
         }

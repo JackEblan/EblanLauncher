@@ -35,7 +35,6 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.EDGE_DISTANCE
@@ -89,24 +88,6 @@ internal suspend fun handleAnimateScrollToPage(
 
         Associate.Dock -> {
             animateScrollToPage(pagerState = dockGridHorizontalPagerState)
-        }
-
-        null -> Unit
-    }
-}
-
-internal suspend fun handlePageDirection(
-    currentPage: Int,
-    pageDirection: PageDirection?,
-    onAnimateScrollToPage: suspend (Int) -> Unit,
-) {
-    when (pageDirection) {
-        PageDirection.Left -> {
-            onAnimateScrollToPage(currentPage - 1)
-        }
-
-        PageDirection.Right -> {
-            onAnimateScrollToPage(currentPage + 1)
         }
 
         null -> Unit
@@ -190,6 +171,8 @@ internal suspend fun handleDragGridItem(
     if (isOnDock) {
         delay(100L)
 
+        onUpdateAssociate(Associate.Dock)
+
         val cellWidth = gridWidth / dockColumns
 
         val cellHeight = dockHeightPx / dockRows
@@ -225,8 +208,6 @@ internal suspend fun handleDragGridItem(
                 ),
             )
 
-            onUpdateAssociate(Associate.Dock)
-
             onMoveGridItem(
                 moveGridItem,
                 dragX,
@@ -240,6 +221,8 @@ internal suspend fun handleDragGridItem(
         }
     } else {
         delay(100L)
+
+        onUpdateAssociate(Associate.Grid)
 
         val gridHeightWithPadding = gridHeight - pageIndicatorHeight - dockHeightPx
 
@@ -275,8 +258,6 @@ internal suspend fun handleDragGridItem(
                     screen = screen,
                 ),
             )
-
-            onUpdateAssociate(Associate.Grid)
 
             onMoveGridItem(
                 moveGridItem,

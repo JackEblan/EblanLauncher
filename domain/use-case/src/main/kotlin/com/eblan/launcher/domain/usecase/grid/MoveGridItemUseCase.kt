@@ -25,7 +25,6 @@ import com.eblan.launcher.domain.grid.getResolveDirectionByX
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.rectanglesOverlap
 import com.eblan.launcher.domain.grid.resolveConflicts
-import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.ResolveDirection
@@ -55,16 +54,8 @@ class MoveGridItemUseCase @Inject constructor(
                     gridItem = gridItem,
                     columns = columns,
                     rows = rows,
-                ) && when (movingGridItem.associate) {
-                    Associate.Grid -> {
-                        gridItem.page == movingGridItem.page &&
-                            gridItem.associate == movingGridItem.associate
-                    }
-
-                    Associate.Dock -> {
+                ) && gridItem.page == movingGridItem.page &&
                         gridItem.associate == movingGridItem.associate
-                    }
-                }
             }.toMutableList()
 
             val index =

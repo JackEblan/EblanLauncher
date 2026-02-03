@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemData
@@ -60,7 +61,6 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
@@ -99,6 +99,7 @@ internal fun SharedTransitionScope.DragScreen(
     iconPackFilePaths: Map<String, String>,
     lockMovement: Boolean,
     screen: Screen,
+    associate: Associate?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -129,6 +130,7 @@ internal fun SharedTransitionScope.DragScreen(
     ) -> Unit,
     onShowFolderWhenDragging: (String) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateAssociate: (Associate) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -155,8 +157,6 @@ internal fun SharedTransitionScope.DragScreen(
     val view = LocalView.current
 
     val scope = rememberCoroutineScope()
-
-    var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
     var lastAppWidgetId by remember { mutableIntStateOf(AppWidgetManager.INVALID_APPWIDGET_ID) }
 
@@ -253,23 +253,9 @@ internal fun SharedTransitionScope.DragScreen(
             paddingValues = paddingValues,
             lockMovement = lockMovement,
             screen = screen,
-            onUpdatePageDirection = { newPageDirection ->
-                pageDirection = newPageDirection
-            },
             onMoveGridItem = onMoveGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
-        )
-    }
-
-    LaunchedEffect(key1 = pageDirection) {
-        handlePageDirection(
-            currentPage = gridHorizontalPagerState.currentPage,
-            pageDirection = pageDirection,
-            onAnimateScrollToPage = { page ->
-                gridHorizontalPagerState.animateScrollToPage(page = page)
-
-                pageDirection = null
-            },
+            onUpdateAssociate = onUpdateAssociate,
         )
     }
 
@@ -352,6 +338,18 @@ internal fun SharedTransitionScope.DragScreen(
             drag = drag,
             moveGridItemResult = moveGridItemResult,
             onShowFolderWhenDragging = onShowFolderWhenDragging,
+        )
+    }
+
+    LaunchedEffect(key1 = dragIntOffset) {
+        handleAnimateScrollToPage(
+            density = density,
+            paddingValues = paddingValues,
+            screenWidth = screenWidth,
+            dragIntOffset = dragIntOffset,
+            associate = associate,
+            gridHorizontalPagerState = gridHorizontalPagerState,
+            dockGridHorizontalPagerState = dockGridHorizontalPagerState,
         )
     }
 

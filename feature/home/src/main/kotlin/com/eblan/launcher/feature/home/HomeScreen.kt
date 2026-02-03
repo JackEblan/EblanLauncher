@@ -724,9 +724,11 @@ private fun SharedTransitionScope.Success(
         mutableStateOf<Map<String, Int>>(emptyMap())
     }
 
+    var associate by remember { mutableStateOf<Associate?>(null) }
+
     val gridItemSourceCurrentPage by remember {
         derivedStateOf {
-            when (gridItemSource?.gridItem?.associate) {
+            when (associate) {
                 Associate.Grid -> {
                     currentPage
                 }
@@ -836,6 +838,8 @@ private fun SharedTransitionScope.Success(
                     onLongPressGridItem = { newGridItemSource, imageBitmap ->
                         gridItemSource = newGridItemSource
 
+                        associate = newGridItemSource.gridItem.associate
+
                         onUpdateGridItemImageBitmap(imageBitmap)
                     },
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
@@ -870,6 +874,7 @@ private fun SharedTransitionScope.Success(
                     iconPackFilePaths = iconPackFilePaths,
                     lockMovement = homeData.userData.experimentalSettings.lockMovement,
                     screen = targetState,
+                    associate = associate,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = onResetGridCacheAfterMove,
                     onDragCancelAfterMove = onCancelGridCache,
@@ -880,6 +885,9 @@ private fun SharedTransitionScope.Success(
                     onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                     onShowFolderWhenDragging = onShowFolderWhenDragging,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onUpdateAssociate = { newAssociate ->
+                        associate = newAssociate
+                    },
                 )
             }
 
@@ -945,6 +953,8 @@ private fun SharedTransitionScope.Success(
                     onAddFolder = onAddFolder,
                     onLongPressGridItem = { newGridItemSource, imageBitmap ->
                         gridItemSource = newGridItemSource
+
+                        associate = newGridItemSource.gridItem.associate
 
                         onUpdateGridItemImageBitmap(imageBitmap)
                     },

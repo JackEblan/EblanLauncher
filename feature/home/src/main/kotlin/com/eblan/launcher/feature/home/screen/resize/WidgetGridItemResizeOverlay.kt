@@ -125,7 +125,7 @@ internal fun WidgetGridItemResizeOverlay(
                     (x + width) - dragHandleSizePx
                 }
             } else {
-                x
+                currentX.value.roundToInt()
             }
         }
     }
@@ -139,7 +139,7 @@ internal fun WidgetGridItemResizeOverlay(
                     (y + height) - dragHandleSizePx
                 }
             } else {
-                y
+                currentY.value.roundToInt()
             }
         }
     }

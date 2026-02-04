@@ -639,17 +639,19 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                 null
             }
 
+        val textModifier = Modifier.alpha(
+            if (isDragging) {
+                0f
+            } else {
+                1f
+            },
+        )
+
         if (text != null) {
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                modifier = Modifier.alpha(
-                    if (isDragging) {
-                        0f
-                    } else {
-                        1f
-                    },
-                ),
+                modifier = textModifier,
                 text = text,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodySmall,
@@ -660,6 +662,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
+                modifier = textModifier,
                 text = description,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodySmall,

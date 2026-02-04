@@ -26,6 +26,8 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.activity.settings.SettingsActivity
@@ -100,6 +102,8 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainActivityViewModel by viewModels()
 
+    private var configureResultCode by mutableStateOf<Int?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -138,16 +142,29 @@ class MainActivity : ComponentActivity() {
                         ) {
                             MainNavHost(
                                 navController = navController,
+                                configureResultCode = configureResultCode,
                                 onSettings = {
                                     startActivity(Intent(this, SettingsActivity::class.java))
 
                                     finish()
+                                },
+                                onResetConfigureResultCode = {
+                                    configureResultCode = null
                                 },
                             )
                         }
                     }
                 }
             }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == AndroidAppWidgetHostWrapper.CONFIGURE_REQUEST_CODE) {
+            configureResultCode = resultCode
         }
     }
 }

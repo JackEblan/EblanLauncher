@@ -125,12 +125,14 @@ import kotlin.math.roundToInt
 internal fun HomeRoute(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
+    configureResultCode: Int?,
     onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
         componentName: String,
     ) -> Unit,
+    onResetConfigureResultCode: () -> Unit,
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
@@ -173,6 +175,7 @@ internal fun HomeRoute(
         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
         eblanShortcutConfigs = eblanShortcutConfigs,
         eblanApplicationInfoTags = eblanApplicationInfoTags,
+        configureResultCode = configureResultCode,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -180,6 +183,7 @@ internal fun HomeRoute(
         onShowFolderGridCache = viewModel::showFolderGridCache,
         onResetGridCacheAfterResize = viewModel::resetGridCacheAfterResize,
         onResetGridCacheAfterMove = viewModel::resetGridCacheAfterMove,
+        onResetGridCacheAfterMoveWidgetGridItem = viewModel::resetGridCacheAfterMoveWidgetGridItem,
         onResetGridCacheAfterMoveFolder = viewModel::resetGridCacheAfterMoveFolder,
         onCancelGridCache = viewModel::cancelGridCache,
         onCancelFolderDragGridCache = viewModel::cancelFolderDragGridCache,
@@ -206,6 +210,7 @@ internal fun HomeRoute(
         onMoveGridItemOutsideFolder = viewModel::moveGridItemOutsideFolder,
         onShowFolderWhenDragging = viewModel::showFolderWhenDragging,
         onGetEblanApplicationInfosByTagIds = viewModel::getEblanApplicationInfosByTagId,
+        onResetConfigureResultCode = onResetConfigureResultCode,
     )
 }
 
@@ -226,6 +231,7 @@ internal fun HomeScreen(
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
+    configureResultCode: Int?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -259,6 +265,7 @@ internal fun HomeScreen(
     onShowFolderGridCache: (List<GridItem>) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
+    onResetGridCacheAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
     onCancelFolderDragGridCache: () -> Unit,
@@ -312,6 +319,7 @@ internal fun HomeScreen(
     ) -> Unit,
     onShowFolderWhenDragging: (String) -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
+    onResetConfigureResultCode: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -465,6 +473,7 @@ internal fun HomeScreen(
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     eblanShortcutConfigs = eblanShortcutConfigs,
                     eblanApplicationInfoTags = eblanApplicationInfoTags,
+                    configureResultCode = configureResultCode,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -472,6 +481,7 @@ internal fun HomeScreen(
                     onShowFolderGridCache = onShowFolderGridCache,
                     onResetGridCacheAfterResize = onResetGridCacheAfterResize,
                     onResetGridCacheAfterMove = onResetGridCacheAfterMove,
+                    onResetGridCacheAfterMoveWidgetGridItem = onResetGridCacheAfterMoveWidgetGridItem,
                     onCancelGridCache = onCancelGridCache,
                     onCancelFolderDragGridCache = onCancelFolderDragGridCache,
                     onEditGridItem = onEditGridItem,
@@ -516,6 +526,7 @@ internal fun HomeScreen(
                         sharedElementKey = null
                     },
                     onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
+                    onResetConfigureResultCode = onResetConfigureResultCode,
                 )
 
                 OverlayImage(
@@ -552,6 +563,7 @@ private fun SharedTransitionScope.Success(
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
+    configureResultCode: Int?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -585,6 +597,7 @@ private fun SharedTransitionScope.Success(
     onShowFolderGridCache: (List<GridItem>) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
+    onResetGridCacheAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
     onCancelFolderDragGridCache: () -> Unit,
@@ -643,6 +656,7 @@ private fun SharedTransitionScope.Success(
     onShowFolderWhenDragging: (String) -> Unit,
     onResetOverlay: () -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
+    onResetConfigureResultCode: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -887,11 +901,12 @@ private fun SharedTransitionScope.Success(
                     lockMovement = homeData.userData.experimentalSettings.lockMovement,
                     screen = targetState,
                     associate = associate,
+                    configureResultCode = configureResultCode,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = onResetGridCacheAfterMove,
+                    onDragEndAfterMoveWidgetGridItem = onResetGridCacheAfterMoveWidgetGridItem,
                     onDragCancelAfterMove = onCancelGridCache,
                     onDeleteGridItemCache = onDeleteGridItemCache,
-                    onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
                     onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
                     onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
@@ -900,6 +915,7 @@ private fun SharedTransitionScope.Success(
                     onUpdateAssociate = { newAssociate ->
                         associate = newAssociate
                     },
+                    onResetConfigureResultCode = onResetConfigureResultCode,
                 )
             }
 

@@ -17,8 +17,6 @@
  */
 package com.eblan.launcher.framework.packagemanager
 
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -133,17 +131,6 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         packageManager.getPackageInfo(packageName, 0).lastUpdateTime
     } catch (_: PackageManager.NameNotFoundException) {
         0L
-    }
-
-    override fun isComponentExported(componentName: ComponentName): Boolean {
-        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
-            component = componentName
-        }
-
-        val activityInfo =
-            intent.resolveActivityInfo(packageManager, PackageManager.MATCH_DEFAULT_ONLY)
-
-        return activityInfo != null && activityInfo.exported
     }
 
     override fun getUserBadgedLabel(label: CharSequence, userHandle: UserHandle): CharSequence = packageManager.getUserBadgedLabel(label, userHandle)

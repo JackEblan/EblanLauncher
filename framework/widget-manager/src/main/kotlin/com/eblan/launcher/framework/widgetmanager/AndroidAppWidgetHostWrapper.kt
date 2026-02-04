@@ -17,8 +17,12 @@
  */
 package com.eblan.launcher.framework.widgetmanager
 
+import android.app.Activity
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
+import android.content.ActivityNotFoundException
+import android.os.Bundle
+import kotlin.jvm.Throws
 
 interface AndroidAppWidgetHostWrapper {
     fun startListening()
@@ -31,4 +35,16 @@ interface AndroidAppWidgetHostWrapper {
         appWidgetId: Int,
         appWidgetProviderInfo: AppWidgetProviderInfo,
     ): AppWidgetHostView
+
+    @Throws(ActivityNotFoundException::class)
+    fun startAppWidgetConfigureActivityForResult(
+        activity: Activity,
+        appWidgetId: Int,
+        intentFlags: Int,
+        requestCode: Int,
+        bundle: Bundle?,
+    )
+    companion object {
+        const val CONFIGURE_REQUEST_CODE = 1
+    }
 }

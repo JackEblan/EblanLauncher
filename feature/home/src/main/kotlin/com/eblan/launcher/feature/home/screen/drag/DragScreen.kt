@@ -19,6 +19,7 @@ package com.eblan.launcher.feature.home.screen.drag
 
 import android.appwidget.AppWidgetManager
 import android.widget.Toast
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -72,7 +73,6 @@ import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalImageSerializer
 import com.eblan.launcher.ui.local.LocalLauncherApps
-import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalUserManager
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 import kotlinx.coroutines.launch
@@ -100,6 +100,7 @@ internal fun SharedTransitionScope.DragScreen(
     lockMovement: Boolean,
     screen: Screen,
     associate: Associate?,
+    configureResultCode: Int?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -111,9 +112,9 @@ internal fun SharedTransitionScope.DragScreen(
         lockMovement: Boolean,
     ) -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
+    onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onDragCancelAfterMove: () -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
-    onUpdateGridItemDataCache: (GridItem) -> Unit,
     onDeleteWidgetGridItemCache: (
         gridItem: GridItem,
         appWidgetId: Int,
@@ -131,20 +132,17 @@ internal fun SharedTransitionScope.DragScreen(
     onShowFolderWhenDragging: (String) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateAssociate: (Associate) -> Unit,
+    onResetConfigureResultCode: () -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
     val context = LocalContext.current
-
-    val appWidgetHostWrapper = LocalAppWidgetHost.current
 
     val appWidgetManager = LocalAppWidgetManager.current
 
     val density = LocalDensity.current
 
     val wallpaperManagerWrapper = LocalWallpaperManager.current
-
-    val packageManager = LocalPackageManager.current
 
     val userManager = LocalUserManager.current
 
@@ -155,6 +153,10 @@ internal fun SharedTransitionScope.DragScreen(
     val fileManager = LocalFileManager.current
 
     val view = LocalView.current
+
+    val activity = LocalActivity.current
+
+    val appWidgetHost = LocalAppWidgetHost.current
 
     val scope = rememberCoroutineScope()
 
@@ -170,18 +172,6 @@ internal fun SharedTransitionScope.DragScreen(
         PAGE_INDICATOR_HEIGHT.dp.roundToPx()
     }
 
-    val configureLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-    ) { result ->
-        handleConfigureLauncherResult(
-            moveGridItemResult = moveGridItemResult,
-            updatedGridItem = updatedWidgetGridItem,
-            resultCode = result.resultCode,
-            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-            onDragEndAfterMove = onDragEndAfterMove,
-        )
-    }
-
     val appWidgetLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
@@ -189,10 +179,8 @@ internal fun SharedTransitionScope.DragScreen(
             result = result,
             gridItem = gridItemSource.gridItem,
             appWidgetManager = appWidgetManager,
-            onUpdateWidgetGridItemDataCache = { gridItem ->
+            onUpdateWidgetGridItem = { gridItem ->
                 updatedWidgetGridItem = gridItem
-
-                onUpdateGridItemDataCache(gridItem)
             },
             onDeleteAppWidgetId = {
                 deleteAppWidgetId = true
@@ -264,7 +252,7 @@ internal fun SharedTransitionScope.DragScreen(
             Drag.End -> {
                 handleDropGridItem(
                     moveGridItemResult = moveGridItemResult,
-                    androidAppWidgetHostWrapper = appWidgetHostWrapper,
+                    androidAppWidgetHostWrapper = appWidgetHost,
                     appWidgetManager = appWidgetManager,
                     gridItemSource = gridItemSource,
                     userManagerWrapper = userManager,
@@ -275,10 +263,8 @@ internal fun SharedTransitionScope.DragScreen(
                     onDragEndAfterMove = onDragEndAfterMove,
                     onDragCancelAfterMove = onDragCancelAfterMove,
                     onDeleteGridItemCache = onDeleteGridItemCache,
-                    onUpdateWidgetGridItemDataCache = { gridItem ->
+                    onUpdateWidgetGridItem = { gridItem ->
                         updatedWidgetGridItem = gridItem
-
-                        onUpdateGridItemDataCache(gridItem)
                     },
                     onUpdateAppWidgetId = { appWidgetId ->
                         lastAppWidgetId = appWidgetId
@@ -291,6 +277,8 @@ internal fun SharedTransitionScope.DragScreen(
                         ).show()
                     },
                 )
+
+                onResetConfigureResultCode()
             }
 
             Drag.Cancel -> {
@@ -315,10 +303,11 @@ internal fun SharedTransitionScope.DragScreen(
             gridItemSource = gridItemSource,
             updatedWidgetGridItem = updatedWidgetGridItem,
             moveGridItemResult = moveGridItemResult,
-            packageManager = packageManager,
-            onConfigure = configureLauncher::launch,
+            androidAppWidgetHostWrapper = appWidgetHost,
+            activity = activity,
+            onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
             onDeleteGridItemCache = onDeleteGridItemCache,
-            onDragEndAfterMove = onDragEndAfterMove,
+            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
         )
     }
 
@@ -350,6 +339,17 @@ internal fun SharedTransitionScope.DragScreen(
             associate = associate,
             gridHorizontalPagerState = gridHorizontalPagerState,
             dockGridHorizontalPagerState = dockGridHorizontalPagerState,
+        )
+    }
+
+    LaunchedEffect(key1 = configureResultCode) {
+        handleConfigureLauncherResult(
+            moveGridItemResult = moveGridItemResult,
+            updatedGridItem = updatedWidgetGridItem,
+            resultCode = configureResultCode,
+            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+            onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
+            onResetConfigureResultCode = onResetConfigureResultCode,
         )
     }
 

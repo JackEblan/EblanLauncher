@@ -1179,10 +1179,7 @@ private fun LifecycleEffect(
             lifecycleOwner.lifecycleScope.launch {
                 when (event) {
                     Lifecycle.Event.ON_START -> {
-                        if (androidActivityManagerWrapper.isInForeground() &&
-                            syncDataEnabled &&
-                            pinItemRequestWrapper.getPinItemRequest() == null
-                        ) {
+                        if (androidActivityManagerWrapper.isInForeground() && syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
                             context.startService(launcherAppsIntent)
 
                             shouldUnbindSyncDataService = context.bindService(
@@ -1196,6 +1193,9 @@ private fun LifecycleEffect(
                                 eblanNotificationListenerServiceConnection,
                                 Context.BIND_AUTO_CREATE,
                             )
+                        } else {
+                            shouldUnbindSyncDataService = false
+                            shouldUnbindEblanNotificationListenerService = false
                         }
 
                         appWidgetHost.startListening()
@@ -1205,10 +1205,12 @@ private fun LifecycleEffect(
                         if (syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
                             if (shouldUnbindSyncDataService) {
                                 context.unbindService(syncDataServiceConnection)
+                                shouldUnbindSyncDataService = false
                             }
 
                             if (shouldUnbindEblanNotificationListenerService) {
                                 context.unbindService(eblanNotificationListenerServiceConnection)
+                                shouldUnbindEblanNotificationListenerService = false
                             }
 
                             context.stopService(launcherAppsIntent)

@@ -1202,10 +1202,7 @@ private fun LifecycleEffect(
                     }
 
                     Lifecycle.Event.ON_STOP -> {
-                        if (androidActivityManagerWrapper.isInForeground() &&
-                            syncDataEnabled &&
-                            pinItemRequestWrapper.getPinItemRequest() == null
-                        ) {
+                        if (syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
                             if (shouldUnbindSyncDataService) {
                                 context.unbindService(syncDataServiceConnection)
                             }

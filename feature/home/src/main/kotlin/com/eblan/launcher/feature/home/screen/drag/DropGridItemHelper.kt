@@ -176,6 +176,7 @@ internal fun handleConfigureLauncherResult(
         appWidgetId: Int,
     ) -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
+    onResetConfigureResultCode: () -> Unit,
 ) {
     if (resultCode == null) return
 
@@ -191,6 +192,8 @@ internal fun handleConfigureLauncherResult(
     } else {
         onDeleteWidgetGridItemCache(updatedGridItem, data.appWidgetId)
     }
+
+    onResetConfigureResultCode()
 }
 
 internal fun handleDeleteAppWidgetId(
@@ -227,10 +230,10 @@ internal fun handleBoundWidget(
             startAppWidgetConfigureActivityForResult(
                 activity = activity,
                 androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
-                data = data,
-                onDragEndAfterMove = onDragEndAfterMove,
+                appWidgetId = data.appWidgetId,
                 moveGridItemResult = moveGridItemResult,
                 updatedWidgetGridItem = updatedWidgetGridItem,
+                onDragEndAfterMove = onDragEndAfterMove,
             )
         }
 
@@ -238,7 +241,7 @@ internal fun handleBoundWidget(
             bindPinWidget(
                 appWidgetId = data.appWidgetId,
                 pinItemRequest = gridItemSource.pinItemRequest,
-                updatedGridItem = updatedWidgetGridItem,
+                updatedWidgetGridItem = updatedWidgetGridItem,
                 moveGridItemResult = moveGridItemResult,
                 onDragEndAfterMove = onDragEndAfterMove,
                 onDeleteGridItemCache = onDeleteGridItemCache,
@@ -448,7 +451,7 @@ private fun onDragEndPinShortcut(
 private fun bindPinWidget(
     appWidgetId: Int,
     pinItemRequest: PinItemRequest,
-    updatedGridItem: GridItem,
+    updatedWidgetGridItem: GridItem,
     moveGridItemResult: MoveGridItemResult,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
@@ -461,9 +464,9 @@ private fun bindPinWidget(
             extras,
         )
     ) {
-        onDragEndAfterMove(moveGridItemResult.copy(movingGridItem = updatedGridItem))
+        onDragEndAfterMove(moveGridItemResult.copy(movingGridItem = updatedWidgetGridItem))
     } else {
-        onDeleteGridItemCache(updatedGridItem)
+        onDeleteGridItemCache(updatedWidgetGridItem)
     }
 }
 
@@ -509,16 +512,16 @@ private suspend fun onDragEndShortcutConfig(
 private fun startAppWidgetConfigureActivityForResult(
     activity: Activity?,
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
-    data: GridItemData.Widget,
-    onDragEndAfterMove: (MoveGridItemResult) -> Unit,
+    appWidgetId: Int,
     moveGridItemResult: MoveGridItemResult,
     updatedWidgetGridItem: GridItem,
+    onDragEndAfterMove: (MoveGridItemResult) -> Unit,
 ) {
     try {
         if (activity != null) {
             androidAppWidgetHostWrapper.startAppWidgetConfigureActivityForResult(
                 activity,
-                data.appWidgetId,
+                appWidgetId,
                 0,
                 AndroidAppWidgetHostWrapper.CONFIGURE_REQUEST_CODE,
                 null,

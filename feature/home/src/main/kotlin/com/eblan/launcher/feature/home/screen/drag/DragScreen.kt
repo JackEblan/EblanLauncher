@@ -352,6 +352,7 @@ internal fun SharedTransitionScope.DragScreen(
             resultCode = configureResultCode,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMove = onDragEndAfterMove,
+            onResetConfigureResultCode = onResetConfigureResultCode,
         )
     }
 

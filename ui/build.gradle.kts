@@ -46,6 +46,7 @@ android {
 
 dependencies {
     api(projects.framework.accessibilityManager)
+    api(projects.framework.activityManager)
     api(projects.framework.imageSerializer)
     api(projects.framework.iconPackManager)
     api(projects.framework.launcherApps)

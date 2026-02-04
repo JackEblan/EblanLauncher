@@ -125,7 +125,9 @@ internal fun SharedTransitionScope.EditPageScreen(
 
     val lazyColumnDragDropState =
         rememberLazyColumnDragDropState(lazyListState = lazyListState) { from, to ->
-            currentPageItems = currentPageItems.toMutableList().apply { add(to, removeAt(from)) }
+            currentPageItems = currentPageItems.toMutableList().apply {
+                add(to, removeAt(from))
+            }
         }
 
     val isAtTop by remember(key1 = lazyListState) {
@@ -265,7 +267,7 @@ internal fun SharedTransitionScope.EditPageScreen(
                 },
                 onAdd = {
                     currentPageItems = currentPageItems.toMutableList().apply {
-                        add(PageItem(id = size, gridItems = emptyList()))
+                        add(PageItem(id = maxOf { it.id } + 1, gridItems = emptyList()))
                     }
                 },
                 onSave = {

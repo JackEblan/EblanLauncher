@@ -74,6 +74,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
@@ -105,10 +106,12 @@ import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.framework.activitymanager.AndroidActivityManagerWrapper
 import com.eblan.launcher.service.EblanNotificationListenerService
 import com.eblan.launcher.service.LauncherAppsService
 import com.eblan.launcher.service.SyncDataService
 import com.eblan.launcher.ui.dialog.TextDialog
+import com.eblan.launcher.ui.local.LocalActivityManager
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalImageSerializer
@@ -664,6 +667,8 @@ private fun SharedTransitionScope.Success(
 
     val pinItemRequestWrapper = LocalPinItemRequest.current
 
+    val activityManager = LocalActivityManager.current
+
     val gridHorizontalPagerState = rememberPagerState(
         initialPage = if (homeData.userData.homeSettings.infiniteScroll) {
             (Int.MAX_VALUE / 2) + homeData.userData.homeSettings.initialPage
@@ -784,6 +789,7 @@ private fun SharedTransitionScope.Success(
 
     LifecycleEffect(
         syncDataEnabled = homeData.userData.experimentalSettings.syncData,
+        androidActivityManagerWrapper = activityManager,
         onManagedProfileResultChange = { newManagedProfileResult ->
             managedProfileResult = newManagedProfileResult
         },
@@ -1112,6 +1118,7 @@ private fun PostNotificationPermissionEffect(modifier: Modifier = Modifier) {
 @Composable
 private fun LifecycleEffect(
     syncDataEnabled: Boolean,
+    androidActivityManagerWrapper: AndroidActivityManagerWrapper,
     onManagedProfileResultChange: (ManagedProfileResult?) -> Unit,
     onStatusBarNotificationsChange: (Map<String, Int>) -> Unit,
 ) {
@@ -1122,8 +1129,6 @@ private fun LifecycleEffect(
     val appWidgetHost = LocalAppWidgetHost.current
 
     val pinItemRequestWrapper = LocalPinItemRequest.current
-
-    val scope = rememberCoroutineScope()
 
     DisposableEffect(key1 = lifecycleOwner) {
         val launcherAppsIntent = Intent(context, LauncherAppsService::class.java)
@@ -1141,7 +1146,7 @@ private fun LifecycleEffect(
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
                 val listener = (service as SyncDataService.LocalBinder).getService()
 
-                scope.launch {
+                lifecycleOwner.lifecycleScope.launch {
                     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                         listener.managedProfileResult.collect {
                             onManagedProfileResultChange(it)
@@ -1158,7 +1163,7 @@ private fun LifecycleEffect(
                 val listener =
                     (service as EblanNotificationListenerService.LocalBinder).getService()
 
-                scope.launch {
+                lifecycleOwner.lifecycleScope.launch {
                     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                         listener.statusBarNotifications.collect {
                             onStatusBarNotificationsChange(it)
@@ -1170,45 +1175,55 @@ private fun LifecycleEffect(
             override fun onServiceDisconnected(name: ComponentName) {}
         }
 
-        val lifecycleEventObserver = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_START -> {
-                    if (syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
-                        context.startService(launcherAppsIntent)
+        val lifecycleEventObserver = LifecycleEventObserver { lifecycleOwner, event ->
+            lifecycleOwner.lifecycleScope.launch {
+                when (event) {
+                    Lifecycle.Event.ON_START -> {
+                        if (androidActivityManagerWrapper.isInForeground() && syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
+                            context.startService(launcherAppsIntent)
 
-                        shouldUnbindSyncDataService = context.bindService(
-                            syncDataIntent,
-                            syncDataServiceConnection,
-                            Context.BIND_AUTO_CREATE,
-                        )
+                            shouldUnbindSyncDataService = context.bindService(
+                                syncDataIntent,
+                                syncDataServiceConnection,
+                                Context.BIND_AUTO_CREATE,
+                            )
 
-                        shouldUnbindEblanNotificationListenerService = context.bindService(
-                            eblanNotificationListenerIntent,
-                            eblanNotificationListenerServiceConnection,
-                            Context.BIND_AUTO_CREATE,
-                        )
-                    }
+                            shouldUnbindEblanNotificationListenerService = context.bindService(
+                                eblanNotificationListenerIntent,
+                                eblanNotificationListenerServiceConnection,
+                                Context.BIND_AUTO_CREATE,
+                            )
+                        } else {
+                            shouldUnbindSyncDataService = false
 
-                    appWidgetHost.startListening()
-                }
-
-                Lifecycle.Event.ON_STOP -> {
-                    if (syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
-                        if (shouldUnbindSyncDataService) {
-                            context.unbindService(syncDataServiceConnection)
+                            shouldUnbindEblanNotificationListenerService = false
                         }
 
-                        if (shouldUnbindEblanNotificationListenerService) {
-                            context.unbindService(eblanNotificationListenerServiceConnection)
-                        }
-
-                        context.stopService(launcherAppsIntent)
+                        appWidgetHost.startListening()
                     }
 
-                    appWidgetHost.stopListening()
-                }
+                    Lifecycle.Event.ON_STOP -> {
+                        if (syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
+                            if (shouldUnbindSyncDataService) {
+                                context.unbindService(syncDataServiceConnection)
 
-                else -> Unit
+                                shouldUnbindSyncDataService = false
+                            }
+
+                            if (shouldUnbindEblanNotificationListenerService) {
+                                context.unbindService(eblanNotificationListenerServiceConnection)
+
+                                shouldUnbindEblanNotificationListenerService = false
+                            }
+
+                            context.stopService(launcherAppsIntent)
+                        }
+
+                        appWidgetHost.stopListening()
+                    }
+
+                    else -> Unit
+                }
             }
         }
 

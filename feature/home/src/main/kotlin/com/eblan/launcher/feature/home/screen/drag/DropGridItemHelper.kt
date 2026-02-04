@@ -220,6 +220,10 @@ internal fun handleBoundWidget(
     activity: Activity?,
     onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
+    onDeleteWidgetGridItemCache: (
+        gridItem: GridItem,
+        appWidgetId: Int,
+    ) -> Unit,
 ) {
     val data = (updatedWidgetGridItem?.data as? GridItemData.Widget) ?: return
 
@@ -235,6 +239,7 @@ internal fun handleBoundWidget(
                 moveGridItemResult = moveGridItemResult,
                 updatedWidgetGridItem = updatedWidgetGridItem,
                 onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
+                onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             )
         }
 
@@ -518,6 +523,10 @@ private fun startAppWidgetConfigureActivityForResult(
     moveGridItemResult: MoveGridItemResult,
     updatedWidgetGridItem: GridItem,
     onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
+    onDeleteWidgetGridItemCache: (
+        gridItem: GridItem,
+        appWidgetId: Int,
+    ) -> Unit,
 ) {
     val configureComponent = configure?.let(ComponentName::unflattenFromString)
 
@@ -534,8 +543,8 @@ private fun startAppWidgetConfigureActivityForResult(
             onDragEndAfterMoveWidgetGridItem(moveGridItemResult.copy(movingGridItem = updatedWidgetGridItem))
         }
     } catch (_: ActivityNotFoundException) {
-        onDragEndAfterMoveWidgetGridItem(moveGridItemResult.copy(movingGridItem = updatedWidgetGridItem))
+        onDeleteWidgetGridItemCache(updatedWidgetGridItem, appWidgetId)
     } catch (_: SecurityException) {
-        onDragEndAfterMoveWidgetGridItem(moveGridItemResult.copy(movingGridItem = updatedWidgetGridItem))
+        onDeleteWidgetGridItemCache(updatedWidgetGridItem, appWidgetId)
     }
 }

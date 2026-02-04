@@ -305,8 +305,9 @@ internal fun SharedTransitionScope.DragScreen(
             moveGridItemResult = moveGridItemResult,
             androidAppWidgetHostWrapper = appWidgetHost,
             activity = activity,
-            onDeleteGridItemCache = onDeleteGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
+            onDeleteGridItemCache = onDeleteGridItemCache,
+            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
         )
     }
 

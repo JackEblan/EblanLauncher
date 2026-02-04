@@ -1195,6 +1195,7 @@ private fun LifecycleEffect(
                             )
                         } else {
                             shouldUnbindSyncDataService = false
+
                             shouldUnbindEblanNotificationListenerService = false
                         }
 
@@ -1205,11 +1206,13 @@ private fun LifecycleEffect(
                         if (syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
                             if (shouldUnbindSyncDataService) {
                                 context.unbindService(syncDataServiceConnection)
+
                                 shouldUnbindSyncDataService = false
                             }
 
                             if (shouldUnbindEblanNotificationListenerService) {
                                 context.unbindService(eblanNotificationListenerServiceConnection)
+
                                 shouldUnbindEblanNotificationListenerService = false
                             }
 

@@ -56,7 +56,7 @@ internal suspend fun handleDropGridItem(
     onLaunchShortcutConfigIntentSenderRequest: (IntentSenderRequest) -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
     onDragCancelAfterMove: () -> Unit,
-    onUpdateWidgetGridItemDataCache: (GridItem) -> Unit,
+    onUpdateWidgetGridItem: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
     onToast: () -> Unit,
 ) {
@@ -78,7 +78,7 @@ internal suspend fun handleDropGridItem(
                         androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
                         appWidgetManager = appWidgetManager,
                         onLaunchWidgetIntent = onLaunchWidgetIntent,
-                        onUpdateWidgetGridItemDataCache = onUpdateWidgetGridItemDataCache,
+                        onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                         onUpdateAppWidgetId = onUpdateAppWidgetId,
                     )
                 }
@@ -120,7 +120,7 @@ internal suspend fun handleDropGridItem(
                         androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
                         appWidgetManager = appWidgetManager,
                         onLaunchWidgetIntent = onLaunchWidgetIntent,
-                        onUpdateWidgetGridItemDataCache = onUpdateWidgetGridItemDataCache,
+                        onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                         onUpdateAppWidgetId = onUpdateAppWidgetId,
                     )
                 }
@@ -139,7 +139,7 @@ internal fun handleAppWidgetLauncherResult(
     result: ActivityResult,
     gridItem: GridItem,
     appWidgetManager: AndroidAppWidgetManagerWrapper,
-    onUpdateWidgetGridItemDataCache: (GridItem) -> Unit,
+    onUpdateWidgetGridItem: (GridItem) -> Unit,
     onDeleteAppWidgetId: () -> Unit,
 ) {
     val data = (gridItem.data as? GridItemData.Widget) ?: error("Expected GridItemData.Widget")
@@ -161,7 +161,7 @@ internal fun handleAppWidgetLauncherResult(
 
         val newData = data.copy(appWidgetId = appWidgetId)
 
-        onUpdateWidgetGridItemDataCache(gridItem.copy(data = newData))
+        onUpdateWidgetGridItem(gridItem.copy(data = newData))
     } else {
         onDeleteAppWidgetId()
     }
@@ -231,6 +231,7 @@ internal fun handleBoundWidget(
                 activity = activity,
                 androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
                 appWidgetId = data.appWidgetId,
+                configure = data.configure,
                 moveGridItemResult = moveGridItemResult,
                 updatedWidgetGridItem = updatedWidgetGridItem,
                 onDragEndAfterMove = onDragEndAfterMove,
@@ -393,7 +394,7 @@ private fun onDragEndWidget(
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     appWidgetManager: AndroidAppWidgetManagerWrapper,
     onLaunchWidgetIntent: (Intent) -> Unit,
-    onUpdateWidgetGridItemDataCache: (GridItem) -> Unit,
+    onUpdateWidgetGridItem: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
 ) {
     val appWidgetId = androidAppWidgetHostWrapper.allocateAppWidgetId()
@@ -422,7 +423,7 @@ private fun onDragEndWidget(
 
         val newData = data.copy(appWidgetId = appWidgetId)
 
-        onUpdateWidgetGridItemDataCache(gridItem.copy(data = newData))
+        onUpdateWidgetGridItem(gridItem.copy(data = newData))
     } else {
         val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -513,12 +514,15 @@ private fun startAppWidgetConfigureActivityForResult(
     activity: Activity?,
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     appWidgetId: Int,
+    configure: String?,
     moveGridItemResult: MoveGridItemResult,
     updatedWidgetGridItem: GridItem,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
 ) {
+    val configureComponent = configure?.let(ComponentName::unflattenFromString)
+
     try {
-        if (activity != null) {
+        if (activity != null && configureComponent != null) {
             androidAppWidgetHostWrapper.startAppWidgetConfigureActivityForResult(
                 activity,
                 appWidgetId,

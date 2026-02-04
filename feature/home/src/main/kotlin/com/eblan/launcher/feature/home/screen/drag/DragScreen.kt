@@ -179,10 +179,8 @@ internal fun SharedTransitionScope.DragScreen(
             result = result,
             gridItem = gridItemSource.gridItem,
             appWidgetManager = appWidgetManager,
-            onUpdateWidgetGridItemDataCache = { gridItem ->
+            onUpdateWidgetGridItem = { gridItem ->
                 updatedWidgetGridItem = gridItem
-
-                onUpdateGridItemDataCache(gridItem)
             },
             onDeleteAppWidgetId = {
                 deleteAppWidgetId = true
@@ -265,10 +263,8 @@ internal fun SharedTransitionScope.DragScreen(
                     onDragEndAfterMove = onDragEndAfterMove,
                     onDragCancelAfterMove = onDragCancelAfterMove,
                     onDeleteGridItemCache = onDeleteGridItemCache,
-                    onUpdateWidgetGridItemDataCache = { gridItem ->
+                    onUpdateWidgetGridItem = { gridItem ->
                         updatedWidgetGridItem = gridItem
-
-                        onUpdateGridItemDataCache(gridItem)
                     },
                     onUpdateAppWidgetId = { appWidgetId ->
                         lastAppWidgetId = appWidgetId

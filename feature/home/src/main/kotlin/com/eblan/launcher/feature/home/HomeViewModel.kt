@@ -411,6 +411,29 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
+    fun resetGridCacheAfterMoveWidgetGridItem(moveGridItemResult: MoveGridItemResult) {
+        viewModelScope.launch {
+            moveGridItemJob?.cancelAndJoin()
+
+            gridCacheRepository.updateGridItemData(
+                id = moveGridItemResult.movingGridItem.id,
+                data = moveGridItemResult.movingGridItem.data,
+            )
+
+            updateGridItemsAfterMoveUseCase(moveGridItemResult = moveGridItemResult)
+
+            delay(defaultDelay)
+
+            _screen.update {
+                Screen.Pager
+            }
+
+            _moveGridItemResult.update {
+                null
+            }
+        }
+    }
+
     fun resetGridCacheAfterMoveFolder() {
         viewModelScope.launch {
             val lastFolderId = _foldersDataById.value.last().folderId

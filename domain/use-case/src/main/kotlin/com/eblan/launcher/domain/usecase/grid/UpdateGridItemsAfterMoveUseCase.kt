@@ -48,13 +48,6 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
             val folderRows = homeSettings.folderRows
 
-            if (moveGridItemResult.movingGridItem.data is GridItemData.Widget) {
-                gridCacheRepository.updateGridItemData(
-                    id = moveGridItemResult.movingGridItem.id,
-                    data = moveGridItemResult.movingGridItem.data,
-                )
-            }
-
             val gridItems = gridCacheRepository.gridItemsCache.first().toMutableList()
 
             val conflictingGridItem = moveGridItemResult.conflictingGridItem

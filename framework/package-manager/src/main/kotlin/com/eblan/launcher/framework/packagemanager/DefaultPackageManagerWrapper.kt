@@ -62,17 +62,16 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         }
     }
 
-    override suspend fun getApplicationLabel(packageName: String): String? =
-        withContext(defaultDispatcher) {
-            try {
-                val applicationInfo =
-                    packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+    override suspend fun getApplicationLabel(packageName: String): String? = withContext(defaultDispatcher) {
+        try {
+            val applicationInfo =
+                packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
 
-                packageManager.getApplicationLabel(applicationInfo).toString()
-            } catch (_: PackageManager.NameNotFoundException) {
-                null
-            }
+            packageManager.getApplicationLabel(applicationInfo).toString()
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
         }
+    }
 
     override fun getComponentName(packageName: String): String? {
         val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
@@ -134,6 +133,5 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         0L
     }
 
-    override fun getUserBadgedLabel(label: CharSequence, userHandle: UserHandle): CharSequence =
-        packageManager.getUserBadgedLabel(label, userHandle)
+    override fun getUserBadgedLabel(label: CharSequence, userHandle: UserHandle): CharSequence = packageManager.getUserBadgedLabel(label, userHandle)
 }

@@ -112,9 +112,9 @@ internal fun SharedTransitionScope.DragScreen(
         lockMovement: Boolean,
     ) -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
+    onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onDragCancelAfterMove: () -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
-    onUpdateGridItemDataCache: (GridItem) -> Unit,
     onDeleteWidgetGridItemCache: (
         gridItem: GridItem,
         appWidgetId: Int,
@@ -306,7 +306,7 @@ internal fun SharedTransitionScope.DragScreen(
             androidAppWidgetHostWrapper = appWidgetHost,
             activity = activity,
             onDeleteGridItemCache = onDeleteGridItemCache,
-            onDragEndAfterMove = onDragEndAfterMove,
+            onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
         )
     }
 
@@ -347,7 +347,7 @@ internal fun SharedTransitionScope.DragScreen(
             updatedGridItem = updatedWidgetGridItem,
             resultCode = configureResultCode,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-            onDragEndAfterMove = onDragEndAfterMove,
+            onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
             onResetConfigureResultCode = onResetConfigureResultCode,
         )
     }

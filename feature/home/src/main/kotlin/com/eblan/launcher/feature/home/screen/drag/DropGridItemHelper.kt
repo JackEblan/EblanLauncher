@@ -175,7 +175,7 @@ internal fun handleConfigureLauncherResult(
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
-    onDragEndAfterMove: (MoveGridItemResult) -> Unit,
+    onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onResetConfigureResultCode: () -> Unit,
 ) {
     if (resultCode == null) return
@@ -188,7 +188,7 @@ internal fun handleConfigureLauncherResult(
         (updatedGridItem.data as? GridItemData.Widget) ?: error("Expected GridItemData.Widget")
 
     if (resultCode == Activity.RESULT_OK) {
-        onDragEndAfterMove(moveGridItemResult.copy(movingGridItem = updatedGridItem))
+        onDragEndAfterMoveWidgetGridItem(moveGridItemResult.copy(movingGridItem = updatedGridItem))
     } else {
         onDeleteWidgetGridItemCache(updatedGridItem, data.appWidgetId)
     }
@@ -218,7 +218,7 @@ internal fun handleBoundWidget(
     moveGridItemResult: MoveGridItemResult?,
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     activity: Activity?,
-    onDragEndAfterMove: (MoveGridItemResult) -> Unit,
+    onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
 ) {
     val data = (updatedWidgetGridItem?.data as? GridItemData.Widget) ?: return
@@ -234,7 +234,7 @@ internal fun handleBoundWidget(
                 configure = data.configure,
                 moveGridItemResult = moveGridItemResult,
                 updatedWidgetGridItem = updatedWidgetGridItem,
-                onDragEndAfterMove = onDragEndAfterMove,
+                onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
             )
         }
 
@@ -244,7 +244,7 @@ internal fun handleBoundWidget(
                 pinItemRequest = gridItemSource.pinItemRequest,
                 updatedWidgetGridItem = updatedWidgetGridItem,
                 moveGridItemResult = moveGridItemResult,
-                onDragEndAfterMove = onDragEndAfterMove,
+                onDragEndAfterMove = onDragEndAfterMoveWidgetGridItem,
                 onDeleteGridItemCache = onDeleteGridItemCache,
             )
         }
@@ -517,7 +517,7 @@ private fun startAppWidgetConfigureActivityForResult(
     configure: String?,
     moveGridItemResult: MoveGridItemResult,
     updatedWidgetGridItem: GridItem,
-    onDragEndAfterMove: (MoveGridItemResult) -> Unit,
+    onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
 ) {
     val configureComponent = configure?.let(ComponentName::unflattenFromString)
 
@@ -531,11 +531,11 @@ private fun startAppWidgetConfigureActivityForResult(
                 null,
             )
         } else {
-            onDragEndAfterMove(moveGridItemResult.copy(movingGridItem = updatedWidgetGridItem))
+            onDragEndAfterMoveWidgetGridItem(moveGridItemResult.copy(movingGridItem = updatedWidgetGridItem))
         }
     } catch (_: ActivityNotFoundException) {
-        onDragEndAfterMove(moveGridItemResult.copy(movingGridItem = updatedWidgetGridItem))
+        onDragEndAfterMoveWidgetGridItem(moveGridItemResult.copy(movingGridItem = updatedWidgetGridItem))
     } catch (_: SecurityException) {
-        onDragEndAfterMove(moveGridItemResult.copy(movingGridItem = updatedWidgetGridItem))
+        onDragEndAfterMoveWidgetGridItem(moveGridItemResult.copy(movingGridItem = updatedWidgetGridItem))
     }
 }

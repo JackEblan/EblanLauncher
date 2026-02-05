@@ -24,6 +24,7 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
+import com.eblan.launcher.domain.model.DeleteEblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
@@ -162,18 +163,36 @@ class ChangePackageUseCase @Inject constructor(
         }
 
         if (oldSyncEblanApplicationInfosByPackageName != newSyncEblanApplicationInfosByPackageName) {
-            val syncEblanApplicationInfosToDelete =
-                oldSyncEblanApplicationInfosByPackageName - newSyncEblanApplicationInfosByPackageName.toSet()
+            val newDeleteEblanApplicationInfos =
+                newSyncEblanApplicationInfosByPackageName.map { syncEblanApplicationInfo ->
+                    DeleteEblanApplicationInfo(
+                        serialNumber = syncEblanApplicationInfo.serialNumber,
+                        componentName = syncEblanApplicationInfo.componentName,
+                        packageName = syncEblanApplicationInfo.packageName,
+                        icon = syncEblanApplicationInfo.icon,
+                    )
+                }.toSet()
+
+            val oldDeleteEblanApplicationInfos =
+                oldSyncEblanApplicationInfosByPackageName.map { syncEblanApplicationInfo ->
+                    DeleteEblanApplicationInfo(
+                        serialNumber = syncEblanApplicationInfo.serialNumber,
+                        componentName = syncEblanApplicationInfo.componentName,
+                        packageName = syncEblanApplicationInfo.packageName,
+                        icon = syncEblanApplicationInfo.icon,
+                    )
+                }
+                    .filter { deleteEblanApplicationInfo -> deleteEblanApplicationInfo !in newDeleteEblanApplicationInfos }
 
             eblanApplicationInfoRepository.upsertSyncEblanApplicationInfos(
                 syncEblanApplicationInfos = newSyncEblanApplicationInfosByPackageName,
             )
 
             eblanApplicationInfoRepository.deleteSyncEblanApplicationInfos(
-                syncEblanApplicationInfos = syncEblanApplicationInfosToDelete,
+                deleteEblanApplicationInfos = oldDeleteEblanApplicationInfos,
             )
 
-            syncEblanApplicationInfosToDelete.forEach { syncEblanApplicationInfoToDelete ->
+            oldDeleteEblanApplicationInfos.forEach { oldDeleteEblanApplicationInfo ->
                 currentCoroutineContext().ensureActive()
 
                 val isUniqueComponentName =
@@ -181,11 +200,11 @@ class ChangePackageUseCase @Inject constructor(
                         .none { eblanApplicationInfo ->
                             currentCoroutineContext().ensureActive()
 
-                            eblanApplicationInfo.serialNumber != syncEblanApplicationInfoToDelete.serialNumber && eblanApplicationInfo.componentName == syncEblanApplicationInfoToDelete.componentName
+                            eblanApplicationInfo.serialNumber != oldDeleteEblanApplicationInfo.serialNumber && eblanApplicationInfo.componentName == oldDeleteEblanApplicationInfo.componentName
                         }
 
                 if (isUniqueComponentName) {
-                    syncEblanApplicationInfoToDelete.icon?.let { icon ->
+                    oldDeleteEblanApplicationInfo.icon?.let { icon ->
                         val iconFile = File(icon)
 
                         if (iconFile.exists()) {
@@ -200,7 +219,7 @@ class ChangePackageUseCase @Inject constructor(
 
                     val iconPackFile = File(
                         iconPacksDirectory,
-                        syncEblanApplicationInfoToDelete.componentName.hashCode().toString(),
+                        oldDeleteEblanApplicationInfo.componentName.hashCode().toString(),
                     )
 
                     if (iconPackFile.exists()) {
@@ -451,29 +470,12 @@ class ChangePackageUseCase @Inject constructor(
                         eblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber && eblanShortcutConfig.componentName == eblanShortcutConfigToDelete.componentName
                     }
 
-                val isUniquePackageName = eblanShortcutConfigRepository.getEblanShortcutConfigs()
-                    .none { newEblanShortcutConfig ->
-                        currentCoroutineContext().ensureActive()
-
-                        newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber && newEblanShortcutConfig.packageName == eblanShortcutConfigToDelete.packageName
-                    }
-
                 if (isUniqueComponentName) {
                     eblanShortcutConfigToDelete.activityIcon?.let { activityIcon ->
                         val activityIconFile = File(activityIcon)
 
                         if (activityIconFile.exists()) {
                             activityIconFile.delete()
-                        }
-                    }
-                }
-
-                if (isUniquePackageName) {
-                    eblanShortcutConfigToDelete.applicationIcon?.let { applicationIcon ->
-                        val applicationIconFile = File(applicationIcon)
-
-                        if (applicationIconFile.exists()) {
-                            applicationIconFile.delete()
                         }
                     }
                 }

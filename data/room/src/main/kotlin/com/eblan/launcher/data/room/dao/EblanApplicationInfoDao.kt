@@ -24,6 +24,7 @@ import androidx.room.Update
 import androidx.room.Upsert
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoTagEntity
+import com.eblan.launcher.domain.model.DeleteEblanApplicationInfo
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import kotlinx.coroutines.flow.Flow
 
@@ -54,7 +55,7 @@ interface EblanApplicationInfoDao {
     suspend fun upsertSyncEblanApplicationInfoEntities(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)
 
     @Delete(entity = EblanApplicationInfoEntity::class)
-    suspend fun deleteSyncEblanApplicationInfoEntities(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)
+    suspend fun deleteSyncEblanApplicationInfoEntities(deleteEblanApplicationInfos: List<DeleteEblanApplicationInfo>)
 
     @Update
     suspend fun updateEblanApplicationInfoEntity(entity: EblanApplicationInfoEntity)

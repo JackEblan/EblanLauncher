@@ -23,6 +23,7 @@ import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoTagEntity
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.model.DeleteEblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
@@ -76,8 +77,8 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(
         eblanApplicationInfoDao.upsertSyncEblanApplicationInfoEntities(syncEblanApplicationInfos = syncEblanApplicationInfos)
     }
 
-    override suspend fun deleteSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>) {
-        eblanApplicationInfoDao.deleteSyncEblanApplicationInfoEntities(syncEblanApplicationInfos = syncEblanApplicationInfos)
+    override suspend fun deleteSyncEblanApplicationInfos(deleteEblanApplicationInfos: List<DeleteEblanApplicationInfo>) {
+        eblanApplicationInfoDao.deleteSyncEblanApplicationInfoEntities(deleteEblanApplicationInfos = deleteEblanApplicationInfos)
     }
 
     override suspend fun updateEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {

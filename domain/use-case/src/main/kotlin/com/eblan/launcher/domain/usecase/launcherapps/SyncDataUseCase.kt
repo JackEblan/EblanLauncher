@@ -26,6 +26,7 @@ import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.DeleteEblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
@@ -177,18 +178,36 @@ class SyncDataUseCase @Inject constructor(
         }
 
         if (oldSyncEblanApplicationInfos != newSyncEblanApplicationInfos) {
-            val syncEblanApplicationInfosToDelete =
-                oldSyncEblanApplicationInfos - newSyncEblanApplicationInfos.toSet()
+            val newDeleteEblanApplicationInfos =
+                newSyncEblanApplicationInfos.map { syncEblanApplicationInfo ->
+                    DeleteEblanApplicationInfo(
+                        serialNumber = syncEblanApplicationInfo.serialNumber,
+                        componentName = syncEblanApplicationInfo.componentName,
+                        packageName = syncEblanApplicationInfo.packageName,
+                        icon = syncEblanApplicationInfo.icon,
+                    )
+                }.toSet()
+
+            val oldDeleteEblanApplicationInfos =
+                oldSyncEblanApplicationInfos.map { syncEblanApplicationInfo ->
+                    DeleteEblanApplicationInfo(
+                        serialNumber = syncEblanApplicationInfo.serialNumber,
+                        componentName = syncEblanApplicationInfo.componentName,
+                        packageName = syncEblanApplicationInfo.packageName,
+                        icon = syncEblanApplicationInfo.icon,
+                    )
+                }
+                    .filter { deleteEblanApplicationInfo -> deleteEblanApplicationInfo !in newDeleteEblanApplicationInfos }
 
             eblanApplicationInfoRepository.upsertSyncEblanApplicationInfos(
                 syncEblanApplicationInfos = newSyncEblanApplicationInfos,
             )
 
             eblanApplicationInfoRepository.deleteSyncEblanApplicationInfos(
-                syncEblanApplicationInfos = syncEblanApplicationInfosToDelete,
+                deleteEblanApplicationInfos = oldDeleteEblanApplicationInfos,
             )
 
-            syncEblanApplicationInfosToDelete.forEach { syncEblanApplicationInfoToDelete ->
+            oldDeleteEblanApplicationInfos.forEach { oldDeleteEblanApplicationInfo ->
                 currentCoroutineContext().ensureActive()
 
                 val isUniqueComponentName =
@@ -196,11 +215,11 @@ class SyncDataUseCase @Inject constructor(
                         .none { eblanApplicationInfo ->
                             currentCoroutineContext().ensureActive()
 
-                            eblanApplicationInfo.serialNumber != syncEblanApplicationInfoToDelete.serialNumber && eblanApplicationInfo.componentName == syncEblanApplicationInfoToDelete.componentName
+                            eblanApplicationInfo.serialNumber != oldDeleteEblanApplicationInfo.serialNumber && eblanApplicationInfo.componentName == oldDeleteEblanApplicationInfo.componentName
                         }
 
                 if (isUniqueComponentName) {
-                    syncEblanApplicationInfoToDelete.icon?.let { icon ->
+                    oldDeleteEblanApplicationInfo.icon?.let { icon ->
                         val iconFile = File(icon)
 
                         if (iconFile.exists()) {
@@ -215,7 +234,7 @@ class SyncDataUseCase @Inject constructor(
 
                     val iconPackFile = File(
                         iconPacksDirectory,
-                        syncEblanApplicationInfoToDelete.componentName.hashCode().toString(),
+                        oldDeleteEblanApplicationInfo.componentName.hashCode().toString(),
                     )
 
                     if (iconPackFile.exists()) {
@@ -413,8 +432,8 @@ class SyncDataUseCase @Inject constructor(
             eblanShortcutInfosToDelete.forEach { eblanShortcutInfoToDelete ->
                 currentCoroutineContext().ensureActive()
 
-                val isUniqueShortcutId = eblanShortcutInfoRepository.getEblanShortcutInfos()
-                    .none { eblanShortcutInfo ->
+                val isUniqueShortcutId =
+                    eblanShortcutInfoRepository.getEblanShortcutInfos().none { eblanShortcutInfo ->
                         currentCoroutineContext().ensureActive()
 
                         eblanShortcutInfo.serialNumber != eblanShortcutInfoToDelete.serialNumber && eblanShortcutInfo.shortcutId == eblanShortcutInfoToDelete.shortcutId

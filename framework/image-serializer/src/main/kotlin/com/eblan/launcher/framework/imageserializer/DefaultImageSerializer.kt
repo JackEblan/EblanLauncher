@@ -92,7 +92,7 @@ internal class DefaultImageSerializer @Inject constructor(
         file: File,
     ) {
         withContext(ioDispatcher) {
-            val bitmap: Bitmap = when (drawable) {
+            val bitmap = when (drawable) {
                 is BitmapDrawable -> drawable.bitmap
 
                 else -> {

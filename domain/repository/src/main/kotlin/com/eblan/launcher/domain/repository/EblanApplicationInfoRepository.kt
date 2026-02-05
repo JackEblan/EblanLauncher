@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.domain.repository
 
+import com.eblan.launcher.domain.model.DeleteEblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
@@ -38,7 +39,7 @@ interface EblanApplicationInfoRepository {
 
     suspend fun upsertSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)
 
-    suspend fun deleteSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)
+    suspend fun deleteSyncEblanApplicationInfos(deleteEblanApplicationInfos: List<DeleteEblanApplicationInfo>)
 
     suspend fun updateEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo)
 

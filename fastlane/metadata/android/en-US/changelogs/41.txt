@@ -1,0 +1,10 @@
+- Refactor: Improve entity deletion logic using a dedicated data model (#567)
+- Fix: Correctly position widget resize overlay during drag operations (#566)
+- Fix: random crashes overall (#563)
+- Refactor: Centralize widget configuration logic in `MainActivity` (#560)
+- Dock pages (#556)
+- Feat: Add tag filtering UI to application search (#554)
+- Refactor: Distinguish between widget label and application label (#553)
+- Refactor: Centralize screen dimension and grid properties for widget sizing (#552)
+- Fixes #546
+- Fixes #547 but removed app drawer persistence when navigating to Edit application screen

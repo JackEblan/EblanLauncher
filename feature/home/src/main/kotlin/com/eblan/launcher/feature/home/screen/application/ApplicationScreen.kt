@@ -79,6 +79,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -326,7 +327,7 @@ private fun SharedTransitionScope.Success(
 
     var expanded by remember { mutableStateOf(false) }
 
-    val selectedTagIds = remember { mutableStateListOf<Long>() }
+    val selectedTagIds = remember { mutableStateSetOf<Long>() }
 
     LaunchedEffect(key1 = Unit) {
         snapshotFlow { query }.debounce(500L).onEach { text ->
@@ -1326,7 +1327,7 @@ private fun SearchBar(
     query: String,
     expanded: Boolean,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
-    selectedTagIds: List<Long>,
+    selectedTagIds: Set<Long>,
     onQueryChange: (String) -> Unit,
     onExpandedChange: (Boolean) -> Unit,
     onAddId: (Long) -> Unit,
@@ -1368,7 +1369,7 @@ private fun SearchBar(
 private fun TagFilterChip(
     modifier: Modifier = Modifier,
     eblanApplicationInfoTag: EblanApplicationInfoTag,
-    selectedTagIds: List<Long>,
+    selectedTagIds: Set<Long>,
     onAddId: (Long) -> Unit,
     onRemoveId: (Long) -> Unit,
 ) {

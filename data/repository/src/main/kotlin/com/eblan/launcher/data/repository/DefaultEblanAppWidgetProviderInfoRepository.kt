@@ -84,6 +84,7 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         applicationIcon = applicationIcon,
         lastUpdateTime = lastUpdateTime,
         label = label,
+        description = description,
     )
 
     private fun EblanAppWidgetProviderInfoEntity.asModel(): EblanAppWidgetProviderInfo = EblanAppWidgetProviderInfo(
@@ -105,5 +106,6 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         applicationLabel = applicationLabel,
         lastUpdateTime = lastUpdateTime,
         label = label,
+        description = description,
     )
 }

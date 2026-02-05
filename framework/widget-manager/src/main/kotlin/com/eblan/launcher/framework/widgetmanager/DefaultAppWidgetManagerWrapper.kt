@@ -113,6 +113,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
                 preview = preview,
                 lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = provider.packageName),
                 label = loadLabel(context.packageManager),
+                description = loadDescription(context)?.let(CharSequence::toString),
             )
         } else {
             AppWidgetManagerAppWidgetProviderInfo(
@@ -131,7 +132,8 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
                 maxResizeHeight = 0,
                 preview = preview,
                 lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = provider.packageName),
-                label = null,
+                label = loadLabel(context.packageManager),
+                description = null,
             )
         }
     }

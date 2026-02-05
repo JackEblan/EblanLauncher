@@ -457,7 +457,17 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                     null
                 }
 
-            eblanAppWidgetProviderInfo.label?.let { description ->
+            eblanAppWidgetProviderInfo.label?.let { label ->
+                Text(
+                    text = label,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+
+            eblanAppWidgetProviderInfo.description?.let { description ->
                 Text(
                     text = description,
                     textAlign = TextAlign.Center,

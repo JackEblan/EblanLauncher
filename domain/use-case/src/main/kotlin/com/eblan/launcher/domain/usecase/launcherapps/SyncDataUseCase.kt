@@ -330,6 +330,7 @@ class SyncDataUseCase @Inject constructor(
                     ).toString(),
                     lastUpdateTime = appWidgetManagerAppWidgetProviderInfo.lastUpdateTime,
                     label = appWidgetManagerAppWidgetProviderInfo.label,
+                    description = appWidgetManagerAppWidgetProviderInfo.description,
                 )
             }
 

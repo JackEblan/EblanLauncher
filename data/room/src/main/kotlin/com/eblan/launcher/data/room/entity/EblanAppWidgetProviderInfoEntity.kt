@@ -42,4 +42,5 @@ data class EblanAppWidgetProviderInfoEntity(
     @ColumnInfo(defaultValue = "0")
     val lastUpdateTime: Long,
     val label: String?,
+    val description: String?,
 )

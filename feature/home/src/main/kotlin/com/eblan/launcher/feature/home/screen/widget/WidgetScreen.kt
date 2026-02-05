@@ -647,6 +647,17 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
             },
         )
 
+        eblanAppWidgetProviderInfo.label?.let { label ->
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                modifier = textModifier,
+                text = label,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        }
+
         if (text != null) {
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -658,7 +669,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
             )
         }
 
-        eblanAppWidgetProviderInfo.label?.let { description ->
+        eblanAppWidgetProviderInfo.description?.let { description ->
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(

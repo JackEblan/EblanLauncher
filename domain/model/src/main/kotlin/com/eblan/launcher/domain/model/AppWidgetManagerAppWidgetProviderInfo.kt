@@ -34,4 +34,5 @@ data class AppWidgetManagerAppWidgetProviderInfo(
     val preview: String?,
     val lastUpdateTime: Long,
     val label: String?,
+    val description: String?,
 )

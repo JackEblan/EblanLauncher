@@ -215,6 +215,10 @@ internal class HomeViewModel @Inject constructor(
             initialValue = emptyList(),
         )
 
+    private var syncDataJob: Job? = null
+
+    private var launcherAppsEventJob: Job? = null
+
     fun moveGridItem(
         movingGridItem: GridItem,
         x: Int,
@@ -753,11 +757,15 @@ internal class HomeViewModel @Inject constructor(
     }
 
     fun syncData() {
-        viewModelScope.launch {
+        syncDataJob?.cancel()
+
+        launcherAppsEventJob?.cancel()
+
+        syncDataJob = viewModelScope.launch {
             syncDataUseCase()
         }
 
-        viewModelScope.launch {
+        launcherAppsEventJob = viewModelScope.launch {
             launcherAppsWrapper.launcherAppsEvent.collect { launcherAppsEvent ->
                 when (launcherAppsEvent) {
                     is LauncherAppsEvent.PackageAdded -> {

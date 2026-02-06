@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.FolderDataById
@@ -29,6 +30,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemData.ShortcutInfo
+import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
@@ -51,6 +53,11 @@ import com.eblan.launcher.domain.usecase.grid.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterMoveUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterResizeUseCase
 import com.eblan.launcher.domain.usecase.iconpack.GetIconPackFilePathsUseCase
+import com.eblan.launcher.domain.usecase.launcherapps.AddPackageUseCase
+import com.eblan.launcher.domain.usecase.launcherapps.ChangePackageUseCase
+import com.eblan.launcher.domain.usecase.launcherapps.ChangeShortcutsUseCase
+import com.eblan.launcher.domain.usecase.launcherapps.RemovePackageUseCase
+import com.eblan.launcher.domain.usecase.launcherapps.SyncDataUseCase
 import com.eblan.launcher.domain.usecase.page.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.page.UpdatePageItemsUseCase
 import com.eblan.launcher.domain.usecase.pin.GetPinGridItemUseCase
@@ -98,6 +105,12 @@ internal class HomeViewModel @Inject constructor(
     getEblanShortcutConfigsByLabelUseCase: GetEblanShortcutConfigsByLabelUseCase,
     private val gridRepository: GridRepository,
     eblanApplicationInfoTagRepository: EblanApplicationInfoTagRepository,
+    private val syncDataUseCase: SyncDataUseCase,
+    private val launcherAppsWrapper: LauncherAppsWrapper,
+    private val addPackageUseCase: AddPackageUseCase,
+    private val removePackageUseCase: RemovePackageUseCase,
+    private val changePackageUseCase: ChangePackageUseCase,
+    private val changeShortcutsUseCase: ChangeShortcutsUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -154,30 +167,28 @@ internal class HomeViewModel @Inject constructor(
             initialValue = emptyMap(),
         )
 
-    val iconPackFilePaths = getIconPackFilePathsUseCase()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyMap(),
-        )
+    val iconPackFilePaths = getIconPackFilePathsUseCase().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyMap(),
+    )
 
     private val _eblanApplicationInfoLabel = MutableStateFlow("")
 
     private val _eblanApplicationInfoTagIds = MutableStateFlow<List<Long>?>(null)
 
-    val getEblanApplicationInfosByLabel =
-        getEblanApplicationInfosByLabelUseCase(
-            labelFlow = _eblanApplicationInfoLabel,
-            eblanApplicationInfoTagIdsFlow = _eblanApplicationInfoTagIds,
-        ).stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = GetEblanApplicationInfosByLabel(
-                eblanApplicationInfos = emptyMap(),
-                privateEblanUser = null,
-                privateEblanApplicationInfos = emptyList(),
-            ),
-        )
+    val getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabelUseCase(
+        labelFlow = _eblanApplicationInfoLabel,
+        eblanApplicationInfoTagIdsFlow = _eblanApplicationInfoTagIds,
+    ).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = GetEblanApplicationInfosByLabel(
+            eblanApplicationInfos = emptyMap(),
+            privateEblanUser = null,
+            privateEblanApplicationInfos = emptyList(),
+        ),
+    )
 
     private val _eblanAppWidgetProviderInfoLabel = MutableStateFlow("")
 
@@ -506,15 +517,6 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updateGridItemDataCache(gridItem: GridItem) {
-        viewModelScope.launch {
-            gridCacheRepository.updateGridItemData(
-                id = gridItem.id,
-                data = gridItem.data,
-            )
-        }
-    }
-
     fun updateShortcutConfigGridItemDataCache(
         byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
@@ -747,6 +749,45 @@ internal class HomeViewModel @Inject constructor(
     fun getEblanApplicationInfosByTagId(tagIds: List<Long>) {
         _eblanApplicationInfoTagIds.update {
             tagIds
+        }
+    }
+
+    fun syncData() {
+        viewModelScope.launch {
+            syncDataUseCase()
+        }
+
+        viewModelScope.launch {
+            launcherAppsWrapper.launcherAppsEvent.collect { launcherAppsEvent ->
+                when (launcherAppsEvent) {
+                    is LauncherAppsEvent.PackageAdded -> {
+                        addPackageUseCase(
+                            serialNumber = launcherAppsEvent.serialNumber,
+                            packageName = launcherAppsEvent.packageName,
+                        )
+                    }
+
+                    is LauncherAppsEvent.PackageChanged -> {
+                        changePackageUseCase(
+                            serialNumber = launcherAppsEvent.serialNumber,
+                            packageName = launcherAppsEvent.packageName,
+                        )
+                    }
+
+                    is LauncherAppsEvent.PackageRemoved -> {
+                        removePackageUseCase(
+                            serialNumber = launcherAppsEvent.serialNumber,
+                            packageName = launcherAppsEvent.packageName,
+                        )
+                    }
+
+                    is LauncherAppsEvent.ShortcutsChanged -> {
+                        changeShortcutsUseCase(
+                            launcherAppsShortcutInfos = launcherAppsEvent.launcherAppsShortcutInfos,
+                        )
+                    }
+                }
+            }
         }
     }
 }

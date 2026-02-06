@@ -46,6 +46,7 @@ import com.eblan.launcher.data.room.entity.ShortcutInfoGridItemEntity
 import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
 import com.eblan.launcher.data.room.migration.AutoMigration5To6
 import com.eblan.launcher.data.room.migration.AutoMigration8To9
+import com.eblan.launcher.data.room.migration.AutoMigration9To10
 
 @Database(
     entities = [
@@ -82,6 +83,11 @@ import com.eblan.launcher.data.room.migration.AutoMigration8To9
             from = 8,
             to = 9,
             spec = AutoMigration8To9::class,
+        ),
+        AutoMigration(
+            from = 9,
+            to = 10,
+            spec = AutoMigration9To10::class,
         ),
     ],
 )

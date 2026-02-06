@@ -15,19 +15,13 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.framework.activitymanager
+package com.eblan.launcher.data.room.migration
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import androidx.room.DeleteColumn
+import androidx.room.migration.AutoMigrationSpec
 
-@Module
-@InstallIn(SingletonComponent::class)
-internal interface ActivityManagerModule {
-
-    @Binds
-    @Singleton
-    fun androidActivityManagerWrapper(impl: DefaultActivityManagerWrapper): AndroidActivityManagerWrapper
-}
+@DeleteColumn(
+    tableName = "EblanShortcutConfigEntity",
+    columnName = "lastUpdateTime",
+)
+internal class AutoMigration9To10 : AutoMigrationSpec

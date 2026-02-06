@@ -18,7 +18,20 @@
 package com.eblan.launcher.domain.model
 
 data class FastAppWidgetManagerAppWidgetProviderInfo(
+    val componentName: String,
     val serialNumber: Long,
+    val configure: String?,
     val packageName: String,
+    val targetCellWidth: Int,
+    val targetCellHeight: Int,
+    val minWidth: Int,
+    val minHeight: Int,
+    val resizeMode: Int,
+    val minResizeWidth: Int,
+    val minResizeHeight: Int,
+    val maxResizeWidth: Int,
+    val maxResizeHeight: Int,
     val lastUpdateTime: Long,
+    val label: String?,
+    val description: String?,
 )

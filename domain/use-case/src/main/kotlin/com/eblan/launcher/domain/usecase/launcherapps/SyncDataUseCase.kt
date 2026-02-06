@@ -267,9 +267,22 @@ class SyncDataUseCase @Inject constructor(
             eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfos()
                 .map { eblanAppWidgetProviderInfo ->
                     FastAppWidgetManagerAppWidgetProviderInfo(
+                        componentName = eblanAppWidgetProviderInfo.componentName,
                         serialNumber = eblanAppWidgetProviderInfo.serialNumber,
+                        configure = eblanAppWidgetProviderInfo.configure,
                         packageName = eblanAppWidgetProviderInfo.packageName,
+                        targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
+                        targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
+                        minWidth = eblanAppWidgetProviderInfo.minWidth,
+                        minHeight = eblanAppWidgetProviderInfo.minHeight,
+                        resizeMode = eblanAppWidgetProviderInfo.resizeMode,
+                        minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
+                        minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
+                        maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
+                        maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
                         lastUpdateTime = eblanAppWidgetProviderInfo.lastUpdateTime,
+                        label = eblanAppWidgetProviderInfo.label,
+                        description = eblanAppWidgetProviderInfo.description,
                     )
                 }
 

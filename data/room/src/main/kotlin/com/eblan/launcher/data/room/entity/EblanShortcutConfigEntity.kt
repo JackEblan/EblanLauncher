@@ -17,7 +17,6 @@
  */
 package com.eblan.launcher.data.room.entity
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 
 @Entity(primaryKeys = ["componentName", "serialNumber"])

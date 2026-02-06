@@ -145,13 +145,39 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
             FastAppWidgetManagerAppWidgetProviderInfo(
                 serialNumber = serialNumber,
                 packageName = provider.packageName,
+                componentName = provider.flattenToString(),
+                configure = configure?.flattenToString(),
+                targetCellWidth = targetCellWidth,
+                targetCellHeight = targetCellHeight,
+                minWidth = minWidth,
+                minHeight = minHeight,
+                resizeMode = resizeMode,
+                minResizeWidth = minResizeWidth,
+                minResizeHeight = minResizeHeight,
+                maxResizeWidth = maxResizeWidth,
+                maxResizeHeight = maxResizeHeight,
                 lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = provider.packageName),
+                label = loadLabel(context.packageManager),
+                description = loadDescription(context)?.let(CharSequence::toString),
             )
         } else {
             FastAppWidgetManagerAppWidgetProviderInfo(
                 serialNumber = serialNumber,
                 packageName = provider.packageName,
+                componentName = provider.flattenToString(),
+                configure = configure?.flattenToString(),
+                targetCellWidth = 0,
+                targetCellHeight = 0,
+                minWidth = minWidth,
+                minHeight = minHeight,
+                resizeMode = resizeMode,
+                minResizeWidth = minResizeWidth,
+                minResizeHeight = minResizeHeight,
+                maxResizeWidth = 0,
+                maxResizeHeight = 0,
                 lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = provider.packageName),
+                label = loadLabel(context.packageManager),
+                description = null,
             )
         }
     }

@@ -20,7 +20,6 @@ package com.eblan.launcher.ui.local
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.framework.accessibilitymanager.AndroidAccessibilityManagerWrapper
-import com.eblan.launcher.framework.activitymanager.AndroidActivityManagerWrapper
 import com.eblan.launcher.framework.iconpackmanager.AndroidIconPackManager
 import com.eblan.launcher.framework.imageserializer.AndroidImageSerializer
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
@@ -78,8 +77,4 @@ val LocalFileManager = staticCompositionLocalOf<FileManager> {
 
 val LocalAccessibilityManager = staticCompositionLocalOf<AndroidAccessibilityManagerWrapper> {
     error("No AndroidAccessibilityManagerWrapper provided")
-}
-
-val LocalActivityManager = staticCompositionLocalOf<AndroidActivityManagerWrapper> {
-    error("No AndroidActivityManagerWrapper provided")
 }

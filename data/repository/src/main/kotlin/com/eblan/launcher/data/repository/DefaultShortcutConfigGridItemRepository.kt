@@ -71,10 +71,10 @@ internal class DefaultShortcutConfigGridItemRepository @Inject constructor(priva
         shortcutConfigGridItemDao.deleteShortcutConfigGridItemEntity(entity = shortcutConfigGridItem.asEntity())
     }
 
-    override suspend fun getShortcutConfigGridItems(
+    override suspend fun getShortcutConfigGridItemsByPackageName(
         serialNumber: Long,
         packageName: String,
-    ): List<ShortcutConfigGridItem> = shortcutConfigGridItemDao.getShortcutConfigGridItemEntities(
+    ): List<ShortcutConfigGridItem> = shortcutConfigGridItemDao.getShortcutConfigGridItemEntitiesByPackageName(
         serialNumber = serialNumber,
         packageName = packageName,
     ).map { entity ->

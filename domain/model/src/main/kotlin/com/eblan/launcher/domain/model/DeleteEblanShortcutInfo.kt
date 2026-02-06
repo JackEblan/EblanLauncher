@@ -17,12 +17,9 @@
  */
 package com.eblan.launcher.domain.model
 
-data class EblanShortcutConfig(
-    val componentName: String,
-    val packageName: String,
+data class DeleteEblanShortcutInfo(
     val serialNumber: Long,
-    val activityIcon: String?,
-    val activityLabel: String?,
-    val applicationIcon: String?,
-    val applicationLabel: String?,
+    val shortcutId: String,
+    val packageName: String,
+    val icon: String?,
 )

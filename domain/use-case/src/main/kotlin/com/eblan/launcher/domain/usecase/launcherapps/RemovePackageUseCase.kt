@@ -152,7 +152,7 @@ class RemovePackageUseCase @Inject constructor(
             }
         }
 
-        applicationInfoGridItemRepository.getApplicationInfoGridItems(
+        applicationInfoGridItemRepository.getApplicationInfoGridItemsByPackageName(
             serialNumber = serialNumber,
             packageName = packageName,
         ).forEach { applicationInfoGridItem ->
@@ -220,7 +220,7 @@ class RemovePackageUseCase @Inject constructor(
             }
         }
 
-        shortcutInfoGridItemRepository.getShortcutInfoGridItems(
+        shortcutInfoGridItemRepository.getShortcutInfoGridItemsByPackageName(
             serialNumber = serialNumber,
             packageName = packageName,
         ).forEach { shortcutInfoGridItem ->
@@ -240,7 +240,7 @@ class RemovePackageUseCase @Inject constructor(
         serialNumber: Long,
         packageName: String,
     ) {
-        eblanShortcutConfigRepository.getEblanShortcutConfig(
+        eblanShortcutConfigRepository.getEblanShortcutConfigsByPackageName(
             serialNumber = serialNumber,
             packageName = packageName,
         ).forEach { eblanShortcutConfigByPackageName ->
@@ -272,7 +272,7 @@ class RemovePackageUseCase @Inject constructor(
             }
         }
 
-        shortcutConfigGridItemRepository.getShortcutConfigGridItems(
+        shortcutConfigGridItemRepository.getShortcutConfigGridItemsByPackageName(
             serialNumber = serialNumber,
             packageName = packageName,
         ).forEach { shortcutConfigGridItem ->

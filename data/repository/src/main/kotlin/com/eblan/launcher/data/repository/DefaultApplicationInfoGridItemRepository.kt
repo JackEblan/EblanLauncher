@@ -69,10 +69,10 @@ internal class DefaultApplicationInfoGridItemRepository @Inject constructor(priv
         applicationInfoGridItemDao.deleteApplicationInfoGridItemEntity(entity = applicationInfoGridItem.asEntity())
     }
 
-    override suspend fun getApplicationInfoGridItems(
+    override suspend fun getApplicationInfoGridItemsByPackageName(
         serialNumber: Long,
         packageName: String,
-    ): List<ApplicationInfoGridItem> = applicationInfoGridItemDao.getApplicationInfoGridItemEntities(
+    ): List<ApplicationInfoGridItem> = applicationInfoGridItemDao.getApplicationInfoGridItemEntitiesByPackageName(
         serialNumber = serialNumber,
         packageName = packageName,
     ).map { entity ->

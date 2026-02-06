@@ -19,6 +19,7 @@ package com.eblan.launcher.data.repository
 
 import com.eblan.launcher.data.room.dao.EblanShortcutInfoDao
 import com.eblan.launcher.data.room.entity.EblanShortcutInfoEntity
+import com.eblan.launcher.domain.model.DeleteEblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import kotlinx.coroutines.flow.map
@@ -45,12 +46,8 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
         eblanShortcutInfoDao.upsertEblanShortcutInfoEntities(entities = entities)
     }
 
-    override suspend fun deleteEblanShortcutInfos(eblanShortcutInfos: List<EblanShortcutInfo>) {
-        val entities = eblanShortcutInfos.map { eblanShortcutInfo ->
-            eblanShortcutInfo.asEntity()
-        }
-
-        eblanShortcutInfoDao.deleteEblanShortcutInfoEntities(entities = entities)
+    override suspend fun deleteEblanShortcutInfos(deleteEblanShortcutInfos: List<DeleteEblanShortcutInfo>) {
+        eblanShortcutInfoDao.deleteEblanShortcutInfoEntities(deleteEblanShortcutInfos = deleteEblanShortcutInfos)
     }
 
     override suspend fun getEblanShortcutInfos(

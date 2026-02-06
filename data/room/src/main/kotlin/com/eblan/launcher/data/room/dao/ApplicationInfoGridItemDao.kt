@@ -45,7 +45,7 @@ interface ApplicationInfoGridItemDao {
     suspend fun deleteApplicationInfoGridItemEntity(entity: ApplicationInfoGridItemEntity)
 
     @Query("SELECT * FROM ApplicationInfoGridItemEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
-    suspend fun getApplicationInfoGridItemEntities(
+    suspend fun getApplicationInfoGridItemEntitiesByPackageName(
         serialNumber: Long,
         packageName: String,
     ): List<ApplicationInfoGridItemEntity>

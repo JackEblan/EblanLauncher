@@ -19,6 +19,7 @@ package com.eblan.launcher.data.repository
 
 import com.eblan.launcher.data.room.dao.EblanShortcutConfigDao
 import com.eblan.launcher.data.room.entity.EblanShortcutConfigEntity
+import com.eblan.launcher.domain.model.DeleteEblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import kotlinx.coroutines.flow.map
@@ -59,18 +60,14 @@ internal class DefaultEblanShortcutConfigRepository @Inject constructor(private 
         )
     }
 
-    override suspend fun deleteEblanShortcutConfigs(eblanShortcutConfigs: List<EblanShortcutConfig>) {
-        val entities = eblanShortcutConfigs.map { eblanShortcutConfig ->
-            eblanShortcutConfig.asEntity()
-        }
-
-        eblanShortcutConfigDao.deleteEblanShortcutConfigEntities(entities = entities)
+    override suspend fun deleteEblanShortcutConfigs(deleteEblanShortcutConfigs: List<DeleteEblanShortcutConfig>) {
+        eblanShortcutConfigDao.deleteEblanShortcutConfigEntities(deleteEblanShortcutConfigs = deleteEblanShortcutConfigs)
     }
 
-    override suspend fun getEblanShortcutConfig(
+    override suspend fun getEblanShortcutConfigsByPackageName(
         serialNumber: Long,
         packageName: String,
-    ): List<EblanShortcutConfig> = eblanShortcutConfigDao.getEblanShortcutConfigEntity(
+    ): List<EblanShortcutConfig> = eblanShortcutConfigDao.getEblanShortcutConfigEntitiesByPackageName(
         serialNumber = serialNumber,
         packageName = packageName,
     ).map { entity ->
@@ -85,7 +82,6 @@ internal class DefaultEblanShortcutConfigRepository @Inject constructor(private 
         activityLabel = activityLabel,
         applicationIcon = applicationIcon,
         applicationLabel = applicationLabel,
-        lastUpdateTime = lastUpdateTime,
     )
 
     private fun EblanShortcutConfigEntity.asModel(): EblanShortcutConfig = EblanShortcutConfig(
@@ -96,6 +92,5 @@ internal class DefaultEblanShortcutConfigRepository @Inject constructor(private 
         activityLabel = activityLabel,
         applicationIcon = applicationIcon,
         applicationLabel = applicationLabel,
-        lastUpdateTime = lastUpdateTime,
     )
 }

@@ -17,12 +17,10 @@
  */
 package com.eblan.launcher.domain.model
 
-data class EblanShortcutConfig(
+data class DeleteEblanAppWidgetProviderInfo(
     val componentName: String,
-    val packageName: String,
     val serialNumber: Long,
-    val activityIcon: String?,
-    val activityLabel: String?,
+    val packageName: String,
+    val preview: String?,
     val applicationIcon: String?,
-    val applicationLabel: String?,
 )

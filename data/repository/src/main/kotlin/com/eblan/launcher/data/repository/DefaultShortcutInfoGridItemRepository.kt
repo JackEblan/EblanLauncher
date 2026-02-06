@@ -69,10 +69,10 @@ internal class DefaultShortcutInfoGridItemRepository @Inject constructor(private
         shortcutInfoGridItemDao.deleteShortcutInfoGridItemEntity(entity = shortcutInfoGridItem.asEntity())
     }
 
-    override suspend fun getShortcutInfoGridItems(
+    override suspend fun getShortcutInfoGridItemsByPackageName(
         serialNumber: Long,
         packageName: String,
-    ): List<ShortcutInfoGridItem> = shortcutInfoGridItemDao.getShortcutInfoGridItemEntities(
+    ): List<ShortcutInfoGridItem> = shortcutInfoGridItemDao.getShortcutInfoGridItemEntitiesByPackageName(
         serialNumber = serialNumber,
         packageName = packageName,
     ).map { entity ->

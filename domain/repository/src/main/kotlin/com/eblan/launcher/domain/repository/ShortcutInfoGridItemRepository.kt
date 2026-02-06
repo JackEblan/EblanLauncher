@@ -35,7 +35,7 @@ interface ShortcutInfoGridItemRepository {
 
     suspend fun deleteShortcutInfoGridItem(shortcutInfoGridItem: ShortcutInfoGridItem)
 
-    suspend fun getShortcutInfoGridItems(
+    suspend fun getShortcutInfoGridItemsByPackageName(
         serialNumber: Long,
         packageName: String,
     ): List<ShortcutInfoGridItem>

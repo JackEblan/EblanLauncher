@@ -267,7 +267,6 @@ class AddPackageUseCase @Inject constructor(
                 applicationLabel = packageManagerWrapper.getApplicationLabel(
                     packageName = shortcutConfigActivityInfo.packageName,
                 ),
-                lastUpdateTime = shortcutConfigActivityInfo.lastUpdateTime,
             )
         }
 

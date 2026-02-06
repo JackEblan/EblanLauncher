@@ -44,7 +44,7 @@ interface ShortcutConfigGridItemDao {
     suspend fun deleteShortcutConfigGridItemEntity(entity: ShortcutConfigGridItemEntity)
 
     @Query("SELECT * FROM ShortcutConfigGridItemEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
-    suspend fun getShortcutConfigGridItemEntities(
+    suspend fun getShortcutConfigGridItemEntitiesByPackageName(
         serialNumber: Long,
         packageName: String,
     ): List<ShortcutConfigGridItemEntity>

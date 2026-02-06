@@ -18,14 +18,17 @@
 package com.eblan.launcher.feature.home
 
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.ClipDescription
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.IBinder
+import android.os.UserHandle
 import androidx.activity.compose.LocalActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
@@ -106,12 +109,9 @@ import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.framework.activitymanager.AndroidActivityManagerWrapper
+import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.service.EblanNotificationListenerService
-import com.eblan.launcher.service.LauncherAppsService
-import com.eblan.launcher.service.SyncDataService
 import com.eblan.launcher.ui.dialog.TextDialog
-import com.eblan.launcher.ui.local.LocalActivityManager
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalImageSerializer
@@ -196,7 +196,6 @@ internal fun HomeRoute(
         onSaveEditPage = viewModel::saveEditPage,
         onUpdateScreen = viewModel::updateScreen,
         onDeleteGridItemCache = viewModel::deleteGridItemCache,
-        onUpdateGridItemDataCache = viewModel::updateGridItemDataCache,
         onDeleteWidgetGridItemCache = viewModel::deleteWidgetGridItemCache,
         onShowFolder = viewModel::showFolder,
         onRemoveLastFolder = viewModel::removeLastFolder,
@@ -214,6 +213,7 @@ internal fun HomeRoute(
         onShowFolderWhenDragging = viewModel::showFolderWhenDragging,
         onGetEblanApplicationInfosByTagIds = viewModel::getEblanApplicationInfosByTagId,
         onResetConfigureResultCode = onResetConfigureResultCode,
+        onSyncData = viewModel::syncData,
     )
 }
 
@@ -286,7 +286,6 @@ internal fun HomeScreen(
     ) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
-    onUpdateGridItemDataCache: (GridItem) -> Unit,
     onDeleteWidgetGridItemCache: (
         gridItem: GridItem,
         appWidgetId: Int,
@@ -323,6 +322,7 @@ internal fun HomeScreen(
     onShowFolderWhenDragging: (String) -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onResetConfigureResultCode: () -> Unit,
+    onSyncData: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -493,7 +493,6 @@ internal fun HomeScreen(
                     onSaveEditPage = onSaveEditPage,
                     onUpdateScreen = onUpdateScreen,
                     onDeleteGridItemCache = onDeleteGridItemCache,
-                    onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
                     onShowFolder = onShowFolder,
                     onRemoveLastFolder = onRemoveLastFolder,
@@ -530,6 +529,7 @@ internal fun HomeScreen(
                     },
                     onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
                     onResetConfigureResultCode = onResetConfigureResultCode,
+                    onSyncData = onSyncData,
                 )
 
                 OverlayImage(
@@ -618,7 +618,6 @@ private fun SharedTransitionScope.Success(
     ) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
-    onUpdateGridItemDataCache: (GridItem) -> Unit,
     onDeleteWidgetGridItemCache: (
         gridItem: GridItem,
         appWidgetId: Int,
@@ -660,6 +659,7 @@ private fun SharedTransitionScope.Success(
     onResetOverlay: () -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onResetConfigureResultCode: () -> Unit,
+    onSyncData: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -667,7 +667,7 @@ private fun SharedTransitionScope.Success(
 
     val pinItemRequestWrapper = LocalPinItemRequest.current
 
-    val activityManager = LocalActivityManager.current
+    val userManager = LocalUserManager.current
 
     val gridHorizontalPagerState = rememberPagerState(
         initialPage = if (homeData.userData.homeSettings.infiniteScroll) {
@@ -789,13 +789,14 @@ private fun SharedTransitionScope.Success(
 
     LifecycleEffect(
         syncDataEnabled = homeData.userData.experimentalSettings.syncData,
-        androidActivityManagerWrapper = activityManager,
+        userManagerWrapper = userManager,
         onManagedProfileResultChange = { newManagedProfileResult ->
             managedProfileResult = newManagedProfileResult
         },
         onStatusBarNotificationsChange = { newStatusBarNotifications ->
             statusBarNotifications = newStatusBarNotifications
         },
+        onSyncData = onSyncData,
     )
 
     LaunchedEffect(key1 = Unit) {
@@ -1118,9 +1119,10 @@ private fun PostNotificationPermissionEffect(modifier: Modifier = Modifier) {
 @Composable
 private fun LifecycleEffect(
     syncDataEnabled: Boolean,
-    androidActivityManagerWrapper: AndroidActivityManagerWrapper,
+    userManagerWrapper: AndroidUserManagerWrapper,
     onManagedProfileResultChange: (ManagedProfileResult?) -> Unit,
     onStatusBarNotificationsChange: (Map<String, Int>) -> Unit,
+    onSyncData: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -1131,32 +1133,10 @@ private fun LifecycleEffect(
     val pinItemRequestWrapper = LocalPinItemRequest.current
 
     DisposableEffect(key1 = lifecycleOwner) {
-        val launcherAppsIntent = Intent(context, LauncherAppsService::class.java)
-
-        val syncDataIntent = Intent(context, SyncDataService::class.java)
-
         val eblanNotificationListenerIntent =
             Intent(context, EblanNotificationListenerService::class.java)
 
-        var shouldUnbindSyncDataService = false
-
         var shouldUnbindEblanNotificationListenerService = false
-
-        val syncDataServiceConnection = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName, service: IBinder) {
-                val listener = (service as SyncDataService.LocalBinder).getService()
-
-                lifecycleOwner.lifecycleScope.launch {
-                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        listener.managedProfileResult.collect {
-                            onManagedProfileResultChange(it)
-                        }
-                    }
-                }
-            }
-
-            override fun onServiceDisconnected(name: ComponentName) {}
-        }
 
         val eblanNotificationListenerServiceConnection = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -1175,17 +1155,49 @@ private fun LifecycleEffect(
             override fun onServiceDisconnected(name: ComponentName) {}
         }
 
+        val managedProfileBroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                val userHandle = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent.getParcelableExtra(
+                        Intent.EXTRA_USER,
+                        UserHandle::class.java,
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra(Intent.EXTRA_USER)
+                }
+
+                if (userHandle != null) {
+                    onSyncData()
+
+                    onManagedProfileResultChange(
+                        ManagedProfileResult(
+                            serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = userHandle),
+                            isQuiteModeEnabled = userManagerWrapper.isQuietModeEnabled(userHandle = userHandle),
+                        ),
+                    )
+                }
+            }
+        }
+
         val lifecycleEventObserver = LifecycleEventObserver { lifecycleOwner, event ->
             lifecycleOwner.lifecycleScope.launch {
                 when (event) {
                     Lifecycle.Event.ON_START -> {
-                        if (androidActivityManagerWrapper.isInForeground() && syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
-                            context.startService(launcherAppsIntent)
-
-                            shouldUnbindSyncDataService = context.bindService(
-                                syncDataIntent,
-                                syncDataServiceConnection,
-                                Context.BIND_AUTO_CREATE,
+                        if (syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
+                            context.registerReceiver(
+                                managedProfileBroadcastReceiver,
+                                IntentFilter().apply {
+                                    addAction(Intent.ACTION_MANAGED_PROFILE_AVAILABLE)
+                                    addAction(Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE)
+                                    addAction(Intent.ACTION_MANAGED_PROFILE_REMOVED)
+                                    addAction(Intent.ACTION_MANAGED_PROFILE_ADDED)
+                                    addAction(Intent.ACTION_MANAGED_PROFILE_UNLOCKED)
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                                        addAction(Intent.ACTION_PROFILE_AVAILABLE)
+                                        addAction(Intent.ACTION_PROFILE_UNAVAILABLE)
+                                    }
+                                },
                             )
 
                             shouldUnbindEblanNotificationListenerService = context.bindService(
@@ -1193,30 +1205,22 @@ private fun LifecycleEffect(
                                 eblanNotificationListenerServiceConnection,
                                 Context.BIND_AUTO_CREATE,
                             )
-                        } else {
-                            shouldUnbindSyncDataService = false
-
-                            shouldUnbindEblanNotificationListenerService = false
                         }
 
                         appWidgetHost.startListening()
+
+                        onSyncData()
                     }
 
                     Lifecycle.Event.ON_STOP -> {
                         if (syncDataEnabled && pinItemRequestWrapper.getPinItemRequest() == null) {
-                            if (shouldUnbindSyncDataService) {
-                                context.unbindService(syncDataServiceConnection)
-
-                                shouldUnbindSyncDataService = false
-                            }
-
                             if (shouldUnbindEblanNotificationListenerService) {
+                                context.unregisterReceiver(managedProfileBroadcastReceiver)
+
                                 context.unbindService(eblanNotificationListenerServiceConnection)
 
                                 shouldUnbindEblanNotificationListenerService = false
                             }
-
-                            context.stopService(launcherAppsIntent)
                         }
 
                         appWidgetHost.stopListening()

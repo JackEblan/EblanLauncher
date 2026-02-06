@@ -22,16 +22,7 @@
 
     <application>
         <service
-            android:name=".LauncherAppsService"
-            android:exported="false" />
-
-        <service
             android:name=".IconPackInfoService"
-            android:exported="false"
-            android:foregroundServiceType="dataSync" />
-
-        <service
-            android:name=".SyncDataService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 

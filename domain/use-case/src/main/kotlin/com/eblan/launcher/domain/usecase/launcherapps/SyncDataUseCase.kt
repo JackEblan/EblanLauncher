@@ -52,7 +52,7 @@ import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
-import com.eblan.launcher.domain.usecase.iconpack.updateIconPackInfoByComponentName
+import com.eblan.launcher.domain.usecase.iconpack.cacheIconPackFile
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -98,12 +98,7 @@ class SyncDataUseCase @Inject constructor(
             }
 
             launch {
-                updateIconPackInfos(
-                    iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                    iconPackManager = iconPackManager,
-                    launcherAppsWrapper = launcherAppsWrapper,
-                    fileManager = fileManager,
-                )
+                updateIconPackInfos(iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName)
             }
         }
     }
@@ -113,6 +108,7 @@ class SyncDataUseCase @Inject constructor(
             eblanApplicationInfoRepository.getEblanApplicationInfos().map { eblanApplicationInfo ->
                 FastLauncherAppsActivityInfo(
                     serialNumber = eblanApplicationInfo.serialNumber,
+                    componentName = eblanApplicationInfo.componentName,
                     packageName = eblanApplicationInfo.packageName,
                     lastUpdateTime = eblanApplicationInfo.lastUpdateTime,
                 )
@@ -139,13 +135,6 @@ class SyncDataUseCase @Inject constructor(
         val newSyncEblanApplicationInfos = buildList {
             launcherAppsWrapper.getActivityList().forEach { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
-
-                updateIconPackInfoByComponentName(
-                    componentName = launcherAppsActivityInfo.componentName,
-                    iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                    fileManager = fileManager,
-                    iconPackManager = iconPackManager,
-                )
 
                 newEblanShortcutConfigs.addAll(
                     launcherAppsWrapper.getShortcutConfigActivityList(
@@ -662,5 +651,47 @@ class SyncDataUseCase @Inject constructor(
                 firstLaunch = false,
             ),
         )
+    }
+
+    private suspend fun updateIconPackInfos(iconPackInfoPackageName: String) {
+        if (iconPackInfoPackageName.isNotEmpty()) {
+            val fastLauncherAppsActivityInfos = launcherAppsWrapper.getFastActivityList()
+
+            val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
+
+            val iconPackInfoDirectory = File(
+                fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
+                iconPackInfoPackageName,
+            ).apply { if (!exists()) mkdirs() }
+
+            val installedPackageNames = buildList {
+                fastLauncherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
+                    currentCoroutineContext().ensureActive()
+
+                    val file = File(
+                        iconPackInfoDirectory,
+                        launcherAppsActivityInfo.componentName.hashCode().toString(),
+                    )
+
+                    cacheIconPackFile(
+                        iconPackManager = iconPackManager,
+                        appFilter = appFilter,
+                        iconPackInfoPackageName = iconPackInfoPackageName,
+                        file = file,
+                        componentName = launcherAppsActivityInfo.componentName,
+                    )
+
+                    add(launcherAppsActivityInfo.componentName.hashCode().toString())
+                }
+            }
+
+            iconPackInfoDirectory.listFiles()
+                ?.filter { it.isFile && it.name !in installedPackageNames }
+                ?.forEach {
+                    currentCoroutineContext().ensureActive()
+
+                    it.delete()
+                }
+        }
     }
 }

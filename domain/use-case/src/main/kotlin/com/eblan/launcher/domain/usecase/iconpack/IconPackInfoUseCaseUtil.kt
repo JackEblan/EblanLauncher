@@ -37,13 +37,18 @@ suspend fun updateIconPackInfoByComponentName(
         iconPackInfoPackageName,
     ).apply { if (!exists()) mkdirs() }
 
+    val file = File(
+        iconPackDirectory,
+        componentName.hashCode().toString(),
+    )
+
     val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 
     cacheIconPackFile(
         iconPackManager = iconPackManager,
         appFilter = appFilter,
         iconPackInfoPackageName = iconPackInfoPackageName,
-        iconPackInfoDirectory = iconPackDirectory,
+        file = file,
         componentName = componentName,
     )
 }
@@ -52,7 +57,7 @@ internal suspend fun cacheIconPackFile(
     iconPackManager: IconPackManager,
     appFilter: List<IconPackInfoComponent>,
     iconPackInfoPackageName: String,
-    iconPackInfoDirectory: File,
+    file: File,
     componentName: String,
 ) {
     appFilter.find { iconPackInfoComponent ->
@@ -63,9 +68,9 @@ internal suspend fun cacheIconPackFile(
     }?.let { iconPackInfoComponent ->
         iconPackManager.createIconPackInfoPath(
             packageName = iconPackInfoPackageName,
-            componentName = componentName,
             drawable = iconPackInfoComponent.drawable,
-            iconPackInfoDirectory = iconPackInfoDirectory,
+            id = iconPackInfoComponent.id,
+            file = file,
         )
     }
 }

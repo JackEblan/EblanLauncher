@@ -62,11 +62,16 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                     launcherAppsWrapper.getActivityList().forEach { launcherAppsActivityInfo ->
                         ensureActive()
 
+                        val file = File(
+                            iconPackDirectory,
+                            launcherAppsActivityInfo.componentName.hashCode().toString(),
+                        )
+
                         cacheIconPackFile(
                             iconPackManager = iconPackManager,
                             appFilter = appFilter,
                             iconPackInfoPackageName = iconPackInfoPackageName,
-                            iconPackInfoDirectory = iconPackDirectory,
+                            file = file,
                             componentName = launcherAppsActivityInfo.componentName,
                         )
 

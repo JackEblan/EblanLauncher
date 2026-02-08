@@ -25,8 +25,8 @@ interface IconPackManager {
 
     suspend fun createIconPackInfoPath(
         packageName: String,
-        componentName: String,
         drawable: String,
-        iconPackInfoDirectory: File,
+        id: Int,
+        file: File,
     ): String?
 }

@@ -123,6 +123,7 @@ fun IconPackInfoFilesDialog(
                                 drawable = iconPackManager.loadDrawableFromIconPack(
                                     packageName = iconPackInfoPackageName.toString(),
                                     drawableName = iconPackInfoComponent.drawable,
+                                    id = iconPackInfoComponent.id,
                                 )
                             }
 

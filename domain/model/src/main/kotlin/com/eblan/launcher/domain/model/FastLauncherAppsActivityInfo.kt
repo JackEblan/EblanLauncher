@@ -19,6 +19,7 @@ package com.eblan.launcher.domain.model
 
 data class FastLauncherAppsActivityInfo(
     val serialNumber: Long,
+    val componentName: String,
     val packageName: String,
     val lastUpdateTime: Long,
 )

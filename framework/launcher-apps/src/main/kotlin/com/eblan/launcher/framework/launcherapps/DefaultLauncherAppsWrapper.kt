@@ -535,6 +535,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
     private fun LauncherActivityInfo.toFastLauncherAppsActivityInfo(): FastLauncherAppsActivityInfo = FastLauncherAppsActivityInfo(
         serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
+        componentName = componentName.flattenToString(),
         packageName = applicationInfo.packageName,
         lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = applicationInfo.packageName),
     )

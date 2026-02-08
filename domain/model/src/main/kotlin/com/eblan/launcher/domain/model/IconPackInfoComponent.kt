@@ -20,4 +20,5 @@ package com.eblan.launcher.domain.model
 data class IconPackInfoComponent(
     val component: String,
     val drawable: String,
+    val id: Int,
 )

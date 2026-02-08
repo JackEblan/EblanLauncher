@@ -213,7 +213,8 @@ internal fun HomeRoute(
         onShowFolderWhenDragging = viewModel::showFolderWhenDragging,
         onGetEblanApplicationInfosByTagIds = viewModel::getEblanApplicationInfosByTagId,
         onResetConfigureResultCode = onResetConfigureResultCode,
-        onSyncData = viewModel::syncData,
+        onStartSyncData = viewModel::startSyncData,
+        onStopSyncData = viewModel::stopSyncData,
     )
 }
 
@@ -322,7 +323,8 @@ internal fun HomeScreen(
     onShowFolderWhenDragging: (String) -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onResetConfigureResultCode: () -> Unit,
-    onSyncData: () -> Unit,
+    onStartSyncData: () -> Unit,
+    onStopSyncData: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -529,7 +531,8 @@ internal fun HomeScreen(
                     },
                     onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
                     onResetConfigureResultCode = onResetConfigureResultCode,
-                    onSyncData = onSyncData,
+                    onStartSyncData = onStartSyncData,
+                    onStopSyncData = onStopSyncData,
                 )
 
                 OverlayImage(
@@ -659,7 +662,8 @@ private fun SharedTransitionScope.Success(
     onResetOverlay: () -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onResetConfigureResultCode: () -> Unit,
-    onSyncData: () -> Unit,
+    onStartSyncData: () -> Unit,
+    onStopSyncData: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -796,7 +800,8 @@ private fun SharedTransitionScope.Success(
         onStatusBarNotificationsChange = { newStatusBarNotifications ->
             statusBarNotifications = newStatusBarNotifications
         },
-        onSyncData = onSyncData,
+        onStartSyncData = onStartSyncData,
+        onStopSyncData = onStopSyncData,
     )
 
     LaunchedEffect(key1 = Unit) {
@@ -1122,7 +1127,8 @@ private fun LifecycleEffect(
     userManagerWrapper: AndroidUserManagerWrapper,
     onManagedProfileResultChange: (ManagedProfileResult?) -> Unit,
     onStatusBarNotificationsChange: (Map<String, Int>) -> Unit,
-    onSyncData: () -> Unit,
+    onStartSyncData: () -> Unit,
+    onStopSyncData: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -1168,7 +1174,7 @@ private fun LifecycleEffect(
                 }
 
                 if (userHandle != null) {
-                    onSyncData()
+                    onStartSyncData()
 
                     onManagedProfileResultChange(
                         ManagedProfileResult(
@@ -1209,7 +1215,7 @@ private fun LifecycleEffect(
 
                         appWidgetHost.startListening()
 
-                        onSyncData()
+                        onStartSyncData()
                     }
 
                     Lifecycle.Event.ON_STOP -> {
@@ -1224,6 +1230,8 @@ private fun LifecycleEffect(
                         }
 
                         appWidgetHost.stopListening()
+
+                        onStopSyncData()
                     }
 
                     else -> Unit

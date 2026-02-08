@@ -756,11 +756,7 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun syncData() {
-        syncDataJob?.cancel()
-
-        launcherAppsEventJob?.cancel()
-
+    fun startSyncData() {
         syncDataJob = viewModelScope.launch {
             syncDataUseCase()
         }
@@ -797,5 +793,15 @@ internal class HomeViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun stopSyncData() {
+        syncDataJob?.cancel()
+
+        launcherAppsEventJob?.cancel()
+
+        syncDataJob = null
+
+        launcherAppsEventJob = null
     }
 }

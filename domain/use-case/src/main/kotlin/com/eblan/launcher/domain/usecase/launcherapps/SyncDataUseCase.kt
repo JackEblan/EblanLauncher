@@ -217,20 +217,6 @@ class SyncDataUseCase @Inject constructor(
                             iconFile.delete()
                         }
                     }
-
-                    val iconPacksDirectory = File(
-                        fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
-                        userData.generalSettings.iconPackInfoPackageName,
-                    )
-
-                    val iconPackFile = File(
-                        iconPacksDirectory,
-                        oldDeleteEblanApplicationInfo.componentName.hashCode().toString(),
-                    )
-
-                    if (iconPackFile.exists()) {
-                        iconPackFile.delete()
-                    }
                 }
             }
 

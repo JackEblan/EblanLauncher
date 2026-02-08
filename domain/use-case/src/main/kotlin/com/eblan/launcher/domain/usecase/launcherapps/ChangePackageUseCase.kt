@@ -85,7 +85,6 @@ class ChangePackageUseCase @Inject constructor(
             updateEblanApplicationInfo(
                 packageName = packageName,
                 serialNumber = serialNumber,
-                iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
                 launcherAppsActivityInfosByPackageName = launcherAppsActivityInfosByPackageName,
             )
 
@@ -111,7 +110,6 @@ class ChangePackageUseCase @Inject constructor(
     private suspend fun updateEblanApplicationInfo(
         packageName: String,
         serialNumber: Long,
-        iconPackInfoPackageName: String,
         launcherAppsActivityInfosByPackageName: List<LauncherAppsActivityInfo>,
     ) {
         val newEblanShortcutConfigs = mutableListOf<EblanShortcutConfig>()
@@ -215,20 +213,6 @@ class ChangePackageUseCase @Inject constructor(
                         if (iconFile.exists()) {
                             iconFile.delete()
                         }
-                    }
-
-                    val iconPacksDirectory = File(
-                        fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
-                        iconPackInfoPackageName,
-                    )
-
-                    val iconPackFile = File(
-                        iconPacksDirectory,
-                        oldDeleteEblanApplicationInfo.componentName.hashCode().toString(),
-                    )
-
-                    if (iconPackFile.exists()) {
-                        iconPackFile.delete()
                     }
                 }
             }

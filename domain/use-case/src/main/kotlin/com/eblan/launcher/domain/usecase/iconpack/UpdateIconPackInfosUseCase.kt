@@ -58,7 +58,7 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                     iconPackInfoPackageName,
                 ).apply { if (!exists()) mkdirs() }
 
-                val installedPackageNames = buildList {
+                val installedComponentHashCodes = buildList {
                     launcherAppsWrapper.getActivityList().forEach { launcherAppsActivityInfo ->
                         ensureActive()
 
@@ -88,7 +88,7 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                 )
 
                 iconPackDirectory.listFiles()
-                    ?.filter { it.isFile && it.name !in installedPackageNames }?.forEach {
+                    ?.filter { it.isFile && it.name !in installedComponentHashCodes }?.forEach {
                         ensureActive()
 
                         it.delete()

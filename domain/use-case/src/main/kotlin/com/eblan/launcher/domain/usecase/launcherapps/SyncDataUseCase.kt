@@ -664,7 +664,7 @@ class SyncDataUseCase @Inject constructor(
                 iconPackInfoPackageName,
             ).apply { if (!exists()) mkdirs() }
 
-            val installedPackageNames = buildSet {
+            val installedComponentHashCodes = buildSet {
                 fastLauncherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
                     currentCoroutineContext().ensureActive()
 
@@ -686,7 +686,7 @@ class SyncDataUseCase @Inject constructor(
             }
 
             iconPackInfoDirectory.listFiles()
-                ?.filter { it.isFile && it.name !in installedPackageNames }
+                ?.filter { it.isFile && it.name !in installedComponentHashCodes }
                 ?.forEach {
                     currentCoroutineContext().ensureActive()
 

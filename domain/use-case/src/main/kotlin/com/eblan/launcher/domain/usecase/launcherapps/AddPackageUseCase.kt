@@ -33,7 +33,7 @@ import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.usecase.iconpack.updateIconPackInfoByComponentName
+import com.eblan.launcher.domain.usecase.iconpack.updateIconPackInfos
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -95,7 +95,7 @@ class AddPackageUseCase @Inject constructor(
                 packageName = packageName,
             )
 
-            updateIconPackInfoByComponentName(
+            updateIconPackInfos(
                 iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
                 fileManager = fileManager,
                 iconPackManager = iconPackManager,

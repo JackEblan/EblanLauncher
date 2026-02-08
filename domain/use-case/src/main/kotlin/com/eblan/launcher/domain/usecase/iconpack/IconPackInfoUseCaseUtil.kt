@@ -25,7 +25,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import java.io.File
 
-suspend fun updateIconPackInfoByComponentName(
+suspend fun updateIconPackInfos(
     iconPackInfoPackageName: String,
     fileManager: FileManager,
     iconPackManager: IconPackManager,
@@ -33,29 +33,41 @@ suspend fun updateIconPackInfoByComponentName(
 ) {
     if (iconPackInfoPackageName.isEmpty()) return
 
-    val iconPackDirectory = File(
+    val iconPackInfoDirectory = File(
         fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
         iconPackInfoPackageName,
     ).apply { if (!exists()) mkdirs() }
 
     val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 
-    launcherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
-        currentCoroutineContext().ensureActive()
+    val installedComponentHashCodes = buildSet {
+        launcherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
+            currentCoroutineContext().ensureActive()
 
-        val file = File(
-            iconPackDirectory,
-            launcherAppsActivityInfo.componentName.hashCode().toString(),
-        )
+            val file = File(
+                iconPackInfoDirectory,
+                launcherAppsActivityInfo.componentName.hashCode().toString(),
+            )
 
-        cacheIconPackFile(
-            iconPackManager = iconPackManager,
-            appFilter = appFilter,
-            iconPackInfoPackageName = iconPackInfoPackageName,
-            file = file,
-            componentName = launcherAppsActivityInfo.componentName,
-        )
+            cacheIconPackFile(
+                iconPackManager = iconPackManager,
+                appFilter = appFilter,
+                iconPackInfoPackageName = iconPackInfoPackageName,
+                file = file,
+                componentName = launcherAppsActivityInfo.componentName,
+            )
+
+            add(launcherAppsActivityInfo.componentName.hashCode().toString())
+        }
     }
+
+    iconPackInfoDirectory.listFiles()
+        ?.filter { it.isFile && it.name !in installedComponentHashCodes }
+        ?.forEach {
+            currentCoroutineContext().ensureActive()
+
+            it.delete()
+        }
 }
 
 internal suspend fun cacheIconPackFile(

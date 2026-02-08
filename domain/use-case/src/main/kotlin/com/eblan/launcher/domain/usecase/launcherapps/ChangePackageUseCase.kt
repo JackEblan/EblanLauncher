@@ -42,7 +42,7 @@ import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
-import com.eblan.launcher.domain.usecase.iconpack.updateIconPackInfoByComponentName
+import com.eblan.launcher.domain.usecase.iconpack.updateIconPackInfos
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -98,7 +98,7 @@ class ChangePackageUseCase @Inject constructor(
                 packageName = packageName,
             )
 
-            updateIconPackInfoByComponentName(
+            updateIconPackInfos(
                 iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
                 fileManager = fileManager,
                 iconPackManager = iconPackManager,

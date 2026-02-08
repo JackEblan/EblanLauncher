@@ -28,12 +28,13 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
+import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.usecase.iconpack.updateIconPackInfoByComponentName
+import com.eblan.launcher.domain.usecase.iconpack.cacheIconPackFile
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -64,10 +65,10 @@ class AddPackageUseCase @Inject constructor(
 
             if (!userData.experimentalSettings.syncData) return@withContext
 
-            launcherAppsWrapper.getActivityList(
+            val launcherAppsActivityInfosByPackageName = launcherAppsWrapper.getActivityList(
                 serialNumber = serialNumber,
                 packageName = packageName,
-            ).forEach { launcherAppsActivityInfo ->
+            ).onEach { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
                 addEblanApplicationInfo(
@@ -77,13 +78,6 @@ class AddPackageUseCase @Inject constructor(
                     icon = launcherAppsActivityInfo.activityIcon,
                     label = launcherAppsActivityInfo.activityLabel,
                     lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
-                )
-
-                updateIconPackInfoByComponentName(
-                    componentName = launcherAppsActivityInfo.componentName,
-                    iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                    fileManager = fileManager,
-                    iconPackManager = iconPackManager,
                 )
             }
 
@@ -100,6 +94,11 @@ class AddPackageUseCase @Inject constructor(
             addEblanShortcutConfigs(
                 serialNumber = serialNumber,
                 packageName = packageName,
+            )
+
+            addIconPackInfos(
+                iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+                launcherAppsActivityInfos = launcherAppsActivityInfosByPackageName,
             )
         }
     }
@@ -273,5 +272,36 @@ class AddPackageUseCase @Inject constructor(
         eblanShortcutConfigRepository.upsertEblanShortcutConfigs(
             eblanShortcutConfigs = eblanShortcutConfigs,
         )
+    }
+
+    private suspend fun addIconPackInfos(
+        iconPackInfoPackageName: String,
+        launcherAppsActivityInfos: List<LauncherAppsActivityInfo>,
+    ) {
+        if (iconPackInfoPackageName.isEmpty()) return
+
+        val iconPackInfoDirectory = File(
+            fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
+            iconPackInfoPackageName,
+        ).apply { if (!exists()) mkdirs() }
+
+        val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
+
+        launcherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
+            currentCoroutineContext().ensureActive()
+
+            val file = File(
+                iconPackInfoDirectory,
+                launcherAppsActivityInfo.componentName.hashCode().toString(),
+            )
+
+            cacheIconPackFile(
+                iconPackManager = iconPackManager,
+                appFilter = appFilter,
+                iconPackInfoPackageName = iconPackInfoPackageName,
+                file = file,
+                componentName = launcherAppsActivityInfo.componentName,
+            )
+        }
     }
 }

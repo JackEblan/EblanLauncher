@@ -52,7 +52,7 @@ import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
-import com.eblan.launcher.domain.usecase.iconpack.updateIconPackInfoByComponentName
+import com.eblan.launcher.domain.usecase.iconpack.updateIconPackInfos
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -100,9 +100,9 @@ class SyncDataUseCase @Inject constructor(
             launch {
                 updateIconPackInfos(
                     iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                    iconPackManager = iconPackManager,
-                    launcherAppsWrapper = launcherAppsWrapper,
                     fileManager = fileManager,
+                    iconPackManager = iconPackManager,
+                    launcherAppsActivityInfos = launcherAppsWrapper.getActivityList(),
                 )
             }
         }
@@ -113,6 +113,7 @@ class SyncDataUseCase @Inject constructor(
             eblanApplicationInfoRepository.getEblanApplicationInfos().map { eblanApplicationInfo ->
                 FastLauncherAppsActivityInfo(
                     serialNumber = eblanApplicationInfo.serialNumber,
+                    componentName = eblanApplicationInfo.componentName,
                     packageName = eblanApplicationInfo.packageName,
                     lastUpdateTime = eblanApplicationInfo.lastUpdateTime,
                 )
@@ -139,13 +140,6 @@ class SyncDataUseCase @Inject constructor(
         val newSyncEblanApplicationInfos = buildList {
             launcherAppsWrapper.getActivityList().forEach { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
-
-                updateIconPackInfoByComponentName(
-                    componentName = launcherAppsActivityInfo.componentName,
-                    iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                    fileManager = fileManager,
-                    iconPackManager = iconPackManager,
-                )
 
                 newEblanShortcutConfigs.addAll(
                     launcherAppsWrapper.getShortcutConfigActivityList(
@@ -227,20 +221,6 @@ class SyncDataUseCase @Inject constructor(
                         if (iconFile.exists()) {
                             iconFile.delete()
                         }
-                    }
-
-                    val iconPacksDirectory = File(
-                        fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
-                        userData.generalSettings.iconPackInfoPackageName,
-                    )
-
-                    val iconPackFile = File(
-                        iconPacksDirectory,
-                        oldDeleteEblanApplicationInfo.componentName.hashCode().toString(),
-                    )
-
-                    if (iconPackFile.exists()) {
-                        iconPackFile.delete()
                     }
                 }
             }

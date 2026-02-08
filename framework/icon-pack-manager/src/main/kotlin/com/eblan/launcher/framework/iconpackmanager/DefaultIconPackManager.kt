@@ -19,6 +19,7 @@ package com.eblan.launcher.framework.iconpackmanager
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.drawable.Drawable
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
@@ -103,41 +104,32 @@ internal class DefaultIconPackManager @Inject constructor(
                     }
                 }
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-
+        } catch (_: Exception) {
             emptyList()
         }
     }
 
     override suspend fun createIconPackInfoPath(
         packageName: String,
-        componentName: String,
         drawable: String,
-        iconPackInfoDirectory: File,
+        id: Int,
+        file: File,
     ): String? = withContext(ioDispatcher) {
         val packageContext =
             context.createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY)
 
         val resources = packageContext.resources
 
-        val id = resources.getIdentifier(drawable, "drawable", packageName)
-
-        if (id > 0) {
+        try {
             resources.getDrawable(
                 id,
                 packageContext.theme,
             ).let { drawable ->
-                val file = File(
-                    iconPackInfoDirectory,
-                    componentName.hashCode().toString(),
-                )
-
                 imageSerializer.createDrawablePath(drawable = drawable, file = file)
 
                 file.absolutePath
             }
-        } else {
+        } catch (_: Resources.NotFoundException) {
             null
         }
     }
@@ -145,20 +137,19 @@ internal class DefaultIconPackManager @Inject constructor(
     override suspend fun loadDrawableFromIconPack(
         packageName: String,
         drawableName: String,
+        id: Int,
     ): Drawable? = withContext(ioDispatcher) {
         val packageContext =
             context.createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY)
 
         val resources = packageContext.resources
 
-        val id = resources.getIdentifier(drawableName, "drawable", packageName)
-
-        if (id > 0) {
+        try {
             resources.getDrawable(
                 id,
                 packageContext.theme,
             )
-        } else {
+        } catch (_: Resources.NotFoundException) {
             null
         }
     }
@@ -186,11 +177,12 @@ internal class DefaultIconPackManager @Inject constructor(
                     if (!component.isNullOrBlank() && !drawable.isNullOrBlank()) {
                         val resId = resources.getIdentifier(drawable, "drawable", packageName)
 
-                        if (resId > 0) {
+                        if (resId != 0) {
                             iconPackInfoComponents.add(
                                 IconPackInfoComponent(
                                     component = component,
                                     drawable = drawable,
+                                    id = resId,
                                 ),
                             )
                         }

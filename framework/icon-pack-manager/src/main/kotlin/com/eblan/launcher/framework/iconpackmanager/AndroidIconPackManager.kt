@@ -23,5 +23,6 @@ interface AndroidIconPackManager {
     suspend fun loadDrawableFromIconPack(
         packageName: String,
         drawableName: String,
+        id: Int,
     ): Drawable?
 }

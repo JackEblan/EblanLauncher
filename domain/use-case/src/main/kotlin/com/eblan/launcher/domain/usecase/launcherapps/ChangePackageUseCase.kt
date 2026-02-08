@@ -31,6 +31,7 @@ import com.eblan.launcher.domain.model.DeleteEblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
+import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
@@ -41,7 +42,7 @@ import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
-import com.eblan.launcher.domain.usecase.iconpack.updateIconPackInfoByComponentName
+import com.eblan.launcher.domain.usecase.iconpack.updateIconPackInfos
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -76,10 +77,15 @@ class ChangePackageUseCase @Inject constructor(
 
             if (!userData.experimentalSettings.syncData) return@withContext
 
+            val launcherAppsActivityInfosByPackageName = launcherAppsWrapper.getActivityList(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
+
             updateEblanApplicationInfo(
                 packageName = packageName,
                 serialNumber = serialNumber,
-                iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+                launcherAppsActivityInfosByPackageName = launcherAppsActivityInfosByPackageName,
             )
 
             updateEblanAppWidgetProviderInfo(
@@ -91,20 +97,22 @@ class ChangePackageUseCase @Inject constructor(
                 serialNumber = serialNumber,
                 packageName = packageName,
             )
+
+            updateIconPackInfos(
+                iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+                fileManager = fileManager,
+                iconPackManager = iconPackManager,
+                launcherAppsActivityInfos = launcherAppsActivityInfosByPackageName,
+            )
         }
     }
 
     private suspend fun updateEblanApplicationInfo(
         packageName: String,
         serialNumber: Long,
-        iconPackInfoPackageName: String,
+        launcherAppsActivityInfosByPackageName: List<LauncherAppsActivityInfo>,
     ) {
         val newEblanShortcutConfigs = mutableListOf<EblanShortcutConfig>()
-
-        val launcherAppsActivityInfosByPackageName = launcherAppsWrapper.getActivityList(
-            serialNumber = serialNumber,
-            packageName = packageName,
-        )
 
         val oldSyncEblanApplicationInfosByPackageName =
             eblanApplicationInfoRepository.getEblanApplicationInfosByPackageName(
@@ -124,13 +132,6 @@ class ChangePackageUseCase @Inject constructor(
         val newSyncEblanApplicationInfosByPackageName = buildList {
             launcherAppsActivityInfosByPackageName.forEach { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
-
-                updateIconPackInfoByComponentName(
-                    componentName = launcherAppsActivityInfo.componentName,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
-                    fileManager = fileManager,
-                    iconPackManager = iconPackManager,
-                )
 
                 newEblanShortcutConfigs.addAll(
                     launcherAppsWrapper.getShortcutConfigActivityList(
@@ -212,20 +213,6 @@ class ChangePackageUseCase @Inject constructor(
                         if (iconFile.exists()) {
                             iconFile.delete()
                         }
-                    }
-
-                    val iconPacksDirectory = File(
-                        fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
-                        iconPackInfoPackageName,
-                    )
-
-                    val iconPackFile = File(
-                        iconPacksDirectory,
-                        oldDeleteEblanApplicationInfo.componentName.hashCode().toString(),
-                    )
-
-                    if (iconPackFile.exists()) {
-                        iconPackFile.delete()
                     }
                 }
             }

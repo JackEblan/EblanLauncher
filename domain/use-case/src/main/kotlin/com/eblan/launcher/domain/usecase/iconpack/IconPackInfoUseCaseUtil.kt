@@ -41,6 +41,8 @@ suspend fun updateIconPackInfoByComponentName(
     val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 
     launcherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
+        currentCoroutineContext().ensureActive()
+
         val file = File(
             iconPackDirectory,
             launcherAppsActivityInfo.componentName.hashCode().toString(),

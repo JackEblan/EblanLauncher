@@ -134,7 +134,7 @@ class AddPackageUseCase @Inject constructor(
         val eblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProviders()
             .filter { appWidgetManagerAppWidgetProviderInfo ->
                 appWidgetManagerAppWidgetProviderInfo.serialNumber == serialNumber &&
-                        appWidgetManagerAppWidgetProviderInfo.packageName == packageName
+                    appWidgetManagerAppWidgetProviderInfo.packageName == packageName
             }.map { appWidgetManagerAppWidgetProviderInfo ->
                 currentCoroutineContext().ensureActive()
 

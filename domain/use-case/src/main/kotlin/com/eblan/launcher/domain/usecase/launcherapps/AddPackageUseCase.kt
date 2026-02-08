@@ -64,10 +64,10 @@ class AddPackageUseCase @Inject constructor(
 
             if (!userData.experimentalSettings.syncData) return@withContext
 
-            launcherAppsWrapper.getActivityList(
+            val launcherAppsActivityInfosByPackageName = launcherAppsWrapper.getActivityList(
                 serialNumber = serialNumber,
                 packageName = packageName,
-            ).forEach { launcherAppsActivityInfo ->
+            ).onEach { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
                 addEblanApplicationInfo(
@@ -77,13 +77,6 @@ class AddPackageUseCase @Inject constructor(
                     icon = launcherAppsActivityInfo.activityIcon,
                     label = launcherAppsActivityInfo.activityLabel,
                     lastUpdateTime = launcherAppsActivityInfo.lastUpdateTime,
-                )
-
-                updateIconPackInfoByComponentName(
-                    componentName = launcherAppsActivityInfo.componentName,
-                    iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                    fileManager = fileManager,
-                    iconPackManager = iconPackManager,
                 )
             }
 
@@ -100,6 +93,13 @@ class AddPackageUseCase @Inject constructor(
             addEblanShortcutConfigs(
                 serialNumber = serialNumber,
                 packageName = packageName,
+            )
+
+            updateIconPackInfoByComponentName(
+                iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
+                fileManager = fileManager,
+                iconPackManager = iconPackManager,
+                launcherAppsActivityInfos = launcherAppsActivityInfosByPackageName,
             )
         }
     }
@@ -134,7 +134,7 @@ class AddPackageUseCase @Inject constructor(
         val eblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProviders()
             .filter { appWidgetManagerAppWidgetProviderInfo ->
                 appWidgetManagerAppWidgetProviderInfo.serialNumber == serialNumber &&
-                    appWidgetManagerAppWidgetProviderInfo.packageName == packageName
+                        appWidgetManagerAppWidgetProviderInfo.packageName == packageName
             }.map { appWidgetManagerAppWidgetProviderInfo ->
                 currentCoroutineContext().ensureActive()
 

@@ -20,15 +20,16 @@ package com.eblan.launcher.domain.usecase.iconpack
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.IconPackInfoComponent
+import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import java.io.File
 
 suspend fun updateIconPackInfoByComponentName(
-    componentName: String,
     iconPackInfoPackageName: String,
     fileManager: FileManager,
     iconPackManager: IconPackManager,
+    launcherAppsActivityInfos: List<LauncherAppsActivityInfo>,
 ) {
     if (iconPackInfoPackageName.isEmpty()) return
 
@@ -37,20 +38,22 @@ suspend fun updateIconPackInfoByComponentName(
         iconPackInfoPackageName,
     ).apply { if (!exists()) mkdirs() }
 
-    val file = File(
-        iconPackDirectory,
-        componentName.hashCode().toString(),
-    )
-
     val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 
-    cacheIconPackFile(
-        iconPackManager = iconPackManager,
-        appFilter = appFilter,
-        iconPackInfoPackageName = iconPackInfoPackageName,
-        file = file,
-        componentName = componentName,
-    )
+    launcherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
+        val file = File(
+            iconPackDirectory,
+            launcherAppsActivityInfo.componentName.hashCode().toString(),
+        )
+
+        cacheIconPackFile(
+            iconPackManager = iconPackManager,
+            appFilter = appFilter,
+            iconPackInfoPackageName = iconPackInfoPackageName,
+            file = file,
+            componentName = launcherAppsActivityInfo.componentName,
+        )
+    }
 }
 
 internal suspend fun cacheIconPackFile(

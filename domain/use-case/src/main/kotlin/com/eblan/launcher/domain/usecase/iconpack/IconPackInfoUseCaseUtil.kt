@@ -38,7 +38,7 @@ suspend fun updateIconPackInfos(
         iconPackInfoPackageName,
     ).apply { if (!exists()) mkdirs() }
 
-    val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
+    val appFilter = iconPackManager.getIconPackInfoComponents(packageName = iconPackInfoPackageName)
 
     val installedComponentHashCodes = buildSet {
         launcherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
@@ -80,13 +80,12 @@ internal suspend fun cacheIconPackFile(
     appFilter.find { iconPackInfoComponent ->
         currentCoroutineContext().ensureActive()
 
-        componentName == iconPackInfoComponent.component.removePrefix("ComponentInfo{")
+        componentName == iconPackInfoComponent.componentName.removePrefix("ComponentInfo{")
             .removeSuffix("}")
     }?.let { iconPackInfoComponent ->
         iconPackManager.createIconPackInfoPath(
             packageName = iconPackInfoPackageName,
-            drawable = iconPackInfoComponent.drawable,
-            id = iconPackInfoComponent.id,
+            drawableName = iconPackInfoComponent.drawableName,
             file = file,
         )
     }

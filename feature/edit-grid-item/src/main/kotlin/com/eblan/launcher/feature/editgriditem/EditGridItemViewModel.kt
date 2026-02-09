@@ -94,7 +94,7 @@ internal class EditGridItemViewModel @Inject constructor(
 
     private var iconPackInfoComponentsJob: Job? = null
 
-    private var appFilter = emptyList<IconPackInfoComponent>()
+    private var lastIconPackInfoComponents = emptyList<IconPackInfoComponent>()
 
     fun updateGridItem(gridItem: GridItem) {
         viewModelScope.launch {
@@ -115,11 +115,11 @@ internal class EditGridItemViewModel @Inject constructor(
     fun updateIconPackInfoPackageName(packageName: String) {
         iconPackInfoComponentsJob = viewModelScope.launch(defaultDispatcher) {
             _iconPackInfoComponents.update {
-                iconPackManager.parseAppFilter(packageName = packageName)
+                iconPackManager.getIconPackInfoComponents(packageName = packageName)
                     .distinctBy { iconPackInfoComponent ->
-                        iconPackInfoComponent.drawable
-                    }.also { newAppFilter ->
-                        appFilter = newAppFilter
+                        iconPackInfoComponent.drawableName
+                    }.also { iconPackInfoComponents ->
+                        lastIconPackInfoComponents = iconPackInfoComponents
                     }
             }
         }
@@ -131,13 +131,15 @@ internal class EditGridItemViewModel @Inject constructor(
         _iconPackInfoComponents.update {
             emptyList()
         }
+
+        lastIconPackInfoComponents = emptyList()
     }
 
     fun searchIconPackInfoComponent(component: String) {
         viewModelScope.launch(defaultDispatcher) {
             _iconPackInfoComponents.update {
-                appFilter.filter { iconPackInfoComponent ->
-                    iconPackInfoComponent.component.contains(
+                lastIconPackInfoComponents.filter { iconPackInfoComponent ->
+                    iconPackInfoComponent.componentName.contains(
                         other = component,
                         ignoreCase = true,
                     )

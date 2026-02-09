@@ -122,8 +122,7 @@ fun IconPackInfoFilesDialog(
                             LaunchedEffect(key1 = iconPackInfoComponent) {
                                 drawable = iconPackManager.loadDrawableFromIconPack(
                                     packageName = iconPackInfoPackageName.toString(),
-                                    drawableName = iconPackInfoComponent.drawable,
-                                    id = iconPackInfoComponent.id,
+                                    drawableName = iconPackInfoComponent.drawableName,
                                 )
                             }
 

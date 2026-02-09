@@ -285,7 +285,7 @@ class AddPackageUseCase @Inject constructor(
             iconPackInfoPackageName,
         ).apply { if (!exists()) mkdirs() }
 
-        val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
+        val appFilter = iconPackManager.getIconPackInfoComponents(packageName = iconPackInfoPackageName)
 
         launcherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
             currentCoroutineContext().ensureActive()

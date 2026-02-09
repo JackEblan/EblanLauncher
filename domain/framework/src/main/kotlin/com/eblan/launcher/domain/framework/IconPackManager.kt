@@ -21,12 +21,11 @@ import com.eblan.launcher.domain.model.IconPackInfoComponent
 import java.io.File
 
 interface IconPackManager {
-    suspend fun parseAppFilter(packageName: String): List<IconPackInfoComponent>
+    suspend fun getIconPackInfoComponents(packageName: String): List<IconPackInfoComponent>
 
     suspend fun createIconPackInfoPath(
         packageName: String,
-        drawable: String,
-        id: Int,
+        drawableName: String,
         file: File,
     ): String?
 }

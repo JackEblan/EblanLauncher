@@ -1,59 +1,7 @@
 <div align = "center">
 
-<img width="100" src="app/src/main/ic_launcher-playstore.png" alt="Geto" align="center">
+<img width="100" src="https://www.voiceofemirates.com/wp-content/uploads/2026/02/%D9%82%D8%B6%D9%8A%D8%A9-%D8%A5%D8%A8%D8%B3%D8%AA%D9%8A%D9%86.webp" alt="Geto" align="center">
 
-# Einstein Launcher
+# Epstein Launcher
 
-Only 2 MB Android Launcher, total control, zero bloat, zero tracking
-
-![GitHub Release](https://img.shields.io/github/v/release/JackEblan/EblanLauncher?style=for-the-badge&color=lightseagreen)
-![IzzyOnDroid Version](https://img.shields.io/f-droid/v/com.eblan.launcher?baseUrl=https%3A%2F%2Fapt.izzysoft.de%2Ffdroid&style=for-the-badge&label=IzzyOnDroid&color=mediumseagreen)
-![F-Droid Version](https://img.shields.io/f-droid/v/com.eblan.launcher?style=for-the-badge&color=seagreen)
-![GitHub License](https://img.shields.io/github/license/JackEblan/EblanLauncher?style=for-the-badge&color=teal)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/JackEblan/EblanLauncher/total?style=for-the-badge&color=aquamarine)
-![Lines Of Code](https://img.shields.io/endpoint?url=https%3A%2F%2Fghloc.vercel.app%2Fapi%2FJackEblan%2FEinsteinLauncher%2Fbadge%3Fformat%3Dhuman%26filter%3Dsrc%2Fmain&style=for-the-badge&color=lightseagreen)
-
-[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/packages/com.eblan.launcher)
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.eblan.launcher/)
-
-</div>
-
-> [!WARNING]
-> This is an Alpha Stage Build. Expect bugs, instability, and incomplete features.
-
-> [!NOTE]
-> Formerly known as **Eblan Launcher**, it has now been renamed to **Einstein Launcher**.
-
-## About The Project
-
-Most Android launchers are just forks of AOSP’s Launcher3. I wanted to try something
-different—building from scratch while welcoming new developers and applying solid coding principles
-and best practices to keep the project alive for the long run. Open-source Launcher3 forks often end
-up abandoned because of their complexity, making it tough for newcomers to contribute. And, not
-gonna lie… a lot of them are still written in Java and rely on legacy APIs.
-
-Meanwhile, many closed-source launchers are starting to get greedy—locking features behind paywalls
-and sneaking in trackers. My goal is to give everyone the joy of using powerful features without
-compromising privacy.
-
-## Screenshots
-
-<div style="width:100%; display:flex; justify-content:space-between;">
-
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width=19% alt="1">](fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width=19% alt="2">](fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width=19% alt="3">](fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width=19% alt="4">](fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width=19% alt="5">](fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg)
-
-</div>
-
-## Links
-- [Android Launchers Memory Usage In The Cached Processes](https://youtu.be/-0cEKr-H5FU?si=RhaWvdf5ElBFoHnJ)
-- [Support Me On Ko-Fi](https://ko-fi.com/I3I01OJG21)
-
-## License
-
-**Einstein Launcher** is licensed under the GNU General Public License v3.0. See the [license](LICENSE)
-for more
-information.
+Only 2 TB Android Launcher, total EPSTEIN, zero EBLAN, zero EINSTEIN

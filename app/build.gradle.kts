@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright 2023 Einstein Blanco
+ *   Copyright 2023 Jeffery Epstein
  *
  *   Licensed under the GNU General Public License v3.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ plugins {
 }
 
 android {
-    namespace = "com.eblan.launcher"
+    namespace = "com.epstein.launcher"
 
     defaultConfig {
-        applicationId = "com.eblan.launcher"
+        applicationId = "com.epstein.launcher"
         versionCode = 42
         versionName = "0.4.2-alpha"
     }

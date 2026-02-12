@@ -42,7 +42,7 @@ class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
         eblanApplicationInfoTagIdsFlow: Flow<List<Long>?>,
     ): Flow<GetEblanApplicationInfosByLabel> {
         val eblanApplicationInfosFlow = eblanApplicationInfoTagIdsFlow.flatMapLatest { tagIds ->
-            if (tagIds != null && tagIds.isNotEmpty()) {
+            if (!tagIds.isNullOrEmpty()) {
                 eblanApplicationInfoRepository.getEblanApplicationInfosByTagId(tagIds = tagIds)
             } else {
                 eblanApplicationInfoRepository.eblanApplicationInfos

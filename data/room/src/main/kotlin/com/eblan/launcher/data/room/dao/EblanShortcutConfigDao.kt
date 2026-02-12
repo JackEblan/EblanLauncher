@@ -36,9 +36,6 @@ interface EblanShortcutConfigDao {
     @Upsert
     suspend fun upsertEblanShortcutConfigEntities(entities: List<EblanShortcutConfigEntity>)
 
-    @Upsert
-    suspend fun upsertEblanShortcutConfigEntity(entity: EblanShortcutConfigEntity)
-
     @Query("DELETE FROM EblanShortcutConfigEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
     suspend fun deleteEblanShortcutConfigEntity(
         serialNumber: Long,

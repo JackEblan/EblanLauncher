@@ -55,8 +55,6 @@ interface EblanApplicationInfoRepository {
         packageName: String,
     ): List<EblanApplicationInfo>
 
-    fun getEblanApplicationInfosByTagId(tagId: Long): Flow<List<EblanApplicationInfo>>
-
     fun getEblanApplicationInfosByTagId(tagIds: List<Long>): Flow<List<EblanApplicationInfo>>
 
     fun getEblanApplicationInfoTags(

@@ -28,8 +28,6 @@ interface EblanShortcutConfigRepository {
 
     suspend fun upsertEblanShortcutConfigs(eblanShortcutConfigs: List<EblanShortcutConfig>)
 
-    suspend fun upsertEblanShortcutConfig(eblanShortcutConfig: EblanShortcutConfig)
-
     suspend fun deleteEblanShortcutConfig(
         serialNumber: Long,
         packageName: String,

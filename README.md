@@ -23,15 +23,9 @@ Only 2 MB Android Launcher, total control, zero bloat, zero tracking
 
 ## About The Project
 
-Most Android launchers are just forks of AOSP’s Launcher3. I wanted to try something
-different—building from scratch while welcoming new developers and applying solid coding principles
-and best practices to keep the project alive for the long run. Open-source Launcher3 forks often end
-up abandoned because of their complexity, making it tough for newcomers to contribute. And, not
-gonna lie… a lot of them are still written in Java and rely on legacy APIs.
+Most Android launchers are just AOSP Launcher3 forks. I wanted to build from scratch, make it easy for new developers to contribute, and follow solid coding practices to keep it sustainable. Open-source Launcher3 forks often get abandoned due to complexity, many still use Java and legacy APIs. Closed-source launchers are locking features behind paywalls and adding trackers. My goal is to offer powerful features with no compromises on privacy.
 
-Meanwhile, many closed-source launchers are starting to get greedy—locking features behind paywalls
-and sneaking in trackers. My goal is to give everyone the joy of using powerful features without
-compromising privacy.
+**YAGNI ("You Aren't Gonna Need It")** is a principle which arose from extreme programming (XP) that states a programmer should not add functionality until deemed necessary.
 
 ## Screenshots
 

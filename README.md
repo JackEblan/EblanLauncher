@@ -2,7 +2,7 @@
 
 <img width="100" src="app/src/main/ic_launcher-playstore.png" alt="Geto" align="center">
 
-# Einstein Launcher
+# Yagni Launcher
 
 Only 2 MB Android Launcher, total control, zero bloat, zero tracking
 
@@ -20,9 +20,6 @@ Only 2 MB Android Launcher, total control, zero bloat, zero tracking
 
 > [!WARNING]
 > This is an Alpha Stage Build. Expect bugs, instability, and incomplete features.
-
-> [!NOTE]
-> Formerly known as **Eblan Launcher**, it has now been renamed to **Einstein Launcher**.
 
 ## About The Project
 

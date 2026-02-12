@@ -1,17 +1,17 @@
 <div align = "center">
 
-<img width="100" src="app/src/main/ic_launcher-playstore.png" alt="Geto" align="center">
+<img width="100" src="app/src/main/ic_launcher-playstore.png" alt="YagniLauncher" align="center">
 
 # Yagni Launcher
 
 Only 2 MB Android Launcher, total control, zero bloat, zero tracking
 
-![GitHub Release](https://img.shields.io/github/v/release/JackEblan/EblanLauncher?style=for-the-badge&color=lightseagreen)
+![GitHub Release](https://img.shields.io/github/v/release/JackEblan/YagniLauncher?style=for-the-badge&color=lightseagreen)
 ![IzzyOnDroid Version](https://img.shields.io/f-droid/v/com.eblan.launcher?baseUrl=https%3A%2F%2Fapt.izzysoft.de%2Ffdroid&style=for-the-badge&label=IzzyOnDroid&color=mediumseagreen)
 ![F-Droid Version](https://img.shields.io/f-droid/v/com.eblan.launcher?style=for-the-badge&color=seagreen)
-![GitHub License](https://img.shields.io/github/license/JackEblan/EblanLauncher?style=for-the-badge&color=teal)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/JackEblan/EblanLauncher/total?style=for-the-badge&color=aquamarine)
-![Lines Of Code](https://img.shields.io/endpoint?url=https%3A%2F%2Fghloc.vercel.app%2Fapi%2FJackEblan%2FEinsteinLauncher%2Fbadge%3Fformat%3Dhuman%26filter%3Dsrc%2Fmain&style=for-the-badge&color=lightseagreen)
+![GitHub License](https://img.shields.io/github/license/JackEblan/YagniLauncher?style=for-the-badge&color=teal)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/JackEblan/YagniLauncher/total?style=for-the-badge&color=aquamarine)
+![Lines Of Code](https://img.shields.io/endpoint?url=https%3A%2F%2Fghloc.vercel.app%2Fapi%2FJackEblan%2FYagniLauncher%2Fbadge%3Fformat%3Dhuman%26filter%3Dsrc%2Fmain&style=for-the-badge&color=lightseagreen)
 
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/packages/com.eblan.launcher)
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.eblan.launcher/)
@@ -51,6 +51,6 @@ compromising privacy.
 
 ## License
 
-**Einstein Launcher** is licensed under the GNU General Public License v3.0. See the [license](LICENSE)
+**Yagni Launcher** is licensed under the GNU General Public License v3.0. See the [license](LICENSE)
 for more
 information.

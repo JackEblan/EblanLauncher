@@ -21,7 +21,7 @@ dependencyResolutionManagement {
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-rootProject.name = "EinsteinLauncher"
+rootProject.name = "YagniLauncher"
 include(":app")
 include(":common")
 include(":design-system")

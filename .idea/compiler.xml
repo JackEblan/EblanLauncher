@@ -51,8 +51,41 @@
       <module name="EblanLauncher.framework.window-metrics" target="21" />
       <module name="EblanLauncher.service" target="21" />
       <module name="EblanLauncher.ui" target="21" />
+      <module name="EinsteinLauncher.app" target="21" />
+      <module name="EinsteinLauncher.common" target="21" />
+      <module name="EinsteinLauncher.data.cache" target="21" />
+      <module name="EinsteinLauncher.data.datastore" target="21" />
+      <module name="EinsteinLauncher.data.repository" target="21" />
+      <module name="EinsteinLauncher.data.room" target="21" />
+      <module name="EinsteinLauncher.design-system" target="21" />
+      <module name="EinsteinLauncher.feature.action" target="21" />
+      <module name="EinsteinLauncher.feature.edit-application-info" target="21" />
+      <module name="EinsteinLauncher.feature.edit-grid-item" target="21" />
+      <module name="EinsteinLauncher.feature.home" target="21" />
+      <module name="EinsteinLauncher.feature.pin" target="21" />
+      <module name="EinsteinLauncher.feature.settings.app-drawer" target="21" />
+      <module name="EinsteinLauncher.feature.settings.experimental" target="21" />
+      <module name="EinsteinLauncher.feature.settings.folder" target="21" />
+      <module name="EinsteinLauncher.feature.settings.general" target="21" />
+      <module name="EinsteinLauncher.feature.settings.gestures" target="21" />
+      <module name="EinsteinLauncher.feature.settings.home" target="21" />
+      <module name="EinsteinLauncher.feature.settings.settings" target="21" />
+      <module name="EinsteinLauncher.framework.accessibility-manager" target="21" />
       <module name="EinsteinLauncher.framework.activity-manager" target="21" />
       <module name="EinsteinLauncher.framework.byte-array" target="21" />
+      <module name="EinsteinLauncher.framework.file-manager" target="21" />
+      <module name="EinsteinLauncher.framework.icon-pack-manager" target="21" />
+      <module name="EinsteinLauncher.framework.image-serializer" target="21" />
+      <module name="EinsteinLauncher.framework.launcher-apps" target="21" />
+      <module name="EinsteinLauncher.framework.notification-manager" target="21" />
+      <module name="EinsteinLauncher.framework.package-manager" target="21" />
+      <module name="EinsteinLauncher.framework.resources" target="21" />
+      <module name="EinsteinLauncher.framework.settings" target="21" />
+      <module name="EinsteinLauncher.framework.user-manager" target="21" />
+      <module name="EinsteinLauncher.framework.wallpaper-manager" target="21" />
+      <module name="EinsteinLauncher.framework.widget-manager" target="21" />
+      <module name="EinsteinLauncher.service" target="21" />
+      <module name="EinsteinLauncher.ui" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -58,7 +58,7 @@ internal fun SyncDataDialog(
 
             Text(
                 modifier = Modifier.padding(15.dp),
-                text = "Disabling background sync helps save a bit of memory and keeps things lighter, but it also means Einstein Launcher won’t automatically update your apps, widgets, or shortcuts.\n" +
+                text = "Disabling background sync helps save a bit of memory and keeps things lighter, but it also means Yagni Launcher won’t automatically update your apps, widgets, or shortcuts.\n" +
                     "Your app drawer might show outdated icons, missing widgets, or shortcuts that no longer work.",
             )
 

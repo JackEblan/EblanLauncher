@@ -80,7 +80,7 @@ class EblanApplication :
                 appendLine("OS: $androidVersion")
                 appendLine("App: $appVersion")
                 appendLine("Time: ${java.util.Date()}")
-                appendLine("GitHub: https://github.com/JackEblan/EinsteinLauncher")
+                appendLine("GitHub: https://github.com/JackEblan/YagniLauncher")
                 appendLine()
                 appendLine(Log.getStackTraceString(throwable))
             }
@@ -117,7 +117,7 @@ class EblanApplication :
         val notification =
             NotificationCompat.Builder(this, AndroidNotificationManagerWrapper.CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.stat_notify_error)
-                .setContentTitle("Einstein Launcher has crashed")
+                .setContentTitle("Yagni Launcher has crashed")
                 .setContentText("View the stack trace and report on GitHub")
                 .setAutoCancel(true)
                 .addAction(0, "Open stacktrace", pendingIntent)

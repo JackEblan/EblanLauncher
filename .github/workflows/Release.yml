@@ -8,7 +8,7 @@ on:
 jobs:
   build_release_apk:
     name: "Build Release APK"
-    if: github.repository == 'JackEblan/EinsteinLauncher'
+    if: github.repository == 'JackEblan/YagniLauncher'
     runs-on: ubuntu-latest
     timeout-minutes: 120
 
@@ -106,7 +106,7 @@ jobs:
 
       - name: Rename signed files
         run: |
-          mv ${{steps.sign_release_apk.outputs.signedReleaseFile}} app/build/outputs/apk/release/EinsteinLauncher-${{ github.ref_name }}.apk
+          mv ${{steps.sign_release_apk.outputs.signedReleaseFile}} app/build/outputs/apk/release/YagniLauncher-${{ github.ref_name }}.apk
 
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -115,4 +115,4 @@ jobs:
           prerelease: true
           generate_release_notes: true
           files: |
-            app/build/outputs/apk/release/EinsteinLauncher-${{ github.ref_name }}.apk
+            app/build/outputs/apk/release/YagniLauncher-${{ github.ref_name }}.apk

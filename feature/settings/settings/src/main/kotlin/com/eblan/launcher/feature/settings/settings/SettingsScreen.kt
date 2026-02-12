@@ -144,7 +144,7 @@ internal fun SettingsScreen(
                     SettingsRow(
                         imageVector = EblanLauncherIcons.Info,
                         title = "Default Launcher",
-                        subtitle = "Choose Einstein Launcher",
+                        subtitle = "Choose Yagni Launcher",
                         onClick = {
                             context.startActivity(Intent(ACTION_HOME_SETTINGS))
                         },
@@ -211,12 +211,12 @@ internal fun SettingsScreen(
     if (showSupportDialog) {
         TextDialog(
             title = "Support Development",
-            text = "Thank you for using Einstein Launcher Alpha! I’ve been building this project since January 2025, releasing weekly updates. It’s my most complex project yet, and I pour my heart into it. If you enjoy it, you can support development with a donation or a star on GitHub.",
+            text = "Thank you for using Yagni Launcher Alpha! I’ve been building this project since January 2025, releasing weekly updates. It’s my most complex project yet, and I pour my heart into it. If you enjoy it, you can support development with a donation or a star on GitHub.",
             onClick = {
                 context.startActivity(
                     Intent(
                         Intent.ACTION_VIEW,
-                        "https://github.com/JackEblan/EinsteinLauncher".toUri(),
+                        "https://github.com/JackEblan/YagniLauncher".toUri(),
                     ),
                 )
 

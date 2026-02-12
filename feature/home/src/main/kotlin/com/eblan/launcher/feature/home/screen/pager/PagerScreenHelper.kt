@@ -250,7 +250,7 @@ internal fun handleKlwpBroadcasts(
     if (!klwpIntegration) return
 
     val intent = Intent(KUSTOM_ACTION).apply {
-        putExtra(KUSTOM_ACTION_EXT_NAME, "einstein-launcher")
+        putExtra(KUSTOM_ACTION_EXT_NAME, "yagni-launcher")
         putExtra(KUSTOM_ACTION_VAR_NAME, "screen")
     }
 

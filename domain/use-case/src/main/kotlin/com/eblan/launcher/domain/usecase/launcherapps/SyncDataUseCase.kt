@@ -102,7 +102,7 @@ class SyncDataUseCase @Inject constructor(
                     iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
                     fileManager = fileManager,
                     iconPackManager = iconPackManager,
-                    launcherAppsActivityInfos = launcherAppsWrapper.getActivityList(),
+                    fastLauncherAppsActivityInfos = launcherAppsWrapper.getFastActivityList(),
                 )
             }
         }

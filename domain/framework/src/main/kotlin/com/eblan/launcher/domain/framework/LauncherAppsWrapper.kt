@@ -40,6 +40,11 @@ interface LauncherAppsWrapper {
         packageName: String,
     ): List<LauncherAppsActivityInfo>
 
+    suspend fun getFastActivityList(
+        serialNumber: Long,
+        packageName: String,
+    ): List<FastLauncherAppsActivityInfo>
+
     suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>?
 
     suspend fun getFastShortcuts(): List<FastLauncherAppsShortcutInfo>?

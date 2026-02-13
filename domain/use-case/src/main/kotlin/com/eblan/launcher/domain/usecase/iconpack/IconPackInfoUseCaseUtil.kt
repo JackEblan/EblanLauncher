@@ -19,8 +19,8 @@ package com.eblan.launcher.domain.usecase.iconpack
 
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
+import com.eblan.launcher.domain.model.FastLauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.IconPackInfoComponent
-import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import java.io.File
@@ -29,7 +29,7 @@ suspend fun updateIconPackInfos(
     iconPackInfoPackageName: String,
     fileManager: FileManager,
     iconPackManager: IconPackManager,
-    launcherAppsActivityInfos: List<LauncherAppsActivityInfo>,
+    fastLauncherAppsActivityInfos: List<FastLauncherAppsActivityInfo>,
 ) {
     if (iconPackInfoPackageName.isEmpty()) return
 
@@ -41,12 +41,12 @@ suspend fun updateIconPackInfos(
     val appFilter = iconPackManager.getIconPackInfoComponents(packageName = iconPackInfoPackageName)
 
     val installedComponentHashCodes = buildSet {
-        launcherAppsActivityInfos.forEach { launcherAppsActivityInfo ->
+        fastLauncherAppsActivityInfos.forEach { fastLauncherAppsActivityInfo ->
             currentCoroutineContext().ensureActive()
 
             val file = File(
                 iconPackInfoDirectory,
-                launcherAppsActivityInfo.componentName.hashCode().toString(),
+                fastLauncherAppsActivityInfo.componentName.hashCode().toString(),
             )
 
             cacheIconPackFile(
@@ -54,15 +54,19 @@ suspend fun updateIconPackInfos(
                 appFilter = appFilter,
                 iconPackInfoPackageName = iconPackInfoPackageName,
                 file = file,
-                componentName = launcherAppsActivityInfo.componentName,
+                componentName = fastLauncherAppsActivityInfo.componentName,
             )
 
-            add(launcherAppsActivityInfo.componentName.hashCode().toString())
+            add(fastLauncherAppsActivityInfo.componentName.hashCode().toString())
         }
     }
 
     iconPackInfoDirectory.listFiles()
-        ?.filter { it.isFile && it.name !in installedComponentHashCodes }
+        ?.filter {
+            currentCoroutineContext().ensureActive()
+
+            it.isFile && it.name !in installedComponentHashCodes
+        }
         ?.forEach {
             currentCoroutineContext().ensureActive()
 

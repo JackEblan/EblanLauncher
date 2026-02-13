@@ -31,7 +31,6 @@ import com.eblan.launcher.domain.model.DeleteEblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
-import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
@@ -77,15 +76,9 @@ class ChangePackageUseCase @Inject constructor(
 
             if (!userData.experimentalSettings.syncData) return@withContext
 
-            val launcherAppsActivityInfosByPackageName = launcherAppsWrapper.getActivityList(
-                serialNumber = serialNumber,
-                packageName = packageName,
-            )
-
             updateEblanApplicationInfo(
                 packageName = packageName,
                 serialNumber = serialNumber,
-                launcherAppsActivityInfosByPackageName = launcherAppsActivityInfosByPackageName,
             )
 
             updateEblanAppWidgetProviderInfo(
@@ -102,7 +95,10 @@ class ChangePackageUseCase @Inject constructor(
                 iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
                 fileManager = fileManager,
                 iconPackManager = iconPackManager,
-                launcherAppsActivityInfos = launcherAppsActivityInfosByPackageName,
+                fastLauncherAppsActivityInfos = launcherAppsWrapper.getFastActivityList(
+                    serialNumber = serialNumber,
+                    packageName = packageName,
+                ),
             )
         }
     }
@@ -110,8 +106,12 @@ class ChangePackageUseCase @Inject constructor(
     private suspend fun updateEblanApplicationInfo(
         packageName: String,
         serialNumber: Long,
-        launcherAppsActivityInfosByPackageName: List<LauncherAppsActivityInfo>,
     ) {
+        val launcherAppsActivityInfosByPackageName = launcherAppsWrapper.getActivityList(
+            serialNumber = serialNumber,
+            packageName = packageName,
+        )
+
         val newEblanShortcutConfigs = mutableListOf<EblanShortcutConfig>()
 
         val oldSyncEblanApplicationInfosByPackageName =

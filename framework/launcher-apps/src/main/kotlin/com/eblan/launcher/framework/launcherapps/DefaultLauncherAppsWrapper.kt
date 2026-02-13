@@ -217,6 +217,19 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
+    override suspend fun getFastActivityList(
+        serialNumber: Long,
+        packageName: String,
+    ): List<FastLauncherAppsActivityInfo> = withContext(defaultDispatcher) {
+        val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
+
+        launcherApps.getActivityList(packageName, userHandle).map { launcherActivityInfo ->
+            currentCoroutineContext().ensureActive()
+
+            launcherActivityInfo.toFastLauncherAppsActivityInfo()
+        }
+    }
+
     override suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>? = withContext(defaultDispatcher) {
         if (hasShortcutHostPermission) {
             val shortcutQuery = LauncherApps.ShortcutQuery().apply {

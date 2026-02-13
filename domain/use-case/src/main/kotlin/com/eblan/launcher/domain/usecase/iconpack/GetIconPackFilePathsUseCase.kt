@@ -45,12 +45,12 @@ class GetIconPackFilePathsUseCase @Inject constructor(
 
         val iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName
 
-        val iconPackDirectory = File(
-            iconPacksDirectory,
-            iconPackInfoPackageName,
-        )
-
         if (iconPackInfoPackageName.isNotEmpty()) {
+            val iconPackDirectory = File(
+                iconPacksDirectory,
+                iconPackInfoPackageName,
+            )
+
             eblaApplicationInfos.mapNotNull { eblanApplicationInfo ->
                 val iconPackFile = File(
                     iconPackDirectory,

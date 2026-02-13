@@ -119,9 +119,9 @@ class SyncDataUseCase @Inject constructor(
                 )
             }
 
-        val newFastLauncherAppsActivityInfo = launcherAppsWrapper.getFastActivityList()
+        val newFastLauncherAppsActivityInfos = launcherAppsWrapper.getFastActivityList()
 
-        if (oldFastEblanLauncherAppsActivityInfo == newFastLauncherAppsActivityInfo) return
+        if (oldFastEblanLauncherAppsActivityInfo == newFastLauncherAppsActivityInfos) return
 
         val newEblanShortcutConfigs = mutableSetOf<EblanShortcutConfig>()
 

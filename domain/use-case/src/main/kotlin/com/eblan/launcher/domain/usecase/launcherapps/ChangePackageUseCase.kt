@@ -31,6 +31,7 @@ import com.eblan.launcher.domain.model.DeleteEblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
+import com.eblan.launcher.domain.model.FastLauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
@@ -41,7 +42,7 @@ import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
-import com.eblan.launcher.domain.usecase.iconpack.updateIconPackInfos
+import com.eblan.launcher.domain.usecase.iconpack.cacheIconPackFile
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -92,13 +93,8 @@ class ChangePackageUseCase @Inject constructor(
             )
 
             updateIconPackInfos(
-                iconPackInfoPackageName = userData.generalSettings.iconPackInfoPackageName,
-                fileManager = fileManager,
-                iconPackManager = iconPackManager,
-                fastLauncherAppsActivityInfos = launcherAppsWrapper.getFastActivityList(
-                    serialNumber = serialNumber,
-                    packageName = packageName,
-                ),
+                serialNumber = serialNumber,
+                packageName = packageName,
             )
         }
     }
@@ -537,6 +533,77 @@ class ChangePackageUseCase @Inject constructor(
                 fileManager = fileManager,
                 packageManagerWrapper = packageManagerWrapper,
             )
+        }
+    }
+
+    private suspend fun updateIconPackInfos(
+        serialNumber: Long,
+        packageName: String,
+    ) {
+        val iconPackInfoPackageName =
+            userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
+
+        if (iconPackInfoPackageName.isEmpty()) return
+
+        val oldFastEblanLauncherAppsActivityInfo =
+            eblanApplicationInfoRepository.getEblanApplicationInfosByPackageName(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            ).map { eblanApplicationInfo ->
+                FastLauncherAppsActivityInfo(
+                    serialNumber = eblanApplicationInfo.serialNumber,
+                    componentName = eblanApplicationInfo.componentName,
+                    packageName = eblanApplicationInfo.packageName,
+                    lastUpdateTime = eblanApplicationInfo.lastUpdateTime,
+                )
+            }
+
+        val fastLauncherAppsActivityInfos = launcherAppsWrapper.getFastActivityList(
+            serialNumber = serialNumber,
+            packageName = packageName,
+        )
+
+        val iconPackInfoDirectory = File(
+            fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
+            iconPackInfoPackageName,
+        ).apply { if (!exists()) mkdirs() }
+
+        val appFilter =
+            iconPackManager.getIconPackInfoComponents(packageName = iconPackInfoPackageName)
+
+        val installedComponentHashCodes = buildSet {
+            fastLauncherAppsActivityInfos.forEach { fastLauncherAppsActivityInfo ->
+                currentCoroutineContext().ensureActive()
+
+                val file = File(
+                    iconPackInfoDirectory,
+                    fastLauncherAppsActivityInfo.componentName.hashCode().toString(),
+                )
+
+                cacheIconPackFile(
+                    iconPackManager = iconPackManager,
+                    appFilter = appFilter,
+                    iconPackInfoPackageName = iconPackInfoPackageName,
+                    file = file,
+                    componentName = fastLauncherAppsActivityInfo.componentName,
+                )
+
+                add(fastLauncherAppsActivityInfo.componentName.hashCode().toString())
+            }
+        }
+
+        if (oldFastEblanLauncherAppsActivityInfo != fastLauncherAppsActivityInfos) {
+            iconPackInfoDirectory.listFiles()
+                ?.filter {
+                    currentCoroutineContext().ensureActive()
+
+                    it.isFile && it.name !in installedComponentHashCodes
+                }
+                ?.forEach {
+                    currentCoroutineContext().ensureActive()
+
+                    it.delete()
+                }
         }
     }
 }

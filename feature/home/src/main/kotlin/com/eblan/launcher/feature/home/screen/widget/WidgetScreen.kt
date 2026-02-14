@@ -48,6 +48,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -94,7 +96,6 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
-import com.eblan.launcher.ui.SearchBar
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
@@ -335,12 +336,24 @@ private fun SharedTransitionScope.Success(
             ),
     ) {
         SearchBar(
+            state = searchBarState,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
-            searchBarState = searchBarState,
-            textFieldState = textFieldState,
-            title = "Search Widgets",
+            inputField = {
+                SearchBarDefaults.InputField(
+                    searchBarState = searchBarState,
+                    textFieldState = textFieldState,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = EblanLauncherIcons.Search,
+                            contentDescription = null,
+                        )
+                    },
+                    onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
+                    placeholder = { Text(text = "Search Widgets") },
+                )
+            },
         )
 
         LazyColumn(

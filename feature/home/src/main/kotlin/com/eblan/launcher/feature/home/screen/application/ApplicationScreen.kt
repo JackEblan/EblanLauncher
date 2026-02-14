@@ -66,6 +66,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
@@ -142,7 +144,6 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.getVerticalArrangement
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
-import com.eblan.launcher.ui.SearchBar
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -331,6 +332,8 @@ private fun SharedTransitionScope.Success(
 
     val selectedTagIds = remember { mutableStateSetOf<Long>() }
 
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(key1 = textFieldState) {
         snapshotFlow { textFieldState.text }
             .debounce(500L)
@@ -389,12 +392,24 @@ private fun SharedTransitionScope.Success(
             ),
     ) {
         SearchBar(
+            state = searchBarState,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
-            searchBarState = searchBarState,
-            textFieldState = textFieldState,
-            title = "Search Applications",
+            inputField = {
+                SearchBarDefaults.InputField(
+                    searchBarState = searchBarState,
+                    textFieldState = textFieldState,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = EblanLauncherIcons.Search,
+                            contentDescription = null,
+                        )
+                    },
+                    onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
+                    placeholder = { Text(text = "Search Applications") },
+                )
+            },
         )
 
         if (eblanApplicationInfoTags.isNotEmpty()) {

@@ -1211,11 +1211,11 @@ private fun LifecycleEffect(
                                 eblanNotificationListenerServiceConnection,
                                 Context.BIND_AUTO_CREATE,
                             )
+
+                            onStartSyncData()
                         }
 
                         appWidgetHost.startListening()
-
-                        onStartSyncData()
                     }
 
                     Lifecycle.Event.ON_STOP -> {
@@ -1227,11 +1227,11 @@ private fun LifecycleEffect(
 
                                 shouldUnbindEblanNotificationListenerService = false
                             }
+
+                            onStopSyncData()
                         }
 
                         appWidgetHost.stopListening()
-
-                        onStopSyncData()
                     }
 
                     else -> Unit

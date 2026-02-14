@@ -89,7 +89,7 @@ internal fun ActionScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Eblan Action")
+                    Text(text = "Yagni Launcher Action")
                 },
                 navigationIcon = {
                     IconButton(onClick = onFinish) {

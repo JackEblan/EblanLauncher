@@ -398,8 +398,8 @@ private fun SharedTransitionScope.Success(
                 .padding(10.dp),
             inputField = {
                 SearchBarDefaults.InputField(
-                    searchBarState = searchBarState,
                     textFieldState = textFieldState,
+                    searchBarState = searchBarState,
                     leadingIcon = {
                         Icon(
                             imageVector = EblanLauncherIcons.Search,

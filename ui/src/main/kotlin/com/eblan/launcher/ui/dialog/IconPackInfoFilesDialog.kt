@@ -28,9 +28,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSearchBarState
@@ -41,21 +45,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.IconPackInfoComponent
-import com.eblan.launcher.ui.SearchBar
 import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalIconPackManager
 import com.eblan.launcher.ui.local.LocalImageSerializer
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun IconPackInfoFilesDialog(
     modifier: Modifier = Modifier,
@@ -77,6 +86,14 @@ fun IconPackInfoFilesDialog(
 
     val searchBarState = rememberSearchBarState()
 
+    val textFieldState = rememberTextFieldState()
+
+    LaunchedEffect(key1 = textFieldState) {
+        snapshotFlow { textFieldState.text }.debounce(500L).onEach { text ->
+            onSearchIconPackInfoComponent(text.toString())
+        }.collect()
+    }
+
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(
             modifier = modifier
@@ -91,10 +108,24 @@ fun IconPackInfoFilesDialog(
             Spacer(modifier = Modifier.height(10.dp))
 
             SearchBar(
-                modifier = Modifier.fillMaxWidth(),
-                searchBarState = searchBarState,
-                title = "Search Icons",
-                onChangeLabel = onSearchIconPackInfoComponent,
+                state = searchBarState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        textFieldState = textFieldState,
+                        searchBarState = searchBarState,
+                        leadingIcon = {
+                            Icon(
+                                imageVector = EblanLauncherIcons.Search,
+                                contentDescription = null,
+                            )
+                        },
+                        onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
+                        placeholder = { Text(text = "Search Applications") },
+                    )
+                },
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -168,8 +199,7 @@ fun IconPackInfoFilesDialog(
             Spacer(modifier = Modifier.height(10.dp))
 
             TextButton(
-                modifier = Modifier
-                    .align(Alignment.End),
+                modifier = Modifier.align(Alignment.End),
                 onClick = onDismissRequest,
             ) {
                 Text(text = "Cancel")

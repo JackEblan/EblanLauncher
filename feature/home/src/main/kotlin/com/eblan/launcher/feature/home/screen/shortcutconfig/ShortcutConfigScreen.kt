@@ -46,12 +46,15 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
@@ -67,6 +70,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -105,7 +109,10 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
-import com.eblan.launcher.ui.SearchBar
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -230,7 +237,7 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class, FlowPreview::class)
 @Composable
 private fun SharedTransitionScope.Success(
     modifier: Modifier = Modifier,
@@ -264,6 +271,18 @@ private fun SharedTransitionScope.Success(
 
     val searchBarState = rememberSearchBarState()
 
+    val textFieldState = rememberTextFieldState()
+
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(key1 = textFieldState) {
+        snapshotFlow { textFieldState.text }
+            .debounce(500L)
+            .onEach { text ->
+                onGetEblanShortcutConfigsByLabel(text.toString())
+            }.collect()
+    }
+
     LaunchedEffect(key1 = isPressHome) {
         if (isPressHome) {
             onDismiss()
@@ -290,12 +309,24 @@ private fun SharedTransitionScope.Success(
             ),
     ) {
         SearchBar(
+            state = searchBarState,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
-            searchBarState = searchBarState,
-            title = "Search Shortcuts",
-            onChangeLabel = onGetEblanShortcutConfigsByLabel,
+            inputField = {
+                SearchBarDefaults.InputField(
+                    textFieldState = textFieldState,
+                    searchBarState = searchBarState,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = EblanLauncherIcons.Search,
+                            contentDescription = null,
+                        )
+                    },
+                    onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
+                    placeholder = { Text(text = "Search Applications") },
+                )
+            },
         )
 
         if (eblanShortcutConfigs.keys.size > 1) {

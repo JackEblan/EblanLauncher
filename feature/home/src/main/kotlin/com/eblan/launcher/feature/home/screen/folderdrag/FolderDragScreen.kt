@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -59,8 +60,10 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 
@@ -117,6 +120,8 @@ internal fun SharedTransitionScope.FolderDragScreen(
 
     var titleHeight by remember { mutableIntStateOf(0) }
 
+    var folderGridPageDirection by remember { mutableStateOf<PageDirection?>(null) }
+
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleDragFolderGridItem(
             density = density,
@@ -148,7 +153,9 @@ internal fun SharedTransitionScope.FolderDragScreen(
             paddingValues = paddingValues,
             screenWidth = screenWidth,
             dragIntOffset = dragIntOffset,
-            gridHorizontalPagerState = folderGridHorizontalPagerState,
+            onUpdatePageDirection = { pageDirection ->
+                folderGridPageDirection = pageDirection
+            },
         )
     }
 
@@ -177,6 +184,13 @@ internal fun SharedTransitionScope.FolderDragScreen(
 
             else -> Unit
         }
+    }
+
+    LaunchedEffect(key1 = folderGridPageDirection) {
+        handlePageDirection(
+            pageDirection = folderGridPageDirection,
+            pagerState = folderGridHorizontalPagerState,
+        )
     }
 
     Column(
@@ -225,11 +239,8 @@ internal fun SharedTransitionScope.FolderDragScreen(
                 columns = homeSettings.folderColumns,
                 rows = homeSettings.folderRows,
                 content = { gridItem ->
-                    val isDragging = (
-                        drag == Drag.Start ||
-                            drag == Drag.Dragging
-                        ) &&
-                        gridItem.id == gridItemSource.gridItem.id
+                    val isDragging =
+                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
 
                     GridItemContent(
                         gridItem = gridItem,

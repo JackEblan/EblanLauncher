@@ -35,19 +35,20 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.EDGE_DISTANCE
 import kotlinx.coroutines.delay
 
-internal suspend fun handleAnimateScrollToPage(
+internal fun handleAnimateScrollToPage(
     density: Density,
     paddingValues: PaddingValues,
     screenWidth: Int,
     dragIntOffset: IntOffset,
     associate: Associate?,
-    gridHorizontalPagerState: PagerState,
-    dockGridHorizontalPagerState: PagerState,
+    onUpdateGridPageDirection: (PageDirection?) -> Unit,
+    onUpdateDockPageDirection: (PageDirection?) -> Unit,
 ) {
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -69,25 +70,23 @@ internal suspend fun handleAnimateScrollToPage(
 
     val isOnRightGrid = dragIntOffset.x + edgeDistance > gridWidth
 
-    suspend fun animateScrollToPage(pagerState: PagerState) {
+    fun animateScrollToPage(onUpdatePageDirection: (PageDirection?) -> Unit) {
         if (isOnLeftGrid) {
-            delay(500L)
-
-            pagerState.animateScrollToPage(page = pagerState.currentPage - 1)
+            onUpdatePageDirection(PageDirection.Left)
         } else if (isOnRightGrid) {
-            delay(500L)
-
-            pagerState.animateScrollToPage(page = pagerState.currentPage + 1)
+            onUpdatePageDirection(PageDirection.Right)
+        } else {
+            onUpdatePageDirection(null)
         }
     }
 
     when (associate) {
         Associate.Grid -> {
-            animateScrollToPage(pagerState = gridHorizontalPagerState)
+            animateScrollToPage(onUpdatePageDirection = onUpdateGridPageDirection)
         }
 
         Associate.Dock -> {
-            animateScrollToPage(pagerState = dockGridHorizontalPagerState)
+            animateScrollToPage(onUpdatePageDirection = onUpdateDockPageDirection)
         }
 
         null -> Unit
@@ -288,6 +287,25 @@ internal suspend fun handleConflictingGridItem(
 
     if (conflictingGridItem != null) {
         onShowFolderWhenDragging(conflictingGridItem.id)
+    }
+}
+
+internal suspend fun handlePageDirection(
+    pageDirection: PageDirection?,
+    pagerState: PagerState,
+) {
+    if (pageDirection == null) return
+
+    delay(500L)
+
+    when (pageDirection) {
+        PageDirection.Left -> {
+            pagerState.animateScrollToPage(page = pagerState.currentPage - 1)
+        }
+
+        PageDirection.Right -> {
+            pagerState.animateScrollToPage(page = pagerState.currentPage + 1)
+        }
     }
 }
 

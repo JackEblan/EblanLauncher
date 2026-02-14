@@ -62,6 +62,7 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
@@ -165,6 +166,10 @@ internal fun SharedTransitionScope.DragScreen(
     var deleteAppWidgetId by remember { mutableStateOf(false) }
 
     var updatedWidgetGridItem by remember { mutableStateOf<GridItem?>(null) }
+
+    var gridPageDirection by remember { mutableStateOf<PageDirection?>(null) }
+
+    var dockPageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
     val dockHeight = homeSettings.dockHeight.dp
 
@@ -337,8 +342,12 @@ internal fun SharedTransitionScope.DragScreen(
             screenWidth = screenWidth,
             dragIntOffset = dragIntOffset,
             associate = associate,
-            gridHorizontalPagerState = gridHorizontalPagerState,
-            dockGridHorizontalPagerState = dockGridHorizontalPagerState,
+            onUpdateGridPageDirection = { pageDirection ->
+                gridPageDirection = pageDirection
+            },
+            onUpdateDockPageDirection = { pageDirection ->
+                dockPageDirection = pageDirection
+            },
         )
     }
 
@@ -350,6 +359,18 @@ internal fun SharedTransitionScope.DragScreen(
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
             onResetConfigureResultCode = onResetConfigureResultCode,
+        )
+    }
+
+    LaunchedEffect(key1 = gridPageDirection, key2 = dockPageDirection) {
+        handlePageDirection(
+            pageDirection = gridPageDirection,
+            pagerState = gridHorizontalPagerState,
+        )
+
+        handlePageDirection(
+            pageDirection = dockPageDirection,
+            pagerState = dockGridHorizontalPagerState,
         )
     }
 

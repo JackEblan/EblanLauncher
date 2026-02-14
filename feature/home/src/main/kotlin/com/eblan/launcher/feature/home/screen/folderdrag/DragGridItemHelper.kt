@@ -20,7 +20,6 @@ package com.eblan.launcher.feature.home.screen.folderdrag
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -30,17 +29,18 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.EDGE_DISTANCE
 import kotlinx.coroutines.delay
 
-internal suspend fun handleAnimateScrollToPage(
+internal fun handleAnimateScrollToPage(
     density: Density,
     paddingValues: PaddingValues,
     screenWidth: Int,
     dragIntOffset: IntOffset,
-    gridHorizontalPagerState: PagerState,
+    onUpdatePageDirection: (PageDirection?) -> Unit,
 ) {
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -63,13 +63,11 @@ internal suspend fun handleAnimateScrollToPage(
     val isOnRightGrid = dragIntOffset.x + edgeDistance > gridWidth
 
     if (isOnLeftGrid) {
-        delay(500L)
-
-        gridHorizontalPagerState.animateScrollToPage(page = gridHorizontalPagerState.currentPage - 1)
+        onUpdatePageDirection(PageDirection.Left)
     } else if (isOnRightGrid) {
-        delay(500L)
-
-        gridHorizontalPagerState.animateScrollToPage(page = gridHorizontalPagerState.currentPage + 1)
+        onUpdatePageDirection(PageDirection.Right)
+    } else {
+        onUpdatePageDirection(null)
     }
 }
 

@@ -18,7 +18,7 @@
 package com.eblan.launcher.ui
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SearchBar
@@ -26,15 +26,10 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class, FlowPreview::class)
@@ -42,20 +37,10 @@ import kotlinx.coroutines.launch
 fun SearchBar(
     modifier: Modifier = Modifier,
     searchBarState: SearchBarState,
+    textFieldState: TextFieldState,
     title: String,
-    onChangeLabel: (String) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-
-    val textFieldState = rememberTextFieldState()
-
-    LaunchedEffect(key1 = textFieldState) {
-        snapshotFlow { textFieldState.text }
-            .debounce(500L)
-            .onEach { text ->
-                onChangeLabel(text.toString())
-            }.collect()
-    }
 
     SearchBar(
         state = searchBarState,

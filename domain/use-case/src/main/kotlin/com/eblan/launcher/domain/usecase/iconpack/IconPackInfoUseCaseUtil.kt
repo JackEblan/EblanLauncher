@@ -25,7 +25,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import java.io.File
 
-suspend fun updateIconPackInfos(
+internal suspend fun updateIconPackInfos(
     iconPackInfoPackageName: String,
     fileManager: FileManager,
     iconPackManager: IconPackManager,

@@ -405,6 +405,8 @@ internal class HomeViewModel @Inject constructor(
 
     fun resetGridCacheAfterResize(resizingGridItem: GridItem) {
         viewModelScope.launch {
+            moveGridItemJob?.cancelAndJoin()
+
             updateGridItemsAfterResizeUseCase(resizingGridItem = resizingGridItem)
 
             delay(defaultDelay)
@@ -462,6 +464,8 @@ internal class HomeViewModel @Inject constructor(
 
     fun resetGridCacheAfterMoveFolder() {
         viewModelScope.launch {
+            moveGridItemJob?.cancelAndJoin()
+
             val lastFolderId = _foldersDataById.value.last().folderId
 
             gridRepository.updateGridItems(gridItems = folderGridCacheRepository.gridItemsCache.first())
@@ -504,7 +508,7 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun cancelFolderDragGridCache() {
+    fun cancelFolderGridCache() {
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
@@ -819,14 +823,28 @@ internal class HomeViewModel @Inject constructor(
         launcherAppsEventJob = null
     }
 
-    fun resetGridCacheAfterFolderResize(resizingGridItem: GridItem) {
+    fun resetGridCacheAfterResizeFolder(resizingGridItem: GridItem) {
         viewModelScope.launch {
+            moveGridItemJob?.cancelAndJoin()
+
+            val lastFolderId = _foldersDataById.value.last().folderId
+
             updateGridItemsAfterResizeUseCase(resizingGridItem = resizingGridItem)
 
-            delay(defaultDelay)
+            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folderDataById ->
+                _foldersDataById.update { currentFolders ->
+                    currentFolders.apply {
+                        val index = currentFolders.indexOfFirst { it.folderId == lastFolderId }
 
-            _screen.update {
-                Screen.Pager
+                        currentFolders[index] = folderDataById
+                    }
+                }
+
+                delay(defaultDelay)
+
+                _screen.update {
+                    Screen.Folder(folderDataById = folderDataById)
+                }
             }
 
             _moveGridItemResult.update {

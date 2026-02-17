@@ -183,14 +183,16 @@ internal fun HomeRoute(
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
+        onResizeFolderGridItem = viewModel::resizeFolderGridItem,
         onShowGridCache = viewModel::showGridCache,
         onShowFolderGridCache = viewModel::showFolderGridCache,
         onResetGridCacheAfterResize = viewModel::resetGridCacheAfterResize,
         onResetGridCacheAfterMove = viewModel::resetGridCacheAfterMove,
         onResetGridCacheAfterMoveWidgetGridItem = viewModel::resetGridCacheAfterMoveWidgetGridItem,
         onResetGridCacheAfterMoveFolder = viewModel::resetGridCacheAfterMoveFolder,
+        onResetGridCacheAfterResizeFolder = viewModel::resetGridCacheAfterResizeFolder,
         onCancelGridCache = viewModel::cancelGridCache,
-        onCancelFolderDragGridCache = viewModel::cancelFolderDragGridCache,
+        onCancelFolderGridCache = viewModel::cancelFolderGridCache,
         onEditGridItem = onEditGridItem,
         onSettings = onSettings,
         onEditPage = viewModel::showPageCache,
@@ -263,6 +265,12 @@ internal fun HomeScreen(
         rows: Int,
         lockMovement: Boolean,
     ) -> Unit,
+    onResizeFolderGridItem: (
+        gridItem: GridItem,
+        columns: Int,
+        rows: Int,
+        lockMovement: Boolean,
+    ) -> Unit,
     onShowGridCache: (
         screen: Screen,
         gridItems: List<GridItem>,
@@ -275,8 +283,9 @@ internal fun HomeScreen(
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
+    onResetGridCacheAfterResizeFolder: (GridItem) -> Unit,
     onCancelGridCache: () -> Unit,
-    onCancelFolderDragGridCache: () -> Unit,
+    onCancelFolderGridCache: () -> Unit,
     onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (
@@ -486,13 +495,14 @@ internal fun HomeScreen(
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
+                    onResizeFolderGridItem = onResizeFolderGridItem,
                     onShowGridCache = onShowGridCache,
                     onShowFolderGridCache = onShowFolderGridCache,
                     onResetGridCacheAfterResize = onResetGridCacheAfterResize,
                     onResetGridCacheAfterMove = onResetGridCacheAfterMove,
                     onResetGridCacheAfterMoveWidgetGridItem = onResetGridCacheAfterMoveWidgetGridItem,
                     onCancelGridCache = onCancelGridCache,
-                    onCancelFolderDragGridCache = onCancelFolderDragGridCache,
+                    onCancelFolderGridCache = onCancelFolderGridCache,
                     onEditGridItem = onEditGridItem,
                     onSettings = onSettings,
                     onEditPage = onEditPage,
@@ -504,6 +514,7 @@ internal fun HomeScreen(
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
                     onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
+                    onResetGridCacheAfterResizeFolder = onResetGridCacheAfterResizeFolder,
                     onUpdateGridItemImageBitmap = { imageBitmap ->
                         overlayImageBitmap = imageBitmap
                     },
@@ -600,6 +611,12 @@ private fun SharedTransitionScope.Success(
         rows: Int,
         lockMovement: Boolean,
     ) -> Unit,
+    onResizeFolderGridItem: (
+        gridItem: GridItem,
+        columns: Int,
+        rows: Int,
+        lockMovement: Boolean,
+    ) -> Unit,
     onShowGridCache: (
         screen: Screen,
         gridItems: List<GridItem>,
@@ -612,8 +629,9 @@ private fun SharedTransitionScope.Success(
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
+    onResetGridCacheAfterResizeFolder: (GridItem) -> Unit,
     onCancelGridCache: () -> Unit,
-    onCancelFolderDragGridCache: () -> Unit,
+    onCancelFolderGridCache: () -> Unit,
     onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (
@@ -1030,7 +1048,7 @@ private fun SharedTransitionScope.Success(
                     screen = targetState,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = onResetGridCacheAfterMoveFolder,
-                    onDragCancel = onCancelFolderDragGridCache,
+                    onDragCancel = onCancelFolderGridCache,
                     onMoveGridItemOutsideFolder = { newGridItemSource, folderId, movingGridItem ->
                         gridItemSource = newGridItemSource
 
@@ -1069,9 +1087,9 @@ private fun SharedTransitionScope.Success(
                     lockMovement = homeData.userData.experimentalSettings.lockMovement,
                     gridItemCache = gridItemCache,
                     onUpdateScreen = onUpdateScreen,
-                    onResizeGridItem = onResizeGridItem,
-                    onResizeEnd = onResetGridCacheAfterResize,
-                    onResizeCancel = onCancelGridCache,
+                    onResizeGridItem = onResizeFolderGridItem,
+                    onResizeEnd = onResetGridCacheAfterResizeFolder,
+                    onResizeCancel = onCancelFolderGridCache,
                 )
             }
         }

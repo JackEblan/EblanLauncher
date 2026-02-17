@@ -99,7 +99,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     screen: Screen,
     onTapFolderGridItem: (String) -> Unit,
     onEditGridItem: (String) -> Unit,
-    onResize: () -> Unit,
+    onResize: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (
         gridItems: List<GridItem>,
@@ -116,7 +119,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
@@ -307,7 +313,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         onDraggingGridItem = {
                             showGridItemPopup = false
 
-                            onDraggingGridItem()
+                            onDraggingGridItem(
+                                Screen.Drag,
+                                gridItems,
+                            )
                         },
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                         onOpenAppDrawer = onOpenAppDrawer,
@@ -435,7 +444,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     onDraggingGridItem = {
                         showGridItemPopup = false
 
-                        onDraggingGridItem()
+                        onDraggingGridItem(
+                            Screen.Drag,
+                            gridItems,
+                        )
                     },
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onOpenAppDrawer = onOpenAppDrawer,
@@ -457,7 +469,12 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
             paddingValues = paddingValues,
             onEdit = onEditGridItem,
-            onResize = onResize,
+            onResize = {
+                onResize(
+                    Screen.Resize,
+                    gridItems,
+                )
+            },
             onWidgets = onUpdateEblanApplicationInfoGroup,
             onDeleteGridItem = onDeleteGridItem,
             onInfo = { serialNumber, componentName ->
@@ -496,7 +513,12 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             },
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onDraggingGridItem = onDraggingGridItem,
+            onDraggingGridItem = {
+                onDraggingGridItem(
+                    Screen.Drag,
+                    gridItems,
+                )
+            },
             onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }

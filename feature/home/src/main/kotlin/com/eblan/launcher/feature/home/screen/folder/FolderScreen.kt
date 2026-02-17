@@ -113,10 +113,16 @@ internal fun SharedTransitionScope.FolderScreen(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onResetOverlay: () -> Unit,
-    onResize: () -> Unit,
+    onResize: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onEditGridItem: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
 ) {
@@ -343,7 +349,10 @@ internal fun SharedTransitionScope.FolderScreen(
                         onDraggingGridItem = {
                             showGridItemPopup = false
 
-                            onDraggingGridItem(folderDataById.gridItems)
+                            onDraggingGridItem(
+                                Screen.FolderResize(folderDataById = folderDataById),
+                                folderDataById.gridItems,
+                            )
                         },
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                         onOpenAppDrawer = {
@@ -381,7 +390,12 @@ internal fun SharedTransitionScope.FolderScreen(
             eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
             paddingValues = paddingValues,
             onEdit = onEditGridItem,
-            onResize = onResize,
+            onResize = {
+                onResize(
+                    Screen.FolderResize(folderDataById = folderDataById),
+                    folderDataById.gridItems,
+                )
+            },
             onWidgets = { newEblanApplicationInfoGroup ->
                 eblanApplicationInfoGroup = newEblanApplicationInfoGroup
             },
@@ -423,7 +437,10 @@ internal fun SharedTransitionScope.FolderScreen(
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDraggingGridItem = {
-                onDraggingGridItem(folderDataById.gridItems)
+                onDraggingGridItem(
+                    Screen.FolderDrag(folderDataById = folderDataById),
+                    folderDataById.gridItems,
+                )
             },
             onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
@@ -439,6 +456,7 @@ internal fun SharedTransitionScope.FolderScreen(
             drag = drag,
             isPressHome = isPressHome,
             screen = screen,
+            gridItems = folderDataById.gridItems,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
             columns = homeSettings.columns,
@@ -450,9 +468,7 @@ internal fun SharedTransitionScope.FolderScreen(
 
                 isPressHome = false
             },
-            onDraggingGridItem = {
-                onDraggingGridItem(folderDataById.gridItems)
-            },
+            onDraggingGridItem = onDraggingGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }

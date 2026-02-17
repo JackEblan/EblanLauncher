@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -94,6 +95,7 @@ internal fun SharedTransitionScope.AppWidgetScreen(
     drag: Drag,
     isPressHome: Boolean,
     screen: Screen,
+    gridItems: List<GridItem>,
     screenWidth: Int,
     screenHeight: Int,
     columns: Int,
@@ -107,7 +109,10 @@ internal fun SharedTransitionScope.AppWidgetScreen(
         intSize: IntSize,
     ) -> Unit,
     onDismiss: () -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -224,6 +229,7 @@ internal fun SharedTransitionScope.AppWidgetScreen(
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     screen = screen,
+                    gridItems = gridItems,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     columns = columns,
@@ -248,11 +254,15 @@ private fun SharedTransitionScope.Success(
     currentPage: Int,
     gridItemSettings: GridItemSettings,
     screen: Screen,
+    gridItems: List<GridItem>,
     screenWidth: Int,
     screenHeight: Int,
     columns: Int,
     rows: Int,
-    onDraggingGridItem: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
@@ -282,17 +292,18 @@ private fun SharedTransitionScope.Success(
                 EblanAppWidgetProviderInfoItem(
                     eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
                     drag = drag,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     screen = screen,
+                    gridItems = gridItems,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     columns = columns,
                     rows = rows,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onLongPressGridItem = onLongPressGridItem,
                 )
             }
         }
@@ -306,6 +317,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     drag: Drag,
     screen: Screen,
+    gridItems: List<GridItem>,
     screenWidth: Int,
     screenHeight: Int,
     columns: Int,
@@ -320,7 +332,10 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
     ) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    onDraggingGridItem: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -348,7 +363,10 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Dragging if isLongPress -> {
-                onDraggingGridItem()
+                onDraggingGridItem(
+                    Screen.Drag,
+                    gridItems,
+                )
             }
 
             Drag.End, Drag.Cancel -> {

@@ -49,6 +49,7 @@ import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveGridItemOutsideFolderUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveGridItemUseCase
+import com.eblan.launcher.domain.usecase.grid.ResizeFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterMoveUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterResizeUseCase
@@ -111,6 +112,7 @@ internal class HomeViewModel @Inject constructor(
     private val removePackageUseCase: RemovePackageUseCase,
     private val changePackageUseCase: ChangePackageUseCase,
     private val changeShortcutsUseCase: ChangeShortcutsUseCase,
+    private val resizeFolderGridItemUseCase: ResizeFolderGridItemUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -295,9 +297,29 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
+    fun resizeFolderGridItem(
+        resizingGridItem: GridItem,
+        columns: Int,
+        rows: Int,
+        lockMovement: Boolean,
+    ) {
+        moveGridItemJob?.cancel()
+
+        moveGridItemJob = viewModelScope.launch {
+            _moveGridItemResult.update {
+                resizeFolderGridItemUseCase(
+                    resizingGridItem = resizingGridItem,
+                    columns = columns,
+                    rows = rows,
+                    lockMovement = lockMovement,
+                )
+            }
+        }
+    }
+
     fun showGridCache(
-        gridItems: List<GridItem>,
         screen: Screen,
+        gridItems: List<GridItem>,
     ) {
         viewModelScope.launch {
             gridCacheRepository.insertGridItems(gridItems = gridItems)
@@ -311,27 +333,16 @@ internal class HomeViewModel @Inject constructor(
     }
 
     fun showFolderGridCache(
+        screen: Screen,
         gridItems: List<GridItem>,
     ) {
         viewModelScope.launch {
             folderGridCacheRepository.insertGridItems(gridItems = gridItems)
 
-            val lastFolderId = _foldersDataById.value.last().folderId
+            delay(defaultDelay)
 
-            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folderDataById ->
-                _foldersDataById.update { currentFolders ->
-                    currentFolders.apply {
-                        val index = currentFolders.indexOfFirst { it.folderId == lastFolderId }
-
-                        currentFolders[index] = folderDataById
-                    }
-                }
-
-                delay(defaultDelay)
-
-                _screen.update {
-                    Screen.FolderDrag(folderDataById = folderDataById)
-                }
+            _screen.update {
+                screen
             }
         }
     }
@@ -745,7 +756,10 @@ internal class HomeViewModel @Inject constructor(
                     }
                 }
 
-                showFolderGridCache(gridItems = folderDataById.gridItems)
+                showFolderGridCache(
+                    screen = Screen.FolderDrag(folderDataById = folderDataById),
+                    gridItems = folderDataById.gridItems,
+                )
             }
         }
     }
@@ -803,5 +817,21 @@ internal class HomeViewModel @Inject constructor(
         syncDataJob = null
 
         launcherAppsEventJob = null
+    }
+
+    fun resetGridCacheAfterFolderResize(resizingGridItem: GridItem) {
+        viewModelScope.launch {
+            updateGridItemsAfterResizeUseCase(resizingGridItem = resizingGridItem)
+
+            delay(defaultDelay)
+
+            _screen.update {
+                Screen.Pager
+            }
+
+            _moveGridItemResult.update {
+                null
+            }
+        }
     }
 }

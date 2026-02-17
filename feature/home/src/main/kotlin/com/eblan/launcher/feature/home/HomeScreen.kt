@@ -264,10 +264,13 @@ internal fun HomeScreen(
         lockMovement: Boolean,
     ) -> Unit,
     onShowGridCache: (
-        gridItems: List<GridItem>,
         screen: Screen,
+        gridItems: List<GridItem>,
     ) -> Unit,
-    onShowFolderGridCache: (List<GridItem>) -> Unit,
+    onShowFolderGridCache: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
@@ -598,10 +601,13 @@ private fun SharedTransitionScope.Success(
         lockMovement: Boolean,
     ) -> Unit,
     onShowGridCache: (
-        gridItems: List<GridItem>,
         screen: Screen,
+        gridItems: List<GridItem>,
     ) -> Unit,
-    onShowFolderGridCache: (List<GridItem>) -> Unit,
+    onShowFolderGridCache: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
@@ -786,8 +792,8 @@ private fun SharedTransitionScope.Success(
             )
 
             onShowGridCache(
-                homeData.gridItems,
                 Screen.Drag,
+                homeData.gridItems,
             )
         }
     }
@@ -855,19 +861,9 @@ private fun SharedTransitionScope.Success(
                     eblanShortcutConfigs = eblanShortcutConfigs,
                     eblanApplicationInfoTags = eblanApplicationInfoTags,
                     onTapFolderGridItem = onShowFolder,
-                    onDraggingGridItem = {
-                        onShowGridCache(
-                            homeData.gridItems,
-                            Screen.Drag,
-                        )
-                    },
+                    onDraggingGridItem = onShowGridCache,
                     onEditGridItem = onEditGridItem,
-                    onResize = {
-                        onShowGridCache(
-                            homeData.gridItems,
-                            Screen.Resize,
-                        )
-                    },
+                    onResize = onShowGridCache,
                     onSettings = onSettings,
                     onEditPage = { gridItems, newAssociate ->
                         associate = newAssociate
@@ -1008,12 +1004,7 @@ private fun SharedTransitionScope.Success(
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onResetOverlay = onResetOverlay,
                     onEditGridItem = onEditGridItem,
-                    onResize = {
-                        onShowGridCache(
-                            homeData.gridItems,
-                            Screen.Resize,
-                        )
-                    },
+                    onResize = onShowFolderGridCache,
                     onDeleteGridItem = onDeleteGridItem,
                 )
             }

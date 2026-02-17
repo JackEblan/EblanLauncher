@@ -28,7 +28,7 @@ import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 
 internal fun handleActionMainIntent(
     intent: Intent,
-    onUpdateScreen: (Screen) -> Unit,
+    onActionMainIntent: () -> Unit,
 ) {
     if (intent.action != Intent.ACTION_MAIN && !intent.hasCategory(Intent.CATEGORY_HOME)) {
         return
@@ -38,7 +38,7 @@ internal fun handleActionMainIntent(
         return
     }
 
-    onUpdateScreen(Screen.Pager)
+    onActionMainIntent()
 }
 
 internal fun handleEblanAction(

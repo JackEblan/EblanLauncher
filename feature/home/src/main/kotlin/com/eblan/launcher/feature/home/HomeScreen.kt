@@ -105,6 +105,7 @@ import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
 import com.eblan.launcher.feature.home.screen.folder.FolderScreen
 import com.eblan.launcher.feature.home.screen.folderdrag.FolderDragScreen
+import com.eblan.launcher.feature.home.screen.folderresize.FolderResizeScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
@@ -989,6 +990,9 @@ private fun SharedTransitionScope.Success(
                     statusBarNotifications = statusBarNotifications,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = targetState,
+                    gridItemSource = gridItemSource,
+                    eblanShortcutInfosGroup = eblanShortcutInfosGroup,
+                    eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
@@ -1003,6 +1007,14 @@ private fun SharedTransitionScope.Success(
                     onDraggingGridItem = onShowFolderGridCache,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onResetOverlay = onResetOverlay,
+                    onEditGridItem = onEditGridItem,
+                    onResize = {
+                        onShowGridCache(
+                            homeData.gridItems,
+                            Screen.Resize,
+                        )
+                    },
+                    onDeleteGridItem = onDeleteGridItem,
                 )
             }
 
@@ -1044,6 +1056,31 @@ private fun SharedTransitionScope.Success(
                     onUpdateAssociate = { newAssociate ->
                         associate = newAssociate
                     },
+                )
+            }
+
+            is Screen.FolderResize -> {
+                FolderResizeScreen(
+                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+                    folderDataById = targetState.folderDataById,
+                    drag = drag,
+                    paddingValues = paddingValues,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                    textColor = homeData.textColor,
+                    homeSettings = homeData.userData.homeSettings,
+                    statusBarNotifications = statusBarNotifications,
+                    iconPackFilePaths = iconPackFilePaths,
+                    screen = targetState,
+                    gridItem = gridItemSource?.gridItem,
+                    moveGridItemResult = movedGridItemResult,
+                    lockMovement = homeData.userData.experimentalSettings.lockMovement,
+                    gridItemCache = gridItemCache,
+                    onUpdateScreen = onUpdateScreen,
+                    onResizeGridItem = onResizeGridItem,
+                    onResizeEnd = onResetGridCacheAfterResize,
+                    onResizeCancel = onCancelGridCache,
                 )
             }
         }
@@ -1169,8 +1206,7 @@ private fun LifecycleEffect(
                         UserHandle::class.java,
                     )
                 } else {
-                    @Suppress("DEPRECATION")
-                    intent.getParcelableExtra(Intent.EXTRA_USER)
+                    @Suppress("DEPRECATION") intent.getParcelableExtra(Intent.EXTRA_USER)
                 }
 
                 if (userHandle != null) {

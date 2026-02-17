@@ -134,12 +134,12 @@ internal fun GridItemPopup(
     gridItem: GridItem,
     popupIntOffset: IntOffset,
     popupIntSize: IntSize,
-    eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     hasShortcutHostPermission: Boolean,
     currentPage: Int,
     drag: Drag,
     gridItemSettings: GridItemSettings,
-    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
     paddingValues: PaddingValues,
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
@@ -188,13 +188,13 @@ internal fun GridItemPopup(
         content = {
             GridItemPopupContent(
                 modifier = Modifier.padding(5.dp),
-                eblanShortcutInfos = eblanShortcutInfos,
+                eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                 gridItem = gridItem,
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 currentPage = currentPage,
                 drag = drag,
                 gridItemSettings = gridItemSettings,
-                eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
                 onEdit = onEdit,
                 onDismissRequest = onDismissRequest,
                 onResize = onResize,
@@ -332,13 +332,13 @@ private fun PopupMenuRow(
 @Composable
 private fun GridItemPopupContent(
     modifier: Modifier = Modifier,
-    eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     gridItem: GridItem,
     hasShortcutHostPermission: Boolean,
     currentPage: Int,
     drag: Drag,
     gridItemSettings: GridItemSettings,
-    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
     onEdit: (String) -> Unit,
     onDismissRequest: () -> Unit,
     onResize: () -> Unit,
@@ -373,7 +373,7 @@ private fun GridItemPopupContent(
                 is GridItemData.ApplicationInfo -> {
                     ApplicationInfoGridItemMenu(
                         modifier = modifier,
-                        eblanShortcutInfosByPackageName = eblanShortcutInfos[
+                        eblanShortcutInfosByPackageName = eblanShortcutInfosGroup[
                             EblanShortcutInfoByGroup(
                                 serialNumber = data.serialNumber,
                                 packageName = data.packageName,
@@ -384,7 +384,7 @@ private fun GridItemPopupContent(
                         drag = drag,
                         icon = data.icon,
                         gridItemSettings = gridItemSettings,
-                        eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfos[data.packageName],
+                        eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfosGroup[data.packageName],
                         onEdit = {
                             onDismissRequest()
 

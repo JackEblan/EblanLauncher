@@ -33,4 +33,6 @@ internal sealed interface Screen {
     data class Folder(val folderDataById: FolderDataById) : Screen
 
     data class FolderDrag(val folderDataById: FolderDataById) : Screen
+
+    data class FolderResize(val folderDataById: FolderDataById) : Screen
 }

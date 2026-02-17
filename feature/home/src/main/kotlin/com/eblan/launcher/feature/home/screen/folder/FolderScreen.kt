@@ -44,6 +44,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -59,6 +60,10 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.util.Consumer
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.EblanShortcutInfo
+import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
@@ -70,6 +75,8 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.screen.pager.GridItemPopup
+import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleActionMainIntent
@@ -92,6 +99,9 @@ internal fun SharedTransitionScope.FolderScreen(
     statusBarNotifications: Map<String, Int>,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
+    gridItemSource: GridItemSource?,
+    eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
@@ -106,6 +116,9 @@ internal fun SharedTransitionScope.FolderScreen(
     onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onResetOverlay: () -> Unit,
+    onResize: () -> Unit,
+    onEditGridItem: (String) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -133,9 +146,9 @@ internal fun SharedTransitionScope.FolderScreen(
 
     val verticalPadding = topPadding + bottomPadding
 
-    val gridWidth = screenWidth - horizontalPadding
+    val safeDrawingWidth = screenWidth - horizontalPadding
 
-    val gridHeight = screenHeight - verticalPadding
+    val safeDrawingHeight = screenHeight - verticalPadding
 
     var titleHeight by remember { mutableIntStateOf(0) }
 
@@ -147,12 +160,28 @@ internal fun SharedTransitionScope.FolderScreen(
         PAGE_INDICATOR_HEIGHT.dp.roundToPx()
     }
 
+    var showGridItemPopup by remember { mutableStateOf(false) }
+
+    var popupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var popupIntSize by remember { mutableStateOf(IntSize.Zero) }
+
+    var eblanApplicationInfoGroup by remember { mutableStateOf<EblanApplicationInfoGroup?>(null) }
+
+    var isPressHome by remember { mutableStateOf(false) }
+
     DisposableEffect(key1 = activity) {
         val listener = Consumer<Intent> { intent ->
             scope.launch {
                 handleActionMainIntent(
                     intent = intent,
-                    onUpdateScreen = onUpdateScreen,
+                    onActionMainIntent = {
+                        showGridItemPopup = false
+
+                        isPressHome = true
+
+                        onUpdateScreen(Screen.Pager)
+                    },
                 )
             }
         }
@@ -171,6 +200,8 @@ internal fun SharedTransitionScope.FolderScreen(
     }
 
     BackHandler {
+        showGridItemPopup = false
+
         onRemoveLastFolder()
     }
 
@@ -227,10 +258,10 @@ internal fun SharedTransitionScope.FolderScreen(
                 columns = homeSettings.folderColumns,
                 rows = homeSettings.folderRows,
                 { gridItem ->
-                    val cellWidth = gridWidth / homeSettings.folderColumns
+                    val cellWidth = safeDrawingWidth / homeSettings.folderColumns
 
                     val cellHeight =
-                        (gridHeight - pageIndicatorHeightPx - titleHeight) / homeSettings.folderRows
+                        (safeDrawingHeight - pageIndicatorHeightPx - titleHeight) / homeSettings.folderRows
 
                     val x = gridItem.startColumn * cellWidth
 
@@ -291,7 +322,18 @@ internal fun SharedTransitionScope.FolderScreen(
                         onTapFolderGridItem = {
                             onAddFolder(gridItem.id)
                         },
-                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onUpdateGridItemOffset = { intOffset, intSize ->
+                            popupIntOffset = intOffset
+
+                            popupIntSize = IntSize(
+                                width = intSize.width,
+                                height = height,
+                            )
+
+                            onUpdateGridItemOffset(intOffset, intSize)
+
+                            showGridItemPopup = true
+                        },
                         onUpdateImageBitmap = { imageBitmap ->
                             onLongPressGridItem(
                                 GridItemSource.Existing(gridItem = gridItem),
@@ -299,6 +341,8 @@ internal fun SharedTransitionScope.FolderScreen(
                             )
                         },
                         onDraggingGridItem = {
+                            showGridItemPopup = false
+
                             onDraggingGridItem(folderDataById.gridItems)
                         },
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
@@ -321,6 +365,95 @@ internal fun SharedTransitionScope.FolderScreen(
                 systemTextColor = textColor,
                 systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
             ),
+        )
+    }
+
+    if (showGridItemPopup && gridItemSource?.gridItem != null) {
+        GridItemPopup(
+            gridItem = gridItemSource.gridItem,
+            popupIntOffset = popupIntOffset,
+            popupIntSize = popupIntSize,
+            eblanShortcutInfosGroup = eblanShortcutInfosGroup,
+            hasShortcutHostPermission = hasShortcutHostPermission,
+            currentPage = folderGridHorizontalPagerState.currentPage,
+            drag = drag,
+            gridItemSettings = homeSettings.gridItemSettings,
+            eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
+            paddingValues = paddingValues,
+            onEdit = onEditGridItem,
+            onResize = onResize,
+            onWidgets = { newEblanApplicationInfoGroup ->
+                eblanApplicationInfoGroup = newEblanApplicationInfoGroup
+            },
+            onDeleteGridItem = onDeleteGridItem,
+            onInfo = { serialNumber, componentName ->
+                launcherApps.startAppDetailsActivity(
+                    serialNumber = serialNumber,
+                    componentName = componentName,
+                    sourceBounds = Rect(
+                        popupIntOffset.x,
+                        popupIntOffset.y,
+                        popupIntOffset.x + popupIntSize.width,
+                        popupIntOffset.y + popupIntSize.height,
+                    ),
+                )
+            },
+            onDismissRequest = {
+                showGridItemPopup = false
+            },
+            onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
+                val sourceBoundsX = popupIntOffset.x + leftPadding
+
+                val sourceBoundsY = popupIntOffset.y + topPadding
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                    launcherApps.startShortcut(
+                        serialNumber = serialNumber,
+                        packageName = packageName,
+                        id = shortcutId,
+                        sourceBounds = Rect(
+                            sourceBoundsX,
+                            sourceBoundsY,
+                            sourceBoundsX + popupIntSize.width,
+                            sourceBoundsY + popupIntSize.height,
+                        ),
+                    )
+                }
+            },
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onDraggingGridItem = {
+                onDraggingGridItem(folderDataById.gridItems)
+            },
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
+        )
+    }
+
+    if (eblanApplicationInfoGroup != null) {
+        AppWidgetScreen(
+            currentPage = folderGridHorizontalPagerState.currentPage,
+            eblanApplicationInfoGroup = eblanApplicationInfoGroup,
+            eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
+            gridItemSettings = homeSettings.gridItemSettings,
+            paddingValues = paddingValues,
+            drag = drag,
+            isPressHome = isPressHome,
+            screen = screen,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            columns = homeSettings.columns,
+            rows = homeSettings.rows,
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onDismiss = {
+                eblanApplicationInfoGroup = null
+
+                isPressHome = false
+            },
+            onDraggingGridItem = {
+                onDraggingGridItem(folderDataById.gridItems)
+            },
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 }

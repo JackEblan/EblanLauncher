@@ -111,9 +111,9 @@ internal fun SharedTransitionScope.ResizeScreen(
 
     val verticalPadding = topPadding + bottomPadding
 
-    val gridWidth = screenWidth - horizontalPadding
+    val safeDrawingWidth = screenWidth - horizontalPadding
 
-    val gridHeight = screenHeight - verticalPadding
+    val safeDrawingHeight = screenHeight - verticalPadding
 
     val dockHeight = homeSettings.dockHeight.dp
 
@@ -211,9 +211,11 @@ internal fun SharedTransitionScope.ResizeScreen(
 
     when (currentGridItem.associate) {
         Associate.Grid -> {
-            val cellWidth = gridWidth / homeSettings.columns
+            val gridHeight = safeDrawingHeight - pageIndicatorHeightPx - dockHeightPx
 
-            val cellHeight = (gridHeight - pageIndicatorHeightPx - dockHeightPx) / homeSettings.rows
+            val cellWidth = safeDrawingWidth / homeSettings.columns
+
+            val cellHeight = gridHeight / homeSettings.rows
 
             val x = currentGridItem.startColumn * cellWidth
 
@@ -229,8 +231,8 @@ internal fun SharedTransitionScope.ResizeScreen(
 
             ResizeOverlay(
                 gridItem = currentGridItem,
-                gridWidth = gridWidth,
-                gridHeight = gridHeight - dockHeightPx,
+                gridWidth = safeDrawingWidth,
+                gridHeight = gridHeight,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
                 columns = homeSettings.columns,
@@ -247,7 +249,7 @@ internal fun SharedTransitionScope.ResizeScreen(
         }
 
         Associate.Dock -> {
-            val cellWidth = gridWidth / homeSettings.dockColumns
+            val cellWidth = safeDrawingWidth / homeSettings.dockColumns
 
             val cellHeight = dockHeightPx / homeSettings.dockRows
 
@@ -257,7 +259,7 @@ internal fun SharedTransitionScope.ResizeScreen(
 
             val dockX = x + leftPadding
 
-            val dockY = (y + topPadding) + (gridHeight - dockHeightPx)
+            val dockY = (y + topPadding) + (safeDrawingHeight - dockHeightPx)
 
             val width = currentGridItem.columnSpan * cellWidth
 
@@ -265,7 +267,7 @@ internal fun SharedTransitionScope.ResizeScreen(
 
             ResizeOverlay(
                 gridItem = currentGridItem,
-                gridWidth = gridWidth,
+                gridWidth = safeDrawingWidth,
                 gridHeight = dockHeightPx,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
@@ -285,7 +287,7 @@ internal fun SharedTransitionScope.ResizeScreen(
 }
 
 @Composable
-private fun ResizeOverlay(
+internal fun ResizeOverlay(
     gridItem: GridItem,
     gridWidth: Int,
     gridHeight: Int,

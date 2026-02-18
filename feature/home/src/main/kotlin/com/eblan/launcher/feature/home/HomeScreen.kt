@@ -87,7 +87,6 @@ import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.EblanUser
-import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
@@ -165,8 +164,6 @@ internal fun HomeRoute(
 
     val eblanApplicationInfoTags by viewModel.eblanApplicationInfoTags.collectAsStateWithLifecycle()
 
-    val foldersDataById by viewModel.foldersDataById.collectAsStateWithLifecycle()
-
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -183,7 +180,6 @@ internal fun HomeRoute(
         eblanShortcutConfigs = eblanShortcutConfigs,
         eblanApplicationInfoTags = eblanApplicationInfoTags,
         configureResultCode = configureResultCode,
-        foldersDataById = foldersDataById,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -243,7 +239,6 @@ internal fun HomeScreen(
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     configureResultCode: Int?,
-    foldersDataById: ArrayDeque<FolderDataById>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -497,7 +492,6 @@ internal fun HomeScreen(
                     eblanShortcutConfigs = eblanShortcutConfigs,
                     eblanApplicationInfoTags = eblanApplicationInfoTags,
                     configureResultCode = configureResultCode,
-                    foldersDataById = foldersDataById,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -591,7 +585,6 @@ private fun SharedTransitionScope.Success(
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     configureResultCode: Int?,
-    foldersDataById: ArrayDeque<FolderDataById>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -737,24 +730,18 @@ private fun SharedTransitionScope.Success(
 
     val folderGridHorizontalPagerState = rememberPagerState(
         pageCount = {
-            val folderDataById = foldersDataById.lastOrNull()
-
-            if (folderDataById != null) {
-                when (screen) {
-                    Screen.Folder -> {
-                        folderDataById.pageCount
-                    }
-
-                    Screen.FolderDrag -> {
-                        folderDataById.pageCount
-                    }
-
-                    else -> {
-                        0
-                    }
+            when (screen) {
+                is Screen.Folder -> {
+                    screen.folderDataById.pageCount
                 }
-            } else {
-                0
+
+                is Screen.FolderDrag -> {
+                    screen.folderDataById.pageCount
+                }
+
+                else -> {
+                    0
+                }
             }
         },
     )
@@ -1003,10 +990,10 @@ private fun SharedTransitionScope.Success(
                 )
             }
 
-            Screen.Folder -> {
+            is Screen.Folder -> {
                 FolderScreen(
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
-                    folderDataById = foldersDataById.lastOrNull(),
+                    folderDataById = targetState.folderDataById,
                     drag = drag,
                     paddingValues = paddingValues,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
@@ -1042,11 +1029,11 @@ private fun SharedTransitionScope.Success(
                 )
             }
 
-            Screen.FolderDrag -> {
+            is Screen.FolderDrag -> {
                 FolderDragScreen(
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     gridItemCache = gridItemCache,
-                    folderDataById = foldersDataById.lastOrNull(),
+                    folderDataById = targetState.folderDataById,
                     gridItemSource = gridItemSource,
                     textColor = homeData.textColor,
                     drag = drag,
@@ -1083,10 +1070,10 @@ private fun SharedTransitionScope.Success(
                 )
             }
 
-            Screen.FolderResize -> {
+            is Screen.FolderResize -> {
                 FolderResizeScreen(
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
-                    folderDataById = foldersDataById.lastOrNull(),
+                    folderDataById = targetState.folderDataById,
                     drag = drag,
                     paddingValues = paddingValues,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,

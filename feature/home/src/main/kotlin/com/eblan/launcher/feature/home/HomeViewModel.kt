@@ -122,7 +122,7 @@ internal class HomeViewModel @Inject constructor(
         initialValue = HomeUiState.Loading,
     )
 
-    private val _screen = MutableStateFlow(Screen.Pager)
+    private val _screen = MutableStateFlow<Screen>(Screen.Pager)
 
     val screen = _screen.asStateFlow()
 
@@ -139,8 +139,6 @@ internal class HomeViewModel @Inject constructor(
     private var moveGridItemJob: Job? = null
 
     private val _foldersDataById = MutableStateFlow(ArrayDeque<FolderDataById>())
-
-    val foldersDataById = _foldersDataById.asStateFlow()
 
     val gridItemsCache = getGridItemsCacheUseCase().stateIn(
         scope = viewModelScope,
@@ -486,7 +484,7 @@ internal class HomeViewModel @Inject constructor(
                 delay(defaultDelay)
 
                 _screen.update {
-                    Screen.Folder
+                    Screen.Folder(folderDataById = folderDataById)
                 }
             }
 
@@ -530,7 +528,7 @@ internal class HomeViewModel @Inject constructor(
                 delay(defaultDelay)
 
                 _screen.update {
-                    Screen.Folder
+                    Screen.Folder(folderDataById = folderDataById)
                 }
             }
 
@@ -609,7 +607,7 @@ internal class HomeViewModel @Inject constructor(
                 }
 
                 _screen.update {
-                    Screen.Folder
+                    Screen.Folder(folderDataById = folderDataById)
                 }
             }
         }
@@ -625,7 +623,7 @@ internal class HomeViewModel @Inject constructor(
                 }
 
                 _screen.update {
-                    Screen.Folder
+                    Screen.Folder(folderDataById = folderDataById)
                 }
             }
         }
@@ -644,7 +642,7 @@ internal class HomeViewModel @Inject constructor(
 
         _screen.update {
             if (_foldersDataById.value.isNotEmpty()) {
-                Screen.Folder
+                Screen.Folder(folderDataById = _foldersDataById.value.last())
             } else {
                 Screen.Pager
             }
@@ -765,7 +763,7 @@ internal class HomeViewModel @Inject constructor(
                 }
 
                 showFolderGridCache(
-                    screen = Screen.FolderDrag,
+                    screen = Screen.FolderDrag(folderDataById = folderDataById),
                     gridItems = folderDataById.gridItems,
                 )
             }
@@ -847,7 +845,7 @@ internal class HomeViewModel @Inject constructor(
                 delay(defaultDelay)
 
                 _screen.update {
-                    Screen.Folder
+                    Screen.Folder(folderDataById = folderDataById)
                 }
             }
 

@@ -72,7 +72,7 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 internal fun SharedTransitionScope.FolderDragScreen(
     modifier: Modifier = Modifier,
     folderGridHorizontalPagerState: PagerState,
-    folderDataById: FolderDataById?,
+    folderDataById: FolderDataById,
     gridItemCache: GridItemCache,
     gridItemSource: GridItemSource?,
     textColor: TextColor,
@@ -109,8 +109,6 @@ internal fun SharedTransitionScope.FolderDragScreen(
     onUpdateAssociate: (Associate) -> Unit,
 ) {
     requireNotNull(gridItemSource)
-
-    requireNotNull(folderDataById)
 
     val context = LocalContext.current
 

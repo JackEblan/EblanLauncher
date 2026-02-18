@@ -396,7 +396,11 @@ internal fun SharedTransitionScope.FolderScreen(
             gridItemSettings = homeSettings.gridItemSettings,
             eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
             paddingValues = paddingValues,
-            onEdit = onEditGridItem,
+            onEdit = { id ->
+                onUpdateScreen(Screen.Pager)
+
+                onEditGridItem(id)
+            },
             onResize = {
                 onResize(
                     Screen.FolderResize,
@@ -406,7 +410,11 @@ internal fun SharedTransitionScope.FolderScreen(
             onWidgets = { newEblanApplicationInfoGroup ->
                 eblanApplicationInfoGroup = newEblanApplicationInfoGroup
             },
-            onDeleteGridItem = onDeleteGridItem,
+            onDeleteGridItem = { gridItem ->
+                onUpdateScreen(Screen.Pager)
+
+                onDeleteGridItem(gridItem)
+            },
             onInfo = { serialNumber, componentName ->
                 launcherApps.startAppDetailsActivity(
                     serialNumber = serialNumber,

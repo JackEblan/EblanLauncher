@@ -51,6 +51,7 @@ import com.eblan.launcher.domain.usecase.grid.MoveGridItemOutsideFolderUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.ResizeFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.ResizeGridItemUseCase
+import com.eblan.launcher.domain.usecase.grid.UpdateFolderGridItemsAfterResizeUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterMoveUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterResizeUseCase
 import com.eblan.launcher.domain.usecase.iconpack.GetIconPackFilePathsUseCase
@@ -113,6 +114,7 @@ internal class HomeViewModel @Inject constructor(
     private val changePackageUseCase: ChangePackageUseCase,
     private val changeShortcutsUseCase: ChangeShortcutsUseCase,
     private val resizeFolderGridItemUseCase: ResizeFolderGridItemUseCase,
+    private val updateFolderGridItemsAfterResizeUseCase: UpdateFolderGridItemsAfterResizeUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -829,7 +831,7 @@ internal class HomeViewModel @Inject constructor(
 
             val lastFolderId = _foldersDataById.value.last().folderId
 
-            updateGridItemsAfterResizeUseCase(resizingGridItem = resizingGridItem)
+            updateFolderGridItemsAfterResizeUseCase(resizingGridItem = resizingGridItem)
 
             getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folderDataById ->
                 _foldersDataById.update { currentFolders ->

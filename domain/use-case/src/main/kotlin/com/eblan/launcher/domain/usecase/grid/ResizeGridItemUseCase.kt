@@ -86,7 +86,7 @@ class ResizeGridItemUseCase @Inject constructor(
         }
 
         MoveGridItemResult(
-            isSuccess = true,
+            isSuccess = false,
             movingGridItem = resizingGridItem,
             conflictingGridItem = null,
         )

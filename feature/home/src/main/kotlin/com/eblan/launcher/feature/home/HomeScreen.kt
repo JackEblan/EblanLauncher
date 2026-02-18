@@ -1215,7 +1215,8 @@ private fun LifecycleEffect(
                         UserHandle::class.java,
                     )
                 } else {
-                    @Suppress("DEPRECATION") intent.getParcelableExtra(Intent.EXTRA_USER)
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra(Intent.EXTRA_USER)
                 }
 
                 if (userHandle != null) {

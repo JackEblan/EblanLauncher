@@ -274,7 +274,7 @@ internal fun SharedTransitionScope.FolderResizeScreen(
 
             val gridX = x + leftPadding
 
-            val gridY = y + topPadding
+            val gridY = y + topPadding + titleHeight
 
             ResizeOverlay(
                 gridItem = currentGridItem,
@@ -282,8 +282,8 @@ internal fun SharedTransitionScope.FolderResizeScreen(
                 gridHeight = gridHeight,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
-                columns = homeSettings.columns,
-                rows = homeSettings.rows,
+                columns = homeSettings.folderColumns,
+                rows = homeSettings.folderRows,
                 x = gridX,
                 y = gridY,
                 width = width,

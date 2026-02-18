@@ -350,7 +350,7 @@ internal fun SharedTransitionScope.FolderScreen(
                             showGridItemPopup = false
 
                             onDraggingGridItem(
-                                Screen.FolderResize(folderDataById = folderDataById),
+                                Screen.FolderDrag(folderDataById = folderDataById),
                                 folderDataById.gridItems,
                             )
                         },
@@ -459,8 +459,8 @@ internal fun SharedTransitionScope.FolderScreen(
             gridItems = folderDataById.gridItems,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
-            columns = homeSettings.columns,
-            rows = homeSettings.rows,
+            columns = homeSettings.folderColumns,
+            rows = homeSettings.folderRows,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {

@@ -76,7 +76,7 @@ import kotlinx.coroutines.launch
 internal fun SharedTransitionScope.FolderResizeScreen(
     modifier: Modifier = Modifier,
     folderGridHorizontalPagerState: PagerState,
-    folderDataById: FolderDataById,
+    folderDataById: FolderDataById?,
     drag: Drag,
     paddingValues: PaddingValues,
     hasShortcutHostPermission: Boolean,
@@ -102,6 +102,8 @@ internal fun SharedTransitionScope.FolderResizeScreen(
     onResizeCancel: () -> Unit,
 ) {
     requireNotNull(gridItem)
+
+    requireNotNull(folderDataById)
 
     val density = LocalDensity.current
 

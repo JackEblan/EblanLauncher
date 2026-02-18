@@ -88,7 +88,7 @@ import kotlinx.coroutines.launch
 internal fun SharedTransitionScope.FolderScreen(
     modifier: Modifier = Modifier,
     folderGridHorizontalPagerState: PagerState,
-    folderDataById: FolderDataById,
+    folderDataById: FolderDataById?,
     drag: Drag,
     paddingValues: PaddingValues,
     hasShortcutHostPermission: Boolean,
@@ -131,6 +131,8 @@ internal fun SharedTransitionScope.FolderScreen(
     onEditGridItem: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
 ) {
+    requireNotNull(folderDataById)
+
     val density = LocalDensity.current
 
     val context = LocalContext.current
@@ -355,7 +357,7 @@ internal fun SharedTransitionScope.FolderScreen(
                             showGridItemPopup = false
 
                             onDraggingFolderGridItem(
-                                Screen.FolderDrag(folderDataById = folderDataById),
+                                Screen.FolderDrag,
                                 folderDataById.gridItems,
                             )
                         },
@@ -397,7 +399,7 @@ internal fun SharedTransitionScope.FolderScreen(
             onEdit = onEditGridItem,
             onResize = {
                 onResize(
-                    Screen.FolderResize(folderDataById = folderDataById),
+                    Screen.FolderResize,
                     folderDataById.gridItems,
                 )
             },
@@ -443,7 +445,7 @@ internal fun SharedTransitionScope.FolderScreen(
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDraggingGridItem = {
                 onDraggingGridItem(
-                    Screen.FolderDrag(folderDataById = folderDataById),
+                    Screen.FolderDrag,
                     folderDataById.gridItems,
                 )
             },

@@ -161,7 +161,7 @@ internal fun handleKlwpBroadcasts(
     }
 
     when (screen) {
-        is Screen.Folder -> {
+        Screen.Folder -> {
             context.sendBroadcast(
                 intent.apply {
                     putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.Folder.ordinal)
@@ -169,7 +169,7 @@ internal fun handleKlwpBroadcasts(
             )
         }
 
-        is Screen.FolderDrag -> {
+        Screen.FolderDrag -> {
             context.sendBroadcast(
                 intent.apply {
                     putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.FolderDrag.ordinal)

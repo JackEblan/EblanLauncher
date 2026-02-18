@@ -144,7 +144,7 @@ internal fun SharedTransitionScope.ResizeScreen(
             .pointerInput(key1 = Unit) {
                 detectTapGestures(
                     onTap = {
-                        onResizeEnd(gridItem)
+                        onResizeEnd(currentGridItem)
                     },
                 )
             }

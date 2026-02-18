@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -140,6 +139,10 @@ internal fun SharedTransitionScope.FolderResizeScreen(
         PAGE_INDICATOR_HEIGHT.dp.roundToPx()
     }
 
+    var currentGridItem by remember {
+        mutableStateOf(gridItem)
+    }
+
     DisposableEffect(key1 = activity) {
         val listener = Consumer<Intent> { intent ->
             scope.launch {
@@ -159,10 +162,6 @@ internal fun SharedTransitionScope.FolderResizeScreen(
         }
     }
 
-    var currentGridItem by remember {
-        mutableStateOf(gridItem)
-    }
-
     LaunchedEffect(key1 = moveGridItemResult) {
         moveGridItemResult?.movingGridItem?.let { movingGridItem ->
             currentGridItem = movingGridItem
@@ -178,15 +177,12 @@ internal fun SharedTransitionScope.FolderResizeScreen(
             .pointerInput(key1 = Unit) {
                 detectTapGestures(
                     onTap = {
-                        onResizeEnd(gridItem)
+                        onResizeEnd(currentGridItem)
                     },
                 )
             }
             .fillMaxSize()
-            .padding(
-                top = paddingValues.calculateTopPadding(),
-                bottom = paddingValues.calculateBottomPadding(),
-            ),
+            .padding(paddingValues),
     ) {
         Column(
             modifier = Modifier
@@ -211,36 +207,26 @@ internal fun SharedTransitionScope.FolderResizeScreen(
             Spacer(modifier = Modifier.height(20.dp))
         }
 
-        HorizontalPager(
-            state = folderGridHorizontalPagerState,
+        GridLayout(
             modifier = Modifier.weight(1f),
-        ) { index ->
-            GridLayout(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                    ),
-                gridItems = gridItemCache.gridItemsCacheByPage[index].orEmpty(),
-                columns = homeSettings.folderColumns,
-                rows = homeSettings.folderRows,
-                { gridItem ->
-                    GridItemContent(
-                        gridItem = gridItem,
-                        textColor = textColor,
-                        gridItemSettings = homeSettings.gridItemSettings,
-                        isDragging = false,
-                        statusBarNotifications = statusBarNotifications,
-                        hasShortcutHostPermission = hasShortcutHostPermission,
-                        drag = drag,
-                        iconPackFilePaths = iconPackFilePaths,
-                        screen = screen,
-                        isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
-                    )
-                },
-            )
-        }
+            gridItems = gridItemCache.folderGridItemsCacheByPage[folderGridHorizontalPagerState.currentPage].orEmpty(),
+            columns = homeSettings.folderColumns,
+            rows = homeSettings.folderRows,
+            { gridItem ->
+                GridItemContent(
+                    gridItem = gridItem,
+                    textColor = textColor,
+                    gridItemSettings = homeSettings.gridItemSettings,
+                    isDragging = false,
+                    statusBarNotifications = statusBarNotifications,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
+                    drag = drag,
+                    iconPackFilePaths = iconPackFilePaths,
+                    screen = screen,
+                    isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
+                )
+            },
+        )
 
         PageIndicator(
             modifier = Modifier
@@ -256,45 +242,41 @@ internal fun SharedTransitionScope.FolderResizeScreen(
         )
     }
 
-    when (currentGridItem.associate) {
-        Associate.Grid -> {
-            val gridHeight = safeDrawingHeight - titleHeight - pageIndicatorHeightPx
+    if (currentGridItem.associate == Associate.Grid && titleHeight > 0) {
+        val gridHeight = safeDrawingHeight - titleHeight - pageIndicatorHeightPx
 
-            val cellWidth = safeDrawingWidth / homeSettings.columns
+        val cellWidth = safeDrawingWidth / homeSettings.folderColumns
 
-            val cellHeight = gridHeight / homeSettings.rows
+        val cellHeight = gridHeight / homeSettings.folderRows
 
-            val x = currentGridItem.startColumn * cellWidth
+        val x = currentGridItem.startColumn * cellWidth
 
-            val y = currentGridItem.startRow * cellHeight
+        val y = currentGridItem.startRow * cellHeight
 
-            val width = currentGridItem.columnSpan * cellWidth
+        val width = currentGridItem.columnSpan * cellWidth
 
-            val height = currentGridItem.rowSpan * cellHeight
+        val height = currentGridItem.rowSpan * cellHeight
 
-            val gridX = x + leftPadding
+        val gridX = x + leftPadding
 
-            val gridY = y + topPadding + titleHeight
+        val gridY = y + topPadding + titleHeight
 
-            ResizeOverlay(
-                gridItem = currentGridItem,
-                gridWidth = safeDrawingWidth,
-                gridHeight = gridHeight,
-                cellWidth = cellWidth,
-                cellHeight = cellHeight,
-                columns = homeSettings.folderColumns,
-                rows = homeSettings.folderRows,
-                x = gridX,
-                y = gridY,
-                width = width,
-                height = height,
-                textColor = textColor,
-                lockMovement = lockMovement,
-                gridItemSettings = homeSettings.gridItemSettings,
-                onResizeGridItem = onResizeGridItem,
-            )
-        }
-
-        Associate.Dock -> Unit
+        ResizeOverlay(
+            gridItem = currentGridItem,
+            gridWidth = safeDrawingWidth,
+            gridHeight = gridHeight,
+            cellWidth = cellWidth,
+            cellHeight = cellHeight,
+            columns = homeSettings.folderColumns,
+            rows = homeSettings.folderRows,
+            x = gridX,
+            y = gridY,
+            width = width,
+            height = height,
+            textColor = textColor,
+            lockMovement = lockMovement,
+            gridItemSettings = homeSettings.gridItemSettings,
+            onResizeGridItem = onResizeGridItem,
+        )
     }
 }

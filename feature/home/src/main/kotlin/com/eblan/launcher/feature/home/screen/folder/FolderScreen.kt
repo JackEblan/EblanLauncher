@@ -102,6 +102,7 @@ internal fun SharedTransitionScope.FolderScreen(
     gridItemSource: GridItemSource?,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
+    gridItems: List<GridItem>,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
@@ -112,6 +113,10 @@ internal fun SharedTransitionScope.FolderScreen(
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
+    ) -> Unit,
+    onDraggingFolderGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
     ) -> Unit,
     onDraggingGridItem: (
         screen: Screen,
@@ -349,7 +354,7 @@ internal fun SharedTransitionScope.FolderScreen(
                         onDraggingGridItem = {
                             showGridItemPopup = false
 
-                            onDraggingGridItem(
+                            onDraggingFolderGridItem(
                                 Screen.FolderDrag(folderDataById = folderDataById),
                                 folderDataById.gridItems,
                             )
@@ -456,11 +461,11 @@ internal fun SharedTransitionScope.FolderScreen(
             drag = drag,
             isPressHome = isPressHome,
             screen = screen,
-            gridItems = folderDataById.gridItems,
+            gridItems = gridItems,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
-            columns = homeSettings.folderColumns,
-            rows = homeSettings.folderRows,
+            columns = homeSettings.columns,
+            rows = homeSettings.rows,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {

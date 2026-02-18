@@ -602,11 +602,11 @@ internal fun SharedTransitionScope.PagerScreen(
             drag = drag,
             isPressHome = isPressHome,
             screen = screen,
-            gridItems = gridItems,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
             columns = homeSettings.columns,
             rows = homeSettings.rows,
+            gridItems = gridItems,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {

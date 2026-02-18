@@ -177,6 +177,10 @@ class MoveFolderGridItemUseCase @Inject constructor(
         val resolveDirection = getRelativeResolveDirection(
             moving = movingGridItem,
             other = gridItemBySpan,
+        ) ?: return MoveGridItemResult(
+            isSuccess = false,
+            movingGridItem = movingGridItem,
+            conflictingGridItem = null,
         )
 
         val resolvedConflicts = resolveConflicts(

@@ -1007,6 +1007,7 @@ private fun SharedTransitionScope.Success(
                     gridItemSource = gridItemSource,
                     eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                     eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
+                    gridItems = homeData.gridItems,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
@@ -1018,7 +1019,8 @@ private fun SharedTransitionScope.Success(
                         onUpdateGridItemImageBitmap(imageBitmap)
                     },
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onDraggingGridItem = onShowFolderGridCache,
+                    onDraggingFolderGridItem = onShowFolderGridCache,
+                    onDraggingGridItem = onShowGridCache,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onResetOverlay = onResetOverlay,
                     onEditGridItem = onEditGridItem,

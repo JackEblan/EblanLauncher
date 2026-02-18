@@ -64,30 +64,50 @@ class ResizeFolderGridItemUseCase @Inject constructor(
         }
 
         if (gridItemBySpan != null) {
-            val resolveDirection = getRelativeResolveDirection(
-                moving = oldGridItem,
-                other = gridItemBySpan,
-            )
-
-            val resolvedConflicts = resolveConflicts(
+            handleConflictsOfGridItemSpan(
+                oldGridItem = oldGridItem,
+                gridItemBySpan = gridItemBySpan,
                 gridItems = gridItems,
-                resolveDirection = resolveDirection,
-                movingGridItem = resizingGridItem,
+                resizingGridItem = resizingGridItem,
                 columns = columns,
                 rows = rows,
+                lockMovement = lockMovement,
             )
-
-            if (resolvedConflicts && !lockMovement) {
-                folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
-            }
         } else {
             folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
         }
 
         MoveGridItemResult(
-            isSuccess = false,
+            isSuccess = true,
             movingGridItem = resizingGridItem,
             conflictingGridItem = null,
         )
+    }
+
+    private suspend fun handleConflictsOfGridItemSpan(
+        oldGridItem: GridItem,
+        gridItemBySpan: GridItem,
+        gridItems: MutableList<GridItem>,
+        resizingGridItem: GridItem,
+        columns: Int,
+        rows: Int,
+        lockMovement: Boolean,
+    ) {
+        val resolveDirection = getRelativeResolveDirection(
+            moving = oldGridItem,
+            other = gridItemBySpan,
+        ) ?: return
+
+        val resolvedConflicts = resolveConflicts(
+            gridItems = gridItems,
+            resolveDirection = resolveDirection,
+            movingGridItem = resizingGridItem,
+            columns = columns,
+            rows = rows,
+        )
+
+        if (resolvedConflicts && !lockMovement) {
+            folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
+        }
     }
 }

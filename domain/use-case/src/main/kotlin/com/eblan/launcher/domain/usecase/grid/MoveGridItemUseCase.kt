@@ -184,6 +184,10 @@ class MoveGridItemUseCase @Inject constructor(
         val resolveDirection = getRelativeResolveDirection(
             moving = movingGridItem,
             other = gridItemBySpan,
+        ) ?: return MoveGridItemResult(
+            isSuccess = false,
+            movingGridItem = movingGridItem,
+            conflictingGridItem = null,
         )
 
         val resolvedConflicts = resolveConflicts(
@@ -201,7 +205,7 @@ class MoveGridItemUseCase @Inject constructor(
         return MoveGridItemResult(
             isSuccess = resolvedConflicts,
             movingGridItem = movingGridItem,
-            conflictingGridItem = null,
+            conflictingGridItem = gridItemBySpan,
         )
     }
 }

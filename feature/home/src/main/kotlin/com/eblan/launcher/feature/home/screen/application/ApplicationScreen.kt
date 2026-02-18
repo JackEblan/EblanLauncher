@@ -564,11 +564,11 @@ private fun SharedTransitionScope.Success(
             drag = drag,
             isPressHome = isPressHome,
             screen = screen,
-            gridItems = gridItems,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
             columns = columns,
             rows = rows,
+            gridItems = gridItems,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {

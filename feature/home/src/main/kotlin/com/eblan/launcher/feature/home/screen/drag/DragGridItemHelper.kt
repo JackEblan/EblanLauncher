@@ -273,15 +273,27 @@ internal suspend fun handleDragGridItem(
 }
 
 internal suspend fun handleConflictingGridItem(
+    gridItemSource: GridItemSource,
     drag: Drag,
     moveGridItemResult: MoveGridItemResult?,
     onShowFolderWhenDragging: (String) -> Unit,
 ) {
     delay(1500L)
 
-    if (drag != Drag.Dragging) return
+    if (drag != Drag.Dragging ||
+        moveGridItemResult == null
+    ) {
+        return
+    }
 
-    if (moveGridItemResult == null) return
+    if (gridItemSource is GridItemSource.New &&
+        (
+            gridItemSource.gridItem.data is GridItemData.Widget ||
+                gridItemSource.gridItem.data is GridItemData.ShortcutConfig
+            )
+    ) {
+        return
+    }
 
     val conflictingGridItem = moveGridItemResult.conflictingGridItem
 

@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.screen.resize
+package com.eblan.launcher.feature.home.component.resize
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background

@@ -53,6 +53,7 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.popup.ShortcutInfoMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.ui.local.LocalLauncherApps
 
@@ -69,6 +70,7 @@ internal fun PopupApplicationInfoMenu(
     drag: Drag,
     gridItemSettings: GridItemSettings,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    gridItems: List<GridItem>,
     onDismissRequest: () -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
@@ -87,7 +89,10 @@ internal fun PopupApplicationInfoMenu(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onWidgets: (EblanApplicationInfoGroup) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -112,11 +117,13 @@ internal fun PopupApplicationInfoMenu(
     Layout(
         modifier = modifier
             .pointerInput(Unit) {
-                detectTapGestures(onPress = {
-                    awaitRelease()
+                detectTapGestures(
+                    onPress = {
+                        awaitRelease()
 
-                    onDismissRequest()
-                })
+                        onDismissRequest()
+                    },
+                )
             }
             .fillMaxSize()
             .padding(paddingValues),
@@ -134,6 +141,7 @@ internal fun PopupApplicationInfoMenu(
                 drag = drag,
                 gridItemSettings = gridItemSettings,
                 eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfos[applicationInfo.packageName],
+                gridItems = gridItems,
                 onApplicationInfo = {
                     launcherApps.startAppDetailsActivity(
                         serialNumber = applicationInfo.serialNumber,
@@ -219,6 +227,7 @@ private fun ApplicationInfoMenu(
     icon: String?,
     gridItemSettings: GridItemSettings,
     eblanAppWidgetProviderInfosByPackageName: List<EblanAppWidgetProviderInfo>?,
+    gridItems: List<GridItem>,
     onApplicationInfo: () -> Unit,
     onEdit: () -> Unit,
     onTapShortcutInfo: (
@@ -234,7 +243,10 @@ private fun ApplicationInfoMenu(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onWidgets: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -259,7 +271,12 @@ private fun ApplicationInfoMenu(
                         onTapShortcutInfo = onTapShortcutInfo,
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
-                        onDraggingGridItem = onDraggingGridItem,
+                        onDraggingGridItem = {
+                            onDraggingGridItem(
+                                Screen.Drag,
+                                gridItems,
+                            )
+                        },
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
 

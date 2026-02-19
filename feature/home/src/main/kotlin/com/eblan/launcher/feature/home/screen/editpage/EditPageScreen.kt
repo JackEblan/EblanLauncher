@@ -163,7 +163,9 @@ internal fun SharedTransitionScope.EditPageScreen(
             scope.launch {
                 handleActionMainIntent(
                     intent = intent,
-                    onUpdateScreen = onUpdateScreen,
+                    onActionMainIntent = {
+                        onUpdateScreen(Screen.Pager)
+                    },
                 )
             }
         }

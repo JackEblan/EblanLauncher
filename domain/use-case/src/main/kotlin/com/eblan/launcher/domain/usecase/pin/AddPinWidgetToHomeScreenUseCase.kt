@@ -29,13 +29,9 @@ import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
-import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
-import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
+import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -48,12 +44,8 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val fileManager: FileManager,
-    private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
-    private val widgetGridItemRepository: WidgetGridItemRepository,
-    private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
-    private val folderGridItemRepository: FolderGridItemRepository,
-    private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
+    private val gridRepository: GridRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     @OptIn(ExperimentalUuidApi::class)
@@ -88,7 +80,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
         val dockHeight = homeSettings.dockHeight
 
         val gridItems =
-            (applicationInfoGridItemRepository.gridItems.first() + widgetGridItemRepository.gridItems.first() + shortcutInfoGridItemRepository.gridItems.first() + folderGridItemRepository.gridItems.first() + shortcutConfigGridItemRepository.gridItems.first()).filter { gridItem ->
+            gridRepository.gridItems.first().filter { gridItem ->
                 gridItem.associate == Associate.Grid && gridItem.folderId == null
             }
 

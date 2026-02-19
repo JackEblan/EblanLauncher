@@ -157,26 +157,26 @@ internal suspend fun handleDragGridItem(
 
     val verticalPadding = topPadding + bottomPadding
 
-    val gridWidth = screenWidth - horizontalPadding
+    val safeDrawingWidth = screenWidth - horizontalPadding
 
-    val gridHeight = screenHeight - verticalPadding
+    val safeDrawingHeight = screenHeight - verticalPadding
 
     val dragX = dragIntOffset.x - leftPadding
 
     val dragY = dragIntOffset.y - topPadding
 
-    val isOnDock = dockHeightPx > 0 && dragY > (gridHeight - dockHeightPx)
+    val isOnDock = dockHeightPx > 0 && dragY > safeDrawingHeight - dockHeightPx
 
     if (isOnDock) {
         delay(100L)
 
         onUpdateAssociate(Associate.Dock)
 
-        val cellWidth = gridWidth / dockColumns
+        val cellWidth = safeDrawingWidth / dockColumns
 
         val cellHeight = dockHeightPx / dockRows
 
-        val dockY = dragY - (gridHeight - dockHeightPx)
+        val dockY = dragY - (safeDrawingHeight - dockHeightPx)
 
         val moveGridItem = getMoveGridItem(
             targetPage = currentPage,
@@ -185,7 +185,7 @@ internal suspend fun handleDragGridItem(
             cellHeight = cellHeight,
             columns = dockColumns,
             rows = dockRows,
-            gridWidth = gridWidth,
+            gridWidth = safeDrawingWidth,
             gridHeight = dockHeightPx,
             gridX = dragX,
             gridY = dockY,
@@ -213,7 +213,7 @@ internal suspend fun handleDragGridItem(
                 dockY,
                 dockColumns,
                 dockRows,
-                gridWidth,
+                safeDrawingWidth,
                 dockHeightPx,
                 lockMovement,
             )
@@ -223,9 +223,9 @@ internal suspend fun handleDragGridItem(
 
         onUpdateAssociate(Associate.Grid)
 
-        val gridHeightWithPadding = gridHeight - pageIndicatorHeight - dockHeightPx
+        val gridHeightWithPadding = safeDrawingHeight - dockHeightPx - pageIndicatorHeight
 
-        val cellWidth = gridWidth / columns
+        val cellWidth = safeDrawingWidth / columns
 
         val cellHeight = gridHeightWithPadding / rows
 
@@ -236,7 +236,7 @@ internal suspend fun handleDragGridItem(
             cellHeight = cellHeight,
             columns = columns,
             rows = rows,
-            gridWidth = gridWidth,
+            gridWidth = safeDrawingWidth,
             gridHeight = gridHeightWithPadding,
             gridX = dragX,
             gridY = dragY,
@@ -264,7 +264,7 @@ internal suspend fun handleDragGridItem(
                 dragY,
                 columns,
                 rows,
-                gridWidth,
+                safeDrawingWidth,
                 gridHeightWithPadding,
                 lockMovement,
             )
@@ -273,15 +273,27 @@ internal suspend fun handleDragGridItem(
 }
 
 internal suspend fun handleConflictingGridItem(
+    gridItemSource: GridItemSource,
     drag: Drag,
     moveGridItemResult: MoveGridItemResult?,
     onShowFolderWhenDragging: (String) -> Unit,
 ) {
     delay(1500L)
 
-    if (drag != Drag.Dragging) return
+    if (drag != Drag.Dragging ||
+        moveGridItemResult == null
+    ) {
+        return
+    }
 
-    if (moveGridItemResult == null) return
+    if (gridItemSource is GridItemSource.New &&
+        (
+            gridItemSource.gridItem.data is GridItemData.Widget ||
+                gridItemSource.gridItem.data is GridItemData.ShortcutConfig
+            )
+    ) {
+        return
+    }
 
     val conflictingGridItem = moveGridItemResult.conflictingGridItem
 

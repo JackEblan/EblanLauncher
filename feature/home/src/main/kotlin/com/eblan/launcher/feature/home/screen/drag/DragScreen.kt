@@ -329,6 +329,7 @@ internal fun SharedTransitionScope.DragScreen(
 
     LaunchedEffect(key1 = moveGridItemResult, key2 = drag) {
         handleConflictingGridItem(
+            gridItemSource = gridItemSource,
             drag = drag,
             moveGridItemResult = moveGridItemResult,
             onShowFolderWhenDragging = onShowFolderWhenDragging,

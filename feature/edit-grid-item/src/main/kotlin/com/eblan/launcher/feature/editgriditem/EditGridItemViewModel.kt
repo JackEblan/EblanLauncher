@@ -29,7 +29,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.repository.GridRepository
-import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.application.GetEblanApplicationInfosUseCase
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.feature.editgriditem.navigation.EditGridItemRouteData
@@ -49,7 +48,6 @@ import javax.inject.Inject
 @HiltViewModel
 internal class EditGridItemViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getHomeDataUseCase: GetHomeDataUseCase,
     private val iconPackManager: IconPackManager,
     packageManagerWrapper: PackageManagerWrapper,
     private val gridRepository: GridRepository,
@@ -150,7 +148,7 @@ internal class EditGridItemViewModel @Inject constructor(
 
     private fun getGridItem() {
         viewModelScope.launch {
-            val gridItem = getHomeDataUseCase().first().gridItems.find { gridItem ->
+            val gridItem = gridRepository.gridItems.first().find { gridItem ->
                 gridItem.id == editGridItemRouteData.id
             }
 

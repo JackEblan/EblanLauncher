@@ -61,6 +61,7 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
+import com.eblan.launcher.feature.home.component.popup.GridItemPopup
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
@@ -92,14 +93,17 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     hasSystemFeatureAppWidgets: Boolean,
     homeSettings: HomeSettings,
     statusBarNotifications: Map<String, Int>,
-    eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
     screen: Screen,
     onTapFolderGridItem: (String) -> Unit,
     onEditGridItem: (String) -> Unit,
-    onResize: () -> Unit,
+    onResize: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (
         gridItems: List<GridItem>,
@@ -116,7 +120,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
@@ -307,7 +314,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         onDraggingGridItem = {
                             showGridItemPopup = false
 
-                            onDraggingGridItem()
+                            onDraggingGridItem(
+                                Screen.Drag,
+                                gridItems,
+                            )
                         },
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                         onOpenAppDrawer = onOpenAppDrawer,
@@ -435,7 +445,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     onDraggingGridItem = {
                         showGridItemPopup = false
 
-                        onDraggingGridItem()
+                        onDraggingGridItem(
+                            Screen.Drag,
+                            gridItems,
+                        )
                     },
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onOpenAppDrawer = onOpenAppDrawer,
@@ -449,15 +462,20 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             gridItem = gridItemSource.gridItem,
             popupIntOffset = popupIntOffset,
             popupIntSize = popupIntSize,
-            eblanShortcutInfos = eblanShortcutInfos,
+            eblanShortcutInfosGroup = eblanShortcutInfosGroup,
             hasShortcutHostPermission = hasShortcutHostPermission,
             currentPage = currentPage,
             drag = drag,
             gridItemSettings = homeSettings.gridItemSettings,
-            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+            eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
             paddingValues = paddingValues,
             onEdit = onEditGridItem,
-            onResize = onResize,
+            onResize = {
+                onResize(
+                    Screen.Resize,
+                    gridItems,
+                )
+            },
             onWidgets = onUpdateEblanApplicationInfoGroup,
             onDeleteGridItem = onDeleteGridItem,
             onInfo = { serialNumber, componentName ->
@@ -496,7 +514,12 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             },
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onDraggingGridItem = onDraggingGridItem,
+            onDraggingGridItem = {
+                onDraggingGridItem(
+                    Screen.Drag,
+                    gridItems,
+                )
+            },
             onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }

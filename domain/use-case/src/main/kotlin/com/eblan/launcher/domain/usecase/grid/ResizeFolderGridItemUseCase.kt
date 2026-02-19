@@ -25,14 +25,14 @@ import com.eblan.launcher.domain.grid.rectanglesOverlap
 import com.eblan.launcher.domain.grid.resolveConflicts
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.MoveGridItemResult
-import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class ResizeGridItemUseCase @Inject constructor(
-    private val gridCacheRepository: GridCacheRepository,
+class ResizeFolderGridItemUseCase @Inject constructor(
+    private val folderGridCacheRepository: FolderGridCacheRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -41,13 +41,12 @@ class ResizeGridItemUseCase @Inject constructor(
         rows: Int,
         lockMovement: Boolean,
     ): MoveGridItemResult = withContext(defaultDispatcher) {
-        val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
+        val gridItems = folderGridCacheRepository.gridItemsCache.first().filter { gridItem ->
             isGridItemSpanWithinBounds(
                 gridItem = gridItem,
                 columns = columns,
                 rows = rows,
-            ) && gridItem.page == resizingGridItem.page &&
-                gridItem.associate == resizingGridItem.associate
+            ) && gridItem.page == resizingGridItem.page
         }.toMutableList()
 
         val index =
@@ -75,11 +74,11 @@ class ResizeGridItemUseCase @Inject constructor(
                 lockMovement = lockMovement,
             )
         } else {
-            gridCacheRepository.upsertGridItems(gridItems = gridItems)
+            folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
         }
 
         MoveGridItemResult(
-            isSuccess = false,
+            isSuccess = true,
             movingGridItem = resizingGridItem,
             conflictingGridItem = null,
         )
@@ -108,7 +107,7 @@ class ResizeGridItemUseCase @Inject constructor(
         )
 
         if (resolvedConflicts && !lockMovement) {
-            gridCacheRepository.upsertGridItems(gridItems = gridItems)
+            folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
         }
     }
 }

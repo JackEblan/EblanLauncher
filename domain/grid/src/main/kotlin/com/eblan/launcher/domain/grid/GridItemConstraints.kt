@@ -111,12 +111,12 @@ fun getGridItemByCoordinates(
 fun getRelativeResolveDirection(
     moving: GridItem,
     other: GridItem,
-): ResolveDirection = when {
+): ResolveDirection? = when {
     moving.startColumn < other.startColumn -> ResolveDirection.Right
     moving.startColumn > other.startColumn -> ResolveDirection.Left
     moving.startRow > other.startRow -> ResolveDirection.Left
     moving.startRow < other.startRow -> ResolveDirection.Right
-    else -> ResolveDirection.Center
+    else -> null
 }
 
 suspend fun findAvailableRegionByPage(

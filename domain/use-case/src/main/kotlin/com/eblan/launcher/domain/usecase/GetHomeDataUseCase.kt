@@ -28,90 +28,72 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.Theme
-import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
-import com.eblan.launcher.domain.repository.FolderGridItemRepository
-import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
-import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
+import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class GetHomeDataUseCase @Inject constructor(
-    private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
-    private val widgetGridItemRepository: WidgetGridItemRepository,
-    private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
-    private val folderGridItemRepository: FolderGridItemRepository,
-    private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     private val userDataRepository: UserDataRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val wallpaperManagerWrapper: WallpaperManagerWrapper,
     private val resourcesWrapper: ResourcesWrapper,
     private val packageManagerWrapper: PackageManagerWrapper,
+    private val gridRepository: GridRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(): Flow<HomeData> {
-        val gridItemsFlow = combine(
-            applicationInfoGridItemRepository.gridItems,
-            widgetGridItemRepository.gridItems,
-            shortcutInfoGridItemRepository.gridItems,
-            folderGridItemRepository.gridItems,
-            shortcutConfigGridItemRepository.gridItems,
-        ) { applicationInfoGridItems, widgetGridItems, shortcutInfoGridItems, folderGridItems, shortcutConfigGridItems ->
-            (applicationInfoGridItems + widgetGridItems + shortcutInfoGridItems + folderGridItems + shortcutConfigGridItems)
-                .filterNot { gridItem ->
-                    gridItem.folderId != null
-                }
-        }
+    operator fun invoke(): Flow<HomeData> = combine(
+        userDataRepository.userData,
+        gridRepository.gridItems.map { gridItems ->
+            gridItems.filterNot { gridItem ->
+                gridItem.folderId != null
+            }
+        },
+        wallpaperManagerWrapper.getColorsChanged(),
+    ) { userData, gridItems, colorHints ->
+        val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
+            isGridItemSpanWithinBounds(
+                gridItem = gridItem,
+                columns = userData.homeSettings.columns,
+                rows = userData.homeSettings.rows,
+            ) && gridItem.associate == Associate.Grid
+        }.groupBy { gridItem -> gridItem.page }
 
-        return combine(
-            userDataRepository.userData,
-            gridItemsFlow,
-            wallpaperManagerWrapper.getColorsChanged(),
-        ) { userData, gridItems, colorHints ->
-            val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
-                isGridItemSpanWithinBounds(
-                    gridItem = gridItem,
-                    columns = userData.homeSettings.columns,
-                    rows = userData.homeSettings.rows,
-                ) && gridItem.associate == Associate.Grid
-            }.groupBy { gridItem -> gridItem.page }
+        val dockGridItemsWithinBounds = gridItems.filter { gridItem ->
+            isGridItemSpanWithinBounds(
+                gridItem = gridItem,
+                columns = userData.homeSettings.dockColumns,
+                rows = userData.homeSettings.dockRows,
+            ) && gridItem.associate == Associate.Dock
+        }.groupBy { gridItem -> gridItem.page }
 
-            val dockGridItemsWithinBounds = gridItems.filter { gridItem ->
-                isGridItemSpanWithinBounds(
-                    gridItem = gridItem,
-                    columns = userData.homeSettings.dockColumns,
-                    rows = userData.homeSettings.dockRows,
-                ) && gridItem.associate == Associate.Dock
-            }.groupBy { gridItem -> gridItem.page }
+        val gridItemSettings = userData.homeSettings.gridItemSettings
 
-            val gridItemSettings = userData.homeSettings.gridItemSettings
-
-            val textColor = when (gridItemSettings.textColor) {
-                TextColor.System -> {
-                    getTextColorFromWallpaperColors(
-                        theme = userData.generalSettings.theme,
-                        colorHints = colorHints,
-                    )
-                }
-
-                else -> gridItemSettings.textColor
+        val textColor = when (gridItemSettings.textColor) {
+            TextColor.System -> {
+                getTextColorFromWallpaperColors(
+                    theme = userData.generalSettings.theme,
+                    colorHints = colorHints,
+                )
             }
 
-            HomeData(
-                userData = userData,
-                gridItems = gridItems,
-                gridItemsByPage = gridItemsSpanWithinBounds,
-                dockGridItemsByPage = dockGridItemsWithinBounds,
-                hasShortcutHostPermission = launcherAppsWrapper.hasShortcutHostPermission,
-                hasSystemFeatureAppWidgets = packageManagerWrapper.hasSystemFeatureAppWidgets,
-                textColor = textColor,
-            )
-        }.flowOn(defaultDispatcher)
-    }
+            else -> gridItemSettings.textColor
+        }
+
+        HomeData(
+            userData = userData,
+            gridItems = gridItems,
+            gridItemsByPage = gridItemsSpanWithinBounds,
+            dockGridItemsByPage = dockGridItemsWithinBounds,
+            hasShortcutHostPermission = launcherAppsWrapper.hasShortcutHostPermission,
+            hasSystemFeatureAppWidgets = packageManagerWrapper.hasSystemFeatureAppWidgets,
+            textColor = textColor,
+        )
+    }.flowOn(defaultDispatcher)
 
     private fun getTextColorFromWallpaperColors(
         theme: Theme,

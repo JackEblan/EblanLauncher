@@ -88,6 +88,7 @@ import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
@@ -116,6 +117,7 @@ internal fun SharedTransitionScope.WidgetScreen(
     drag: Drag,
     isPressHome: Boolean,
     screen: Screen,
+    gridItems: List<GridItem>,
     screenWidth: Int,
     screenHeight: Int,
     columns: Int,
@@ -130,7 +132,10 @@ internal fun SharedTransitionScope.WidgetScreen(
     ) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -189,6 +194,7 @@ internal fun SharedTransitionScope.WidgetScreen(
             paddingValues = paddingValues,
             drag = drag,
             screen = screen,
+            gridItems = gridItems,
             isPressHome = isPressHome,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
@@ -240,6 +246,7 @@ private fun SharedTransitionScope.Success(
     paddingValues: PaddingValues,
     drag: Drag,
     screen: Screen,
+    gridItems: List<GridItem>,
     isPressHome: Boolean,
     screenWidth: Int,
     screenHeight: Int,
@@ -254,7 +261,10 @@ private fun SharedTransitionScope.Success(
         intSize: IntSize,
     ) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
@@ -368,17 +378,18 @@ private fun SharedTransitionScope.Success(
                         eblanApplicationInfoGroup = eblanApplicationInfoGroup,
                         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                         drag = drag,
-                        onUpdateGridItemOffset = onUpdateGridItemOffset,
-                        onLongPressGridItem = onLongPressGridItem,
                         currentPage = currentPage,
                         gridItemSettings = gridItemSettings,
                         screen = screen,
+                        gridItems = gridItems,
                         screenWidth = screenWidth,
                         screenHeight = screenHeight,
                         columns = columns,
                         rows = rows,
                         onDraggingGridItem = onDraggingGridItem,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onLongPressGridItem = onLongPressGridItem,
                     )
                 }
             }
@@ -397,6 +408,15 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     screenHeight: Int,
     columns: Int,
     rows: Int,
+    currentPage: Int,
+    gridItemSettings: GridItemSettings,
+    screen: Screen,
+    gridItems: List<GridItem>,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -405,11 +425,6 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    currentPage: Int,
-    gridItemSettings: GridItemSettings,
-    screen: Screen,
-    onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -458,17 +473,18 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                 EblanAppWidgetProviderInfoItem(
                     eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
                     drag = drag,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     screen = screen,
+                    gridItems = gridItems,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     columns = columns,
                     rows = rows,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onLongPressGridItem = onLongPressGridItem,
                 )
             }
         }
@@ -482,6 +498,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     drag: Drag,
     screen: Screen,
+    gridItems: List<GridItem>,
     screenWidth: Int,
     screenHeight: Int,
     columns: Int,
@@ -496,7 +513,10 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
     ) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    onDraggingGridItem: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -524,7 +544,10 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Dragging if isLongPress -> {
-                onDraggingGridItem()
+                onDraggingGridItem(
+                    Screen.Drag,
+                    gridItems,
+                )
             }
 
             Drag.End, Drag.Cancel -> {

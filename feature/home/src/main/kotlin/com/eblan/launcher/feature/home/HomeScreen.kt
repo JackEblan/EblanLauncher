@@ -739,6 +739,10 @@ private fun SharedTransitionScope.Success(
                     screen.folderDataById.pageCount
                 }
 
+                is Screen.FolderResize -> {
+                    screen.folderDataById.pageCount
+                }
+
                 else -> {
                     0
                 }
@@ -776,9 +780,7 @@ private fun SharedTransitionScope.Success(
 
     var managedProfileResult by remember { mutableStateOf<ManagedProfileResult?>(null) }
 
-    var statusBarNotifications by remember {
-        mutableStateOf<Map<String, Int>>(emptyMap())
-    }
+    var statusBarNotifications by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
 
     var associate by remember { mutableStateOf<Associate?>(null) }
 

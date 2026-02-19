@@ -44,18 +44,16 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
-import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
+import com.eblan.launcher.feature.home.component.resize.ResizeOverlay
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
-import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -281,87 +279,6 @@ internal fun SharedTransitionScope.ResizeScreen(
                 lockMovement = lockMovement,
                 gridItemSettings = homeSettings.gridItemSettings,
                 onResizeGridItem = onResizeGridItem,
-            )
-        }
-    }
-}
-
-@Composable
-internal fun ResizeOverlay(
-    gridItem: GridItem,
-    gridWidth: Int,
-    gridHeight: Int,
-    cellWidth: Int,
-    cellHeight: Int,
-    columns: Int,
-    rows: Int,
-    x: Int,
-    y: Int,
-    width: Int,
-    height: Int,
-    textColor: TextColor,
-    lockMovement: Boolean,
-    gridItemSettings: GridItemSettings,
-    onResizeGridItem: (
-        gridItem: GridItem,
-        columns: Int,
-        rows: Int,
-        lockMovement: Boolean,
-    ) -> Unit,
-) {
-    val currentTextColor = if (gridItem.override) {
-        getGridItemTextColor(
-            systemTextColor = textColor,
-            systemCustomTextColor = gridItemSettings.customTextColor,
-            gridItemTextColor = gridItem.gridItemSettings.textColor,
-            gridItemCustomTextColor = gridItem.gridItemSettings.customTextColor,
-        )
-    } else {
-        getSystemTextColor(
-            systemTextColor = textColor,
-            systemCustomTextColor = gridItemSettings.customTextColor,
-        )
-    }
-
-    when (val data = gridItem.data) {
-        is GridItemData.ApplicationInfo,
-        is GridItemData.ShortcutInfo,
-        is GridItemData.Folder,
-        is GridItemData.ShortcutConfig,
-        -> {
-            GridItemResizeOverlay(
-                gridItem = gridItem,
-                gridWidth = gridWidth,
-                gridHeight = gridHeight,
-                cellWidth = cellWidth,
-                cellHeight = cellHeight,
-                columns = columns,
-                rows = rows,
-                x = x,
-                y = y,
-                width = width,
-                height = height,
-                color = currentTextColor,
-                lockMovement = lockMovement,
-                onResizeGridItem = onResizeGridItem,
-            )
-        }
-
-        is GridItemData.Widget -> {
-            WidgetGridItemResizeOverlay(
-                gridItem = gridItem,
-                gridWidth = gridWidth,
-                gridHeight = gridHeight,
-                rows = rows,
-                columns = columns,
-                data = data,
-                x = x,
-                y = y,
-                width = width,
-                height = height,
-                color = currentTextColor,
-                lockMovement = lockMovement,
-                onResizeWidgetGridItem = onResizeGridItem,
             )
         }
     }

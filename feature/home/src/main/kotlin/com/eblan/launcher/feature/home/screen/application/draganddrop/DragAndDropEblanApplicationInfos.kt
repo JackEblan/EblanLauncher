@@ -48,6 +48,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -141,6 +142,14 @@ internal fun DragAndDropEblanApplicationInfos(
     val isAtTop by remember(key1 = lazyGridState) {
         derivedStateOf {
             lazyGridState.firstVisibleItemIndex == 0 && lazyGridState.firstVisibleItemScrollOffset == 0
+        }
+    }
+
+    var isDismiss by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = eblanApplicationInfos) {
+        if (isDismiss) {
+            onDismissDragAndDrop()
         }
     }
 
@@ -242,7 +251,7 @@ internal fun DragAndDropEblanApplicationInfos(
                 onSave = {
                     onUpdateEblanApplicationInfos(currentEblanApplicationInfos)
 
-                    onDismissDragAndDrop()
+                    isDismiss = true
                 },
             )
         }

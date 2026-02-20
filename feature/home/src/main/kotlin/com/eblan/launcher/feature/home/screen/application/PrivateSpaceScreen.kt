@@ -145,6 +145,7 @@ internal fun LazyGridScope.privateSpace(
 
 @Composable
 private fun PrivateSpaceStickyHeader(
+    modifier: Modifier = Modifier,
     privateEblanUser: EblanUser?,
     managedProfileResult: ManagedProfileResult?,
     isQuietModeEnabled: Boolean,
@@ -178,7 +179,7 @@ private fun PrivateSpaceStickyHeader(
     }
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,

@@ -20,9 +20,13 @@ package com.eblan.launcher.domain.usecase.application
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
+import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfoOrder
 import com.eblan.launcher.domain.model.EblanUserType
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
+import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -34,6 +38,7 @@ import javax.inject.Inject
 class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
+    private val userDataRepository: UserDataRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -50,37 +55,70 @@ class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
         }
 
         return combine(
+            userDataRepository.userData,
             eblanApplicationInfosFlow,
             labelFlow,
-        ) { eblanApplicationInfos, label ->
-            val groupedEblanApplicationInfos =
+        ) { userData, eblanApplicationInfos, label ->
+            val eblanApplicationInfosByLabel =
                 eblanApplicationInfos.filter { eblanApplicationInfo ->
-                    !eblanApplicationInfo.isHidden && eblanApplicationInfo.label.contains(
-                        other = label,
-                        ignoreCase = true,
-                    )
-                }.sortedWith(
+                    !eblanApplicationInfo.isHidden &&
+                        eblanApplicationInfo.label.contains(
+                            label,
+                            ignoreCase = true,
+                        )
+                }
+
+            val sortedEblanApplicationInfos = eblanApplicationInfosByLabel
+                .sortedWith(
                     compareBy(
                         { it.serialNumber },
                         { it.label.lowercase() },
                     ),
-                ).groupBy { eblanApplicationInfo ->
-                    launcherAppsWrapper.getUser(serialNumber = eblanApplicationInfo.serialNumber)
-                }
+                )
+                .toMutableList()
 
-            val index = groupedEblanApplicationInfos.keys.toList().indexOfFirst { eblanUser ->
-                eblanUser.eblanUserType == EblanUserType.Private
+            updateEblanApplicationInfoIndexes(
+                eblanApplicationInfoOrder = userData.appDrawerSettings.eblanApplicationInfoOrder,
+                sortedEblanApplicationInfos = sortedEblanApplicationInfos,
+            )
+
+            val groupedEblanApplicationInfos = sortedEblanApplicationInfos.groupBy {
+                launcherAppsWrapper.getUser(serialNumber = it.serialNumber)
             }
 
-            val privateEblanUser = groupedEblanApplicationInfos.keys.toList().getOrNull(index)
+            val privateEblanUser = groupedEblanApplicationInfos.keys.firstOrNull {
+                it.eblanUserType == EblanUserType.Private
+            }
 
             GetEblanApplicationInfosByLabel(
-                eblanApplicationInfos = groupedEblanApplicationInfos.filterKeys { eblanUser ->
-                    eblanUser != privateEblanUser
-                },
+                eblanApplicationInfos = groupedEblanApplicationInfos.filterKeys { eblanUser -> eblanUser != privateEblanUser },
                 privateEblanUser = privateEblanUser,
                 privateEblanApplicationInfos = groupedEblanApplicationInfos[privateEblanUser].orEmpty(),
             )
         }.flowOn(defaultDispatcher)
+    }
+
+    private fun updateEblanApplicationInfoIndexes(
+        eblanApplicationInfoOrder: EblanApplicationInfoOrder,
+        sortedEblanApplicationInfos: MutableList<EblanApplicationInfo>,
+    ) {
+        if (eblanApplicationInfoOrder != EblanApplicationInfoOrder.Custom) return
+
+        val indexedEblanApplicationInfos = sortedEblanApplicationInfos
+            .filter { it.index >= 0 }
+            .sortedBy { it.index }
+
+        indexedEblanApplicationInfos.forEach { eblanApplicationInfo ->
+            val fromIndex = sortedEblanApplicationInfos.indexOf(eblanApplicationInfo)
+
+            if (fromIndex > -1) {
+                sortedEblanApplicationInfos.removeAt(fromIndex)
+
+                val targetIndex =
+                    eblanApplicationInfo.index.coerceAtMost(sortedEblanApplicationInfos.size)
+
+                sortedEblanApplicationInfos.add(targetIndex, eblanApplicationInfo)
+            }
+        }
     }
 }

@@ -24,7 +24,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -32,7 +31,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -47,10 +45,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -82,7 +78,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
@@ -142,6 +137,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.screen.application.draganddrop.DragAndDropEblanApplicationInfos
 import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -156,7 +152,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlin.math.ceil
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -358,13 +353,11 @@ private fun SharedTransitionScope.Success(
     var showEblanApplicationInfoOrderDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = textFieldState) {
-        snapshotFlow { textFieldState.text }
-            .debounce(500L)
-            .onEach { text ->
-                onGetEblanApplicationInfosByLabel(text.toString())
+        snapshotFlow { textFieldState.text }.debounce(500L).onEach { text ->
+            onGetEblanApplicationInfosByLabel(text.toString())
 
-                showPopupApplicationMenu = false
-            }.collect()
+            showPopupApplicationMenu = false
+        }.collect()
     }
 
     LaunchedEffect(key1 = swipeY) {
@@ -541,7 +534,7 @@ private fun SharedTransitionScope.Success(
                 onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
                 onDismissDragAndDrop = {
                     isRearrangeEblanApplicationInfo = false
-                }
+                },
             )
         }
     }
@@ -620,15 +613,15 @@ private fun SharedTransitionScope.Success(
     if (showEblanApplicationInfoOrderDialog) {
         EblanApplicationInfoOrderDialog(
             eblanApplicationInfoOrder = appDrawerSettings.eblanApplicationInfoOrder,
-            isRearrangeEblanApplicationInfo = isRearrangeEblanApplicationInfo,
             onDismissRequest = {
                 showEblanApplicationInfoOrderDialog = false
             },
-            onUpdateClick = { eblanApplicationInfoOrder ->
+            onUpdateClick = { eblanApplicationInfoOrder, newIsRearrangeEblanApplicationInfo ->
                 onUpdateAppDrawerSettings(appDrawerSettings.copy(eblanApplicationInfoOrder = eblanApplicationInfoOrder))
-            },
-            onUpdateIsRearrangeEblanApplicationInfo = { newIsRearrangeEblanApplicationInfo ->
+
                 isRearrangeEblanApplicationInfo = newIsRearrangeEblanApplicationInfo
+
+                showEblanApplicationInfoOrderDialog = false
             },
         )
     }
@@ -997,27 +990,15 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 onVerticalDrag = onVerticalDrag,
                 onDragEnd = onDragEnd,
             )
-        } else if (isRearrangeEblanApplicationInfo &&
-            eblanApplicationInfoOrder == EblanApplicationInfoOrder.Custom
-        ) {
+        } else if (isRearrangeEblanApplicationInfo && eblanApplicationInfoOrder == EblanApplicationInfoOrder.Custom) {
             DragAndDropEblanApplicationInfos(
                 eblanUser = eblanUser,
-                currentPage = currentPage,
                 paddingValues = paddingValues,
-                drag = drag,
                 appDrawerSettings = appDrawerSettings,
                 getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
                 iconPackFilePaths = iconPackFilePaths,
-                screen = screen,
-                gridItems = gridItems,
-                managedProfileResult = managedProfileResult,
-                onLongPressGridItem = onLongPressGridItem,
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
-                onUpdatePopupMenu = onUpdatePopupMenu,
                 onVerticalDrag = onVerticalDrag,
                 onDragEnd = onDragEnd,
-                onDraggingGridItem = onDraggingGridItem,
-                onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
                 onDismissDragAndDrop = onDismissDragAndDrop,
             )
@@ -1286,229 +1267,6 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
-@Composable
-private fun SharedTransitionScope.DragAndDropEblanApplicationInfos(
-    modifier: Modifier = Modifier,
-    eblanUser: EblanUser,
-    currentPage: Int,
-    paddingValues: PaddingValues,
-    drag: Drag,
-    appDrawerSettings: AppDrawerSettings,
-    getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
-    iconPackFilePaths: Map<String, String>,
-    screen: Screen,
-    gridItems: List<GridItem>,
-    managedProfileResult: ManagedProfileResult?,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
-    onUpdateGridItemOffset: (
-        intOffset: IntOffset,
-        intSize: IntSize,
-    ) -> Unit,
-    onUpdatePopupMenu: (Boolean) -> Unit,
-    onVerticalDrag: (Float) -> Unit,
-    onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
-    onDismissDragAndDrop: () -> Unit,
-) {
-    val scope = rememberCoroutineScope()
-
-    val overscrollEffect = remember(key1 = scope) {
-        OffsetOverscrollEffect(
-            scope = scope,
-            onVerticalDrag = onVerticalDrag,
-            onDragEnd = onDragEnd,
-        )
-    }
-
-    val lazyGridState = rememberLazyGridState()
-
-    val canOverscroll by remember(key1 = lazyGridState) {
-        derivedStateOf {
-            val lastVisibleIndex =
-                lazyGridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-
-            lastVisibleIndex < lazyGridState.layoutInfo.totalItemsCount - 1
-        }
-    }
-
-    val nestedScrollConnection = remember {
-        OffsetNestedScrollConnection(
-            onVerticalDrag = onVerticalDrag,
-            onDragEnd = onDragEnd,
-        )
-    }
-
-    var isQuietModeEnabled by remember { mutableStateOf(false) }
-
-    val eblanApplicationInfos =
-        getEblanApplicationInfosByLabel.eblanApplicationInfos[eblanUser].orEmpty()
-
-    var currentEblanApplicationInfos by remember(key1 = eblanApplicationInfos) {
-        mutableStateOf(eblanApplicationInfos)
-    }
-
-    val gridDragDropState =
-        rememberGridDragDropState(lazyGridState) { from, to ->
-            currentEblanApplicationInfos = currentEblanApplicationInfos.toMutableList()
-                .apply {
-                    add(
-                        index = to,
-                        element = removeAt(from).copy(index = to),
-                    )
-                }
-        }
-
-    Box(
-        modifier = modifier
-            .run {
-                if (!canOverscroll) {
-                    nestedScroll(nestedScrollConnection)
-                } else {
-                    this
-                }
-            }
-            .fillMaxSize(),
-    ) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
-            state = lazyGridState,
-            modifier = Modifier
-                .dragContainer(gridDragDropState = gridDragDropState)
-                .matchParentSize(),
-            contentPadding = PaddingValues(
-                bottom = paddingValues.calculateBottomPadding(),
-            ),
-            overscrollEffect = if (canOverscroll) {
-                overscrollEffect
-            } else {
-                rememberOverscrollEffect()
-            },
-        ) {
-            when (eblanUser.eblanUserType) {
-                EblanUserType.Personal -> {
-                    itemsIndexed(
-                        items = currentEblanApplicationInfos,
-                        key = { _, eblanApplicationInfo -> eblanApplicationInfo },
-                    ) { index, eblanApplicationInfo ->
-                        DraggableItem(
-                            dragDropState = gridDragDropState,
-                            index = index,
-                        ) {
-                            key(
-                                eblanApplicationInfo.serialNumber,
-                                eblanApplicationInfo.componentName,
-                            ) {
-                                EblanApplicationInfoItem(
-                                    currentPage = currentPage,
-                                    drag = drag,
-                                    eblanApplicationInfo = eblanApplicationInfo,
-                                    appDrawerSettings = appDrawerSettings,
-                                    paddingValues = paddingValues,
-                                    iconPackFilePaths = iconPackFilePaths,
-                                    screen = screen,
-                                    gridItems = gridItems,
-                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                    onLongPressGridItem = onLongPressGridItem,
-                                    onUpdatePopupMenu = onUpdatePopupMenu,
-                                    onDraggingGridItem = onDraggingGridItem,
-                                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                )
-                            }
-                        }
-                    }
-
-                    privateSpace(
-                        privateEblanUser = getEblanApplicationInfosByLabel.privateEblanUser,
-                        privateEblanApplicationInfos = getEblanApplicationInfosByLabel.privateEblanApplicationInfos,
-                        managedProfileResult = managedProfileResult,
-                        isQuietModeEnabled = isQuietModeEnabled,
-                        drag = drag,
-                        appDrawerSettings = appDrawerSettings,
-                        paddingValues = paddingValues,
-                        iconPackFilePaths = iconPackFilePaths,
-                        onUpdateGridItemOffset = onUpdateGridItemOffset,
-                        onLongPressGridItem = onLongPressGridItem,
-                        onUpdatePopupMenu = onUpdatePopupMenu,
-                        onUpdateIsQuietModeEnabled = { newIsQuiteModeEnabled ->
-                            isQuietModeEnabled = newIsQuiteModeEnabled
-                        },
-                    )
-                }
-
-                else -> {
-                    itemsIndexed(
-                        items = currentEblanApplicationInfos,
-                        key = { _, eblanApplicationInfo -> eblanApplicationInfo },
-                    ) { index, eblanApplicationInfo ->
-                        DraggableItem(
-                            dragDropState = gridDragDropState,
-                            index = index,
-                        ) {
-                            key(
-                                eblanApplicationInfo.serialNumber,
-                                eblanApplicationInfo.componentName,
-                            ) {
-                                EblanApplicationInfoItem(
-                                    currentPage = currentPage,
-                                    drag = drag,
-                                    eblanApplicationInfo = eblanApplicationInfo,
-                                    appDrawerSettings = appDrawerSettings,
-                                    paddingValues = paddingValues,
-                                    iconPackFilePaths = iconPackFilePaths,
-                                    screen = screen,
-                                    gridItems = gridItems,
-                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                    onLongPressGridItem = onLongPressGridItem,
-                                    onUpdatePopupMenu = onUpdatePopupMenu,
-                                    onDraggingGridItem = onDraggingGridItem,
-                                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!WindowInsets.isImeVisible) {
-            ScrollBarThumb(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .fillMaxHeight(),
-                lazyGridState = lazyGridState,
-                appDrawerSettings = appDrawerSettings,
-                paddingValues = paddingValues,
-                onScrollToItem = lazyGridState::scrollToItem,
-            )
-        }
-
-        FloatingActionButton(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(10.dp),
-            onClick = {
-                onUpdateEblanApplicationInfos(currentEblanApplicationInfos)
-
-                onDismissDragAndDrop()
-            },
-        ) {
-            Icon(
-                imageVector = EblanLauncherIcons.Save,
-                contentDescription = null,
-            )
-        }
-    }
-}
-
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun EblanApplicationInfoTabRow(
@@ -1543,148 +1301,6 @@ private fun EblanApplicationInfoTabRow(
                 },
             )
         }
-    }
-}
-
-@Composable
-private fun ScrollBarThumb(
-    modifier: Modifier = Modifier,
-    lazyGridState: LazyGridState,
-    appDrawerSettings: AppDrawerSettings,
-    paddingValues: PaddingValues,
-    onScrollToItem: suspend (Int) -> Unit,
-) {
-    val density = LocalDensity.current
-
-    val scope = rememberCoroutineScope()
-
-    val appDrawerRowsHeightPx = with(density) {
-        appDrawerSettings.appDrawerRowsHeight.dp.roundToPx()
-    }
-
-    val bottomPadding = with(density) {
-        paddingValues.calculateBottomPadding().roundToPx()
-    }
-
-    val thumbHeight by remember(lazyGridState) {
-        derivedStateOf {
-            with(density) {
-                (lazyGridState.layoutInfo.viewportSize.height / 4).toDp()
-            }
-        }
-    }
-
-    val viewPortThumbY by remember(key1 = lazyGridState) {
-        derivedStateOf {
-            val totalRows =
-                (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
-
-            val visibleRows =
-                ceil(lazyGridState.layoutInfo.viewportSize.height / appDrawerRowsHeightPx.toFloat()).toInt()
-
-            val scrollableRows = (totalRows - visibleRows).coerceAtLeast(0)
-
-            val availableScroll = scrollableRows * appDrawerRowsHeightPx
-
-            val row = lazyGridState.firstVisibleItemIndex / appDrawerSettings.appDrawerColumns
-
-            val totalScrollY =
-                (row * appDrawerRowsHeightPx) + lazyGridState.firstVisibleItemScrollOffset
-
-            val thumbHeightPx = with(density) {
-                thumbHeight.toPx()
-            }
-
-            val availableHeight =
-                (lazyGridState.layoutInfo.viewportSize.height - thumbHeightPx - bottomPadding).coerceAtLeast(
-                    0f,
-                )
-
-            if (availableScroll <= 0) {
-                0f
-            } else {
-                (totalScrollY.toFloat() / availableScroll.toFloat() * availableHeight).coerceIn(
-                    0f,
-                    availableHeight,
-                )
-            }
-        }
-    }
-
-    var isDraggingThumb by remember { mutableStateOf(false) }
-
-    var thumbY by remember { mutableFloatStateOf(0f) }
-
-    val thumbAlpha by animateFloatAsState(
-        targetValue = if (lazyGridState.isScrollInProgress || isDraggingThumb) 1f else 0.2f,
-    )
-
-    Row(modifier = modifier) {
-        Box(
-            modifier = Modifier
-                .offset {
-                    val y = if (isDraggingThumb) {
-                        thumbY
-                    } else {
-                        viewPortThumbY
-                    }
-
-                    IntOffset(0, y.roundToInt())
-                }
-                .pointerInput(key1 = lazyGridState) {
-                    detectVerticalDragGestures(
-                        onDragStart = {
-                            thumbY = viewPortThumbY
-
-                            isDraggingThumb = true
-                        },
-                        onVerticalDrag = { _, deltaY ->
-                            val totalRows =
-                                (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
-
-                            val visibleRows =
-                                ceil(lazyGridState.layoutInfo.viewportSize.height / appDrawerRowsHeightPx.toFloat()).toInt()
-
-                            val scrollableRows = (totalRows - visibleRows).coerceAtLeast(0)
-
-                            val availableScroll = scrollableRows * appDrawerRowsHeightPx
-
-                            val thumbHeightPx = with(density) { thumbHeight.toPx() }
-
-                            val availableHeight =
-                                lazyGridState.layoutInfo.viewportSize.height - thumbHeightPx - bottomPadding
-
-                            thumbY = (thumbY + deltaY).coerceIn(0f, availableHeight)
-
-                            val progress = thumbY / availableHeight
-
-                            val targetScrollY = progress * availableScroll
-
-                            val targetRow = targetScrollY / appDrawerRowsHeightPx
-
-                            val targetIndex =
-                                (targetRow * appDrawerSettings.appDrawerColumns).roundToInt()
-                                    .coerceIn(0, lazyGridState.layoutInfo.totalItemsCount)
-
-                            scope.launch {
-                                onScrollToItem(targetIndex)
-                            }
-                        },
-                        onDragEnd = {
-                            isDraggingThumb = false
-                        },
-                        onDragCancel = {
-                            isDraggingThumb = false
-                        },
-                    )
-                }
-                .alpha(thumbAlpha)
-                .size(width = 8.dp, height = thumbHeight)
-                .background(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(10.dp),
-                ),
-        )
     }
 }
 

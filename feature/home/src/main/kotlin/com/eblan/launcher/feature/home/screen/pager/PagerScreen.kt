@@ -152,7 +152,7 @@ internal fun SharedTransitionScope.PagerScreen(
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
-    ) {
+) {
     val context = LocalContext.current
 
     val density = LocalDensity.current

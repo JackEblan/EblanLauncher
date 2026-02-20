@@ -37,7 +37,6 @@ import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
-import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoTagRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -48,6 +47,7 @@ import com.eblan.launcher.domain.usecase.application.GetEblanAppWidgetProviderIn
 import com.eblan.launcher.domain.usecase.application.GetEblanApplicationInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.application.GetEblanShortcutConfigsByLabelUseCase
 import com.eblan.launcher.domain.usecase.application.GetEblanShortcutInfosUseCase
+import com.eblan.launcher.domain.usecase.application.UpdateEblanApplicationInfosIndexesUseCase
 import com.eblan.launcher.domain.usecase.grid.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
@@ -120,7 +120,7 @@ internal class HomeViewModel @Inject constructor(
     private val resizeFolderGridItemUseCase: ResizeFolderGridItemUseCase,
     private val updateFolderGridItemsAfterResizeUseCase: UpdateFolderGridItemsAfterResizeUseCase,
     private val userDataRepository: UserDataRepository,
-    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
+    private val updateEblanApplicationInfosIndexesUseCase: UpdateEblanApplicationInfosIndexesUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -869,7 +869,7 @@ internal class HomeViewModel @Inject constructor(
 
     fun updateEblanApplicationInfos(eblanApplicationInfos: List<EblanApplicationInfo>) {
         viewModelScope.launch {
-            eblanApplicationInfoRepository.updateEblanApplicationInfos(eblanApplicationInfos = eblanApplicationInfos)
+            updateEblanApplicationInfosIndexesUseCase(eblanApplicationInfos = eblanApplicationInfos)
         }
     }
 }

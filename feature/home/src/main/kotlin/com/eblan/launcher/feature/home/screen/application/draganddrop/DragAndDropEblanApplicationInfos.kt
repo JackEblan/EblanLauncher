@@ -127,15 +127,13 @@ internal fun DragAndDropEblanApplicationInfos(
     val eblanApplicationInfos =
         getEblanApplicationInfosByLabel.eblanApplicationInfos[eblanUser].orEmpty()
 
-    var currentEblanApplicationInfos by remember(key1 = eblanApplicationInfos) {
-        mutableStateOf(eblanApplicationInfos)
-    }
+    var currentEblanApplicationInfos by remember { mutableStateOf(eblanApplicationInfos) }
 
     val gridDragDropState = rememberGridDragDropState(lazyGridState) { from, to ->
         currentEblanApplicationInfos = currentEblanApplicationInfos.toMutableList().apply {
             add(
                 index = to,
-                element = removeAt(from).copy(index = to),
+                element = removeAt(from),
             )
         }
     }
@@ -202,7 +200,7 @@ internal fun DragAndDropEblanApplicationInfos(
                 else -> {
                     itemsIndexed(
                         items = currentEblanApplicationInfos,
-                        key = { _, eblanApplicationInfo -> eblanApplicationInfo },
+                        key = { _, eblanApplicationInfo -> eblanApplicationInfo.componentName },
                     ) { index, eblanApplicationInfo ->
                         DraggableItem(
                             dragDropState = gridDragDropState,

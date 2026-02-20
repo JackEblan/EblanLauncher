@@ -21,4 +21,5 @@ data class AppDrawerSettings(
     val appDrawerColumns: Int,
     val appDrawerRowsHeight: Int,
     val gridItemSettings: GridItemSettings,
+    val eblanApplicationInfoOrder: EblanApplicationInfoOrder,
 )

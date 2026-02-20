@@ -33,4 +33,6 @@ data class EblanApplicationInfoEntity(
     val isHidden: Boolean,
     @ColumnInfo(defaultValue = "0")
     val lastUpdateTime: Long,
+    @ColumnInfo(defaultValue = "-1")
+    val index: Int,
 )

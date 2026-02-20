@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Pages
 import androidx.compose.material.icons.filled.Restore
@@ -76,4 +77,5 @@ object EblanLauncherIcons {
     val Lock = Icons.Default.Lock
     val LockOpen = Icons.Default.LockOpen
     val Done = Icons.Default.Done
+    val MoreVert = Icons.Default.MoreVert
 }

@@ -30,6 +30,7 @@ fun EblanApplicationInfo.asEntity(): EblanApplicationInfoEntity = EblanApplicati
     customLabel = customLabel,
     isHidden = isHidden,
     lastUpdateTime = lastUpdateTime,
+    index = index,
 )
 
 fun EblanApplicationInfoEntity.asModel(): EblanApplicationInfo = EblanApplicationInfo(
@@ -42,4 +43,5 @@ fun EblanApplicationInfoEntity.asModel(): EblanApplicationInfo = EblanApplicatio
     customLabel = customLabel,
     isHidden = isHidden,
     lastUpdateTime = lastUpdateTime,
+    index = index,
 )

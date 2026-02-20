@@ -23,6 +23,7 @@ import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
+import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
@@ -39,6 +40,7 @@ import com.eblan.launcher.domain.repository.EblanApplicationInfoTagRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.application.GetEblanAppWidgetProviderInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.application.GetEblanApplicationInfosByLabelUseCase
@@ -115,6 +117,7 @@ internal class HomeViewModel @Inject constructor(
     private val changeShortcutsUseCase: ChangeShortcutsUseCase,
     private val resizeFolderGridItemUseCase: ResizeFolderGridItemUseCase,
     private val updateFolderGridItemsAfterResizeUseCase: UpdateFolderGridItemsAfterResizeUseCase,
+    private val userDataRepository: UserDataRepository,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -852,6 +855,12 @@ internal class HomeViewModel @Inject constructor(
             _moveGridItemResult.update {
                 null
             }
+        }
+    }
+
+    fun updateAppDrawerSettings(appDrawerSettings: AppDrawerSettings) {
+        viewModelScope.launch {
+            userDataRepository.updateAppDrawerSettings(appDrawerSettings = appDrawerSettings)
         }
     }
 }

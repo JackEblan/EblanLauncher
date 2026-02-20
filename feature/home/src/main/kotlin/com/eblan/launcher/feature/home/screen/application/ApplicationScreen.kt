@@ -58,12 +58,14 @@ import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SearchBar
@@ -134,6 +136,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
+import com.eblan.launcher.feature.home.dialog.EblanApplicationInfoOrderDialog
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
@@ -206,6 +209,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
+    onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -253,6 +257,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             onEditApplicationInfo = onEditApplicationInfo,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
+            onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
         )
     }
 }
@@ -304,6 +309,7 @@ private fun SharedTransitionScope.Success(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
+    onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -342,6 +348,10 @@ private fun SharedTransitionScope.Success(
     val selectedTagIds = remember { mutableStateSetOf<Long>() }
 
     val scope = rememberCoroutineScope()
+
+    var isRearrangeEblanApplicationInfo by remember { mutableStateOf(false) }
+
+    var showEblanApplicationInfoOrderDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = textFieldState) {
         snapshotFlow { textFieldState.text }
@@ -414,6 +424,18 @@ private fun SharedTransitionScope.Success(
                             imageVector = EblanLauncherIcons.Search,
                             contentDescription = null,
                         )
+                    },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {
+                                showEblanApplicationInfoOrderDialog = true
+                            },
+                        ) {
+                            Icon(
+                                imageVector = EblanLauncherIcons.MoreVert,
+                                contentDescription = null,
+                            )
+                        }
                     },
                     onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
                     placeholder = { Text(text = "Search Applications") },
@@ -576,6 +598,22 @@ private fun SharedTransitionScope.Success(
             },
             onDraggingGridItem = onDraggingGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
+        )
+    }
+
+    if (showEblanApplicationInfoOrderDialog) {
+        EblanApplicationInfoOrderDialog(
+            eblanApplicationInfoOrder = appDrawerSettings.eblanApplicationInfoOrder,
+            isRearrangeEblanApplicationInfo = isRearrangeEblanApplicationInfo,
+            onDismissRequest = {
+                showEblanApplicationInfoOrderDialog = false
+            },
+            onUpdateClick = { eblanApplicationInfoOrder ->
+                onUpdateAppDrawerSettings(appDrawerSettings.copy(eblanApplicationInfoOrder = eblanApplicationInfoOrder))
+            },
+            onUpdateIsRearrangeEblanApplicationInfo = { newIsRearrangeEblanApplicationInfo ->
+                isRearrangeEblanApplicationInfo = newIsRearrangeEblanApplicationInfo
+            },
         )
     }
 }

@@ -50,6 +50,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -58,7 +59,6 @@ import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -125,6 +125,7 @@ import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.EblanApplicationInfoOrder
 import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
@@ -210,6 +211,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
+    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -258,6 +260,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
             onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
+            onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
         )
     }
 }
@@ -310,6 +313,7 @@ private fun SharedTransitionScope.Success(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
+    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -479,6 +483,8 @@ private fun SharedTransitionScope.Success(
                     managedProfileResult = managedProfileResult,
                     screen = screen,
                     gridItems = gridItems,
+                    isRearrangeEblanApplicationInfo = isRearrangeEblanApplicationInfo,
+                    eblanApplicationInfoOrder = appDrawerSettings.eblanApplicationInfoOrder,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = { intOffset, intSize ->
                         onUpdateGridItemOffset(intOffset, intSize)
@@ -494,6 +500,10 @@ private fun SharedTransitionScope.Success(
                     onDragEnd = onDragEnd,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
+                    onDismissDragAndDrop = {
+                        isRearrangeEblanApplicationInfo = false
+                    },
                 )
             }
         } else {
@@ -508,6 +518,8 @@ private fun SharedTransitionScope.Success(
                 managedProfileResult = managedProfileResult,
                 screen = screen,
                 gridItems = gridItems,
+                isRearrangeEblanApplicationInfo = isRearrangeEblanApplicationInfo,
+                eblanApplicationInfoOrder = appDrawerSettings.eblanApplicationInfoOrder,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = { intOffset, intSize ->
                     onUpdateGridItemOffset(intOffset, intSize)
@@ -526,6 +538,10 @@ private fun SharedTransitionScope.Success(
                 onDragEnd = onDragEnd,
                 onDraggingGridItem = onDraggingGridItem,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
+                onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
+                onDismissDragAndDrop = {
+                    isRearrangeEblanApplicationInfo = false
+                }
             )
         }
     }
@@ -917,6 +933,8 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
     gridItems: List<GridItem>,
+    isRearrangeEblanApplicationInfo: Boolean,
+    eblanApplicationInfoOrder: EblanApplicationInfoOrder,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -933,6 +951,8 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
         gridItems: List<GridItem>,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
+    onDismissDragAndDrop: () -> Unit,
 ) {
     val userManager = LocalUserManager.current
 
@@ -976,6 +996,30 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 },
                 onVerticalDrag = onVerticalDrag,
                 onDragEnd = onDragEnd,
+            )
+        } else if (isRearrangeEblanApplicationInfo &&
+            eblanApplicationInfoOrder == EblanApplicationInfoOrder.Custom
+        ) {
+            DragAndDropEblanApplicationInfos(
+                eblanUser = eblanUser,
+                currentPage = currentPage,
+                paddingValues = paddingValues,
+                drag = drag,
+                appDrawerSettings = appDrawerSettings,
+                getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
+                iconPackFilePaths = iconPackFilePaths,
+                screen = screen,
+                gridItems = gridItems,
+                managedProfileResult = managedProfileResult,
+                onLongPressGridItem = onLongPressGridItem,
+                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdatePopupMenu = onUpdatePopupMenu,
+                onVerticalDrag = onVerticalDrag,
+                onDragEnd = onDragEnd,
+                onDraggingGridItem = onDraggingGridItem,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
+                onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
+                onDismissDragAndDrop = onDismissDragAndDrop,
             )
         } else {
             EblanApplicationInfos(
@@ -1237,6 +1281,229 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                 appDrawerSettings = appDrawerSettings,
                 paddingValues = paddingValues,
                 onScrollToItem = lazyGridState::scrollToItem,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
+@Composable
+private fun SharedTransitionScope.DragAndDropEblanApplicationInfos(
+    modifier: Modifier = Modifier,
+    eblanUser: EblanUser,
+    currentPage: Int,
+    paddingValues: PaddingValues,
+    drag: Drag,
+    appDrawerSettings: AppDrawerSettings,
+    getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
+    iconPackFilePaths: Map<String, String>,
+    screen: Screen,
+    gridItems: List<GridItem>,
+    managedProfileResult: ManagedProfileResult?,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onUpdatePopupMenu: (Boolean) -> Unit,
+    onVerticalDrag: (Float) -> Unit,
+    onDragEnd: (Float) -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
+    onDismissDragAndDrop: () -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+
+    val overscrollEffect = remember(key1 = scope) {
+        OffsetOverscrollEffect(
+            scope = scope,
+            onVerticalDrag = onVerticalDrag,
+            onDragEnd = onDragEnd,
+        )
+    }
+
+    val lazyGridState = rememberLazyGridState()
+
+    val canOverscroll by remember(key1 = lazyGridState) {
+        derivedStateOf {
+            val lastVisibleIndex =
+                lazyGridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+
+            lastVisibleIndex < lazyGridState.layoutInfo.totalItemsCount - 1
+        }
+    }
+
+    val nestedScrollConnection = remember {
+        OffsetNestedScrollConnection(
+            onVerticalDrag = onVerticalDrag,
+            onDragEnd = onDragEnd,
+        )
+    }
+
+    var isQuietModeEnabled by remember { mutableStateOf(false) }
+
+    val eblanApplicationInfos =
+        getEblanApplicationInfosByLabel.eblanApplicationInfos[eblanUser].orEmpty()
+
+    var currentEblanApplicationInfos by remember(key1 = eblanApplicationInfos) {
+        mutableStateOf(eblanApplicationInfos)
+    }
+
+    val gridDragDropState =
+        rememberGridDragDropState(lazyGridState) { from, to ->
+            currentEblanApplicationInfos = currentEblanApplicationInfos.toMutableList()
+                .apply {
+                    add(
+                        index = to,
+                        element = removeAt(from).copy(index = to),
+                    )
+                }
+        }
+
+    Box(
+        modifier = modifier
+            .run {
+                if (!canOverscroll) {
+                    nestedScroll(nestedScrollConnection)
+                } else {
+                    this
+                }
+            }
+            .fillMaxSize(),
+    ) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
+            state = lazyGridState,
+            modifier = Modifier
+                .dragContainer(gridDragDropState = gridDragDropState)
+                .matchParentSize(),
+            contentPadding = PaddingValues(
+                bottom = paddingValues.calculateBottomPadding(),
+            ),
+            overscrollEffect = if (canOverscroll) {
+                overscrollEffect
+            } else {
+                rememberOverscrollEffect()
+            },
+        ) {
+            when (eblanUser.eblanUserType) {
+                EblanUserType.Personal -> {
+                    itemsIndexed(
+                        items = currentEblanApplicationInfos,
+                        key = { _, eblanApplicationInfo -> eblanApplicationInfo },
+                    ) { index, eblanApplicationInfo ->
+                        DraggableItem(
+                            dragDropState = gridDragDropState,
+                            index = index,
+                        ) {
+                            key(
+                                eblanApplicationInfo.serialNumber,
+                                eblanApplicationInfo.componentName,
+                            ) {
+                                EblanApplicationInfoItem(
+                                    currentPage = currentPage,
+                                    drag = drag,
+                                    eblanApplicationInfo = eblanApplicationInfo,
+                                    appDrawerSettings = appDrawerSettings,
+                                    paddingValues = paddingValues,
+                                    iconPackFilePaths = iconPackFilePaths,
+                                    screen = screen,
+                                    gridItems = gridItems,
+                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                                    onLongPressGridItem = onLongPressGridItem,
+                                    onUpdatePopupMenu = onUpdatePopupMenu,
+                                    onDraggingGridItem = onDraggingGridItem,
+                                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                )
+                            }
+                        }
+                    }
+
+                    privateSpace(
+                        privateEblanUser = getEblanApplicationInfosByLabel.privateEblanUser,
+                        privateEblanApplicationInfos = getEblanApplicationInfosByLabel.privateEblanApplicationInfos,
+                        managedProfileResult = managedProfileResult,
+                        isQuietModeEnabled = isQuietModeEnabled,
+                        drag = drag,
+                        appDrawerSettings = appDrawerSettings,
+                        paddingValues = paddingValues,
+                        iconPackFilePaths = iconPackFilePaths,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onLongPressGridItem = onLongPressGridItem,
+                        onUpdatePopupMenu = onUpdatePopupMenu,
+                        onUpdateIsQuietModeEnabled = { newIsQuiteModeEnabled ->
+                            isQuietModeEnabled = newIsQuiteModeEnabled
+                        },
+                    )
+                }
+
+                else -> {
+                    itemsIndexed(
+                        items = currentEblanApplicationInfos,
+                        key = { _, eblanApplicationInfo -> eblanApplicationInfo },
+                    ) { index, eblanApplicationInfo ->
+                        DraggableItem(
+                            dragDropState = gridDragDropState,
+                            index = index,
+                        ) {
+                            key(
+                                eblanApplicationInfo.serialNumber,
+                                eblanApplicationInfo.componentName,
+                            ) {
+                                EblanApplicationInfoItem(
+                                    currentPage = currentPage,
+                                    drag = drag,
+                                    eblanApplicationInfo = eblanApplicationInfo,
+                                    appDrawerSettings = appDrawerSettings,
+                                    paddingValues = paddingValues,
+                                    iconPackFilePaths = iconPackFilePaths,
+                                    screen = screen,
+                                    gridItems = gridItems,
+                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                                    onLongPressGridItem = onLongPressGridItem,
+                                    onUpdatePopupMenu = onUpdatePopupMenu,
+                                    onDraggingGridItem = onDraggingGridItem,
+                                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!WindowInsets.isImeVisible) {
+            ScrollBarThumb(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .fillMaxHeight(),
+                lazyGridState = lazyGridState,
+                appDrawerSettings = appDrawerSettings,
+                paddingValues = paddingValues,
+                onScrollToItem = lazyGridState::scrollToItem,
+            )
+        }
+
+        FloatingActionButton(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(10.dp),
+            onClick = {
+                onUpdateEblanApplicationInfos(currentEblanApplicationInfos)
+
+                onDismissDragAndDrop()
+            },
+        ) {
+            Icon(
+                imageVector = EblanLauncherIcons.Save,
+                contentDescription = null,
             )
         }
     }

@@ -58,6 +58,7 @@ import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.EblanShortcutConfig
@@ -150,6 +151,7 @@ internal fun SharedTransitionScope.PagerScreen(
     onResetOverlay: () -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
+    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
     ) {
     val context = LocalContext.current
 
@@ -464,6 +466,7 @@ internal fun SharedTransitionScope.PagerScreen(
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
             onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
+            onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
         )
     }
 
@@ -541,6 +544,7 @@ internal fun SharedTransitionScope.PagerScreen(
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
             onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
+            onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
         )
     }
 

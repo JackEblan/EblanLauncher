@@ -25,6 +25,7 @@ import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
@@ -36,6 +37,7 @@ import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
+import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoTagRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -118,6 +120,7 @@ internal class HomeViewModel @Inject constructor(
     private val resizeFolderGridItemUseCase: ResizeFolderGridItemUseCase,
     private val updateFolderGridItemsAfterResizeUseCase: UpdateFolderGridItemsAfterResizeUseCase,
     private val userDataRepository: UserDataRepository,
+    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -861,6 +864,12 @@ internal class HomeViewModel @Inject constructor(
     fun updateAppDrawerSettings(appDrawerSettings: AppDrawerSettings) {
         viewModelScope.launch {
             userDataRepository.updateAppDrawerSettings(appDrawerSettings = appDrawerSettings)
+        }
+    }
+
+    fun updateEblanApplicationInfos(eblanApplicationInfos: List<EblanApplicationInfo>) {
+        viewModelScope.launch {
+            eblanApplicationInfoRepository.updateEblanApplicationInfos(eblanApplicationInfos = eblanApplicationInfos)
         }
     }
 }

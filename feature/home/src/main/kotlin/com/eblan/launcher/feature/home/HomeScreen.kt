@@ -82,6 +82,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.EblanShortcutConfig
@@ -220,6 +221,7 @@ internal fun HomeRoute(
         onStartSyncData = viewModel::startSyncData,
         onStopSyncData = viewModel::stopSyncData,
         onUpdateAppDrawerSettings = viewModel::updateAppDrawerSettings,
+        onUpdateEblanApplicationInfos = viewModel::updateEblanApplicationInfos,
     )
 }
 
@@ -341,6 +343,7 @@ internal fun HomeScreen(
     onStartSyncData: () -> Unit,
     onStopSyncData: () -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
+    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -552,6 +555,7 @@ internal fun HomeScreen(
                     onStartSyncData = onStartSyncData,
                     onStopSyncData = onStopSyncData,
                     onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
+                    onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
                 )
 
                 OverlayImage(
@@ -694,6 +698,7 @@ private fun SharedTransitionScope.Success(
     onStartSyncData: () -> Unit,
     onStopSyncData: () -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
+    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -912,6 +917,7 @@ private fun SharedTransitionScope.Success(
                     onResetOverlay = onResetOverlay,
                     onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
                     onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
+                    onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
                 )
             }
 

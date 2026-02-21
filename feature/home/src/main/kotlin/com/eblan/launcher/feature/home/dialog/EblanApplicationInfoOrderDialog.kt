@@ -74,7 +74,7 @@ internal fun EblanApplicationInfoOrderDialog(
                 )
             }
 
-            if (selectedEblanApplicationInfoOrder == EblanApplicationInfoOrder.Custom) {
+            if (selectedEblanApplicationInfoOrder == EblanApplicationInfoOrder.Index) {
                 SettingsSwitch(
                     checked = isRearrangeEblanApplicationInfo,
                     title = "Rearrange Applications",

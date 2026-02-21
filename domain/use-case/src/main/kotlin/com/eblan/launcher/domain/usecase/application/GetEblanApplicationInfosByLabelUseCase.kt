@@ -22,7 +22,6 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoOrder
-import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.EblanUserType
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
@@ -92,7 +91,7 @@ class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
         eblanApplicationInfoOrder: EblanApplicationInfoOrder,
         eblanApplicationInfos: MutableList<EblanApplicationInfo>,
     ) {
-        if (eblanApplicationInfoOrder != EblanApplicationInfoOrder.Custom) return
+        if (eblanApplicationInfoOrder != EblanApplicationInfoOrder.Index) return
 
         val indexedEblanApplicationInfos = eblanApplicationInfos.filter { it.index >= 0 }
 

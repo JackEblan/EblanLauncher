@@ -990,7 +990,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 onVerticalDrag = onVerticalDrag,
                 onDragEnd = onDragEnd,
             )
-        } else if (isRearrangeEblanApplicationInfo && eblanApplicationInfoOrder == EblanApplicationInfoOrder.Custom) {
+        } else if (isRearrangeEblanApplicationInfo && eblanApplicationInfoOrder == EblanApplicationInfoOrder.Index) {
             DragAndDropEblanApplicationInfos(
                 eblanUser = eblanUser,
                 paddingValues = paddingValues,

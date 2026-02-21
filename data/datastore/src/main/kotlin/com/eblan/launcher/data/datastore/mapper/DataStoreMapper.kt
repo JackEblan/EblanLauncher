@@ -178,13 +178,13 @@ private fun ThemeProto.toDarkThemeConfig(): Theme = when (this) {
 
 private fun EblanApplicationInfoOrderProto.toEblanApplicationInfoOrder(): EblanApplicationInfoOrder = when (this) {
     EblanApplicationInfoOrderProto.Alphabetical -> EblanApplicationInfoOrder.Alphabetical
-    EblanApplicationInfoOrderProto.Custom -> EblanApplicationInfoOrder.Custom
+    EblanApplicationInfoOrderProto.Index -> EblanApplicationInfoOrder.Index
     EblanApplicationInfoOrderProto.UNRECOGNIZED -> EblanApplicationInfoOrder.Alphabetical
 }
 
 private fun EblanApplicationInfoOrder.toEblanApplicationInfoOrderProto(): EblanApplicationInfoOrderProto = when (this) {
     EblanApplicationInfoOrder.Alphabetical -> EblanApplicationInfoOrderProto.Alphabetical
-    EblanApplicationInfoOrder.Custom -> EblanApplicationInfoOrderProto.Custom
+    EblanApplicationInfoOrder.Index -> EblanApplicationInfoOrderProto.Index
 }
 
 private fun TextColor.toTextColorProto(): TextColorProto = when (this) {

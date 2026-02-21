@@ -1,0 +1,2 @@
+- Folder menu
+- Rearrange app drawer applications

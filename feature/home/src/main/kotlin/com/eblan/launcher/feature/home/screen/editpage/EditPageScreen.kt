@@ -126,7 +126,10 @@ internal fun SharedTransitionScope.EditPageScreen(
     val lazyColumnDragDropState =
         rememberLazyColumnDragDropState(lazyListState = lazyListState) { from, to ->
             currentPageItems = currentPageItems.toMutableList().apply {
-                add(to, removeAt(from))
+                add(
+                    index = to,
+                    element = removeAt(from),
+                )
             }
         }
 

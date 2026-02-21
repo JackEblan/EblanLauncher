@@ -122,6 +122,7 @@ class AddPackageUseCase @Inject constructor(
                 customLabel = null,
                 isHidden = false,
                 lastUpdateTime = lastUpdateTime,
+                index = -1,
             ),
         )
     }

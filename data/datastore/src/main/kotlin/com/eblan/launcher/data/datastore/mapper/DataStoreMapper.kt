@@ -18,6 +18,7 @@
 package com.eblan.launcher.data.datastore.mapper
 
 import com.eblan.launcher.data.datastore.proto.appdrawer.AppDrawerSettingsProto
+import com.eblan.launcher.data.datastore.proto.appdrawer.EblanApplicationInfoOrderProto
 import com.eblan.launcher.data.datastore.proto.experimental.ExperimentalSettingsProto
 import com.eblan.launcher.data.datastore.proto.general.GeneralSettingsProto
 import com.eblan.launcher.data.datastore.proto.general.ThemeProto
@@ -32,6 +33,7 @@ import com.eblan.launcher.data.datastore.proto.home.VerticalArrangementProto
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanActionType
+import com.eblan.launcher.domain.model.EblanApplicationInfoOrder
 import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GeneralSettings
 import com.eblan.launcher.domain.model.GestureSettings
@@ -65,6 +67,7 @@ internal fun AppDrawerSettingsProto.toAppDrawerSettings(): AppDrawerSettings = A
     appDrawerColumns = appDrawerColumns,
     appDrawerRowsHeight = appDrawerRowsHeight,
     gridItemSettings = gridItemSettingsProto.toGridItemSettings(),
+    eblanApplicationInfoOrder = eblanApplicationInfoOrderProto.toEblanApplicationInfoOrder(),
 )
 
 internal fun GridItemSettingsProto.toGridItemSettings(): GridItemSettings = GridItemSettings(
@@ -87,75 +90,53 @@ internal fun GeneralSettingsProto.toGeneralSettings(): GeneralSettings = General
     iconPackInfoPackageName = iconPackInfoPackageName,
 )
 
-internal fun TextColor.toTextColorProto(): TextColorProto = when (this) {
-    TextColor.System -> TextColorProto.TextColorSystem
-    TextColor.Light -> TextColorProto.TextColorLight
-    TextColor.Dark -> TextColorProto.TextColorDark
-    TextColor.Custom -> TextColorProto.TextColorCustom
-}
+internal fun GridItemSettings.toGridItemSettingsProto(): GridItemSettingsProto = GridItemSettingsProto.newBuilder().setIconSize(iconSize)
+    .setTextColorProto(textColor.toTextColorProto()).setTextSize(textSize)
+    .setShowLabel(showLabel).setSingleLineLabel(singleLineLabel)
+    .setHorizontalAlignmentProto(horizontalAlignment.toHorizontalAlignmentProto())
+    .setVerticalArrangementProto(verticalArrangement.toVerticalArrangementProto())
+    .setCustomTextColor(customTextColor).setCustomBackgroundColor(customBackgroundColor)
+    .setPadding(padding).setCornerRadius(cornerRadius).build()
 
-internal fun TextColorProto.toTextColor(): TextColor = when (this) {
-    TextColorProto.TextColorSystem, TextColorProto.UNRECOGNIZED -> TextColor.System
-    TextColorProto.TextColorLight -> TextColor.Light
-    TextColorProto.TextColorDark -> TextColor.Dark
-    TextColorProto.TextColorCustom -> TextColor.Custom
-}
+internal fun HomeSettings.toHomeSettingsProto(): HomeSettingsProto = HomeSettingsProto.newBuilder().setColumns(columns).setRows(rows).setPageCount(pageCount)
+    .setInfiniteScroll(infiniteScroll).setDockColumns(dockColumns).setDockRows(dockRows)
+    .setDockHeight(dockHeight).setInitialPage(initialPage).setWallpaperScroll(wallpaperScroll)
+    .setFolderColumns(folderColumns).setFolderRows(folderRows)
+    .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
+    .setLockScreenOrientation(lockScreenOrientation).setDockPageCount(dockPageCount)
+    .setDockInfiniteScroll(dockInfiniteScroll).setDockInitialPage(dockInitialPage).build()
 
-internal fun HorizontalAlignment.toHorizontalAlignmentProto(): HorizontalAlignmentProto = when (this) {
-    HorizontalAlignment.Start -> HorizontalAlignmentProto.Start
-    HorizontalAlignment.CenterHorizontally -> HorizontalAlignmentProto.CenterHorizontally
-    HorizontalAlignment.End -> HorizontalAlignmentProto.End
-}
-
-internal fun HorizontalAlignmentProto.toHorizontalAlignment(): HorizontalAlignment = when (this) {
-    HorizontalAlignmentProto.Start -> HorizontalAlignment.Start
-    HorizontalAlignmentProto.CenterHorizontally, HorizontalAlignmentProto.UNRECOGNIZED -> HorizontalAlignment.CenterHorizontally
-    HorizontalAlignmentProto.End -> HorizontalAlignment.End
-}
-
-internal fun VerticalArrangement.toVerticalArrangementProto(): VerticalArrangementProto = when (this) {
-    VerticalArrangement.Top -> VerticalArrangementProto.Top
-    VerticalArrangement.Center -> VerticalArrangementProto.Center
-    VerticalArrangement.Bottom -> VerticalArrangementProto.Bottom
-}
-
-internal fun VerticalArrangementProto.toVerticalArrangement(): VerticalArrangement = when (this) {
-    VerticalArrangementProto.Top -> VerticalArrangement.Top
-    VerticalArrangementProto.Center, VerticalArrangementProto.UNRECOGNIZED -> VerticalArrangement.Center
-    VerticalArrangementProto.Bottom -> VerticalArrangement.Bottom
-}
-
-internal fun EblanAction.toEblanActionProto(): EblanActionProto = EblanActionProto.newBuilder()
-    .setEblanActionTypeProto(eblanActionType.toEblanActionTypeProto())
-    .setSerialNumber(serialNumber)
-    .setComponentName(componentName)
+internal fun AppDrawerSettings.toAppDrawerSettingsProto(): AppDrawerSettingsProto = AppDrawerSettingsProto.newBuilder().setAppDrawerColumns(appDrawerColumns)
+    .setAppDrawerRowsHeight(appDrawerRowsHeight)
+    .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
+    .setEblanApplicationInfoOrderProto(eblanApplicationInfoOrder.toEblanApplicationInfoOrderProto())
     .build()
+
+internal fun GeneralSettings.toGeneralSettingsProto(): GeneralSettingsProto = GeneralSettingsProto.newBuilder().setThemeProto(theme.toThemeProto())
+    .setDynamicTheme(dynamicTheme).setIconPackInfoPackageName(iconPackInfoPackageName).build()
+
+internal fun GestureSettings.toGestureSettingsProto(): GestureSettingsProto = GestureSettingsProto.newBuilder().setDoubleTapProto(doubleTap.toEblanActionProto())
+    .setSwipeUpProto(swipeUp.toEblanActionProto())
+    .setSwipeDownProto(swipeDown.toEblanActionProto()).build()
+
+internal fun ExperimentalSettings.toExperimentalSettingsProto(): ExperimentalSettingsProto = ExperimentalSettingsProto.newBuilder().setSyncData(syncData).setFirstLaunch(firstLaunch)
+    .setLockMovement(lockMovement).setKlwpIntegration(klwpIntegration).build()
+
+internal fun ExperimentalSettingsProto.toExperimentalSettings(): ExperimentalSettings = ExperimentalSettings(
+    syncData = syncData,
+    firstLaunch = firstLaunch,
+    lockMovement = lockMovement,
+    klwpIntegration = klwpIntegration,
+)
+
+internal fun EblanAction.toEblanActionProto(): EblanActionProto = EblanActionProto.newBuilder().setEblanActionTypeProto(eblanActionType.toEblanActionTypeProto())
+    .setSerialNumber(serialNumber).setComponentName(componentName).build()
 
 internal fun GestureSettingsProto.toGestureSettings(): GestureSettings = GestureSettings(
     doubleTap = doubleTapProto.toEblanAction(),
     swipeUp = swipeUpProto.toEblanAction(),
     swipeDown = swipeDownProto.toEblanAction(),
 )
-
-internal fun EblanActionType.toEblanActionTypeProto(): EblanActionTypeProto = when (this) {
-    EblanActionType.None -> EblanActionTypeProto.None
-    EblanActionType.OpenAppDrawer -> EblanActionTypeProto.OpenAppDrawer
-    EblanActionType.OpenNotificationPanel -> EblanActionTypeProto.OpenNotificationPanel
-    EblanActionType.OpenApp -> EblanActionTypeProto.OpenApp
-    EblanActionType.LockScreen -> EblanActionTypeProto.LockScreen
-    EblanActionType.OpenQuickSettings -> EblanActionTypeProto.OpenQuickSettings
-    EblanActionType.OpenRecents -> EblanActionTypeProto.OpenRecents
-}
-
-internal fun EblanActionTypeProto.toEblanActionType(): EblanActionType = when (this) {
-    EblanActionTypeProto.None, EblanActionTypeProto.UNRECOGNIZED -> EblanActionType.None
-    EblanActionTypeProto.OpenAppDrawer -> EblanActionType.OpenAppDrawer
-    EblanActionTypeProto.OpenNotificationPanel -> EblanActionType.OpenNotificationPanel
-    EblanActionTypeProto.OpenApp -> EblanActionType.OpenApp
-    EblanActionTypeProto.LockScreen -> EblanActionType.LockScreen
-    EblanActionTypeProto.OpenQuickSettings -> EblanActionType.OpenQuickSettings
-    EblanActionTypeProto.OpenRecents -> EblanActionType.OpenRecents
-}
 
 internal fun EblanActionProto.toEblanAction(): EblanAction = EblanAction(
     eblanActionType = eblanActionTypeProto.toEblanActionType(),
@@ -169,73 +150,77 @@ internal fun Theme.toThemeProto(): ThemeProto = when (this) {
     Theme.Dark -> ThemeProto.DarkThemeConfigDark
 }
 
-internal fun ThemeProto.toDarkThemeConfig(): Theme = when (this) {
+private fun EblanActionType.toEblanActionTypeProto(): EblanActionTypeProto = when (this) {
+    EblanActionType.None -> EblanActionTypeProto.None
+    EblanActionType.OpenAppDrawer -> EblanActionTypeProto.OpenAppDrawer
+    EblanActionType.OpenNotificationPanel -> EblanActionTypeProto.OpenNotificationPanel
+    EblanActionType.OpenApp -> EblanActionTypeProto.OpenApp
+    EblanActionType.LockScreen -> EblanActionTypeProto.LockScreen
+    EblanActionType.OpenQuickSettings -> EblanActionTypeProto.OpenQuickSettings
+    EblanActionType.OpenRecents -> EblanActionTypeProto.OpenRecents
+}
+
+private fun EblanActionTypeProto.toEblanActionType(): EblanActionType = when (this) {
+    EblanActionTypeProto.None, EblanActionTypeProto.UNRECOGNIZED -> EblanActionType.None
+    EblanActionTypeProto.OpenAppDrawer -> EblanActionType.OpenAppDrawer
+    EblanActionTypeProto.OpenNotificationPanel -> EblanActionType.OpenNotificationPanel
+    EblanActionTypeProto.OpenApp -> EblanActionType.OpenApp
+    EblanActionTypeProto.LockScreen -> EblanActionType.LockScreen
+    EblanActionTypeProto.OpenQuickSettings -> EblanActionType.OpenQuickSettings
+    EblanActionTypeProto.OpenRecents -> EblanActionType.OpenRecents
+}
+
+private fun ThemeProto.toDarkThemeConfig(): Theme = when (this) {
     ThemeProto.DarkThemeConfigSystem, ThemeProto.UNRECOGNIZED -> Theme.System
     ThemeProto.DarkThemeConfigLight -> Theme.Light
     ThemeProto.DarkThemeConfigDark -> Theme.Dark
 }
 
-internal fun GridItemSettings.toGridItemSettingsProto(): GridItemSettingsProto = GridItemSettingsProto.newBuilder()
-    .setIconSize(iconSize)
-    .setTextColorProto(textColor.toTextColorProto())
-    .setTextSize(textSize)
-    .setShowLabel(showLabel)
-    .setSingleLineLabel(singleLineLabel)
-    .setHorizontalAlignmentProto(horizontalAlignment.toHorizontalAlignmentProto())
-    .setVerticalArrangementProto(verticalArrangement.toVerticalArrangementProto())
-    .setCustomTextColor(customTextColor)
-    .setCustomBackgroundColor(customBackgroundColor)
-    .setPadding(padding)
-    .setCornerRadius(cornerRadius)
-    .build()
+private fun EblanApplicationInfoOrderProto.toEblanApplicationInfoOrder(): EblanApplicationInfoOrder = when (this) {
+    EblanApplicationInfoOrderProto.Alphabetical -> EblanApplicationInfoOrder.Alphabetical
+    EblanApplicationInfoOrderProto.Index -> EblanApplicationInfoOrder.Index
+    EblanApplicationInfoOrderProto.UNRECOGNIZED -> EblanApplicationInfoOrder.Alphabetical
+}
 
-internal fun HomeSettings.toHomeSettingsProto(): HomeSettingsProto = HomeSettingsProto.newBuilder()
-    .setColumns(columns)
-    .setRows(rows)
-    .setPageCount(pageCount)
-    .setInfiniteScroll(infiniteScroll)
-    .setDockColumns(dockColumns)
-    .setDockRows(dockRows)
-    .setDockHeight(dockHeight)
-    .setInitialPage(initialPage)
-    .setWallpaperScroll(wallpaperScroll)
-    .setFolderColumns(folderColumns)
-    .setFolderRows(folderRows)
-    .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
-    .setLockScreenOrientation(lockScreenOrientation)
-    .setDockPageCount(dockPageCount)
-    .setDockInfiniteScroll(dockInfiniteScroll)
-    .setDockInitialPage(dockInitialPage)
-    .build()
+private fun EblanApplicationInfoOrder.toEblanApplicationInfoOrderProto(): EblanApplicationInfoOrderProto = when (this) {
+    EblanApplicationInfoOrder.Alphabetical -> EblanApplicationInfoOrderProto.Alphabetical
+    EblanApplicationInfoOrder.Index -> EblanApplicationInfoOrderProto.Index
+}
 
-internal fun AppDrawerSettings.toAppDrawerSettingsProto(): AppDrawerSettingsProto = AppDrawerSettingsProto.newBuilder()
-    .setAppDrawerColumns(appDrawerColumns)
-    .setAppDrawerRowsHeight(appDrawerRowsHeight)
-    .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
-    .build()
+private fun TextColor.toTextColorProto(): TextColorProto = when (this) {
+    TextColor.System -> TextColorProto.TextColorSystem
+    TextColor.Light -> TextColorProto.TextColorLight
+    TextColor.Dark -> TextColorProto.TextColorDark
+    TextColor.Custom -> TextColorProto.TextColorCustom
+}
 
-internal fun GeneralSettings.toGeneralSettingsProto(): GeneralSettingsProto = GeneralSettingsProto.newBuilder()
-    .setThemeProto(theme.toThemeProto())
-    .setDynamicTheme(dynamicTheme)
-    .setIconPackInfoPackageName(iconPackInfoPackageName)
-    .build()
+private fun TextColorProto.toTextColor(): TextColor = when (this) {
+    TextColorProto.TextColorSystem, TextColorProto.UNRECOGNIZED -> TextColor.System
+    TextColorProto.TextColorLight -> TextColor.Light
+    TextColorProto.TextColorDark -> TextColor.Dark
+    TextColorProto.TextColorCustom -> TextColor.Custom
+}
 
-internal fun GestureSettings.toGestureSettingsProto(): GestureSettingsProto = GestureSettingsProto.newBuilder()
-    .setDoubleTapProto(doubleTap.toEblanActionProto())
-    .setSwipeUpProto(swipeUp.toEblanActionProto())
-    .setSwipeDownProto(swipeDown.toEblanActionProto())
-    .build()
+private fun HorizontalAlignment.toHorizontalAlignmentProto(): HorizontalAlignmentProto = when (this) {
+    HorizontalAlignment.Start -> HorizontalAlignmentProto.Start
+    HorizontalAlignment.CenterHorizontally -> HorizontalAlignmentProto.CenterHorizontally
+    HorizontalAlignment.End -> HorizontalAlignmentProto.End
+}
 
-internal fun ExperimentalSettings.toExperimentalSettingsProto(): ExperimentalSettingsProto = ExperimentalSettingsProto.newBuilder()
-    .setSyncData(syncData)
-    .setFirstLaunch(firstLaunch)
-    .setLockMovement(lockMovement)
-    .setKlwpIntegration(klwpIntegration)
-    .build()
+private fun HorizontalAlignmentProto.toHorizontalAlignment(): HorizontalAlignment = when (this) {
+    HorizontalAlignmentProto.Start -> HorizontalAlignment.Start
+    HorizontalAlignmentProto.CenterHorizontally, HorizontalAlignmentProto.UNRECOGNIZED -> HorizontalAlignment.CenterHorizontally
+    HorizontalAlignmentProto.End -> HorizontalAlignment.End
+}
 
-internal fun ExperimentalSettingsProto.toExperimentalSettings(): ExperimentalSettings = ExperimentalSettings(
-    syncData = syncData,
-    firstLaunch = firstLaunch,
-    lockMovement = lockMovement,
-    klwpIntegration = klwpIntegration,
-)
+private fun VerticalArrangement.toVerticalArrangementProto(): VerticalArrangementProto = when (this) {
+    VerticalArrangement.Top -> VerticalArrangementProto.Top
+    VerticalArrangement.Center -> VerticalArrangementProto.Center
+    VerticalArrangement.Bottom -> VerticalArrangementProto.Bottom
+}
+
+private fun VerticalArrangementProto.toVerticalArrangement(): VerticalArrangement = when (this) {
+    VerticalArrangementProto.Top -> VerticalArrangement.Top
+    VerticalArrangementProto.Center, VerticalArrangementProto.UNRECOGNIZED -> VerticalArrangement.Center
+    VerticalArrangementProto.Bottom -> VerticalArrangement.Bottom
+}

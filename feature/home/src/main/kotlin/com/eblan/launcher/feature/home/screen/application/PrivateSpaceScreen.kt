@@ -114,9 +114,7 @@ internal fun LazyGridScope.privateSpace(
     onUpdatePopupMenu: (Boolean) -> Unit,
     onUpdateIsQuietModeEnabled: (Boolean) -> Unit,
 ) {
-    if (privateEblanUser == null) return
-
-    if (privateEblanUser.isPrivateSpaceEntryPointHidden) return
+    if (privateEblanUser == null || privateEblanUser.isPrivateSpaceEntryPointHidden) return
 
     stickyHeader {
         PrivateSpaceStickyHeader(
@@ -144,7 +142,8 @@ internal fun LazyGridScope.privateSpace(
 }
 
 @Composable
-private fun PrivateSpaceStickyHeader(
+internal fun PrivateSpaceStickyHeader(
+    modifier: Modifier = Modifier,
     privateEblanUser: EblanUser?,
     managedProfileResult: ManagedProfileResult?,
     isQuietModeEnabled: Boolean,
@@ -178,7 +177,7 @@ private fun PrivateSpaceStickyHeader(
     }
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,

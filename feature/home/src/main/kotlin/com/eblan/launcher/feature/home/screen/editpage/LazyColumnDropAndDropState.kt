@@ -164,7 +164,7 @@ internal class LazyColumnDragDropState(
         get() = this.offset + this.size
 }
 
-internal fun Modifier.dragContainer(lazyColumnDragDropState: LazyColumnDragDropState): Modifier = pointerInput(lazyColumnDragDropState) {
+internal fun Modifier.dragContainer(lazyColumnDragDropState: LazyColumnDragDropState): Modifier = pointerInput(key1 = lazyColumnDragDropState) {
     detectDragGesturesAfterLongPress(
         onDrag = { change, offset ->
             change.consume()

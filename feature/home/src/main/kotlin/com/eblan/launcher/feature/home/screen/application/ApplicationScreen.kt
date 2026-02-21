@@ -24,7 +24,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -32,7 +31,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -47,7 +45,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -64,6 +61,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SearchBar
@@ -80,7 +78,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
@@ -123,6 +120,7 @@ import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.EblanApplicationInfoOrder
 import com.eblan.launcher.domain.model.EblanApplicationInfoTag
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
@@ -134,10 +132,12 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
+import com.eblan.launcher.feature.home.dialog.EblanApplicationInfoOrderDialog
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.screen.application.draganddrop.DragAndDropEblanApplicationInfos
 import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -152,7 +152,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlin.math.ceil
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -206,6 +205,8 @@ internal fun SharedTransitionScope.ApplicationScreen(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
+    onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
+    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -253,6 +254,8 @@ internal fun SharedTransitionScope.ApplicationScreen(
             onEditApplicationInfo = onEditApplicationInfo,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
+            onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
+            onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
         )
     }
 }
@@ -304,6 +307,8 @@ private fun SharedTransitionScope.Success(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
+    onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
+    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -343,14 +348,16 @@ private fun SharedTransitionScope.Success(
 
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = textFieldState) {
-        snapshotFlow { textFieldState.text }
-            .debounce(500L)
-            .onEach { text ->
-                onGetEblanApplicationInfosByLabel(text.toString())
+    var isRearrangeEblanApplicationInfo by remember { mutableStateOf(false) }
 
-                showPopupApplicationMenu = false
-            }.collect()
+    var showEblanApplicationInfoOrderDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = textFieldState) {
+        snapshotFlow { textFieldState.text }.debounce(500L).onEach { text ->
+            onGetEblanApplicationInfosByLabel(text.toString())
+
+            showPopupApplicationMenu = false
+        }.collect()
     }
 
     LaunchedEffect(key1 = swipeY) {
@@ -415,6 +422,18 @@ private fun SharedTransitionScope.Success(
                             contentDescription = null,
                         )
                     },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {
+                                showEblanApplicationInfoOrderDialog = true
+                            },
+                        ) {
+                            Icon(
+                                imageVector = EblanLauncherIcons.MoreVert,
+                                contentDescription = null,
+                            )
+                        }
+                    },
                     onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
                     placeholder = { Text(text = "Search Applications") },
                 )
@@ -457,6 +476,8 @@ private fun SharedTransitionScope.Success(
                     managedProfileResult = managedProfileResult,
                     screen = screen,
                     gridItems = gridItems,
+                    isRearrangeEblanApplicationInfo = isRearrangeEblanApplicationInfo,
+                    eblanApplicationInfoOrder = appDrawerSettings.eblanApplicationInfoOrder,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = { intOffset, intSize ->
                         onUpdateGridItemOffset(intOffset, intSize)
@@ -472,6 +493,10 @@ private fun SharedTransitionScope.Success(
                     onDragEnd = onDragEnd,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
+                    onDismissDragAndDrop = {
+                        isRearrangeEblanApplicationInfo = false
+                    },
                 )
             }
         } else {
@@ -486,6 +511,8 @@ private fun SharedTransitionScope.Success(
                 managedProfileResult = managedProfileResult,
                 screen = screen,
                 gridItems = gridItems,
+                isRearrangeEblanApplicationInfo = isRearrangeEblanApplicationInfo,
+                eblanApplicationInfoOrder = appDrawerSettings.eblanApplicationInfoOrder,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = { intOffset, intSize ->
                     onUpdateGridItemOffset(intOffset, intSize)
@@ -504,6 +531,10 @@ private fun SharedTransitionScope.Success(
                 onDragEnd = onDragEnd,
                 onDraggingGridItem = onDraggingGridItem,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
+                onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
+                onDismissDragAndDrop = {
+                    isRearrangeEblanApplicationInfo = false
+                },
             )
         }
     }
@@ -576,6 +607,22 @@ private fun SharedTransitionScope.Success(
             },
             onDraggingGridItem = onDraggingGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
+        )
+    }
+
+    if (showEblanApplicationInfoOrderDialog) {
+        EblanApplicationInfoOrderDialog(
+            eblanApplicationInfoOrder = appDrawerSettings.eblanApplicationInfoOrder,
+            onDismissRequest = {
+                showEblanApplicationInfoOrderDialog = false
+            },
+            onUpdateClick = { eblanApplicationInfoOrder, newIsRearrangeEblanApplicationInfo ->
+                onUpdateAppDrawerSettings(appDrawerSettings.copy(eblanApplicationInfoOrder = eblanApplicationInfoOrder))
+
+                isRearrangeEblanApplicationInfo = newIsRearrangeEblanApplicationInfo
+
+                showEblanApplicationInfoOrderDialog = false
+            },
         )
     }
 }
@@ -879,6 +926,8 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     managedProfileResult: ManagedProfileResult?,
     screen: Screen,
     gridItems: List<GridItem>,
+    isRearrangeEblanApplicationInfo: Boolean,
+    eblanApplicationInfoOrder: EblanApplicationInfoOrder,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -895,6 +944,8 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
         gridItems: List<GridItem>,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
+    onDismissDragAndDrop: () -> Unit,
 ) {
     val userManager = LocalUserManager.current
 
@@ -938,6 +989,16 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 },
                 onVerticalDrag = onVerticalDrag,
                 onDragEnd = onDragEnd,
+            )
+        } else if (isRearrangeEblanApplicationInfo && eblanApplicationInfoOrder == EblanApplicationInfoOrder.Index) {
+            DragAndDropEblanApplicationInfos(
+                eblanUser = eblanUser,
+                paddingValues = paddingValues,
+                appDrawerSettings = appDrawerSettings,
+                getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
+                iconPackFilePaths = iconPackFilePaths,
+                onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
+                onDismissDragAndDrop = onDismissDragAndDrop,
             )
         } else {
             EblanApplicationInfos(
@@ -1238,148 +1299,6 @@ private fun EblanApplicationInfoTabRow(
                 },
             )
         }
-    }
-}
-
-@Composable
-private fun ScrollBarThumb(
-    modifier: Modifier = Modifier,
-    lazyGridState: LazyGridState,
-    appDrawerSettings: AppDrawerSettings,
-    paddingValues: PaddingValues,
-    onScrollToItem: suspend (Int) -> Unit,
-) {
-    val density = LocalDensity.current
-
-    val scope = rememberCoroutineScope()
-
-    val appDrawerRowsHeightPx = with(density) {
-        appDrawerSettings.appDrawerRowsHeight.dp.roundToPx()
-    }
-
-    val bottomPadding = with(density) {
-        paddingValues.calculateBottomPadding().roundToPx()
-    }
-
-    val thumbHeight by remember(lazyGridState) {
-        derivedStateOf {
-            with(density) {
-                (lazyGridState.layoutInfo.viewportSize.height / 4).toDp()
-            }
-        }
-    }
-
-    val viewPortThumbY by remember(key1 = lazyGridState) {
-        derivedStateOf {
-            val totalRows =
-                (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
-
-            val visibleRows =
-                ceil(lazyGridState.layoutInfo.viewportSize.height / appDrawerRowsHeightPx.toFloat()).toInt()
-
-            val scrollableRows = (totalRows - visibleRows).coerceAtLeast(0)
-
-            val availableScroll = scrollableRows * appDrawerRowsHeightPx
-
-            val row = lazyGridState.firstVisibleItemIndex / appDrawerSettings.appDrawerColumns
-
-            val totalScrollY =
-                (row * appDrawerRowsHeightPx) + lazyGridState.firstVisibleItemScrollOffset
-
-            val thumbHeightPx = with(density) {
-                thumbHeight.toPx()
-            }
-
-            val availableHeight =
-                (lazyGridState.layoutInfo.viewportSize.height - thumbHeightPx - bottomPadding).coerceAtLeast(
-                    0f,
-                )
-
-            if (availableScroll <= 0) {
-                0f
-            } else {
-                (totalScrollY.toFloat() / availableScroll.toFloat() * availableHeight).coerceIn(
-                    0f,
-                    availableHeight,
-                )
-            }
-        }
-    }
-
-    var isDraggingThumb by remember { mutableStateOf(false) }
-
-    var thumbY by remember { mutableFloatStateOf(0f) }
-
-    val thumbAlpha by animateFloatAsState(
-        targetValue = if (lazyGridState.isScrollInProgress || isDraggingThumb) 1f else 0.2f,
-    )
-
-    Row(modifier = modifier) {
-        Box(
-            modifier = Modifier
-                .offset {
-                    val y = if (isDraggingThumb) {
-                        thumbY
-                    } else {
-                        viewPortThumbY
-                    }
-
-                    IntOffset(0, y.roundToInt())
-                }
-                .pointerInput(key1 = lazyGridState) {
-                    detectVerticalDragGestures(
-                        onDragStart = {
-                            thumbY = viewPortThumbY
-
-                            isDraggingThumb = true
-                        },
-                        onVerticalDrag = { _, deltaY ->
-                            val totalRows =
-                                (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
-
-                            val visibleRows =
-                                ceil(lazyGridState.layoutInfo.viewportSize.height / appDrawerRowsHeightPx.toFloat()).toInt()
-
-                            val scrollableRows = (totalRows - visibleRows).coerceAtLeast(0)
-
-                            val availableScroll = scrollableRows * appDrawerRowsHeightPx
-
-                            val thumbHeightPx = with(density) { thumbHeight.toPx() }
-
-                            val availableHeight =
-                                lazyGridState.layoutInfo.viewportSize.height - thumbHeightPx - bottomPadding
-
-                            thumbY = (thumbY + deltaY).coerceIn(0f, availableHeight)
-
-                            val progress = thumbY / availableHeight
-
-                            val targetScrollY = progress * availableScroll
-
-                            val targetRow = targetScrollY / appDrawerRowsHeightPx
-
-                            val targetIndex =
-                                (targetRow * appDrawerSettings.appDrawerColumns).roundToInt()
-                                    .coerceIn(0, lazyGridState.layoutInfo.totalItemsCount)
-
-                            scope.launch {
-                                onScrollToItem(targetIndex)
-                            }
-                        },
-                        onDragEnd = {
-                            isDraggingThumb = false
-                        },
-                        onDragCancel = {
-                            isDraggingThumb = false
-                        },
-                    )
-                }
-                .alpha(thumbAlpha)
-                .size(width = 8.dp, height = thumbHeight)
-                .background(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(10.dp),
-                ),
-        )
     }
 }
 

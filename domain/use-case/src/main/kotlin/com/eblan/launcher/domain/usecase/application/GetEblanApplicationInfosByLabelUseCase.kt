@@ -22,6 +22,7 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoOrder
+import com.eblan.launcher.domain.model.EblanUser
 import com.eblan.launcher.domain.model.EblanUserType
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
@@ -60,30 +61,20 @@ class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
         ) { userData, eblanApplicationInfos, label ->
             val eblanApplicationInfosByLabel =
                 eblanApplicationInfos.filter { eblanApplicationInfo ->
-                    !eblanApplicationInfo.isHidden &&
-                        eblanApplicationInfo.label.contains(
-                            label,
-                            ignoreCase = true,
-                        )
-                }
-
-            val sortedEblanApplicationInfos = eblanApplicationInfosByLabel
-                .sortedWith(
-                    compareBy(
-                        { it.serialNumber },
-                        { it.label.lowercase() },
-                    ),
-                )
-                .toMutableList()
+                    !eblanApplicationInfo.isHidden && eblanApplicationInfo.label.contains(
+                        label,
+                        ignoreCase = true,
+                    )
+                }.sortedBy { it.label.lowercase() }.toMutableList()
 
             updateEblanApplicationInfoIndexes(
                 eblanApplicationInfoOrder = userData.appDrawerSettings.eblanApplicationInfoOrder,
-                sortedEblanApplicationInfos = sortedEblanApplicationInfos,
+                eblanApplicationInfos = eblanApplicationInfosByLabel,
             )
 
-            val groupedEblanApplicationInfos = sortedEblanApplicationInfos.groupBy {
+            val groupedEblanApplicationInfos = eblanApplicationInfosByLabel.groupBy {
                 launcherAppsWrapper.getUser(serialNumber = it.serialNumber)
-            }
+            }.toSortedMap(nullsLast(compareBy { it.serialNumber }))
 
             val privateEblanUser = groupedEblanApplicationInfos.keys.firstOrNull {
                 it.eblanUserType == EblanUserType.Private
@@ -99,24 +90,21 @@ class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
 
     private fun updateEblanApplicationInfoIndexes(
         eblanApplicationInfoOrder: EblanApplicationInfoOrder,
-        sortedEblanApplicationInfos: MutableList<EblanApplicationInfo>,
+        eblanApplicationInfos: MutableList<EblanApplicationInfo>,
     ) {
         if (eblanApplicationInfoOrder != EblanApplicationInfoOrder.Custom) return
 
-        val indexedEblanApplicationInfos = sortedEblanApplicationInfos
-            .filter { it.index >= 0 }
-            .sortedBy { it.index }
+        val indexedEblanApplicationInfos = eblanApplicationInfos.filter { it.index >= 0 }
 
         indexedEblanApplicationInfos.forEach { eblanApplicationInfo ->
-            val fromIndex = sortedEblanApplicationInfos.indexOf(eblanApplicationInfo)
+            val fromIndex = eblanApplicationInfos.indexOf(eblanApplicationInfo)
 
             if (fromIndex > -1) {
-                sortedEblanApplicationInfos.removeAt(fromIndex)
+                eblanApplicationInfos.removeAt(fromIndex)
 
-                val toIndex =
-                    eblanApplicationInfo.index.coerceAtMost(sortedEblanApplicationInfos.size)
+                val toIndex = eblanApplicationInfo.index.coerceAtMost(eblanApplicationInfos.size)
 
-                sortedEblanApplicationInfos.add(toIndex, eblanApplicationInfo)
+                eblanApplicationInfos.add(toIndex, eblanApplicationInfo)
             }
         }
     }

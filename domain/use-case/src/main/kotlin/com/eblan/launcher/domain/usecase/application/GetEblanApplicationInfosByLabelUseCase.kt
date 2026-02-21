@@ -24,7 +24,6 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoOrder
 import com.eblan.launcher.domain.model.EblanUserType
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
-import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -114,10 +113,10 @@ class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
             if (fromIndex > -1) {
                 sortedEblanApplicationInfos.removeAt(fromIndex)
 
-                val targetIndex =
+                val toIndex =
                     eblanApplicationInfo.index.coerceAtMost(sortedEblanApplicationInfos.size)
 
-                sortedEblanApplicationInfos.add(targetIndex, eblanApplicationInfo)
+                sortedEblanApplicationInfos.add(toIndex, eblanApplicationInfo)
             }
         }
     }

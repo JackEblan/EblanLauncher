@@ -997,8 +997,6 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 appDrawerSettings = appDrawerSettings,
                 getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
                 iconPackFilePaths = iconPackFilePaths,
-                onVerticalDrag = onVerticalDrag,
-                onDragEnd = onDragEnd,
                 onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
                 onDismissDragAndDrop = onDismissDragAndDrop,
             )

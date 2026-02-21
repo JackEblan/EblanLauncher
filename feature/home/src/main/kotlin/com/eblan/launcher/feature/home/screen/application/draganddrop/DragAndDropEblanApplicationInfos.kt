@@ -40,7 +40,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -53,12 +52,10 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -71,10 +68,7 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanUser
-import com.eblan.launcher.domain.model.EblanUserType
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
-import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
-import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.screen.application.ScrollBarThumb
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -90,40 +84,10 @@ internal fun DragAndDropEblanApplicationInfos(
     appDrawerSettings: AppDrawerSettings,
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     iconPackFilePaths: Map<String, String>,
-    onVerticalDrag: (Float) -> Unit,
-    onDragEnd: (Float) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
     onDismissDragAndDrop: () -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
-    val overscrollEffect = remember(key1 = scope) {
-        OffsetOverscrollEffect(
-            scope = scope,
-            onVerticalDrag = onVerticalDrag,
-            onDragEnd = onDragEnd,
-        )
-    }
-
     val lazyGridState = rememberLazyGridState()
-
-    val canOverscroll by remember(key1 = lazyGridState) {
-        derivedStateOf {
-            val lastVisibleIndex =
-                lazyGridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-
-            lastVisibleIndex < lazyGridState.layoutInfo.totalItemsCount - 1
-        }
-    }
-
-    val nestedScrollConnection = remember {
-        OffsetNestedScrollConnection(
-            onVerticalDrag = onVerticalDrag,
-            onDragEnd = onDragEnd,
-        )
-    }
-
-    var isQuietModeEnabled by remember { mutableStateOf(false) }
 
     val eblanApplicationInfos =
         getEblanApplicationInfosByLabel.eblanApplicationInfos[eblanUser].orEmpty()
@@ -153,17 +117,7 @@ internal fun DragAndDropEblanApplicationInfos(
         }
     }
 
-    Box(
-        modifier = modifier
-            .run {
-                if (!canOverscroll) {
-                    nestedScroll(nestedScrollConnection)
-                } else {
-                    this
-                }
-            }
-            .fillMaxSize(),
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
             state = lazyGridState,
@@ -173,55 +127,20 @@ internal fun DragAndDropEblanApplicationInfos(
             contentPadding = PaddingValues(
                 bottom = paddingValues.calculateBottomPadding(),
             ),
-            overscrollEffect = if (canOverscroll) {
-                overscrollEffect
-            } else {
-                rememberOverscrollEffect()
-            },
         ) {
-            when (eblanUser.eblanUserType) {
-                EblanUserType.Personal -> {
-                    itemsIndexed(
-                        items = currentEblanApplicationInfos,
-                        key = { _, eblanApplicationInfo -> eblanApplicationInfo.componentName },
-                    ) { index, eblanApplicationInfo ->
-                        DraggableItem(
-                            dragDropState = gridDragDropState,
-                            index = index,
-                        ) {
-                            EblanApplicationInfoItem(
-                                eblanApplicationInfo = eblanApplicationInfo,
-                                appDrawerSettings = appDrawerSettings,
-                                iconPackFilePaths = iconPackFilePaths,
-                            )
-                        }
-                    }
-
-                    dragAndDropPrivateSpace(
-                        privateEblanUser = getEblanApplicationInfosByLabel.privateEblanUser,
-                        privateEblanApplicationInfos = getEblanApplicationInfosByLabel.privateEblanApplicationInfos,
-                        isQuietModeEnabled = isQuietModeEnabled,
+            itemsIndexed(
+                items = currentEblanApplicationInfos,
+                key = { _, eblanApplicationInfo -> eblanApplicationInfo.componentName },
+            ) { index, eblanApplicationInfo ->
+                DraggableItem(
+                    dragDropState = gridDragDropState,
+                    index = index,
+                ) {
+                    EblanApplicationInfoItem(
+                        eblanApplicationInfo = eblanApplicationInfo,
                         appDrawerSettings = appDrawerSettings,
                         iconPackFilePaths = iconPackFilePaths,
                     )
-                }
-
-                else -> {
-                    itemsIndexed(
-                        items = currentEblanApplicationInfos,
-                        key = { _, eblanApplicationInfo -> eblanApplicationInfo.componentName },
-                    ) { index, eblanApplicationInfo ->
-                        DraggableItem(
-                            dragDropState = gridDragDropState,
-                            index = index,
-                        ) {
-                            EblanApplicationInfoItem(
-                                eblanApplicationInfo = eblanApplicationInfo,
-                                appDrawerSettings = appDrawerSettings,
-                                iconPackFilePaths = iconPackFilePaths,
-                            )
-                        }
-                    }
                 }
             }
         }

@@ -98,8 +98,8 @@ internal fun SharedTransitionScope.FolderDragScreen(
         gridHeight: Int,
         lockMovement: Boolean,
     ) -> Unit,
-    onDragEnd: () -> Unit,
-    onDragCancel: () -> Unit,
+    onResetGridCacheAfterMoveFolder: (String) -> Unit,
+    onCancelFolderGridCache: (String) -> Unit,
     onMoveGridItemOutsideFolder: (
         gridItemSource: GridItemSource,
         folderId: String,
@@ -169,15 +169,16 @@ internal fun SharedTransitionScope.FolderDragScreen(
                     screenHeight = screenHeight,
                     pageIndicatorHeight = pageIndicatorHeightPx,
                     paddingValues = paddingValues,
-                    onDragEnd = onDragEnd,
-                    onDragCancel = {
+                    folderId = folderDataById.folderId,
+                    onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
+                    onCancelFolderGridCache = { folderId ->
                         Toast.makeText(
                             context,
                             "Layout was canceled due to an invalid position",
                             Toast.LENGTH_LONG,
                         ).show()
 
-                        onDragCancel()
+                        onCancelFolderGridCache(folderId)
                     },
                 )
             }

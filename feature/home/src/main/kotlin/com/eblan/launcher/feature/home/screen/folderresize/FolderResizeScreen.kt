@@ -98,8 +98,11 @@ internal fun SharedTransitionScope.FolderResizeScreen(
         rows: Int,
         lockMovement: Boolean,
     ) -> Unit,
-    onResizeEnd: (GridItem) -> Unit,
-    onResizeCancel: () -> Unit,
+    onResizeEnd: (
+        folderId: String,
+        gridItem: GridItem,
+    ) -> Unit,
+    onResizeCancel: (String) -> Unit,
 ) {
     requireNotNull(gridItem)
 
@@ -169,7 +172,7 @@ internal fun SharedTransitionScope.FolderResizeScreen(
     }
 
     BackHandler {
-        onResizeCancel()
+        onResizeCancel(folderDataById.folderId)
     }
 
     Column(
@@ -177,7 +180,10 @@ internal fun SharedTransitionScope.FolderResizeScreen(
             .pointerInput(key1 = Unit) {
                 detectTapGestures(
                     onTap = {
-                        onResizeEnd(currentGridItem)
+                        onResizeEnd(
+                            folderDataById.folderId,
+                            currentGridItem,
+                        )
                     },
                 )
             }

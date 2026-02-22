@@ -104,8 +104,7 @@ internal fun SharedTransitionScope.FolderScreen(
     eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
     gridItems: List<GridItem>,
     onUpdateScreen: (Screen) -> Unit,
-    onRemoveLastFolder: () -> Unit,
-    onAddFolder: (String) -> Unit,
+    onShowFolder: (String) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -211,9 +210,7 @@ internal fun SharedTransitionScope.FolderScreen(
     }
 
     BackHandler {
-        showGridItemPopup = false
-
-        onRemoveLastFolder()
+        onUpdateScreen(Screen.Pager)
     }
 
     Column(
@@ -331,7 +328,7 @@ internal fun SharedTransitionScope.FolderScreen(
                             context.startActivity(Intent.parseUri(uri, 0))
                         },
                         onTapFolderGridItem = {
-                            onAddFolder(gridItem.id)
+                            onShowFolder(gridItem.id)
                         },
                         onUpdateGridItemOffset = { intOffset, intSize ->
                             popupIntOffset = intOffset

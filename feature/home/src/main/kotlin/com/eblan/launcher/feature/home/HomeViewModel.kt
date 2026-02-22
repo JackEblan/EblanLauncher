@@ -26,7 +26,6 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
@@ -143,8 +142,6 @@ internal class HomeViewModel @Inject constructor(
     val pageItems = _pageItems.asStateFlow()
 
     private var moveGridItemJob: Job? = null
-
-    private val _foldersDataById = MutableStateFlow(ArrayDeque<FolderDataById>())
 
     val gridItemsCache = getGridItemsCacheUseCase().stateIn(
         scope = viewModelScope,
@@ -470,23 +467,13 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetGridCacheAfterMoveFolder() {
+    fun resetGridCacheAfterMoveFolder(folderId: String) {
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
-            val lastFolderId = _foldersDataById.value.last().folderId
-
             gridRepository.updateGridItems(gridItems = folderGridCacheRepository.gridItemsCache.first())
 
-            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folderDataById ->
-                _foldersDataById.update { currentFolders ->
-                    currentFolders.apply {
-                        val index = currentFolders.indexOfFirst { it.folderId == lastFolderId }
-
-                        currentFolders[index] = folderDataById
-                    }
-                }
-
+            getFolderDataByIdUseCase(folderId = folderId)?.let { folderDataById ->
                 delay(defaultDelay)
 
                 _screen.update {
@@ -516,21 +503,11 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun cancelFolderGridCache() {
+    fun cancelFolderGridCache(folderId: String) {
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
-            val lastFolderId = _foldersDataById.value.last().folderId
-
-            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folderDataById ->
-                _foldersDataById.update { currentFolders ->
-                    currentFolders.apply {
-                        val index = currentFolders.indexOfFirst { it.folderId == lastFolderId }
-
-                        currentFolders[index] = folderDataById
-                    }
-                }
-
+            getFolderDataByIdUseCase(folderId = folderId)?.let { folderDataById ->
                 delay(defaultDelay)
 
                 _screen.update {
@@ -604,53 +581,9 @@ internal class HomeViewModel @Inject constructor(
     fun showFolder(folderId: String) {
         viewModelScope.launch {
             getFolderDataByIdUseCase(folderId = folderId)?.let { folderDataById ->
-                _foldersDataById.update { currentFolders ->
-                    currentFolders.apply {
-                        clear()
-
-                        add(folderDataById)
-                    }
-                }
-
                 _screen.update {
                     Screen.Folder(folderDataById = folderDataById)
                 }
-            }
-        }
-    }
-
-    fun addFolder(folderId: String) {
-        viewModelScope.launch {
-            getFolderDataByIdUseCase(folderId = folderId)?.let { folderDataById ->
-                _foldersDataById.update { currentFolders ->
-                    currentFolders.apply {
-                        add(folderDataById)
-                    }
-                }
-
-                _screen.update {
-                    Screen.Folder(folderDataById = folderDataById)
-                }
-            }
-        }
-    }
-
-    fun removeLastFolder() {
-        _foldersDataById.update { currentFolders ->
-            if (currentFolders.isNotEmpty()) {
-                currentFolders.apply {
-                    removeLast()
-                }
-            } else {
-                ArrayDeque()
-            }
-        }
-
-        _screen.update {
-            if (_foldersDataById.value.isNotEmpty()) {
-                Screen.Folder(folderDataById = _foldersDataById.value.last())
-            } else {
-                Screen.Pager
             }
         }
     }
@@ -760,14 +693,6 @@ internal class HomeViewModel @Inject constructor(
     fun showFolderWhenDragging(folderId: String) {
         viewModelScope.launch {
             getFolderDataByIdUseCase(folderId = folderId)?.let { folderDataById ->
-                _foldersDataById.update { currentFolders ->
-                    currentFolders.apply {
-                        clear()
-
-                        add(folderDataById)
-                    }
-                }
-
                 showFolderGridCache(
                     screen = Screen.FolderDrag(folderDataById = folderDataById),
                     gridItems = folderDataById.gridItems,
@@ -831,23 +756,16 @@ internal class HomeViewModel @Inject constructor(
         launcherAppsEventJob = null
     }
 
-    fun resetGridCacheAfterResizeFolder(resizingGridItem: GridItem) {
+    fun resetGridCacheAfterResizeFolder(
+        folderId: String,
+        resizingGridItem: GridItem,
+    ) {
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
-            val lastFolderId = _foldersDataById.value.last().folderId
-
             updateFolderGridItemsAfterResizeUseCase(resizingGridItem = resizingGridItem)
 
-            getFolderDataByIdUseCase(folderId = lastFolderId)?.let { folderDataById ->
-                _foldersDataById.update { currentFolders ->
-                    currentFolders.apply {
-                        val index = currentFolders.indexOfFirst { it.folderId == lastFolderId }
-
-                        currentFolders[index] = folderDataById
-                    }
-                }
-
+            getFolderDataByIdUseCase(folderId = folderId)?.let { folderDataById ->
                 delay(defaultDelay)
 
                 _screen.update {

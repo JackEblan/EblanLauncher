@@ -203,8 +203,6 @@ internal fun HomeRoute(
         onDeleteGridItemCache = viewModel::deleteGridItemCache,
         onDeleteWidgetGridItemCache = viewModel::deleteWidgetGridItemCache,
         onShowFolder = viewModel::showFolder,
-        onRemoveLastFolder = viewModel::removeLastFolder,
-        onAddFolder = viewModel::addFolder,
         onGetEblanApplicationInfosByLabel = viewModel::getEblanApplicationInfosByLabel,
         onGetEblanAppWidgetProviderInfosByLabel = viewModel::getEblanAppWidgetProviderInfosByLabel,
         onGetEblanShortcutConfigsByLabel = viewModel::getEblanShortcutConfigsByLabel,
@@ -286,10 +284,13 @@ internal fun HomeScreen(
     onResetGridCacheAfterResize: (GridItem) -> Unit,
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
-    onResetGridCacheAfterMoveFolder: () -> Unit,
-    onResetGridCacheAfterResizeFolder: (GridItem) -> Unit,
+    onResetGridCacheAfterMoveFolder: (String) -> Unit,
+    onResetGridCacheAfterResizeFolder: (
+        folderId: String,
+        gridItem: GridItem,
+    ) -> Unit,
     onCancelGridCache: () -> Unit,
-    onCancelFolderGridCache: () -> Unit,
+    onCancelFolderGridCache: (String) -> Unit,
     onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (
@@ -309,8 +310,6 @@ internal fun HomeScreen(
         appWidgetId: Int,
     ) -> Unit,
     onShowFolder: (String) -> Unit,
-    onRemoveLastFolder: () -> Unit,
-    onAddFolder: (String) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
@@ -517,8 +516,6 @@ internal fun HomeScreen(
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
                     onShowFolder = onShowFolder,
-                    onRemoveLastFolder = onRemoveLastFolder,
-                    onAddFolder = onAddFolder,
                     onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
                     onResetGridCacheAfterResizeFolder = onResetGridCacheAfterResizeFolder,
                     onUpdateGridItemImageBitmap = { imageBitmap ->
@@ -636,10 +633,13 @@ private fun SharedTransitionScope.Success(
     onResetGridCacheAfterResize: (GridItem) -> Unit,
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
-    onResetGridCacheAfterMoveFolder: () -> Unit,
-    onResetGridCacheAfterResizeFolder: (GridItem) -> Unit,
+    onResetGridCacheAfterMoveFolder: (String) -> Unit,
+    onResetGridCacheAfterResizeFolder: (
+        folderId: String,
+        gridItem: GridItem,
+    ) -> Unit,
     onCancelGridCache: () -> Unit,
-    onCancelFolderGridCache: () -> Unit,
+    onCancelFolderGridCache: (String) -> Unit,
     onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (
@@ -659,8 +659,6 @@ private fun SharedTransitionScope.Success(
         appWidgetId: Int,
     ) -> Unit,
     onShowFolder: (String) -> Unit,
-    onRemoveLastFolder: () -> Unit,
-    onAddFolder: (String) -> Unit,
     onUpdateGridItemImageBitmap: (ImageBitmap?) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -1023,8 +1021,7 @@ private fun SharedTransitionScope.Success(
                     eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
                     gridItems = homeData.gridItems,
                     onUpdateScreen = onUpdateScreen,
-                    onRemoveLastFolder = onRemoveLastFolder,
-                    onAddFolder = onAddFolder,
+                    onShowFolder = onShowFolder,
                     onLongPressGridItem = { newGridItemSource, imageBitmap ->
                         gridItemSource = newGridItemSource
 
@@ -1063,8 +1060,8 @@ private fun SharedTransitionScope.Success(
                     lockMovement = homeData.userData.experimentalSettings.lockMovement,
                     screen = targetState,
                     onMoveFolderGridItem = onMoveFolderGridItem,
-                    onDragEnd = onResetGridCacheAfterMoveFolder,
-                    onDragCancel = onCancelFolderGridCache,
+                    onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
+                    onCancelFolderGridCache = onCancelFolderGridCache,
                     onMoveGridItemOutsideFolder = { newGridItemSource, folderId, movingGridItem ->
                         gridItemSource = newGridItemSource
 

@@ -60,7 +60,7 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 @Composable
 internal fun SharedTransitionScope.ResizeScreen(
     modifier: Modifier = Modifier,
-    currentPage: Int,
+    gridCurrentPage: Int,
     dockCurrentPage: Int,
     gridItemCache: GridItemCache,
     gridItem: GridItem?,
@@ -151,7 +151,7 @@ internal fun SharedTransitionScope.ResizeScreen(
     ) {
         GridLayout(
             modifier = Modifier.weight(1f),
-            gridItems = gridItemCache.gridItemsCacheByPage[currentPage].orEmpty(),
+            gridItems = gridItemCache.gridItemsCacheByPage[gridCurrentPage].orEmpty(),
             columns = homeSettings.columns,
             rows = homeSettings.rows,
             { gridItem ->

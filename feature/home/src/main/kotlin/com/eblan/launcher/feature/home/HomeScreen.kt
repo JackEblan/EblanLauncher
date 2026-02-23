@@ -758,7 +758,7 @@ private fun SharedTransitionScope.Success(
         },
     )
 
-    val currentPage by remember(
+    val gridCurrentPage by remember(
         key1 = gridHorizontalPagerState,
         key2 = homeData.userData.homeSettings,
     ) {
@@ -792,11 +792,11 @@ private fun SharedTransitionScope.Success(
 
     var associate by remember { mutableStateOf<Associate?>(null) }
 
-    val gridItemSourceCurrentPage by remember {
+    val currentPage by remember(key1 = homeData.userData.homeSettings) {
         derivedStateOf {
             when (associate) {
                 Associate.Grid -> {
-                    currentPage
+                    gridCurrentPage
                 }
 
                 Associate.Dock -> {
@@ -876,7 +876,7 @@ private fun SharedTransitionScope.Success(
                     homeSettings = homeData.userData.homeSettings,
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     dockGridHorizontalPagerState = dockGridHorizontalPagerState,
-                    currentPage = gridItemSourceCurrentPage,
+                    currentPage = currentPage,
                     statusBarNotifications = statusBarNotifications,
                     eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                     eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
@@ -933,7 +933,7 @@ private fun SharedTransitionScope.Success(
                     homeSettings = homeData.userData.homeSettings,
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     dockGridHorizontalPagerState = dockGridHorizontalPagerState,
-                    currentPage = gridItemSourceCurrentPage,
+                    currentPage = currentPage,
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
@@ -960,7 +960,7 @@ private fun SharedTransitionScope.Success(
 
             Screen.Resize -> {
                 ResizeScreen(
-                    currentPage = currentPage,
+                    gridCurrentPage = gridCurrentPage,
                     dockCurrentPage = dockCurrentPage,
                     gridItemCache = gridItemCache,
                     gridItem = gridItemSource?.gridItem,

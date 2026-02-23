@@ -792,7 +792,11 @@ private fun SharedTransitionScope.Success(
 
     var associate by remember { mutableStateOf<Associate?>(null) }
 
-    val currentPage by remember(key1 = homeData.userData.homeSettings) {
+    val currentPage by remember(
+        key1 = gridHorizontalPagerState,
+        key2 = dockGridHorizontalPagerState,
+        key3 = homeData.userData.homeSettings,
+    ) {
         derivedStateOf {
             when (associate) {
                 Associate.Grid -> {

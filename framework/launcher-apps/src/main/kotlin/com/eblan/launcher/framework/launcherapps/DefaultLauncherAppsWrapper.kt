@@ -528,7 +528,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
             val file = File(
                 directory,
-                componentName.flattenToString().hashCode().toString(),
+                fileManager.getHashedFileName(name = componentName.flattenToString()),
             )
 
             imageSerializer.createDrawablePath(drawable = drawable, file = file)
@@ -560,7 +560,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
             val file = File(
                 directory,
-                id.hashCode().toString(),
+                fileManager.getHashedFileName(name = id),
             )
 
             imageSerializer.createDrawablePath(drawable = drawable, file = file)

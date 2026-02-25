@@ -58,7 +58,7 @@ internal suspend fun handlePinItemRequest(
 
                             val file = File(
                                 directory,
-                                componentName.hashCode().toString(),
+                                fileManager.getHashedFileName(name = componentName),
                             )
 
                             imageSerializer.createDrawablePath(drawable = drawable, file = file)
@@ -122,7 +122,7 @@ internal suspend fun handlePinItemRequest(
 
                         val file = File(
                             directory,
-                            shortcutInfo.id.hashCode().toString(),
+                            fileManager.getHashedFileName(name = shortcutInfo.id),
                         )
 
                         imageSerializer.createDrawablePath(drawable = drawable, file = file)

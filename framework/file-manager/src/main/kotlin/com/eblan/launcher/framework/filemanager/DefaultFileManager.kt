@@ -18,6 +18,7 @@
 package com.eblan.launcher.framework.filemanager
 
 import android.content.Context
+import android.util.Base64
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
@@ -28,11 +29,13 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.security.MessageDigest
 import javax.inject.Inject
 
 internal class DefaultFileManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : FileManager {
     override suspend fun getFilesDirectory(name: String): File = withContext(ioDispatcher) {
         File(context.filesDir, name).apply {
@@ -63,6 +66,16 @@ internal class DefaultFileManager @Inject constructor(
                 null
             }
         }
+    }
+
+    override suspend fun getHashedFileName(name: String): String = withContext(defaultDispatcher) {
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(name.toByteArray())
+
+        Base64.encodeToString(
+            digest.copyOfRange(0, 8),
+            Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP,
+        )
     }
 
     private fun readFileBytes(file: File): ByteArray? = if (file.exists()) {

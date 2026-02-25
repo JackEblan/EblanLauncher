@@ -87,7 +87,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
 
             val file = File(
                 directory,
-                provider.flattenToString().hashCode().toString(),
+                fileManager.getHashedFileName(name = provider.flattenToString()),
             )
 
             imageSerializer.createDrawablePath(drawable = drawable, file = file)

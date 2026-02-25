@@ -170,7 +170,7 @@ fun IconPackInfoFilesDialog(
 
                                                 val file = File(
                                                     directory,
-                                                    iconName.hashCode().toString(),
+                                                    fileManager.getHashedFileName(name = iconName),
                                                 )
 
                                                 byteArray.createDrawablePath(

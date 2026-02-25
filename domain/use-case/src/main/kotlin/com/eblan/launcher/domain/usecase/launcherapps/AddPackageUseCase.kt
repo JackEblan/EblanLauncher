@@ -146,14 +146,14 @@ class AddPackageUseCase @Inject constructor(
                 val icon = if (componentName != null) {
                     val file = File(
                         directory,
-                        componentName.hashCode().toString(),
+                        fileManager.getHashedFileName(name = componentName),
                     )
 
                     file.absolutePath
                 } else {
                     val file = File(
                         directory,
-                        appWidgetManagerAppWidgetProviderInfo.packageName.hashCode().toString(),
+                        fileManager.getHashedFileName(name = appWidgetManagerAppWidgetProviderInfo.packageName),
                     )
 
                     packageManagerWrapper.getApplicationIcon(
@@ -241,14 +241,14 @@ class AddPackageUseCase @Inject constructor(
             val applicationIcon = if (componentName != null) {
                 val file = File(
                     directory,
-                    componentName.hashCode().toString(),
+                    fileManager.getHashedFileName(name = componentName),
                 )
 
                 file.absolutePath
             } else {
                 val file = File(
                     directory,
-                    shortcutConfigActivityInfo.packageName.hashCode().toString(),
+                    fileManager.getHashedFileName(name = shortcutConfigActivityInfo.packageName),
                 )
 
                 packageManagerWrapper.getApplicationIcon(
@@ -293,7 +293,7 @@ class AddPackageUseCase @Inject constructor(
 
             val file = File(
                 iconPackInfoDirectory,
-                launcherAppsActivityInfo.componentName.hashCode().toString(),
+                fileManager.getHashedFileName(name = launcherAppsActivityInfo.componentName),
             )
 
             cacheIconPackFile(

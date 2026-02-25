@@ -288,14 +288,14 @@ class SyncDataUseCase @Inject constructor(
                 val icon = if (componentName != null) {
                     val file = File(
                         directory,
-                        componentName.hashCode().toString(),
+                        fileManager.getHashedFileName(name = componentName),
                     )
 
                     file.absolutePath
                 } else {
                     val file = File(
                         directory,
-                        appWidgetManagerAppWidgetProviderInfo.packageName.hashCode().toString(),
+                        fileManager.getHashedFileName(name = appWidgetManagerAppWidgetProviderInfo.packageName),
                     )
 
                     packageManagerWrapper.getApplicationIcon(

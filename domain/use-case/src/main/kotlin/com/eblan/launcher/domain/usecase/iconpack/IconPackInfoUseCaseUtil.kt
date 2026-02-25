@@ -46,7 +46,7 @@ internal suspend fun updateIconPackInfos(
 
             val file = File(
                 iconPackInfoDirectory,
-                fastLauncherAppsActivityInfo.componentName.hashCode().toString(),
+                fileManager.getHashedFileName(name = fastLauncherAppsActivityInfo.componentName),
             )
 
             cacheIconPackFile(
@@ -57,7 +57,7 @@ internal suspend fun updateIconPackInfos(
                 componentName = fastLauncherAppsActivityInfo.componentName,
             )
 
-            add(fastLauncherAppsActivityInfo.componentName.hashCode().toString())
+            add(fileManager.getHashedFileName(name = fastLauncherAppsActivityInfo.componentName))
         }
     }
 

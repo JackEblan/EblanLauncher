@@ -18,8 +18,6 @@
 package com.eblan.launcher.domain.usecase.launcherapps
 
 import com.eblan.launcher.domain.framework.FileManager
-import com.eblan.launcher.domain.framework.IconPackManager
-import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
@@ -37,7 +35,6 @@ import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
-import com.eblan.launcher.domain.usecase.iconpack.cacheIconPackFile
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
@@ -125,14 +122,14 @@ internal suspend fun updateShortcutInfoGridItems(
                 val eblanApplicationInfoIcon = if (componentName != null) {
                     val file = File(
                         directory,
-                        componentName.hashCode().toString(),
+                        fileManager.getHashedFileName(name = componentName),
                     )
 
                     file.absolutePath
                 } else {
                     val file = File(
                         directory,
-                        eblanShortcutInfo.packageName.hashCode().toString(),
+                        fileManager.getHashedFileName(name = eblanShortcutInfo.packageName),
                     )
 
                     packageManagerWrapper.getApplicationIcon(
@@ -196,10 +193,16 @@ internal suspend fun updateShortcutConfigGridItems(
             val componentName =
                 packageManagerWrapper.getComponentName(packageName = shortcutConfigActivityInfo.packageName)
 
-            val file = File(
-                directory,
-                componentName.hashCode().toString(),
-            )
+            val icon = if (componentName != null) {
+                val file = File(
+                    directory,
+                    fileManager.getHashedFileName(name = componentName),
+                )
+
+                file.absolutePath
+            } else {
+                null
+            }
 
             updateShortcutConfigGridItems.add(
                 UpdateShortcutConfigGridItem(
@@ -210,7 +213,7 @@ internal suspend fun updateShortcutConfigGridItems(
                     applicationLabel = packageManagerWrapper.getApplicationLabel(
                         packageName = shortcutConfigActivityInfo.packageName,
                     ).toString(),
-                    applicationIcon = file.absolutePath,
+                    applicationIcon = icon,
                 ),
             )
         } else {
@@ -263,14 +266,14 @@ internal suspend fun updateWidgetGridItems(
             val icon = if (componentName != null) {
                 val file = File(
                     directory,
-                    componentName.hashCode().toString(),
+                    fileManager.getHashedFileName(name = componentName),
                 )
 
                 file.absolutePath
             } else {
                 val file = File(
                     directory,
-                    eblanAppWidgetProviderInfo.packageName.hashCode().toString(),
+                    fileManager.getHashedFileName(name = eblanAppWidgetProviderInfo.packageName),
                 )
 
                 packageManagerWrapper.getApplicationIcon(

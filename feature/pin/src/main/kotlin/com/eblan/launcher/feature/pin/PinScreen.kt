@@ -219,7 +219,7 @@ private fun PinShortcutScreen(
 
                                 val file = File(
                                     directory,
-                                    shortcutInfo.id.hashCode().toString(),
+                                    fileManager.getHashedFileName(name = shortcutInfo.id),
                                 )
 
                                 imageSerializer.createDrawablePath(
@@ -390,7 +390,7 @@ private fun PinWidgetScreen(
 
                     val file = File(
                         directory,
-                        componentName.hashCode().toString(),
+                        fileManager.getHashedFileName(name = componentName),
                     )
 
                     val preview = file.absolutePath

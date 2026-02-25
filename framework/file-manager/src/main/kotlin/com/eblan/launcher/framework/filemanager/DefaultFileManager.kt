@@ -28,11 +28,14 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.security.MessageDigest
 import javax.inject.Inject
+import kotlin.io.encoding.Base64
 
 internal class DefaultFileManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : FileManager {
     override suspend fun getFilesDirectory(name: String): File = withContext(ioDispatcher) {
         File(context.filesDir, name).apply {
@@ -63,6 +66,15 @@ internal class DefaultFileManager @Inject constructor(
                 null
             }
         }
+    }
+
+    override suspend fun getHashedFileName(name: String): String = withContext(defaultDispatcher) {
+        Base64.encode(
+            source = MessageDigest.getInstance("SHA-256")
+                .digest(name.toByteArray()),
+            startIndex = 0,
+            endIndex = 8,
+        )
     }
 
     private fun readFileBytes(file: File): ByteArray? = if (file.exists()) {

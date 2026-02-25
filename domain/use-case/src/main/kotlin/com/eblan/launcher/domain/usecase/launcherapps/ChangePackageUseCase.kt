@@ -258,14 +258,14 @@ class ChangePackageUseCase @Inject constructor(
                 val icon = if (componentName != null) {
                     val file = File(
                         directory,
-                        componentName.hashCode().toString(),
+                        fileManager.getHashedFileName(name = componentName),
                     )
 
                     file.absolutePath
                 } else {
                     val file = File(
                         directory,
-                        appWidgetManagerAppWidgetProviderInfo.packageName.hashCode().toString(),
+                        fileManager.getHashedFileName(name = appWidgetManagerAppWidgetProviderInfo.packageName),
                     )
 
                     packageManagerWrapper.getApplicationIcon(
@@ -577,7 +577,7 @@ class ChangePackageUseCase @Inject constructor(
 
                 val file = File(
                     iconPackInfoDirectory,
-                    fastLauncherAppsActivityInfo.componentName.hashCode().toString(),
+                    fileManager.getHashedFileName(name = fastLauncherAppsActivityInfo.componentName),
                 )
 
                 cacheIconPackFile(
@@ -588,7 +588,7 @@ class ChangePackageUseCase @Inject constructor(
                     componentName = fastLauncherAppsActivityInfo.componentName,
                 )
 
-                add(fastLauncherAppsActivityInfo.componentName.hashCode().toString())
+                add(fileManager.getHashedFileName(name = fastLauncherAppsActivityInfo.componentName))
             }
         }
 

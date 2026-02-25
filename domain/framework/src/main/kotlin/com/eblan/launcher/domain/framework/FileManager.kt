@@ -28,6 +28,8 @@ interface FileManager {
         byteArray: ByteArray,
     ): String?
 
+    suspend fun getHashedFileName(name: String): String
+
     companion object {
         const val ICONS_DIR = "icons"
 

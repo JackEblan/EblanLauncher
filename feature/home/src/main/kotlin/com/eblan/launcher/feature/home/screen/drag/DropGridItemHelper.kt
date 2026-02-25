@@ -365,7 +365,7 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
 
             val file = File(
                 directory,
-                shortcutInfo.id.hashCode().toString(),
+                fileManager.getHashedFileName(name = shortcutInfo.id),
             )
 
             imageSerializer.createDrawablePath(drawable = drawable, file = file)

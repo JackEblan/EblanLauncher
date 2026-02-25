@@ -21,16 +21,13 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
-import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
 class DeleteIconPackInfoUseCase @Inject constructor(
     private val fileManager: FileManager,
-    private val userDataRepository: UserDataRepository,
     private val eblanIconPackInfoRepository: EblanIconPackInfoRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
@@ -41,9 +38,6 @@ class DeleteIconPackInfoUseCase @Inject constructor(
 
             if (eblanIconPackInfo != null) {
                 eblanIconPackInfoRepository.deleteEblanIconPackInfo(eblanIconPackInfo = eblanIconPackInfo)
-
-                val iconPackInfoPackageName =
-                    userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
 
                 val iconPacksDirectory = File(
                     fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),

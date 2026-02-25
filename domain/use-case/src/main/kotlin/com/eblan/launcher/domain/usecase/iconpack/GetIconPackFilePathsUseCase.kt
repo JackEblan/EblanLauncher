@@ -51,18 +51,18 @@ class GetIconPackFilePathsUseCase @Inject constructor(
                 iconPackInfoPackageName,
             )
 
-            eblaApplicationInfos.mapNotNull { eblanApplicationInfo ->
-                val iconPackFile = File(
-                    iconPackDirectory,
-                    eblanApplicationInfo.componentName.hashCode().toString(),
-                )
+            buildMap {
+                eblaApplicationInfos.forEach { eblanApplicationInfo ->
+                    val iconPackFile = File(
+                        iconPackDirectory,
+                        eblanApplicationInfo.componentName.hashCode().toString(),
+                    )
 
-                if (iconPackFile.exists()) {
-                    eblanApplicationInfo.componentName to iconPackFile.absolutePath
-                } else {
-                    null
+                    if (iconPackFile.exists()) {
+                        put(eblanApplicationInfo.componentName, iconPackFile.absolutePath)
+                    }
                 }
-            }.toMap()
+            }
         } else {
             emptyMap()
         }

@@ -99,8 +99,7 @@ class GetHomeDataUseCase @Inject constructor(
         theme: Theme,
         colorHints: Int?,
     ): TextColor = if (colorHints != null) {
-        val hintSupportsDarkText =
-            colorHints.and(wallpaperManagerWrapper.hintSupportsDarkText) != 0
+        val hintSupportsDarkText = colorHints and wallpaperManagerWrapper.hintSupportsDarkText != 0
 
         if (hintSupportsDarkText) {
             TextColor.Dark

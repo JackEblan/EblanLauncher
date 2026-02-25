@@ -193,25 +193,29 @@ internal suspend fun updateShortcutConfigGridItems(
             val componentName =
                 packageManagerWrapper.getComponentName(packageName = shortcutConfigActivityInfo.packageName)
 
-            if (componentName != null) {
+            val icon = if (componentName != null) {
                 val file = File(
                     directory,
                     fileManager.getHashedFileName(name = componentName),
                 )
 
-                updateShortcutConfigGridItems.add(
-                    UpdateShortcutConfigGridItem(
-                        id = shortcutConfigGridItem.id,
-                        componentName = shortcutConfigActivityInfo.componentName,
-                        activityLabel = shortcutConfigActivityInfo.activityLabel,
-                        activityIcon = shortcutConfigActivityInfo.activityIcon,
-                        applicationLabel = packageManagerWrapper.getApplicationLabel(
-                            packageName = shortcutConfigActivityInfo.packageName,
-                        ).toString(),
-                        applicationIcon = file.absolutePath,
-                    ),
-                )
+                file.absolutePath
+            } else {
+                null
             }
+
+            updateShortcutConfigGridItems.add(
+                UpdateShortcutConfigGridItem(
+                    id = shortcutConfigGridItem.id,
+                    componentName = shortcutConfigActivityInfo.componentName,
+                    activityLabel = shortcutConfigActivityInfo.activityLabel,
+                    activityIcon = shortcutConfigActivityInfo.activityIcon,
+                    applicationLabel = packageManagerWrapper.getApplicationLabel(
+                        packageName = shortcutConfigActivityInfo.packageName,
+                    ).toString(),
+                    applicationIcon = icon,
+                ),
+            )
         } else {
             deleteShortcutConfigGridItems.add(shortcutConfigGridItem)
         }

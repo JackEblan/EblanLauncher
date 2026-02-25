@@ -18,6 +18,7 @@
 package com.eblan.launcher.framework.filemanager
 
 import android.content.Context
+import android.util.Base64
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
@@ -30,7 +31,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.security.MessageDigest
 import javax.inject.Inject
-import kotlin.io.encoding.Base64
 
 internal class DefaultFileManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
@@ -69,11 +69,12 @@ internal class DefaultFileManager @Inject constructor(
     }
 
     override suspend fun getHashedFileName(name: String): String = withContext(defaultDispatcher) {
-        Base64.encode(
-            source = MessageDigest.getInstance("SHA-256")
-                .digest(name.toByteArray()),
-            startIndex = 0,
-            endIndex = 8,
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(name.toByteArray())
+
+        Base64.encodeToString(
+            digest.copyOfRange(0, 8),
+            Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP,
         )
     }
 

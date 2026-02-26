@@ -20,6 +20,7 @@ package com.eblan.launcher.data.room
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.eblan.launcher.data.room.dao.ApplicationInfoFolderGridItemDao
 import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
 import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
@@ -121,6 +122,8 @@ internal abstract class EblanDatabase : RoomDatabase() {
     abstract fun eblanApplicationInfoTagCrossRefDao(): EblanApplicationInfoTagCrossRefDao
 
     abstract fun eblanApplicationInfoTagDao(): EblanApplicationInfoTagDao
+
+    abstract fun applicationInfoFolderGridItemDao(): ApplicationInfoFolderGridItemDao
 
     companion object {
         const val DATABASE_NAME = "Eblan.db"

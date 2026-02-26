@@ -161,22 +161,6 @@ internal fun handleKlwpBroadcasts(
     }
 
     when (screen) {
-        is Screen.Folder -> {
-            context.sendBroadcast(
-                intent.apply {
-                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.Folder.ordinal)
-                },
-            )
-        }
-
-        is Screen.FolderDrag -> {
-            context.sendBroadcast(
-                intent.apply {
-                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.FolderDrag.ordinal)
-                },
-            )
-        }
-
         Screen.EditPage -> {
             context.sendBroadcast(
                 intent.apply {

@@ -26,7 +26,6 @@ import com.eblan.launcher.data.repository.DefaultEblanApplicationInfoTagReposito
 import com.eblan.launcher.data.repository.DefaultEblanIconPackInfoRepository
 import com.eblan.launcher.data.repository.DefaultEblanShortcutConfigRepository
 import com.eblan.launcher.data.repository.DefaultEblanShortcutInfoRepository
-import com.eblan.launcher.data.repository.DefaultFolderGridCacheRepository
 import com.eblan.launcher.data.repository.DefaultFolderGridItemRepository
 import com.eblan.launcher.data.repository.DefaultGridCacheRepository
 import com.eblan.launcher.data.repository.DefaultGridRepository
@@ -43,7 +42,6 @@ import com.eblan.launcher.domain.repository.EblanApplicationInfoTagRepository
 import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
-import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
@@ -71,10 +69,6 @@ internal interface RepositoryModule {
     @Binds
     @Singleton
     fun gridCacheRepository(impl: DefaultGridCacheRepository): GridCacheRepository
-
-    @Binds
-    @Singleton
-    fun folderGridCacheRepository(impl: DefaultFolderGridCacheRepository): FolderGridCacheRepository
 
     @Binds
     @Singleton

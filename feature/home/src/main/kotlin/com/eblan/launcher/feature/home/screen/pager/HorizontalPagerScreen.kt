@@ -98,7 +98,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
     screen: Screen,
-    onTapFolderGridItem: (String) -> Unit,
     onEditGridItem: (String) -> Unit,
     onResize: (
         screen: Screen,
@@ -291,7 +290,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                             context.startActivity(Intent.parseUri(uri, 0))
                         },
                         onTapFolderGridItem = {
-                            onTapFolderGridItem(gridItem.id)
+                            TODO()
                         },
                         onUpdateGridItemOffset = { intOffset, intSize ->
                             popupIntOffset = intOffset
@@ -422,7 +421,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         context.startActivity(Intent.parseUri(uri, 0))
                     },
                     onTapFolderGridItem = {
-                        onTapFolderGridItem(gridItem.id)
+                        TODO()
                     },
                     onUpdateGridItemOffset = { intOffset, intSize ->
                         popupIntOffset = intOffset

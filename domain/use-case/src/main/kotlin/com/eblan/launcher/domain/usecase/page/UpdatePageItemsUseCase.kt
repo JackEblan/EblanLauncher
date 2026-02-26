@@ -46,11 +46,11 @@ class UpdatePageItemsUseCase @Inject constructor(
                 gridRepository.deleteGridItems(gridItems = pageItem.gridItems)
             }
 
-            val gridItems = pageItems.mapIndexed { index, pageItem ->
+            val gridItems = pageItems.flatMapIndexed { index, pageItem ->
                 pageItem.gridItems.map { gridItem ->
                     gridItem.copy(page = index)
                 }
-            }.flatten()
+            }
 
             val newInitialPage = pageItems.indexOfFirst { it.id == id }
 

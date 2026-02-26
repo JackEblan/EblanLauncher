@@ -66,7 +66,6 @@ sealed interface GridItemData {
         val id: String,
         val label: String,
         val gridItems: List<ApplicationInfoFolderGridItem>,
-        val pageCount: Int,
         val icon: String?,
     ) : GridItemData
 

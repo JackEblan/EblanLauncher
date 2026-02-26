@@ -27,7 +27,6 @@ data class FolderGridItem(
     val associate: Associate,
     val label: String,
     val override: Boolean,
-    val pageCount: Int,
     val icon: String?,
     val gridItemSettings: GridItemSettings,
     val doubleTap: EblanAction,

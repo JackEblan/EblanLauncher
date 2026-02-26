@@ -128,7 +128,7 @@ internal fun EditGridItemScreen(
                                     is GridItemData.ShortcutConfig,
                                     is GridItemData.ShortcutInfo,
                                     is GridItemData.Folder,
-                                    -> {
+                                        -> {
                                         onRestoreGridItem(editGridItemUiState.gridItem)
                                     }
 
@@ -406,8 +406,6 @@ private fun EditFolder(
 
     var showEditLabelDialog by remember { mutableStateOf(false) }
 
-    var showEditPageCountDialog by remember { mutableStateOf(false) }
-
     var iconPackInfoPackageName by remember { mutableStateOf<String?>(null) }
 
     var iconPackInfoLabel by remember { mutableStateOf<String?>(null) }
@@ -438,16 +436,6 @@ private fun EditFolder(
         subtitle = data.label,
         onClick = {
             showEditLabelDialog = true
-        },
-    )
-
-    HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-    SettingsColumn(
-        title = "Edit Page Count",
-        subtitle = data.pageCount.toString(),
-        onClick = {
-            showEditPageCountDialog = true
         },
     )
 
@@ -498,41 +486,6 @@ private fun EditFolder(
                     onUpdateGridItem(gridItem.copy(data = newData))
 
                     showEditLabelDialog = false
-                } else {
-                    isError = true
-                }
-            },
-        )
-    }
-
-    if (showEditPageCountDialog) {
-        var value by remember { mutableStateOf("${data.pageCount}") }
-
-        var isError by remember { mutableStateOf(false) }
-
-        SingleTextFieldDialog(
-            title = "Page Count",
-            textFieldTitle = "Page Count",
-            value = value,
-            isError = isError,
-            keyboardType = KeyboardType.Number,
-            onValueChange = {
-                value = it
-            },
-            onDismissRequest = {
-                showEditPageCountDialog = false
-            },
-            onUpdateClick = {
-                if (value.isNotBlank()) {
-                    try {
-                        val newData = data.copy(pageCount = value.toInt())
-
-                        onUpdateGridItem(gridItem.copy(data = newData))
-
-                        showEditPageCountDialog = false
-                    } catch (_: NumberFormatException) {
-                        isError = true
-                    }
                 } else {
                     isError = true
                 }

@@ -83,7 +83,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                 ApplicationInfoFolderGridItem(
                     id = movingGridItem.id,
                     folderId = conflictingData.id,
-                    index = -1,
+                    index = conflictingData.gridItems.size,
                     componentName = movingData.componentName,
                     packageName = movingData.packageName,
                     icon = movingData.icon,
@@ -116,30 +116,9 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         applicationInfoFolderGridItemRepository.insertApplicationInfoFolderGridItem(
             applicationInfoFolderGridItem =
                 ApplicationInfoFolderGridItem(
-                    id = movingGridItem.id,
-                    folderId = id,
-                    index = -1,
-                    componentName = movingData.componentName,
-                    packageName = movingData.packageName,
-                    icon = movingData.icon,
-                    label = movingData.label,
-                    override = movingGridItem.override,
-                    serialNumber = movingData.serialNumber,
-                    customIcon = movingData.customIcon,
-                    customLabel = movingData.customLabel,
-                    gridItemSettings = movingGridItem.gridItemSettings,
-                    doubleTap = movingGridItem.doubleTap,
-                    swipeUp = movingGridItem.swipeUp,
-                    swipeDown = movingGridItem.swipeDown,
-                ),
-        )
-
-        applicationInfoFolderGridItemRepository.insertApplicationInfoFolderGridItem(
-            applicationInfoFolderGridItem =
-                ApplicationInfoFolderGridItem(
                     id = conflictingGridItem.id,
                     folderId = id,
-                    index = -1,
+                    index = 0,
                     componentName = conflictingData.componentName,
                     packageName = conflictingData.packageName,
                     icon = conflictingData.icon,
@@ -152,6 +131,27 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     doubleTap = conflictingGridItem.doubleTap,
                     swipeUp = conflictingGridItem.swipeUp,
                     swipeDown = conflictingGridItem.swipeDown,
+                ),
+        )
+
+        applicationInfoFolderGridItemRepository.insertApplicationInfoFolderGridItem(
+            applicationInfoFolderGridItem =
+                ApplicationInfoFolderGridItem(
+                    id = movingGridItem.id,
+                    folderId = id,
+                    index = 1,
+                    componentName = movingData.componentName,
+                    packageName = movingData.packageName,
+                    icon = movingData.icon,
+                    label = movingData.label,
+                    override = movingGridItem.override,
+                    serialNumber = movingData.serialNumber,
+                    customIcon = movingData.customIcon,
+                    customLabel = movingData.customLabel,
+                    gridItemSettings = movingGridItem.gridItemSettings,
+                    doubleTap = movingGridItem.doubleTap,
+                    swipeUp = movingGridItem.swipeUp,
+                    swipeDown = movingGridItem.swipeDown,
                 ),
         )
     }

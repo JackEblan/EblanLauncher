@@ -36,7 +36,6 @@ data class FolderGridItemEntity(
     val associate: Associate,
     val label: String,
     val override: Boolean,
-    val pageCount: Int,
     val icon: String?,
     @Embedded val gridItemSettings: GridItemSettings,
     @Embedded(prefix = "doubleTap_") val doubleTap: EblanAction,

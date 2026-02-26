@@ -130,7 +130,6 @@ internal fun SharedTransitionScope.DragScreen(
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
     ) -> Unit,
-    onShowFolderWhenDragging: (String) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateAssociate: (Associate) -> Unit,
     onResetConfigureResultCode: () -> Unit,
@@ -332,7 +331,9 @@ internal fun SharedTransitionScope.DragScreen(
             gridItemSource = gridItemSource,
             drag = drag,
             moveGridItemResult = moveGridItemResult,
-            onShowFolderWhenDragging = onShowFolderWhenDragging,
+            onShowFolderWhenDragging = {
+                TODO()
+            },
         )
     }
 

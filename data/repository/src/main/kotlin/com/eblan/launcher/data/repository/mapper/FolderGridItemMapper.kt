@@ -48,7 +48,6 @@ internal fun FolderGridItemWrapper.asFolderGridItemData(): GridItemData.Folder {
         id = folderGridItemEntity.id,
         label = folderGridItemEntity.label,
         gridItems = gridItems,
-        pageCount = folderGridItemEntity.pageCount,
         icon = folderGridItemEntity.icon,
     )
 }
@@ -65,7 +64,6 @@ internal fun FolderGridItemEntity.asGridItem(): GridItem = GridItem(
         id = id,
         label = label,
         gridItems = emptyList(),
-        pageCount = pageCount,
         icon = icon,
     ),
     associate = associate,
@@ -86,7 +84,6 @@ internal fun FolderGridItem.asEntity(): FolderGridItemEntity = FolderGridItemEnt
     associate = associate,
     label = label,
     override = override,
-    pageCount = pageCount,
     icon = icon,
     gridItemSettings = gridItemSettings,
     doubleTap = doubleTap,
@@ -104,7 +101,6 @@ internal fun GridItem.asFolderGridItem(data: GridItemData.Folder): FolderGridIte
     associate = associate,
     label = data.label,
     override = override,
-    pageCount = data.pageCount,
     icon = data.icon,
     gridItemSettings = gridItemSettings,
     doubleTap = doubleTap,

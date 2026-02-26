@@ -116,7 +116,6 @@ internal fun SharedTransitionScope.PagerScreen(
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
-    onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: (
         screen: Screen,
         gridItems: List<GridItem>,
@@ -380,7 +379,6 @@ internal fun SharedTransitionScope.PagerScreen(
         iconPackFilePaths = iconPackFilePaths,
         isPressHome = isPressHome,
         screen = screen,
-        onTapFolderGridItem = onTapFolderGridItem,
         onEditGridItem = onEditGridItem,
         onResize = onResize,
         onSettings = onSettings,

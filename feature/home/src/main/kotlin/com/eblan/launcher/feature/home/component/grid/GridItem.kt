@@ -374,8 +374,8 @@ internal fun SharedTransitionScope.FolderGridItemContent(
                 maxItemsInEachRow = 3,
                 maxLines = 3,
             ) {
-                data.gridItems.sortedBy { gridItem -> gridItem.index }
-                    .forEach { applicationInfoFolderGridItem ->
+                data.gridItemsByPage.values.firstOrNull()
+                    ?.forEach { applicationInfoFolderGridItem ->
                         val folderGridItemModifier =
                             Modifier
                                 .sharedElementWithCallerManagedVisibility(

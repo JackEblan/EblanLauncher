@@ -19,6 +19,7 @@ package com.eblan.launcher.data.room.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -49,4 +50,7 @@ interface FolderGridItemDao {
 
     @Delete
     suspend fun deleteFolderGridItemEntities(entities: List<FolderGridItemEntity>)
+
+    @Insert
+    suspend fun insertFolderGridItemEntity(entity: FolderGridItemEntity)
 }

@@ -28,7 +28,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-internal class DefaultApplicationInfoGridItemRepository @Inject constructor(private val applicationInfoGridItemDao: ApplicationInfoGridItemDao) : ApplicationInfoGridItemRepository {
+internal class DefaultApplicationInfoGridItemRepository @Inject constructor(private val applicationInfoGridItemDao: ApplicationInfoGridItemDao) :
+    ApplicationInfoGridItemRepository {
     override val gridItems =
         applicationInfoGridItemDao.getApplicationInfoGridItemEntities().map { entities ->
             entities.map { entity ->
@@ -72,12 +73,13 @@ internal class DefaultApplicationInfoGridItemRepository @Inject constructor(priv
     override suspend fun getApplicationInfoGridItemsByPackageName(
         serialNumber: Long,
         packageName: String,
-    ): List<ApplicationInfoGridItem> = applicationInfoGridItemDao.getApplicationInfoGridItemEntitiesByPackageName(
-        serialNumber = serialNumber,
-        packageName = packageName,
-    ).map { entity ->
-        entity.asModel()
-    }
+    ): List<ApplicationInfoGridItem> =
+        applicationInfoGridItemDao.getApplicationInfoGridItemEntitiesByPackageName(
+            serialNumber = serialNumber,
+            packageName = packageName,
+        ).map { entity ->
+            entity.asModel()
+        }
 
     override suspend fun deleteApplicationInfoGridItem(
         serialNumber: Long,
@@ -97,5 +99,9 @@ internal class DefaultApplicationInfoGridItemRepository @Inject constructor(priv
 
     override suspend fun insertApplicationInfoGridItem(applicationInfoGridItem: ApplicationInfoGridItem) {
         applicationInfoGridItemDao.insertApplicationInfoGridItemEntity(entity = applicationInfoGridItem.asEntity())
+    }
+
+    override suspend fun deleteApplicationInfoGridItemById(id: String) {
+        applicationInfoGridItemDao.deleteApplicationInfoGridItemEntityById(id = id)
     }
 }

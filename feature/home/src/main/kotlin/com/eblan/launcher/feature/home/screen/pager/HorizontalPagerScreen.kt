@@ -66,6 +66,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.screen.folder.FolderScreen
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -98,6 +99,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
     screen: Screen,
+    folderGridItem: GridItem?,
+    folderGridHorizontalPagerState: PagerState,
+    screenWidth: Int,
+    screenHeight: Int,
     onEditGridItem: (String) -> Unit,
     onResize: (
         screen: Screen,
@@ -127,6 +132,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
     onOpenAppDrawer: () -> Unit,
+    onUpdateFolderGridItem: (GridItem?) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -153,6 +159,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     var popupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var popupIntSize by remember { mutableStateOf(IntSize.Zero) }
+
+    var folderPopupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var folderPopupIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -290,7 +300,17 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                             context.startActivity(Intent.parseUri(uri, 0))
                         },
                         onTapFolderGridItem = {
-                            TODO()
+                            folderPopupIntOffset = IntOffset(
+                                x = x,
+                                y = y,
+                            )
+
+                            folderPopupIntSize = IntSize(
+                                width = width,
+                                height = height,
+                            )
+
+                            onUpdateFolderGridItem(gridItem)
                         },
                         onUpdateGridItemOffset = { intOffset, intSize ->
                             popupIntOffset = intOffset
@@ -421,7 +441,17 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         context.startActivity(Intent.parseUri(uri, 0))
                     },
                     onTapFolderGridItem = {
-                        TODO()
+                        folderPopupIntOffset = IntOffset(
+                            x = x,
+                            y = y,
+                        )
+
+                        folderPopupIntSize = IntSize(
+                            width = width,
+                            height = height,
+                        )
+
+                        onUpdateFolderGridItem(gridItem)
                     },
                     onUpdateGridItemOffset = { intOffset, intSize ->
                         popupIntOffset = intOffset
@@ -542,6 +572,30 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             onDismissRequest = {
                 showSettingsPopup = false
             },
+        )
+    }
+
+    if (folderGridItem != null) {
+        FolderScreen(
+            gridItem = folderGridItem,
+            popupIntOffset = folderPopupIntOffset,
+            popupIntSize = folderPopupIntSize,
+            paddingValues = paddingValues,
+            folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            homeSettings = homeSettings,
+            textColor = textColor,
+            gridItemSettings = homeSettings.gridItemSettings,
+            statusBarNotifications = statusBarNotifications,
+            iconPackFilePaths = iconPackFilePaths,
+            onDismissRequest = {
+                onUpdateFolderGridItem(null)
+            },
+            onLongPressGridItem = { _, _ -> },
+            onUpdateGridItemOffset = { _, _ -> },
+            onDraggingGridItem = {},
+            onUpdateSharedElementKey = {},
         )
     }
 }

@@ -703,6 +703,20 @@ private fun SharedTransitionScope.Success(
         }
     }
 
+    var folderGridItem by remember { mutableStateOf<GridItem?>(null) }
+
+    val folderGridHorizontalPagerState = rememberPagerState(
+        pageCount = {
+            when (val data = folderGridItem?.data) {
+                is GridItemData.Folder -> {
+                    data.gridItemsByPage.size
+                }
+
+                else -> 0
+            }
+        },
+    )
+
     LaunchedEffect(key1 = pinGridItem) {
         val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
@@ -781,6 +795,8 @@ private fun SharedTransitionScope.Success(
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     eblanShortcutConfigs = eblanShortcutConfigs,
                     eblanApplicationInfoTags = eblanApplicationInfoTags,
+                    folderGridItem = folderGridItem,
+                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     onDraggingGridItem = onShowGridCache,
                     onEditGridItem = onEditGridItem,
                     onResize = onShowGridCache,
@@ -808,6 +824,9 @@ private fun SharedTransitionScope.Success(
                     onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
                     onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
                     onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
+                    onUpdateFolderGridItem = { gridItem ->
+                        folderGridItem = gridItem
+                    }
                 )
             }
 

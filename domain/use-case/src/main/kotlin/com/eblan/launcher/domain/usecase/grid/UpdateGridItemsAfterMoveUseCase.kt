@@ -20,10 +20,13 @@ package com.eblan.launcher.domain.usecase.grid
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.ApplicationInfoFolderGridItem
+import com.eblan.launcher.domain.model.FolderGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.repository.ApplicationInfoFolderGridItemRepository
+import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
+import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -36,7 +39,9 @@ import kotlin.uuid.Uuid
 class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val gridRepository: GridRepository,
+    private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val applicationInfoFolderGridItemRepository: ApplicationInfoFolderGridItemRepository,
+    private val folderGridItemRepository: FolderGridItemRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(moveGridItemResult: MoveGridItemResult) {
@@ -51,6 +56,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                         addMovingGridItemIntoFolder(
                             conflictingData = data,
                             movingGridItem = moveGridItemResult.movingGridItem,
+                            gridItems = gridItems,
                         )
                     }
 
@@ -58,6 +64,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                         createNewFolder(
                             conflictingGridItem = conflictingGridItem,
                             movingGridItem = moveGridItemResult.movingGridItem,
+                            gridItems = gridItems,
                         )
                     }
                 }
@@ -72,11 +79,16 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private suspend fun addMovingGridItemIntoFolder(
         conflictingData: GridItemData.Folder,
         movingGridItem: GridItem,
+        gridItems: MutableList<GridItem>,
     ) {
         val movingData = movingGridItem.data as? GridItemData.ApplicationInfo
             ?: error("Expected GridItemData.ApplicationInfo")
 
-        gridRepository.deleteGridItem(gridItem = movingGridItem)
+        gridItems.removeIf { gridItem ->
+            gridItem.id == movingGridItem.id
+        }
+
+        applicationInfoGridItemRepository.deleteApplicationInfoGridItemById(id = movingGridItem.id)
 
         applicationInfoFolderGridItemRepository.insertApplicationInfoFolderGridItem(
             applicationInfoFolderGridItem =
@@ -104,14 +116,27 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private suspend fun createNewFolder(
         conflictingGridItem: GridItem,
         movingGridItem: GridItem,
+        gridItems: MutableList<GridItem>,
     ) {
-        val movingData = movingGridItem.data as? GridItemData.ApplicationInfo
-            ?: error("Expected GridItemData.ApplicationInfo")
-
         val conflictingData = conflictingGridItem.data as? GridItemData.ApplicationInfo
             ?: error("Expected GridItemData.ApplicationInfo")
 
+        val movingData = movingGridItem.data as? GridItemData.ApplicationInfo
+            ?: error("Expected GridItemData.ApplicationInfo")
+
         val id = Uuid.random().toHexString()
+
+        gridItems.removeIf { gridItem ->
+            gridItem.id == conflictingGridItem.id
+        }
+
+        gridItems.removeIf { gridItem ->
+            gridItem.id == movingGridItem.id
+        }
+
+        applicationInfoGridItemRepository.deleteApplicationInfoGridItemById(id = conflictingGridItem.id)
+
+        applicationInfoGridItemRepository.deleteApplicationInfoGridItemById(id = movingGridItem.id)
 
         applicationInfoFolderGridItemRepository.insertApplicationInfoFolderGridItem(
             applicationInfoFolderGridItem =
@@ -153,6 +178,25 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     swipeUp = movingGridItem.swipeUp,
                     swipeDown = movingGridItem.swipeDown,
                 ),
+        )
+
+        folderGridItemRepository.insertFolderGridItem(
+            folderGridItem = FolderGridItem(
+                id = id,
+                page = conflictingGridItem.page,
+                startColumn = conflictingGridItem.startColumn,
+                startRow = conflictingGridItem.startRow,
+                columnSpan = conflictingGridItem.columnSpan,
+                rowSpan = conflictingGridItem.rowSpan,
+                associate = conflictingGridItem.associate,
+                label = "Unknown",
+                override = conflictingGridItem.override,
+                icon = null,
+                gridItemSettings = conflictingGridItem.gridItemSettings,
+                doubleTap = conflictingGridItem.doubleTap,
+                swipeUp = conflictingGridItem.swipeUp,
+                swipeDown = conflictingGridItem.swipeDown,
+            ),
         )
     }
 }

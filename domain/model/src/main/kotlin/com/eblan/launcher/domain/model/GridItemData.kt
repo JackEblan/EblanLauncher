@@ -66,7 +66,10 @@ sealed interface GridItemData {
         val id: String,
         val label: String,
         val gridItems: List<ApplicationInfoFolderGridItem>,
+        val gridItemsByPage: Map<Int, List<ApplicationInfoFolderGridItem>>,
         val icon: String?,
+        val columns: Int,
+        val rows: Int,
     ) : GridItemData
 
     data class ShortcutConfig(

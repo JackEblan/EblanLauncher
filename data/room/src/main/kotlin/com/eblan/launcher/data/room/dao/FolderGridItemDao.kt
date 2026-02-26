@@ -24,7 +24,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
 import com.eblan.launcher.data.room.entity.FolderGridItemEntity
-import com.eblan.launcher.data.room.entity.FolderGridItemWrapper
+import com.eblan.launcher.data.room.entity.FolderGridItemWrapperEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -32,11 +32,11 @@ interface FolderGridItemDao {
 
     @Transaction
     @Query("SELECT * FROM FolderGridItemEntity")
-    fun getFolderGridItemWrappers(): Flow<List<FolderGridItemWrapper>>
+    fun getFolderGridItemWrappers(): Flow<List<FolderGridItemWrapperEntity>>
 
     @Transaction
     @Query("SELECT * FROM FolderGridItemEntity WHERE id = :id")
-    suspend fun getFolderGridItemWrapper(id: String): FolderGridItemWrapper?
+    suspend fun getFolderGridItemWrapper(id: String): FolderGridItemWrapperEntity?
 
     @Upsert
     suspend fun upsertFolderGridItemEntities(entities: List<FolderGridItemEntity>)

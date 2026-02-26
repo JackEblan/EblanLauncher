@@ -18,12 +18,10 @@
 package com.eblan.launcher.data.repository
 
 import com.eblan.launcher.data.repository.mapper.asApplicationInfo
-import com.eblan.launcher.data.repository.mapper.asEntity
 import com.eblan.launcher.data.repository.mapper.asFolderGridItem
 import com.eblan.launcher.data.repository.mapper.asShortcutConfigGridItem
 import com.eblan.launcher.data.repository.mapper.asShortcutInfoGridItem
 import com.eblan.launcher.data.repository.mapper.asWidgetGridItem
-import com.eblan.launcher.data.room.dao.ApplicationInfoFolderGridItemDao
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
@@ -34,6 +32,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ShortcutConfigGridItem
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
+import com.eblan.launcher.domain.repository.ApplicationInfoFolderGridItemRepository
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
@@ -57,7 +56,7 @@ internal class DefaultGridRepository @Inject constructor(
     private val folderGridItemRepository: FolderGridItemRepository,
     private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
-    private val applicationInfoFolderGridItemDao: ApplicationInfoFolderGridItemDao,
+    private val applicationInfoFolderGridItemRepository: ApplicationInfoFolderGridItemRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : GridRepository {
@@ -65,10 +64,9 @@ internal class DefaultGridRepository @Inject constructor(
         applicationInfoGridItemRepository.gridItems,
         widgetGridItemRepository.gridItems,
         shortcutInfoGridItemRepository.gridItems,
-        folderGridItemRepository.gridItems,
         shortcutConfigGridItemRepository.gridItems,
-    ) { applicationInfoGridItems, widgetGridItems, shortcutInfoGridItems, folderGridItems, shortcutConfigGridItems ->
-        (applicationInfoGridItems + widgetGridItems + shortcutInfoGridItems + folderGridItems + shortcutConfigGridItems)
+    ) { applicationInfoGridItems, widgetGridItems, shortcutInfoGridItems, shortcutConfigGridItems ->
+        (applicationInfoGridItems + widgetGridItems + shortcutInfoGridItems + shortcutConfigGridItems)
     }.flowOn(defaultDispatcher)
 
     override suspend fun updateGridItem(gridItem: GridItem) {
@@ -328,16 +326,9 @@ internal class DefaultGridRepository @Inject constructor(
             }
 
             is GridItemData.Folder -> {
-                folderGridItemRepository.getFolderGridItemData(id = data.id)
-                    ?.let { folderGridItemData ->
-                        val entities = folderGridItemData.gridItems.map { gridItem ->
-                            gridItem.asEntity()
-                        }
-
-                        applicationInfoFolderGridItemDao.deleteApplicationInfoFolderGridItemEntities(
-                            entities = entities,
-                        )
-                    }
+                applicationInfoFolderGridItemRepository.deleteApplicationInfoFolderGridItems(
+                    applicationInfoFolderGridItems = data.gridItems,
+                )
 
                 folderGridItemRepository.deleteFolderGridItem(
                     folderGridItem = gridItem.asFolderGridItem(data = data),

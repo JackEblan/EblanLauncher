@@ -18,56 +18,33 @@
 package com.eblan.launcher.data.repository.mapper
 
 import com.eblan.launcher.data.room.entity.FolderGridItemEntity
-import com.eblan.launcher.data.room.entity.FolderGridItemWrapper
+import com.eblan.launcher.data.room.entity.FolderGridItemWrapperEntity
 import com.eblan.launcher.domain.model.FolderGridItem
+import com.eblan.launcher.domain.model.FolderGridItemWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 
-internal fun FolderGridItemWrapper.asGridItem(): GridItem = GridItem(
-    id = folderGridItemEntity.id,
-    page = folderGridItemEntity.page,
-    startColumn = folderGridItemEntity.startColumn,
-    startRow = folderGridItemEntity.startRow,
-    columnSpan = folderGridItemEntity.columnSpan,
-    rowSpan = folderGridItemEntity.rowSpan,
-    data = asFolderGridItemData(),
-    associate = folderGridItemEntity.associate,
-    override = folderGridItemEntity.override,
-    gridItemSettings = folderGridItemEntity.gridItemSettings,
-    doubleTap = folderGridItemEntity.doubleTap,
-    swipeUp = folderGridItemEntity.swipeUp,
-    swipeDown = folderGridItemEntity.swipeDown,
-)
-
-internal fun FolderGridItemWrapper.asFolderGridItemData(): GridItemData.Folder {
-    val gridItems = applicationInfoFolders.map { applicationInfoGridItemEntity ->
-        applicationInfoGridItemEntity.asGridItem()
-    }
-
-    return GridItemData.Folder(
-        id = folderGridItemEntity.id,
-        label = folderGridItemEntity.label,
-        gridItems = gridItems,
-        icon = folderGridItemEntity.icon,
+internal fun FolderGridItemWrapperEntity.asFolderGridItemData(): FolderGridItemWrapper {
+    return FolderGridItemWrapper(
+        folderGridItem = folderGridItemEntity.asFolderGridItem(),
+        applicationInfoFolderGridItems = applicationInfoFolderGridItems.map { applicationInfoGridItemEntity ->
+            applicationInfoGridItemEntity.asGridItem()
+        },
     )
 }
 
 @JvmName("FolderGridItemEntity")
-internal fun FolderGridItemEntity.asGridItem(): GridItem = GridItem(
+internal fun FolderGridItemEntity.asFolderGridItem(): FolderGridItem = FolderGridItem(
     id = id,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
     columnSpan = columnSpan,
     rowSpan = rowSpan,
-    data = GridItemData.Folder(
-        id = id,
-        label = label,
-        gridItems = emptyList(),
-        icon = icon,
-    ),
     associate = associate,
+    label = label,
     override = override,
+    icon = icon,
     gridItemSettings = gridItemSettings,
     doubleTap = doubleTap,
     swipeUp = swipeUp,

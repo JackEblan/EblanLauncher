@@ -384,7 +384,7 @@ private fun SharedTransitionScope.ApplicationInfoGridItemContent(
 
                             onUpdateSharedElementKey(
                                 SharedElementKey(
-                                    id = gridItem.id + gridItem.folderId,
+                                    id = gridItem.id,
                                     screen = screen,
                                 ),
                             )
@@ -450,7 +450,7 @@ private fun SharedTransitionScope.ApplicationInfoGridItemContent(
                         .sharedElementWithCallerManagedVisibility(
                             rememberSharedContentState(
                                 key = SharedElementKey(
-                                    id = gridItem.id + gridItem.folderId,
+                                    id = gridItem.id,
                                     screen = screen,
                                 ),
                             ),

@@ -852,6 +852,7 @@ private fun SharedTransitionScope.Success(
                     screen = targetState,
                     associate = associate,
                     configureResultCode = configureResultCode,
+                    folderGridItem = folderGridItem,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = onResetGridCacheAfterMove,
                     onDragEndAfterMoveWidgetGridItem = onResetGridCacheAfterMoveWidgetGridItem,

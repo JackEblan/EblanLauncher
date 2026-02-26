@@ -134,16 +134,14 @@ internal fun FolderScreen(
 
     val cellHeight = safeDrawingHeight / homeSettings.rows
 
-    val gridWidth = cellWidth * data.columns
-
-    val gridHeight = cellHeight * data.rows
+    val gridPaddingDp = 10.dp
 
     val gridWidthDp = with(density) {
-        gridWidth.toDp()
+        (cellWidth * data.columns).toDp() - gridPaddingDp
     }
 
     val gridHeightDp = with(density) {
-        gridHeight.toDp()
+        (cellHeight * data.rows).toDp() - gridPaddingDp
     }
 
     Layout(
@@ -161,15 +159,17 @@ internal fun FolderScreen(
             .padding(paddingValues),
         content = {
             Surface(
+                modifier = Modifier
+                    .size(
+                        width = gridWidthDp,
+                        height = gridHeightDp,
+                    )
+                    .padding(10.dp),
                 shape = RoundedCornerShape(5.dp),
                 shadowElevation = 2.dp,
                 content = {
                     HorizontalPager(
                         state = folderGridHorizontalPagerState,
-                        modifier = Modifier.size(
-                            width = gridWidthDp,
-                            height = gridHeightDp,
-                        ),
                     ) { index ->
                         FolderGridLayout(
                             modifier = Modifier.fillMaxSize(),
@@ -208,7 +208,10 @@ internal fun FolderScreen(
         val topY = y - placeable.height
         val bottomY = y + popupIntSize.height
 
-        val childY = if (topY < 0) bottomY else topY
+        val childY = (if (topY < 0) bottomY else topY).coerceIn(
+            0,
+            constraints.maxHeight - placeable.height,
+        )
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             placeable.place(

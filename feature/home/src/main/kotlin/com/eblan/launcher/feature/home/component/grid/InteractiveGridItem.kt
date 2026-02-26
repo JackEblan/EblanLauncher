@@ -103,7 +103,10 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
         shortcutId: String,
     ) -> Unit,
     onTapShortcutConfig: (String) -> Unit,
-    onTapFolderGridItem: () -> Unit,
+    onTapFolderGridItem: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -749,7 +752,10 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     isScrollInProgress: Boolean,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
-    onTap: () -> Unit,
+    onTap: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -848,7 +854,10 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
                             scale.animateTo(1f)
 
-                            onTap()
+                            onTap(
+                                intOffset,
+                                intSize,
+                            )
                         }
                     },
                     onPress = {

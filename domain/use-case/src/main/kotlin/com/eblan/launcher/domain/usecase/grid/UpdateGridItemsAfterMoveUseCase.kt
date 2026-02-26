@@ -83,7 +83,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                 ApplicationInfoFolderGridItem(
                     id = movingGridItem.id,
                     folderId = conflictingData.id,
-                    index = conflictingData.gridItemsByPage.size,
+                    index = conflictingData.gridItems.size,
                     componentName = movingData.componentName,
                     packageName = movingData.packageName,
                     icon = movingData.icon,

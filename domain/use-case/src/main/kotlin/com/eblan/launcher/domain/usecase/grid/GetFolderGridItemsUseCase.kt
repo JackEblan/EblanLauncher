@@ -55,6 +55,7 @@ class GetFolderGridItemsUseCase @Inject constructor(
                 val data = Folder(
                     id = folderGridItemWrapper.folderGridItem.id,
                     label = folderGridItemWrapper.folderGridItem.label,
+                    gridItems = folderGridItemWrapper.applicationInfoFolderGridItems,
                     gridItemsByPage = gridItemsByPage,
                     icon = folderGridItemWrapper.folderGridItem.icon,
                     columns = columns,

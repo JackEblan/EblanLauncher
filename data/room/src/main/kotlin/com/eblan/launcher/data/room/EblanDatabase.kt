@@ -20,7 +20,6 @@ package com.eblan.launcher.data.room
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.eblan.launcher.data.room.dao.ApplicationInfoFolderGridItemDao
 import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
 import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
@@ -33,7 +32,6 @@ import com.eblan.launcher.data.room.dao.FolderGridItemDao
 import com.eblan.launcher.data.room.dao.ShortcutConfigGridItemDao
 import com.eblan.launcher.data.room.dao.ShortcutInfoGridItemDao
 import com.eblan.launcher.data.room.dao.WidgetGridItemDao
-import com.eblan.launcher.data.room.entity.ApplicationInfoFolderGridItemEntity
 import com.eblan.launcher.data.room.entity.ApplicationInfoGridItemEntity
 import com.eblan.launcher.data.room.entity.EblanAppWidgetProviderInfoEntity
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
@@ -64,7 +62,6 @@ import com.eblan.launcher.data.room.migration.AutoMigration9To10
         ShortcutConfigGridItemEntity::class,
         EblanApplicationInfoTagCrossRefEntity::class,
         EblanApplicationInfoTagEntity::class,
-        ApplicationInfoFolderGridItemEntity::class,
     ],
     version = 12,
     exportSchema = true,
@@ -122,8 +119,6 @@ internal abstract class EblanDatabase : RoomDatabase() {
     abstract fun eblanApplicationInfoTagCrossRefDao(): EblanApplicationInfoTagCrossRefDao
 
     abstract fun eblanApplicationInfoTagDao(): EblanApplicationInfoTagDao
-
-    abstract fun applicationInfoFolderGridItemDao(): ApplicationInfoFolderGridItemDao
 
     companion object {
         const val DATABASE_NAME = "Eblan.db"

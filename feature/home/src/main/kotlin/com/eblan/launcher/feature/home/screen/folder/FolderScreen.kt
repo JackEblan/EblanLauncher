@@ -56,7 +56,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.domain.model.ApplicationInfoFolderGridItem
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -225,7 +225,7 @@ internal fun FolderScreen(
 @Composable
 private fun ApplicationInfoGridItemContent(
     modifier: Modifier = Modifier,
-    gridItem: ApplicationInfoFolderGridItem,
+    gridItem: ApplicationInfoGridItem,
     textColor: TextColor,
     gridItemSettings: GridItemSettings,
     statusBarNotifications: Map<String, Int>,

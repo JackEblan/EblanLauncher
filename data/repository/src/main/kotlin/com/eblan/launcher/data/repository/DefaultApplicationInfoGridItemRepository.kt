@@ -32,7 +32,9 @@ internal class DefaultApplicationInfoGridItemRepository @Inject constructor(priv
     ApplicationInfoGridItemRepository {
     override val gridItems =
         applicationInfoGridItemDao.getApplicationInfoGridItemEntities().map { entities ->
-            entities.map { entity ->
+            entities.filter { entity ->
+                entity.folderId == null
+            }.map { entity ->
                 entity.asGridItem()
             }
         }
@@ -99,9 +101,5 @@ internal class DefaultApplicationInfoGridItemRepository @Inject constructor(priv
 
     override suspend fun insertApplicationInfoGridItem(applicationInfoGridItem: ApplicationInfoGridItem) {
         applicationInfoGridItemDao.insertApplicationInfoGridItemEntity(entity = applicationInfoGridItem.asEntity())
-    }
-
-    override suspend fun deleteApplicationInfoGridItemById(id: String) {
-        applicationInfoGridItemDao.deleteApplicationInfoGridItemEntityById(id = id)
     }
 }

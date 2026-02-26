@@ -768,6 +768,8 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                                 label = eblanApplicationInfo.label,
                                 customIcon = eblanApplicationInfo.customIcon,
                                 customLabel = eblanApplicationInfo.customLabel,
+                                index = -1,
+                                folderId = null,
                             )
 
                             onLongPressGridItem(

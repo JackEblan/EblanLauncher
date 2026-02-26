@@ -43,7 +43,7 @@ class GetFolderGridItemsUseCase @Inject constructor(
                 val maxItemsPerPage = maxColumns * maxRows
 
                 val gridItemsByPage =
-                    folderGridItemWrapper.applicationInfoFolderGridItems.sortedBy { it.index }
+                    folderGridItemWrapper.applicationInfoGridItems.sortedBy { it.index }
                         .chunked(maxItemsPerPage)
                         .mapIndexed { pageIndex, pageItems -> pageIndex to pageItems }
                         .toMap()
@@ -55,8 +55,9 @@ class GetFolderGridItemsUseCase @Inject constructor(
                 val data = Folder(
                     id = folderGridItemWrapper.folderGridItem.id,
                     label = folderGridItemWrapper.folderGridItem.label,
-                    gridItems = folderGridItemWrapper.applicationInfoFolderGridItems,
+                    gridItems = folderGridItemWrapper.applicationInfoGridItems,
                     gridItemsByPage = gridItemsByPage,
+                    previewGridItemsByPage = gridItemsByPage.values.firstOrNull() ?: emptyList(),
                     icon = folderGridItemWrapper.folderGridItem.icon,
                     columns = columns,
                     rows = rows,

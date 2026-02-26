@@ -18,7 +18,6 @@
 package com.eblan.launcher.data.room.di
 
 import com.eblan.launcher.data.room.EblanDatabase
-import com.eblan.launcher.data.room.dao.ApplicationInfoFolderGridItemDao
 import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
 import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
@@ -100,10 +99,4 @@ internal object DaoModule {
     @Singleton
     fun eblanApplicationInfoTagDao(eblanDatabase: EblanDatabase): EblanApplicationInfoTagDao =
         eblanDatabase.eblanApplicationInfoTagDao()
-
-    @Provides
-    @Singleton
-    fun applicationInfoFolderGridItemDao(eblanDatabase: EblanDatabase): ApplicationInfoFolderGridItemDao =
-        eblanDatabase.applicationInfoFolderGridItemDao()
-
 }

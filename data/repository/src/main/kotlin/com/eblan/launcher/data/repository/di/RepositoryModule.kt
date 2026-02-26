@@ -17,7 +17,6 @@
  */
 package com.eblan.launcher.data.repository.di
 
-import com.eblan.launcher.data.repository.DefaultApplicationInfoFolderGridItemRepository
 import com.eblan.launcher.data.repository.DefaultApplicationInfoGridItemRepository
 import com.eblan.launcher.data.repository.DefaultEblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.data.repository.DefaultEblanApplicationInfoRepository
@@ -33,7 +32,6 @@ import com.eblan.launcher.data.repository.DefaultShortcutConfigGridItemRepositor
 import com.eblan.launcher.data.repository.DefaultShortcutInfoGridItemRepository
 import com.eblan.launcher.data.repository.DefaultUserDataRepository
 import com.eblan.launcher.data.repository.DefaultWidgetGridItemRepository
-import com.eblan.launcher.domain.repository.ApplicationInfoFolderGridItemRepository
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
@@ -117,8 +115,4 @@ internal interface RepositoryModule {
     @Binds
     @Singleton
     fun eblanApplicationInfoTagRepository(impl: DefaultEblanApplicationInfoTagRepository): EblanApplicationInfoTagRepository
-
-    @Binds
-    @Singleton
-    fun applicationInfoFolderGridItemRepository(impl: DefaultApplicationInfoFolderGridItemRepository): ApplicationInfoFolderGridItemRepository
 }

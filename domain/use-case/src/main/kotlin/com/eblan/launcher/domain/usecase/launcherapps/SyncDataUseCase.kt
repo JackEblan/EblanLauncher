@@ -611,6 +611,8 @@ class SyncDataUseCase @Inject constructor(
                         serialNumber = 0L,
                         componentName = "",
                     ),
+                    index = -1,
+                    folderId = null,
                 ),
             )
         }

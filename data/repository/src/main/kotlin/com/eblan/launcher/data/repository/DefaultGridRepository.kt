@@ -17,7 +17,7 @@
  */
 package com.eblan.launcher.data.repository
 
-import com.eblan.launcher.data.repository.mapper.asApplicationInfo
+import com.eblan.launcher.data.repository.mapper.asApplicationInfoGridItem
 import com.eblan.launcher.data.repository.mapper.asFolderGridItem
 import com.eblan.launcher.data.repository.mapper.asShortcutConfigGridItem
 import com.eblan.launcher.data.repository.mapper.asShortcutInfoGridItem
@@ -32,7 +32,6 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ShortcutConfigGridItem
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
-import com.eblan.launcher.domain.repository.ApplicationInfoFolderGridItemRepository
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
@@ -56,7 +55,6 @@ internal class DefaultGridRepository @Inject constructor(
     private val folderGridItemRepository: FolderGridItemRepository,
     private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
-    private val applicationInfoFolderGridItemRepository: ApplicationInfoFolderGridItemRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : GridRepository {
@@ -73,7 +71,7 @@ internal class DefaultGridRepository @Inject constructor(
         when (val data = gridItem.data) {
             is GridItemData.ApplicationInfo -> {
                 applicationInfoGridItemRepository.updateApplicationInfoGridItem(
-                    applicationInfoGridItem = gridItem.asApplicationInfo(data = data),
+                    applicationInfoGridItem = gridItem.asApplicationInfoGridItem(data = data),
                 )
             }
 
@@ -210,7 +208,7 @@ internal class DefaultGridRepository @Inject constructor(
             when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     applicationInfoGridItems.add(
-                        gridItem.asApplicationInfo(data = data),
+                        gridItem.asApplicationInfoGridItem(data = data),
                     )
                 }
 
@@ -270,7 +268,7 @@ internal class DefaultGridRepository @Inject constructor(
             when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     applicationInfoGridItems.add(
-                        gridItem.asApplicationInfo(data = data),
+                        gridItem.asApplicationInfoGridItem(data = data),
                     )
                 }
 
@@ -321,13 +319,13 @@ internal class DefaultGridRepository @Inject constructor(
         when (val data = gridItem.data) {
             is GridItemData.ApplicationInfo -> {
                 applicationInfoGridItemRepository.deleteApplicationInfoGridItem(
-                    applicationInfoGridItem = gridItem.asApplicationInfo(data = data),
+                    applicationInfoGridItem = gridItem.asApplicationInfoGridItem(data = data),
                 )
             }
 
             is GridItemData.Folder -> {
-                applicationInfoFolderGridItemRepository.deleteApplicationInfoFolderGridItems(
-                    applicationInfoFolderGridItems = data.gridItems,
+                applicationInfoGridItemRepository.deleteApplicationInfoGridItems(
+                    applicationInfoGridItems = data.gridItems,
                 )
 
                 folderGridItemRepository.deleteFolderGridItem(

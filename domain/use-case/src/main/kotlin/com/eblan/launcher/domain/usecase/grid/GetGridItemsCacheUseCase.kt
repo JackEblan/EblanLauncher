@@ -22,6 +22,7 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItemCache
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -40,11 +41,14 @@ class GetGridItemsCacheUseCase @Inject constructor(
         gridCacheRepository.gridItemsCache,
     ) { userData, gridItems ->
         val gridItemsCacheByPage = gridItems.filter { gridItem ->
+            val data = gridItem.data as? GridItemData.ApplicationInfo
+
             isGridItemSpanWithinBounds(
                 gridItem = gridItem,
                 columns = userData.homeSettings.columns,
                 rows = userData.homeSettings.rows,
-            ) && gridItem.associate == Associate.Grid
+            ) && gridItem.associate == Associate.Grid &&
+                    data?.folderId == null
         }.groupBy { gridItem -> gridItem.page }
 
         val dockGridItemsCache = gridItems.filter { gridItem ->

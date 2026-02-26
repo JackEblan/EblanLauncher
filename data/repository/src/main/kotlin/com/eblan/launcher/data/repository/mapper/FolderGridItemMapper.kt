@@ -27,8 +27,8 @@ import com.eblan.launcher.domain.model.GridItemData
 internal fun FolderGridItemWrapperEntity.asFolderGridItemData(): FolderGridItemWrapper {
     return FolderGridItemWrapper(
         folderGridItem = folderGridItemEntity.asFolderGridItem(),
-        applicationInfoFolderGridItems = applicationInfoFolderGridItems.map { applicationInfoGridItemEntity ->
-            applicationInfoGridItemEntity.asGridItem()
+        applicationInfoGridItems = applicationInfoGridItemEntities.map { applicationInfoGridItemEntity ->
+            applicationInfoGridItemEntity.asModel()
         },
     )
 }

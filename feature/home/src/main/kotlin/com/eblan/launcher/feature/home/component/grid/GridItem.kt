@@ -374,33 +374,32 @@ internal fun SharedTransitionScope.FolderGridItemContent(
                 maxItemsInEachRow = 3,
                 maxLines = 3,
             ) {
-                data.gridItemsByPage.values.firstOrNull()
-                    ?.forEach { applicationInfoFolderGridItem ->
-                        val folderGridItemModifier =
-                            Modifier
-                                .sharedElementWithCallerManagedVisibility(
-                                    rememberSharedContentState(
-                                        key = SharedElementKey(
-                                            id = applicationInfoFolderGridItem.id,
-                                            screen = screen,
-                                        ),
+                data.previewGridItemsByPage.forEach { applicationInfoFolderGridItem ->
+                    val folderGridItemModifier =
+                        Modifier
+                            .sharedElementWithCallerManagedVisibility(
+                                rememberSharedContentState(
+                                    key = SharedElementKey(
+                                        id = applicationInfoFolderGridItem.id,
+                                        screen = screen,
                                     ),
-                                    visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
-                                )
-                                .size((gridItemSettings.iconSize * 0.25).dp)
+                                ),
+                                visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
+                            )
+                            .size((gridItemSettings.iconSize * 0.25).dp)
 
-                        val icon =
-                            iconPackFilePaths[applicationInfoFolderGridItem.componentName]
-                                ?: applicationInfoFolderGridItem.icon
+                    val icon =
+                        iconPackFilePaths[applicationInfoFolderGridItem.componentName]
+                            ?: applicationInfoFolderGridItem.icon
 
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(applicationInfoFolderGridItem.customIcon ?: icon)
-                                .addLastModifiedToFileCacheKey(true).build(),
-                            contentDescription = null,
-                            modifier = folderGridItemModifier,
-                        )
-                    }
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(applicationInfoFolderGridItem.customIcon ?: icon)
+                            .addLastModifiedToFileCacheKey(true).build(),
+                        contentDescription = null,
+                        modifier = folderGridItemModifier,
+                    )
+                }
             }
         }
     }

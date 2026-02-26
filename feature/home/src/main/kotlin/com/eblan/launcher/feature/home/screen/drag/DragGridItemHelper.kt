@@ -286,12 +286,7 @@ internal suspend fun handleConflictingGridItem(
         return
     }
 
-    if (gridItemSource is GridItemSource.New &&
-        (
-            gridItemSource.gridItem.data is GridItemData.Widget ||
-                gridItemSource.gridItem.data is GridItemData.ShortcutConfig
-            )
-    ) {
+    if (gridItemSource.gridItem.data !is GridItemData.ApplicationInfo) {
         return
     }
 

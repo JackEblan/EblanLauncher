@@ -583,13 +583,21 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             gridItemSettings = homeSettings.gridItemSettings,
             statusBarNotifications = statusBarNotifications,
             iconPackFilePaths = iconPackFilePaths,
+            drag = drag,
+            screen = screen,
             onDismissRequest = {
                 onUpdateFolderGridItem(null)
             },
-            onLongPressGridItem = { _, _ -> },
-            onUpdateGridItemOffset = { _, _ -> },
-            onDraggingGridItem = {},
-            onUpdateSharedElementKey = {},
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onDraggingGridItem = {
+                onDraggingGridItem(
+                    Screen.Drag,
+                    gridItems,
+                )
+            },
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
+            onLongPressGridItem = onLongPressGridItem,
+            onOpenAppDrawer = onOpenAppDrawer,
         )
     }
 }

@@ -137,11 +137,11 @@ internal fun FolderScreen(
     val gridPaddingDp = 10.dp
 
     val gridWidthDp = with(density) {
-        (cellWidth * data.columns).toDp() - gridPaddingDp
+        (cellWidth * data.columns).toDp()
     }
 
     val gridHeightDp = with(density) {
-        (cellHeight * data.rows).toDp() - gridPaddingDp
+        (cellHeight * data.rows).toDp()
     }
 
     Layout(
@@ -164,7 +164,7 @@ internal fun FolderScreen(
                         width = gridWidthDp,
                         height = gridHeightDp,
                     )
-                    .padding(10.dp),
+                    .padding(gridPaddingDp),
                 shape = RoundedCornerShape(5.dp),
                 shadowElevation = 2.dp,
                 content = {

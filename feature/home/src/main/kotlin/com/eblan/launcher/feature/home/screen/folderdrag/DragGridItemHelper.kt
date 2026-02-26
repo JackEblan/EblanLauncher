@@ -158,7 +158,6 @@ internal suspend fun handleDragFolderGridItem(
                 gridItem = gridItem.copy(
                     startColumn = -1,
                     startRow = -1,
-                    folderId = null,
                 ),
             ),
             folderId,
@@ -174,7 +173,6 @@ internal suspend fun handleDragFolderGridItem(
         val cellHeight = gridHeight / rows
 
         val newGridItem = gridItem.copy(
-            folderId = folderId,
             page = currentPage,
             startColumn = dragX / cellWidth,
             startRow = dragY / cellHeight,

@@ -24,7 +24,6 @@ import com.eblan.launcher.domain.model.GridItemData
 
 internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem = GridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -38,6 +37,7 @@ internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem = GridItem(
         label = label,
         customIcon = customIcon,
         customLabel = customLabel,
+        folderId = folderId,
     ),
     associate = associate,
     override = override,
@@ -95,7 +95,7 @@ internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity =
 
 internal fun GridItem.asApplicationInfo(data: GridItemData.ApplicationInfo): ApplicationInfoGridItem = ApplicationInfoGridItem(
     id = id,
-    folderId = folderId,
+    folderId = data.folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,

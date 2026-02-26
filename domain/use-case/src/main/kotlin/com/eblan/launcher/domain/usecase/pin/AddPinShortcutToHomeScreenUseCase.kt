@@ -65,7 +65,9 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
 
         val gridItems =
             gridRepository.gridItems.first().filter { gridItem ->
-                gridItem.associate == Associate.Grid && gridItem.folderId == null
+                val data = gridItem.data
+
+                gridItem.associate == Associate.Grid && data is GridItemData.ApplicationInfo && data.folderId == null
             }
 
         val eblanApplicationInfoIcon =
@@ -96,7 +98,6 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
 
         val gridItem = GridItem(
             id = shortcutId,
-            folderId = null,
             page = initialPage,
             startColumn = 0,
             startRow = 0,

@@ -768,13 +768,13 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                                 label = eblanApplicationInfo.label,
                                 customIcon = eblanApplicationInfo.customIcon,
                                 customLabel = eblanApplicationInfo.customLabel,
+                                folderId = null,
                             )
 
                             onLongPressGridItem(
                                 GridItemSource.New(
                                     gridItem = GridItem(
                                         id = id,
-                                        folderId = null,
                                         page = currentPage,
                                         startColumn = -1,
                                         startRow = -1,

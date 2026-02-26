@@ -19,7 +19,6 @@ package com.eblan.launcher.domain.model
 
 data class ShortcutInfoGridItem(
     val id: String,
-    val folderId: String?,
     val page: Int,
     val startColumn: Int,
     val startRow: Int,

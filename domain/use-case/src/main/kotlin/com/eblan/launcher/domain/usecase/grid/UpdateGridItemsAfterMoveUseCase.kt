@@ -86,7 +86,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         when (val data = conflictingGridItem.data) {
             is GridItemData.Folder -> {
                 addMovingGridItemIntoFolder(
-                    data = data,
+                    conflictingData = data,
                     movingGridItem = movingGridItem,
                     folderColumns = folderColumns,
                     folderRows = folderRows,
@@ -112,7 +112,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     }
 
     private suspend fun addMovingGridItemIntoFolder(
-        data: GridItemData.Folder,
+        conflictingData: GridItemData.Folder,
         movingGridItem: GridItem,
         folderColumns: Int,
         folderRows: Int,
@@ -121,36 +121,39 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         conflictingGridItem: GridItem,
         conflictingIndex: Int,
     ) {
+        val movingData = movingGridItem.data as? GridItemData.ApplicationInfo
+            ?: error("Expected GridItemData.ApplicationInfo")
+
         val newGridItem = findAvailableRegionByPage(
-            gridItems = data.gridItems,
+            gridItems = conflictingData.gridItems,
             gridItem = movingGridItem,
-            pageCount = data.pageCount,
+            pageCount = conflictingData.pageCount,
             columns = folderColumns,
             rows = folderRows,
         )
 
         if (newGridItem != null) {
-            val newData = data.copy(gridItems = data.gridItems + newGridItem)
+            val newData = conflictingData.copy(gridItems = conflictingData.gridItems + newGridItem)
 
             gridItems[movingIndex] = newGridItem.copy(
-                folderId = conflictingGridItem.id,
+                data = movingData.copy(folderId = conflictingData.id),
                 associate = Associate.Grid,
             )
 
             gridItems[conflictingIndex] = conflictingGridItem.copy(data = newData)
         } else {
-            val newPageCount = data.pageCount + 1
+            val newPageCount = conflictingData.pageCount + 1
 
-            val newData = data.copy(
-                gridItems = data.gridItems + movingGridItem,
+            val newData = conflictingData.copy(
+                gridItems = conflictingData.gridItems + movingGridItem,
                 pageCount = newPageCount,
             )
 
             gridItems[movingIndex] = movingGridItem.copy(
-                folderId = conflictingGridItem.id,
                 page = newPageCount - 1,
                 startColumn = 0,
                 startRow = 0,
+                data = movingData.copy(folderId = conflictingData.id),
                 associate = Associate.Grid,
             )
 
@@ -168,23 +171,29 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         conflictingIndex: Int,
         movingIndex: Int,
     ) {
+        val movingData = movingGridItem.data as? GridItemData.ApplicationInfo
+            ?: error("Expected GridItemData.ApplicationInfo")
+
+        val conflictingData = conflictingGridItem.data as? GridItemData.ApplicationInfo
+            ?: error("Expected GridItemData.ApplicationInfo")
+
         val id = Uuid.random().toHexString()
 
         val pageCount = 1
 
         val firstGridItem = conflictingGridItem.copy(
-            folderId = id,
             page = 0,
             startColumn = 0,
             startRow = 0,
+            data = conflictingData.copy(folderId = id),
             associate = Associate.Grid,
         )
 
         val secondGridItem = movingGridItem.copy(
-            folderId = id,
             page = 0,
             startColumn = 0,
             startRow = 0,
+            data = movingData.copy(folderId = id),
             associate = Associate.Grid,
         )
 
@@ -229,7 +238,6 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
             gridItems[conflictingIndex] = firstGridItem
 
             gridItems[movingIndex] = secondGridItem.copy(
-                folderId = id,
                 page = newPageCount - 1,
                 startColumn = 0,
                 startRow = 0,

@@ -25,7 +25,6 @@ import com.eblan.launcher.domain.model.GridItemData
 
 internal fun FolderGridItemWrapper.asGridItem(): GridItem = GridItem(
     id = folderGridItemEntity.id,
-    folderId = folderGridItemEntity.folderId,
     page = folderGridItemEntity.page,
     startColumn = folderGridItemEntity.startColumn,
     startRow = folderGridItemEntity.startRow,
@@ -41,30 +40,14 @@ internal fun FolderGridItemWrapper.asGridItem(): GridItem = GridItem(
 )
 
 internal fun FolderGridItemWrapper.asFolderGridItemData(): GridItemData.Folder {
-    val applicationInfos = applicationInfos.map { applicationInfoGridItemEntity ->
+    val gridItems = applicationInfos.map { applicationInfoGridItemEntity ->
         applicationInfoGridItemEntity.asGridItem()
-    }
-
-    val widgets = widgets.map { widgetGridItemEntity ->
-        widgetGridItemEntity.asGridItem()
-    }
-
-    val shortcutInfos = shortcutInfos.map { shortcutGridItemEntity ->
-        shortcutGridItemEntity.asGridItem()
-    }
-
-    val folders = folders.map { folderGridItemEntity ->
-        folderGridItemEntity.asGridItem()
-    }
-
-    val shortcutConfigs = shortcutConfigs.map { shortcutConfigGridItemEntity ->
-        shortcutConfigGridItemEntity.asGridItem()
     }
 
     return GridItemData.Folder(
         id = folderGridItemEntity.id,
         label = folderGridItemEntity.label,
-        gridItems = applicationInfos + widgets + shortcutInfos + folders + shortcutConfigs,
+        gridItems = gridItems,
         pageCount = folderGridItemEntity.pageCount,
         icon = folderGridItemEntity.icon,
     )
@@ -73,7 +56,6 @@ internal fun FolderGridItemWrapper.asFolderGridItemData(): GridItemData.Folder {
 @JvmName("FolderGridItemEntity")
 internal fun FolderGridItemEntity.asGridItem(): GridItem = GridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -96,7 +78,6 @@ internal fun FolderGridItemEntity.asGridItem(): GridItem = GridItem(
 
 internal fun FolderGridItem.asEntity(): FolderGridItemEntity = FolderGridItemEntity(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -115,7 +96,6 @@ internal fun FolderGridItem.asEntity(): FolderGridItemEntity = FolderGridItemEnt
 
 internal fun GridItem.asFolderGridItem(data: GridItemData.Folder): FolderGridItem = FolderGridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,

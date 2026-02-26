@@ -51,11 +51,12 @@ class GetFolderDataByIdUseCase @Inject constructor(
                 folderGridItemRepository.gridItems.first() +
                 shortcutConfigGridItemRepository.gridItems.first()
             ).filter { gridItem ->
-            gridItem.folderId == folderId && isGridItemSpanWithinBounds(
-                gridItem = gridItem,
-                columns = homeSettings.folderColumns,
-                rows = homeSettings.folderRows,
-            )
+                TODO()
+//            gridItem.folderId == folderId && isGridItemSpanWithinBounds(
+//                gridItem = gridItem,
+//                columns = homeSettings.folderColumns,
+//                rows = homeSettings.folderRows,
+//            )
         }
 
         folderGridItemRepository.getFolderGridItemData(id = folderId)?.let { folderGridItemData ->

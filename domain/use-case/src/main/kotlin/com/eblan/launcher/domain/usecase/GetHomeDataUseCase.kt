@@ -25,6 +25,7 @@ import com.eblan.launcher.domain.framework.ResourcesWrapper
 import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.Theme
@@ -50,7 +51,9 @@ class GetHomeDataUseCase @Inject constructor(
         userDataRepository.userData,
         gridRepository.gridItems.map { gridItems ->
             gridItems.filterNot { gridItem ->
-                gridItem.folderId != null
+                val data = gridItem.data
+
+                data is GridItemData.ApplicationInfo && data.folderId != null
             }
         },
         wallpaperManagerWrapper.getColorsChanged(),

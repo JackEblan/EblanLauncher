@@ -67,7 +67,6 @@ internal fun getWidgetGridItem(
 
     return GridItem(
         id = id,
-        folderId = null,
         page = page,
         startColumn = -1,
         startRow = -1,

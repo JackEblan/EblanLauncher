@@ -81,7 +81,9 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
         val gridItems =
             gridRepository.gridItems.first().filter { gridItem ->
-                gridItem.associate == Associate.Grid && gridItem.folderId == null
+                val data = gridItem.data
+
+                gridItem.associate == Associate.Grid && data is GridItemData.ApplicationInfo && data.folderId == null
             }
 
         val applicationIcon =
@@ -145,7 +147,6 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
         val gridItem = GridItem(
             id = Uuid.random().toHexString(),
-            folderId = null,
             page = initialPage,
             startColumn = 0,
             startRow = 0,

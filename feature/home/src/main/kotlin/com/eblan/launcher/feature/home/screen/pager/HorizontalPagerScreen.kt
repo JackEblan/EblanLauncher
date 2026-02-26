@@ -146,6 +146,8 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
 
     var showSettingsPopup by remember { mutableStateOf(false) }
 
+    var showFolderGridItemPopup by remember { mutableStateOf(false) }
+
     var settingsPopupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     val launcherApps = LocalLauncherApps.current
@@ -590,7 +592,15 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             onDismissRequest = {
                 onUpdateFolderGridItem(null)
             },
-            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onUpdateGridItemOffset = { intOffset, intSize ->
+                popupIntOffset = intOffset
+
+                popupIntSize = intSize
+
+                onUpdateGridItemOffset(intOffset, intSize)
+
+                showFolderGridItemPopup = true
+            },
             onDraggingGridItem = {
                 onDraggingGridItem(
                     Screen.Drag,
@@ -600,6 +610,20 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onLongPressGridItem = onLongPressGridItem,
             onOpenAppDrawer = onOpenAppDrawer,
+        )
+    }
+
+    if (showFolderGridItemPopup && folderGridItem != null) {
+        FolderGridItemPopup(
+            gridItem = folderGridItem,
+            popupIntOffset = popupIntOffset,
+            popupIntSize = popupIntSize,
+            paddingValues = paddingValues,
+            onEdit = onEditGridItem,
+            onDeleteGridItem = onDeleteGridItem,
+            onDismissRequest = {
+                showFolderGridItemPopup = false
+            },
         )
     }
 }

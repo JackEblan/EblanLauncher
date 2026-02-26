@@ -69,6 +69,7 @@ import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.domain.model.TextColor
@@ -116,8 +117,8 @@ internal fun SharedTransitionScope.PagerScreen(
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
-    folderGridItem: GridItem?,
     folderGridHorizontalPagerState: PagerState,
+    gridItemDataFolder: GridItemData.Folder?,
     onDraggingGridItem: (
         screen: Screen,
         gridItems: List<GridItem>,
@@ -153,7 +154,7 @@ internal fun SharedTransitionScope.PagerScreen(
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
-    onUpdateFolderGridItem: (GridItem?) -> Unit,
+    onUpdateFolderGridItemId: (String?) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -382,7 +383,7 @@ internal fun SharedTransitionScope.PagerScreen(
         iconPackFilePaths = iconPackFilePaths,
         isPressHome = isPressHome,
         screen = screen,
-        folderGridItem = folderGridItem,
+        gridItemDataFolder = gridItemDataFolder,
         folderGridHorizontalPagerState = folderGridHorizontalPagerState,
         screenWidth = screenWidth,
         screenHeight = screenHeight,
@@ -410,7 +411,7 @@ internal fun SharedTransitionScope.PagerScreen(
         onOpenAppDrawer = {
             showAppDrawer = true
         },
-        onUpdateFolderGridItem = onUpdateFolderGridItem,
+        onUpdateFolderGridItemId = onUpdateFolderGridItemId,
     )
 
     if (gestureSettings.swipeUp.eblanActionType == EblanActionType.OpenAppDrawer || gestureSettings.swipeDown.eblanActionType == EblanActionType.OpenAppDrawer) {

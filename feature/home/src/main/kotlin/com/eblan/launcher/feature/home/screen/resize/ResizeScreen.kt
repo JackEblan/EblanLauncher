@@ -166,7 +166,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
                     isScrollInProgress = false,
-                    folderGridItem = null,
+                    gridItemDataFolder = null,
                 )
             },
         )
@@ -203,7 +203,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
                     isScrollInProgress = false,
-                    folderGridItem = null,
+                    gridItemDataFolder = null,
                 )
             },
         )

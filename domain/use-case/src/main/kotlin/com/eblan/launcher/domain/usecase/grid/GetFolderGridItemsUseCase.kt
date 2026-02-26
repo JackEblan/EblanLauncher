@@ -20,16 +20,12 @@ package com.eblan.launcher.domain.usecase.grid
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData.Folder
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import kotlin.math.ceil
-import kotlin.math.min
-import kotlin.math.sqrt
 
 class GetFolderGridItemsUseCase @Inject constructor(
     private val folderGridItemRepository: FolderGridItemRepository,
@@ -38,31 +34,6 @@ class GetFolderGridItemsUseCase @Inject constructor(
     operator fun invoke(): Flow<List<GridItem>> =
         folderGridItemRepository.folderGridItemWrappers.map { folderGridItemWrappers ->
             folderGridItemWrappers.map { folderGridItemWrapper ->
-                val maxColumns = 5
-                val maxRows = 4
-
-                val maxItemsPerPage = maxColumns * maxRows
-
-                val gridItemsByPage =
-                    folderGridItemWrapper.applicationInfoGridItems.sortedBy { it.index }
-                        .chunked(maxItemsPerPage)
-                        .mapIndexed { pageIndex, pageItems -> pageIndex to pageItems }
-                        .toMap()
-                val firstPageGridItems = gridItemsByPage[0] ?: emptyList()
-
-                val (columns, rows) = getGridDimension(count = firstPageGridItems.size)
-
-                val data = Folder(
-                    id = folderGridItemWrapper.folderGridItem.id,
-                    label = folderGridItemWrapper.folderGridItem.label,
-                    gridItems = folderGridItemWrapper.applicationInfoGridItems,
-                    gridItemsByPage = gridItemsByPage,
-                    previewGridItemsByPage = gridItemsByPage.values.firstOrNull() ?: emptyList(),
-                    icon = folderGridItemWrapper.folderGridItem.icon,
-                    columns = columns,
-                    rows = rows,
-                )
-
                 GridItem(
                     id = folderGridItemWrapper.folderGridItem.id,
                     page = folderGridItemWrapper.folderGridItem.page,
@@ -70,7 +41,7 @@ class GetFolderGridItemsUseCase @Inject constructor(
                     startRow = folderGridItemWrapper.folderGridItem.startRow,
                     columnSpan = folderGridItemWrapper.folderGridItem.columnSpan,
                     rowSpan = folderGridItemWrapper.folderGridItem.rowSpan,
-                    data = data,
+                    data = folderGridItemWrapper.asFolder(),
                     associate = folderGridItemWrapper.folderGridItem.associate,
                     override = folderGridItemWrapper.folderGridItem.override,
                     gridItemSettings = folderGridItemWrapper.folderGridItem.gridItemSettings,
@@ -78,15 +49,7 @@ class GetFolderGridItemsUseCase @Inject constructor(
                     swipeUp = folderGridItemWrapper.folderGridItem.swipeUp,
                     swipeDown = folderGridItemWrapper.folderGridItem.swipeDown,
                 )
+
             }
         }.flowOn(defaultDispatcher)
-
-    private fun getGridDimension(count: Int): Pair<Int, Int> {
-        if (count <= 0) return 0 to 0
-
-        val columns = min(4, ceil(sqrt(count.toDouble())).toInt())
-        val rows = min(5, ceil(count / columns.toDouble()).toInt())
-
-        return columns to rows
-    }
 }

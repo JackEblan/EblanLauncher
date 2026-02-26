@@ -163,6 +163,8 @@ internal fun HomeRoute(
 
     val eblanApplicationInfoTags by viewModel.eblanApplicationInfoTags.collectAsStateWithLifecycle()
 
+    val gridItemDataFolder by viewModel.gridItemDataFolder.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -179,6 +181,7 @@ internal fun HomeRoute(
         eblanShortcutConfigs = eblanShortcutConfigs,
         eblanApplicationInfoTags = eblanApplicationInfoTags,
         configureResultCode = configureResultCode,
+        gridItemDataFolder = gridItemDataFolder,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onShowGridCache = viewModel::showGridCache,
@@ -208,6 +211,7 @@ internal fun HomeRoute(
         onStopSyncData = viewModel::stopSyncData,
         onUpdateAppDrawerSettings = viewModel::updateAppDrawerSettings,
         onUpdateEblanApplicationInfos = viewModel::updateEblanApplicationInfos,
+        onUpdateFolderGridItemId = viewModel::updateFolderGridItemId,
     )
 }
 
@@ -229,6 +233,7 @@ internal fun HomeScreen(
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     configureResultCode: Int?,
+    gridItemDataFolder: GridItemData.Folder?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -297,6 +302,7 @@ internal fun HomeScreen(
     onStopSyncData: () -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
+    onUpdateFolderGridItemId: (String?) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -451,6 +457,7 @@ internal fun HomeScreen(
                     eblanShortcutConfigs = eblanShortcutConfigs,
                     eblanApplicationInfoTags = eblanApplicationInfoTags,
                     configureResultCode = configureResultCode,
+                    gridItemDataFolder = gridItemDataFolder,
                     onMoveGridItem = onMoveGridItem,
                     onResizeGridItem = onResizeGridItem,
                     onShowGridCache = onShowGridCache,
@@ -498,6 +505,7 @@ internal fun HomeScreen(
                     onStopSyncData = onStopSyncData,
                     onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
                     onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
+                    onUpdateFolderGridItemId = onUpdateFolderGridItemId,
                 )
 
                 OverlayImage(
@@ -535,6 +543,7 @@ private fun SharedTransitionScope.Success(
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     configureResultCode: Int?,
+    gridItemDataFolder: GridItemData.Folder?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -608,6 +617,7 @@ private fun SharedTransitionScope.Success(
     onStopSyncData: () -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
+    onUpdateFolderGridItemId: (String?) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -703,13 +713,11 @@ private fun SharedTransitionScope.Success(
         }
     }
 
-    var folderGridItem by remember { mutableStateOf<GridItem?>(null) }
-
     val folderGridHorizontalPagerState = rememberPagerState(
         pageCount = {
-            when (val data = folderGridItem?.data) {
+            when (gridItemDataFolder) {
                 is GridItemData.Folder -> {
-                    data.gridItemsByPage.size
+                    gridItemDataFolder.gridItemsByPage.size
                 }
 
                 else -> 0
@@ -795,8 +803,8 @@ private fun SharedTransitionScope.Success(
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     eblanShortcutConfigs = eblanShortcutConfigs,
                     eblanApplicationInfoTags = eblanApplicationInfoTags,
-                    folderGridItem = folderGridItem,
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+                    gridItemDataFolder = gridItemDataFolder,
                     onDraggingGridItem = onShowGridCache,
                     onEditGridItem = onEditGridItem,
                     onResize = onShowGridCache,
@@ -824,9 +832,7 @@ private fun SharedTransitionScope.Success(
                     onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
                     onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
                     onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
-                    onUpdateFolderGridItem = { gridItem ->
-                        folderGridItem = gridItem
-                    }
+                    onUpdateFolderGridItemId = onUpdateFolderGridItemId,
                 )
             }
 
@@ -852,7 +858,7 @@ private fun SharedTransitionScope.Success(
                     screen = targetState,
                     associate = associate,
                     configureResultCode = configureResultCode,
-                    folderGridItem = folderGridItem,
+                    gridItemDataFolder = gridItemDataFolder,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = onResetGridCacheAfterMove,
                     onDragEndAfterMoveWidgetGridItem = onResetGridCacheAfterMoveWidgetGridItem,

@@ -97,7 +97,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun SharedTransitionScope.FolderScreen(
     modifier: Modifier = Modifier,
-    gridItem: GridItem,
+    gridItemDataFolder: GridItemData.Folder,
     popupIntOffset: IntOffset,
     popupIntSize: IntSize,
     paddingValues: PaddingValues,
@@ -154,8 +154,6 @@ internal fun SharedTransitionScope.FolderScreen(
 
     val y = popupIntOffset.y - topPadding
 
-    val data = gridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
-
     val cellWidth = safeDrawingWidth / homeSettings.columns
 
     val cellHeight = safeDrawingHeight / homeSettings.rows
@@ -163,11 +161,11 @@ internal fun SharedTransitionScope.FolderScreen(
     val gridPaddingDp = 10.dp
 
     val gridWidthDp = with(density) {
-        (cellWidth * data.columns).toDp()
+        (cellWidth * gridItemDataFolder.columns).toDp()
     }
 
     val gridHeightDp = with(density) {
-        (cellHeight * data.rows).toDp()
+        (cellHeight * gridItemDataFolder.rows).toDp()
     }
 
     Layout(
@@ -199,9 +197,9 @@ internal fun SharedTransitionScope.FolderScreen(
                     ) { index ->
                         FolderGridLayout(
                             modifier = Modifier.fillMaxSize(),
-                            gridItems = data.gridItemsByPage[index],
-                            columns = data.columns,
-                            rows = data.rows,
+                            gridItems = gridItemDataFolder.gridItemsByPage[index],
+                            columns = gridItemDataFolder.columns,
+                            rows = gridItemDataFolder.rows,
                             { gridItem ->
                                 ApplicationInfoGridItemContent(
                                     gridItem = gridItem,

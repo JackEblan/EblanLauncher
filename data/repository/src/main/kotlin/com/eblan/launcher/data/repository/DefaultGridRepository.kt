@@ -324,10 +324,6 @@ internal class DefaultGridRepository @Inject constructor(
             }
 
             is GridItemData.Folder -> {
-                applicationInfoGridItemRepository.deleteApplicationInfoGridItems(
-                    applicationInfoGridItems = data.gridItems,
-                )
-
                 folderGridItemRepository.deleteFolderGridItem(
                     folderGridItem = gridItem.asFolderGridItem(data = data),
                 )

@@ -46,6 +46,7 @@ import com.eblan.launcher.domain.usecase.application.GetEblanApplicationInfosByL
 import com.eblan.launcher.domain.usecase.application.GetEblanShortcutConfigsByLabelUseCase
 import com.eblan.launcher.domain.usecase.application.GetEblanShortcutInfosUseCase
 import com.eblan.launcher.domain.usecase.application.UpdateEblanApplicationInfosIndexesUseCase
+import com.eblan.launcher.domain.usecase.grid.GetFolderGridItemsByIdUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.ResizeGridItemUseCase
@@ -108,6 +109,7 @@ internal class HomeViewModel @Inject constructor(
     private val changeShortcutsUseCase: ChangeShortcutsUseCase,
     private val userDataRepository: UserDataRepository,
     private val updateEblanApplicationInfosIndexesUseCase: UpdateEblanApplicationInfosIndexesUseCase,
+    getFolderGridItemsByIdUseCase: GetFolderGridItemsByIdUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -212,6 +214,14 @@ internal class HomeViewModel @Inject constructor(
     private var syncDataJob: Job? = null
 
     private var launcherAppsEventJob: Job? = null
+
+    private val _folderGridItemId = MutableStateFlow<String?>(null)
+
+    val gridItemDataFolder = getFolderGridItemsByIdUseCase(idFlow = _folderGridItemId).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = null,
+    )
 
     fun moveGridItem(
         movingGridItem: GridItem,
@@ -609,6 +619,12 @@ internal class HomeViewModel @Inject constructor(
     fun updateEblanApplicationInfos(eblanApplicationInfos: List<EblanApplicationInfo>) {
         viewModelScope.launch {
             updateEblanApplicationInfosIndexesUseCase(eblanApplicationInfos = eblanApplicationInfos)
+        }
+    }
+
+    fun updateFolderGridItemId(id: String?) {
+        _folderGridItemId.update {
+            id
         }
     }
 }

@@ -102,7 +102,7 @@ internal fun SharedTransitionScope.DragScreen(
     screen: Screen,
     associate: Associate?,
     configureResultCode: Int?,
-    folderGridItem: GridItem?,
+    gridItemDataFolder: GridItemData.Folder?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -420,7 +420,7 @@ internal fun SharedTransitionScope.DragScreen(
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
                         isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
-                        folderGridItem = folderGridItem,
+                        gridItemDataFolder = gridItemDataFolder,
                     )
                 },
             )
@@ -475,7 +475,7 @@ internal fun SharedTransitionScope.DragScreen(
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
                         isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
-                        folderGridItem = folderGridItem,
+                        gridItemDataFolder = gridItemDataFolder,
                     )
                 },
             )

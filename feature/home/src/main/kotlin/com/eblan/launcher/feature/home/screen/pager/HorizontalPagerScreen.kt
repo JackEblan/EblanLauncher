@@ -56,6 +56,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
@@ -99,10 +100,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
     screen: Screen,
-    folderGridItem: GridItem?,
     folderGridHorizontalPagerState: PagerState,
     screenWidth: Int,
     screenHeight: Int,
+    gridItemDataFolder: GridItemData.Folder?,
     onEditGridItem: (String) -> Unit,
     onResize: (
         screen: Screen,
@@ -132,7 +133,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
     onOpenAppDrawer: () -> Unit,
-    onUpdateFolderGridItem: (GridItem?) -> Unit,
+    onUpdateFolderGridItemId: (String?) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -263,7 +264,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
-                        folderGridItem = folderGridItem,
+                        gridItemDataFolder = gridItemDataFolder,
                         onTapApplicationInfo = { serialNumber, componentName ->
                             val sourceBoundsX = x + leftPadding
 
@@ -310,7 +311,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                                 height = height,
                             )
 
-                            onUpdateFolderGridItem(gridItem)
+                            onUpdateFolderGridItemId(gridItem.id)
                         },
                         onUpdateGridItemOffset = { intOffset, intSize ->
                             popupIntOffset = intOffset
@@ -402,7 +403,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
-                    folderGridItem = folderGridItem,
+                    gridItemDataFolder = gridItemDataFolder,
                     onTapApplicationInfo = { serialNumber, componentName ->
                         val sourceBoundsX = x + leftPadding
 
@@ -449,7 +450,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                             height = height,
                         )
 
-                        onUpdateFolderGridItem(gridItem)
+                        onUpdateFolderGridItemId(gridItem.id)
                     },
                     onUpdateGridItemOffset = { intOffset, intSize ->
                         popupIntOffset = intOffset
@@ -573,9 +574,9 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         )
     }
 
-    if (folderGridItem != null) {
+    if (gridItemDataFolder != null) {
         FolderScreen(
-            gridItem = folderGridItem,
+            gridItemDataFolder = gridItemDataFolder,
             popupIntOffset = folderPopupIntOffset,
             popupIntSize = folderPopupIntSize,
             paddingValues = paddingValues,
@@ -590,7 +591,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             drag = drag,
             screen = screen,
             onDismissRequest = {
-                onUpdateFolderGridItem(null)
+                onUpdateFolderGridItemId(null)
             },
             onUpdateGridItemOffset = { intOffset, intSize ->
                 popupIntOffset = intOffset
@@ -613,9 +614,9 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         )
     }
 
-    if (showFolderGridItemPopup && folderGridItem != null) {
+    if (showFolderGridItemPopup && gridItemSource?.gridItem != null) {
         FolderGridItemPopup(
-            gridItem = folderGridItem,
+            gridItem = gridItemSource.gridItem,
             popupIntOffset = popupIntOffset,
             popupIntSize = popupIntSize,
             paddingValues = paddingValues,

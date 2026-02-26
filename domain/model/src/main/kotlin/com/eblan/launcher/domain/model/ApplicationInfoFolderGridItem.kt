@@ -17,14 +17,10 @@
  */
 package com.eblan.launcher.domain.model
 
-data class ApplicationInfoGridItem(
+data class ApplicationInfoFolderGridItem(
     val id: String,
-    val page: Int,
-    val startColumn: Int,
-    val startRow: Int,
-    val columnSpan: Int,
-    val rowSpan: Int,
-    val associate: Associate,
+    val folderId: String?,
+    val index: Int,
     val componentName: String,
     val packageName: String,
     val icon: String?,

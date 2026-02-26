@@ -37,7 +37,6 @@ internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem = GridItem(
         label = label,
         customIcon = customIcon,
         customLabel = customLabel,
-        folderId = folderId,
     ),
     associate = associate,
     override = override,
@@ -49,7 +48,6 @@ internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem = GridItem(
 
 internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem = ApplicationInfoGridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -73,7 +71,6 @@ internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem = 
 internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity = ApplicationInfoGridItemEntity(
     id = id,
     serialNumber = serialNumber,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -95,7 +92,6 @@ internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity =
 
 internal fun GridItem.asApplicationInfo(data: GridItemData.ApplicationInfo): ApplicationInfoGridItem = ApplicationInfoGridItem(
     id = id,
-    folderId = data.folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,

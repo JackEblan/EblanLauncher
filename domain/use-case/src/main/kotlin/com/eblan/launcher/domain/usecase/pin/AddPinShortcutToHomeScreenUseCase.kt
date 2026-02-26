@@ -63,12 +63,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
 
         val initialPage = homeSettings.initialPage
 
-        val gridItems =
-            gridRepository.gridItems.first().filter { gridItem ->
-                val data = gridItem.data
-
-                gridItem.associate == Associate.Grid && data is GridItemData.ApplicationInfo && data.folderId == null
-            }
+        val gridItems = gridRepository.gridItems.first()
 
         val eblanApplicationInfoIcon =
             packageManagerWrapper.getComponentName(packageName = packageName)

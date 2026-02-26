@@ -79,12 +79,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
         val dockHeight = homeSettings.dockHeight
 
-        val gridItems =
-            gridRepository.gridItems.first().filter { gridItem ->
-                val data = gridItem.data
-
-                gridItem.associate == Associate.Grid && data is GridItemData.ApplicationInfo && data.folderId == null
-            }
+        val gridItems = gridRepository.gridItems.first()
 
         val applicationIcon =
             packageManagerWrapper.getComponentName(packageName = packageName)

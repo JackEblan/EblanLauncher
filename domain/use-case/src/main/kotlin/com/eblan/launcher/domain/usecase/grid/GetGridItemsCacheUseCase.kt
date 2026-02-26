@@ -22,7 +22,6 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItemCache
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
@@ -44,14 +43,11 @@ class GetGridItemsCacheUseCase @Inject constructor(
         folderGridCacheRepository.gridItemsCache,
     ) { userData, gridItems, folderGridItems ->
         val gridItemsCacheByPage = gridItems.filter { gridItem ->
-            val data = gridItem.data
-
             isGridItemSpanWithinBounds(
                 gridItem = gridItem,
                 columns = userData.homeSettings.columns,
                 rows = userData.homeSettings.rows,
-            ) && gridItem.associate == Associate.Grid &&
-                    data is GridItemData.ApplicationInfo && data.folderId == null
+            ) && gridItem.associate == Associate.Grid
         }.groupBy { gridItem -> gridItem.page }
 
         val dockGridItemsCache = gridItems.filter { gridItem ->

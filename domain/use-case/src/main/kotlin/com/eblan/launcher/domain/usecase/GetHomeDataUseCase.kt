@@ -25,7 +25,6 @@ import com.eblan.launcher.domain.framework.ResourcesWrapper
 import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.Theme
@@ -35,7 +34,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class GetHomeDataUseCase @Inject constructor(
@@ -49,13 +47,7 @@ class GetHomeDataUseCase @Inject constructor(
 ) {
     operator fun invoke(): Flow<HomeData> = combine(
         userDataRepository.userData,
-        gridRepository.gridItems.map { gridItems ->
-            gridItems.filterNot { gridItem ->
-                val data = gridItem.data
-
-                data is GridItemData.ApplicationInfo && data.folderId != null
-            }
-        },
+        gridRepository.gridItems,
         wallpaperManagerWrapper.getColorsChanged(),
     ) { userData, gridItems, colorHints ->
         val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->

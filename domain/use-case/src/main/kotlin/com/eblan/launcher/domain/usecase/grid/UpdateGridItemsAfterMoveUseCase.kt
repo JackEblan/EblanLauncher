@@ -19,14 +19,13 @@ package com.eblan.launcher.domain.usecase.grid
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.grid.findAvailableRegionByPage
-import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.ApplicationInfoFolderGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
+import com.eblan.launcher.domain.repository.ApplicationInfoFolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
-import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -36,34 +35,32 @@ import kotlin.uuid.Uuid
 
 class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
-    private val userDataRepository: UserDataRepository,
     private val gridRepository: GridRepository,
+    private val applicationInfoFolderGridItemRepository: ApplicationInfoFolderGridItemRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(moveGridItemResult: MoveGridItemResult) {
         withContext(defaultDispatcher) {
-            val homeSettings = userDataRepository.userData.first().homeSettings
-
-            val folderColumns = homeSettings.folderColumns
-
-            val folderRows = homeSettings.folderRows
-
             val gridItems = gridCacheRepository.gridItemsCache.first().toMutableList()
 
             val conflictingGridItem = moveGridItemResult.conflictingGridItem
 
-            val movingIndex =
-                gridItems.indexOfFirst { it.id == moveGridItemResult.movingGridItem.id }
+            if (conflictingGridItem != null) {
+                when (val data = conflictingGridItem.data) {
+                    is GridItemData.Folder -> {
+                        addMovingGridItemIntoFolder(
+                            conflictingData = data,
+                            movingGridItem = moveGridItemResult.movingGridItem,
+                        )
+                    }
 
-            if (movingIndex != -1 && conflictingGridItem != null) {
-                groupConflictingGridItemsIntoFolder(
-                    gridItems = gridItems,
-                    conflictingGridItem = conflictingGridItem,
-                    movingGridItem = gridItems[movingIndex],
-                    folderColumns = folderColumns,
-                    folderRows = folderRows,
-                    movingIndex = movingIndex,
-                )
+                    else -> {
+                        createNewFolder(
+                            conflictingGridItem = conflictingGridItem,
+                            movingGridItem = moveGridItemResult.movingGridItem,
+                        )
+                    }
+                }
             }
 
             gridCacheRepository.upsertGridItems(gridItems = gridItems)
@@ -72,104 +69,41 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         }
     }
 
-    @OptIn(ExperimentalUuidApi::class)
-    private suspend fun groupConflictingGridItemsIntoFolder(
-        gridItems: MutableList<GridItem>,
-        conflictingGridItem: GridItem,
-        movingGridItem: GridItem,
-        folderColumns: Int,
-        folderRows: Int,
-        movingIndex: Int,
-    ) {
-        val conflictingIndex = gridItems.indexOfFirst { it.id == conflictingGridItem.id }
-
-        when (val data = conflictingGridItem.data) {
-            is GridItemData.Folder -> {
-                addMovingGridItemIntoFolder(
-                    conflictingData = data,
-                    movingGridItem = movingGridItem,
-                    folderColumns = folderColumns,
-                    folderRows = folderRows,
-                    gridItems = gridItems,
-                    movingIndex = movingIndex,
-                    conflictingGridItem = conflictingGridItem,
-                    conflictingIndex = conflictingIndex,
-                )
-            }
-
-            else -> {
-                createNewFolder(
-                    conflictingGridItem = conflictingGridItem,
-                    movingGridItem = movingGridItem,
-                    folderColumns = folderColumns,
-                    folderRows = folderRows,
-                    gridItems = gridItems,
-                    conflictingIndex = conflictingIndex,
-                    movingIndex = movingIndex,
-                )
-            }
-        }
-    }
-
     private suspend fun addMovingGridItemIntoFolder(
         conflictingData: GridItemData.Folder,
         movingGridItem: GridItem,
-        folderColumns: Int,
-        folderRows: Int,
-        gridItems: MutableList<GridItem>,
-        movingIndex: Int,
-        conflictingGridItem: GridItem,
-        conflictingIndex: Int,
     ) {
         val movingData = movingGridItem.data as? GridItemData.ApplicationInfo
             ?: error("Expected GridItemData.ApplicationInfo")
 
-        val newGridItem = findAvailableRegionByPage(
-            gridItems = conflictingData.gridItems,
-            gridItem = movingGridItem,
-            pageCount = conflictingData.pageCount,
-            columns = folderColumns,
-            rows = folderRows,
+        gridRepository.deleteGridItem(gridItem = movingGridItem)
+
+        applicationInfoFolderGridItemRepository.insertApplicationInfoFolderGridItem(
+            applicationInfoFolderGridItem =
+                ApplicationInfoFolderGridItem(
+                    id = movingGridItem.id,
+                    folderId = conflictingData.id,
+                    index = -1,
+                    componentName = movingData.componentName,
+                    packageName = movingData.packageName,
+                    icon = movingData.icon,
+                    label = movingData.label,
+                    override = movingGridItem.override,
+                    serialNumber = movingData.serialNumber,
+                    customIcon = movingData.customIcon,
+                    customLabel = movingData.customLabel,
+                    gridItemSettings = movingGridItem.gridItemSettings,
+                    doubleTap = movingGridItem.doubleTap,
+                    swipeUp = movingGridItem.swipeUp,
+                    swipeDown = movingGridItem.swipeDown,
+                ),
         )
-
-        if (newGridItem != null) {
-            val newData = conflictingData.copy(gridItems = conflictingData.gridItems + newGridItem)
-
-            gridItems[movingIndex] = newGridItem.copy(
-                data = movingData.copy(folderId = conflictingData.id),
-                associate = Associate.Grid,
-            )
-
-            gridItems[conflictingIndex] = conflictingGridItem.copy(data = newData)
-        } else {
-            val newPageCount = conflictingData.pageCount + 1
-
-            val newData = conflictingData.copy(
-                gridItems = conflictingData.gridItems + movingGridItem,
-                pageCount = newPageCount,
-            )
-
-            gridItems[movingIndex] = movingGridItem.copy(
-                page = newPageCount - 1,
-                startColumn = 0,
-                startRow = 0,
-                data = movingData.copy(folderId = conflictingData.id),
-                associate = Associate.Grid,
-            )
-
-            gridItems[conflictingIndex] = conflictingGridItem.copy(data = newData)
-        }
     }
 
     @OptIn(ExperimentalUuidApi::class)
     private suspend fun createNewFolder(
         conflictingGridItem: GridItem,
         movingGridItem: GridItem,
-        folderColumns: Int,
-        folderRows: Int,
-        gridItems: MutableList<GridItem>,
-        conflictingIndex: Int,
-        movingIndex: Int,
     ) {
         val movingData = movingGridItem.data as? GridItemData.ApplicationInfo
             ?: error("Expected GridItemData.ApplicationInfo")
@@ -179,77 +113,46 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
         val id = Uuid.random().toHexString()
 
-        val pageCount = 1
-
-        val firstGridItem = conflictingGridItem.copy(
-            page = 0,
-            startColumn = 0,
-            startRow = 0,
-            data = conflictingData.copy(folderId = id),
-            associate = Associate.Grid,
-        )
-
-        val secondGridItem = movingGridItem.copy(
-            page = 0,
-            startColumn = 0,
-            startRow = 0,
-            data = movingData.copy(folderId = id),
-            associate = Associate.Grid,
-        )
-
-        val movedSecondGridItem = findAvailableRegionByPage(
-            gridItems = listOf(firstGridItem),
-            gridItem = secondGridItem,
-            pageCount = pageCount,
-            columns = folderColumns,
-            rows = folderRows,
-        )
-
-        if (movedSecondGridItem != null) {
-            val newData = GridItemData.Folder(
-                id = id,
-                label = "Unknown",
-                gridItems = listOf(firstGridItem, movedSecondGridItem),
-                pageCount = pageCount,
-                icon = null,
-            )
-
-            gridItems[conflictingIndex] = firstGridItem
-
-            gridItems[movingIndex] = movedSecondGridItem
-
-            gridItems.add(
-                conflictingGridItem.copy(
-                    id = id,
-                    data = newData,
+        applicationInfoFolderGridItemRepository.insertApplicationInfoFolderGridItem(
+            applicationInfoFolderGridItem =
+                ApplicationInfoFolderGridItem(
+                    id = movingGridItem.id,
+                    folderId = id,
+                    index = -1,
+                    componentName = movingData.componentName,
+                    packageName = movingData.packageName,
+                    icon = movingData.icon,
+                    label = movingData.label,
+                    override = movingGridItem.override,
+                    serialNumber = movingData.serialNumber,
+                    customIcon = movingData.customIcon,
+                    customLabel = movingData.customLabel,
+                    gridItemSettings = movingGridItem.gridItemSettings,
+                    doubleTap = movingGridItem.doubleTap,
+                    swipeUp = movingGridItem.swipeUp,
+                    swipeDown = movingGridItem.swipeDown,
                 ),
-            )
-        } else {
-            val newPageCount = pageCount + 1
+        )
 
-            val newData = GridItemData.Folder(
-                id = id,
-                label = "Unknown",
-                gridItems = emptyList(),
-                pageCount = newPageCount,
-                icon = null,
-            )
-
-            gridItems[conflictingIndex] = firstGridItem
-
-            gridItems[movingIndex] = secondGridItem.copy(
-                page = newPageCount - 1,
-                startColumn = 0,
-                startRow = 0,
-                associate = Associate.Grid,
-            )
-
-            gridItems.add(
-                conflictingGridItem.copy(
-                    id = id,
-                    data = newData,
+        applicationInfoFolderGridItemRepository.insertApplicationInfoFolderGridItem(
+            applicationInfoFolderGridItem =
+                ApplicationInfoFolderGridItem(
+                    id = conflictingGridItem.id,
+                    folderId = id,
+                    index = -1,
+                    componentName = conflictingData.componentName,
+                    packageName = conflictingData.packageName,
+                    icon = conflictingData.icon,
+                    label = conflictingData.label,
+                    override = conflictingGridItem.override,
+                    serialNumber = conflictingData.serialNumber,
+                    customIcon = conflictingData.customIcon,
+                    customLabel = conflictingData.customLabel,
+                    gridItemSettings = conflictingGridItem.gridItemSettings,
+                    doubleTap = conflictingGridItem.doubleTap,
+                    swipeUp = conflictingGridItem.swipeUp,
+                    swipeDown = conflictingGridItem.swipeDown,
                 ),
-            )
-        }
+        )
     }
 }

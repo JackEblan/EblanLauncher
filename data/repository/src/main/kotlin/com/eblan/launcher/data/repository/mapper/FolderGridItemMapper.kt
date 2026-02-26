@@ -40,7 +40,7 @@ internal fun FolderGridItemWrapper.asGridItem(): GridItem = GridItem(
 )
 
 internal fun FolderGridItemWrapper.asFolderGridItemData(): GridItemData.Folder {
-    val gridItems = applicationInfos.map { applicationInfoGridItemEntity ->
+    val gridItems = applicationInfoFolders.map { applicationInfoGridItemEntity ->
         applicationInfoGridItemEntity.asGridItem()
     }
 

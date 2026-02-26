@@ -15,16 +15,21 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.data.room.entity
 
-data class ApplicationInfoGridItem(
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.GridItemSettings
+
+@Entity
+data class ApplicationInfoFolderGridItemEntity(
+    @PrimaryKey
     val id: String,
-    val page: Int,
-    val startColumn: Int,
-    val startRow: Int,
-    val columnSpan: Int,
-    val rowSpan: Int,
-    val associate: Associate,
+    val folderId: String?,
+    val index: Int,
     val componentName: String,
     val packageName: String,
     val icon: String?,
@@ -33,8 +38,8 @@ data class ApplicationInfoGridItem(
     val serialNumber: Long,
     val customIcon: String?,
     val customLabel: String?,
-    val gridItemSettings: GridItemSettings,
-    val doubleTap: EblanAction,
-    val swipeUp: EblanAction,
-    val swipeDown: EblanAction,
+    @Embedded val gridItemSettings: GridItemSettings,
+    @Embedded(prefix = "doubleTap_") val doubleTap: EblanAction,
+    @Embedded(prefix = "swipeUp_") val swipeUp: EblanAction,
+    @Embedded(prefix = "swipeDown_") val swipeDown: EblanAction,
 )

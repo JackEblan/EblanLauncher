@@ -17,24 +17,9 @@
  */
 package com.eblan.launcher.domain.model
 
-data class ApplicationInfoGridItem(
+data class UpdateApplicationInfoFolderGridItem(
     val id: String,
-    val page: Int,
-    val startColumn: Int,
-    val startRow: Int,
-    val columnSpan: Int,
-    val rowSpan: Int,
-    val associate: Associate,
     val componentName: String,
-    val packageName: String,
     val icon: String?,
-    val label: String,
-    val override: Boolean,
-    val serialNumber: Long,
-    val customIcon: String?,
-    val customLabel: String?,
-    val gridItemSettings: GridItemSettings,
-    val doubleTap: EblanAction,
-    val swipeUp: EblanAction,
-    val swipeDown: EblanAction,
+    val label: String?,
 )

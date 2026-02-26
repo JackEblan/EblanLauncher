@@ -27,5 +27,5 @@ data class FolderGridItemWrapper(
         parentColumn = "id",
         entityColumn = "folderId",
     )
-    val applicationInfos: List<ApplicationInfoGridItemEntity>,
+    val applicationInfoFolders: List<ApplicationInfoFolderGridItemEntity>,
 )

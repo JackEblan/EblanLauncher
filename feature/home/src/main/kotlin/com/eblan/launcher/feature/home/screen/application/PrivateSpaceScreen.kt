@@ -336,7 +336,6 @@ private fun PrivateSpaceEblanApplicationInfoItem(
                                 label = eblanApplicationInfo.label,
                                 customIcon = eblanApplicationInfo.customIcon,
                                 customLabel = eblanApplicationInfo.customLabel,
-                                folderId = null,
                             )
 
                             onLongPressGridItem(

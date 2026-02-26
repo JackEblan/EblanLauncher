@@ -27,8 +27,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import kotlin.math.ceil
-import kotlin.math.min
 
 class GetFolderGridItemsUseCase @Inject constructor(
     private val folderGridItemRepository: FolderGridItemRepository,
@@ -49,8 +47,7 @@ class GetFolderGridItemsUseCase @Inject constructor(
                         .toMap()
                 val firstPageGridItems = gridItemsByPage[0] ?: emptyList()
 
-                val columns = min(maxColumns, firstPageGridItems.size)
-                val rows = min(maxRows, ceil(firstPageGridItems.size / columns.toDouble()).toInt())
+                val (columns, rows) = getGridDimension(count = firstPageGridItems.size)
 
                 val data = Folder(
                     id = folderGridItemWrapper.folderGridItem.id,
@@ -80,4 +77,18 @@ class GetFolderGridItemsUseCase @Inject constructor(
                 )
             }
         }.flowOn(defaultDispatcher)
+
+    private fun getGridDimension(count: Int): Pair<Int, Int> {
+        return when (count) {
+            0 -> 0 to 0
+            1 -> 1 to 1
+            2 -> 2 to 1
+            in 3..4 -> 2 to 2
+            in 5..6 -> 3 to 2
+            in 7..9 -> 3 to 3
+            in 10..12 -> 4 to 3
+            in 13..16 -> 4 to 4
+            else -> 4 to 5
+        }
+    }
 }

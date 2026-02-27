@@ -839,11 +839,11 @@ private fun SharedTransitionScope.Success(
                     onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
                     onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
                     onTapFolderGridItem = { id, intOffset, intSize ->
+                        onUpdateFolderGridItemId(id)
+
                         folderPopupIntOffset = intOffset
 
                         folderPopupIntSize = intSize
-
-                        onUpdateFolderGridItemId(id)
                     },
                 )
             }

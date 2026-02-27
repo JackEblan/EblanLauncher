@@ -33,6 +33,4 @@ interface GridCacheDataSource {
     fun deleteGridItem(gridItem: GridItem)
 
     suspend fun updateGridItemData(id: String, data: GridItemData)
-
-    suspend fun upsertGridItems(gridItems: List<GridItem>)
 }

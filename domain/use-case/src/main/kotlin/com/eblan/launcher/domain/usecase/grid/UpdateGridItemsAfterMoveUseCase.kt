@@ -55,7 +55,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                 )
             }
 
-            gridCacheRepository.upsertGridItems(gridItems = gridItems)
+            gridCacheRepository.insertGridItems(gridItems = gridItems)
 
             gridRepository.updateGridItems(gridItems = gridItems)
         }
@@ -105,18 +105,20 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         val movingData = movingGridItem.data as? GridItemData.ApplicationInfo
             ?: error("Expected GridItemData.ApplicationInfo")
 
+        val lastIndex = data.gridItems.maxOfOrNull { gridItem -> gridItem.index } ?: 0
+
         val newData = movingData.copy(
-            index = data.gridItems.size + 1,
+            index = lastIndex + 1,
             folderId = data.id,
         )
 
-        val firstFolderGridItemsByPage =
+        val previewGridItemsByPage =
             data.gridItemsByPage.values.firstOrNull()?.toMutableList()?.apply {
                 add(movingGridItem.asApplicationInfoGridItem(data = newData))
             } ?: emptyList()
 
         val conflictingData = data.copy(
-            previewGridItemsByPage = firstFolderGridItemsByPage,
+            previewGridItemsByPage = previewGridItemsByPage,
         )
 
         gridItems[movingIndex] = movingGridItem.copy(

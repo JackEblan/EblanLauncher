@@ -154,6 +154,14 @@ internal fun SharedTransitionScope.FolderScreen(
         (cellHeight * gridItemDataFolder.rows).toDp()
     }
 
+    val gridWidthPx = with(density) {
+        gridWidthDp.roundToPx() - (gridPaddingDp.roundToPx() * 2)
+    }
+
+    val gridHeightPx = with(density) {
+        gridHeightDp.roundToPx() - (gridPaddingDp.roundToPx() * 2)
+    }
+
     Layout(
         modifier = modifier
             .pointerInput(Unit) {
@@ -169,12 +177,6 @@ internal fun SharedTransitionScope.FolderScreen(
             .padding(paddingValues),
         content = {
             Surface(
-                modifier = Modifier
-                    .size(
-                        width = gridWidthDp,
-                        height = gridHeightDp,
-                    )
-                    .padding(gridPaddingDp),
                 shape = RoundedCornerShape(5.dp),
                 shadowElevation = 2.dp,
                 content = {
@@ -217,6 +219,8 @@ internal fun SharedTransitionScope.FolderScreen(
             constraints.copy(
                 minWidth = 0,
                 minHeight = 0,
+                maxWidth = gridWidthPx,
+                maxHeight = gridHeightPx,
             ),
         )
 

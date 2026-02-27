@@ -73,4 +73,24 @@ internal class DefaultGridCacheDataSource @Inject constructor(@param:Dispatcher(
             }
         }
     }
+
+    override suspend fun upsertGridItems(gridItems: List<GridItem>) {
+        withContext(defaultDispatcher) {
+            _gridItemsCache.update { currentGridCacheItems ->
+                currentGridCacheItems.toMutableList().apply {
+                    gridItems.forEach { gridItem ->
+                        val index = indexOfFirst { it.id == gridItem.id }
+
+                        if (index != -1) {
+                            if (get(index) != gridItem) {
+                                set(index, gridItem)
+                            }
+                        } else {
+                            add(gridItem)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

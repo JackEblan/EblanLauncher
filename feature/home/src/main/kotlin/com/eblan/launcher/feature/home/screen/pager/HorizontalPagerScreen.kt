@@ -305,11 +305,15 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         onTapShortcutConfig = { uri ->
                             context.startActivity(Intent.parseUri(uri, 0))
                         },
-                        onTapFolderGridItem = { intOffset, intSize ->
+                        onTapFolderGridItem = {
                             onTapFolderGridItem(
-                                gridItem.id, intOffset,
+                                gridItem.id,
+                                IntOffset(
+                                    x = x,
+                                    y = y,
+                                ),
                                 IntSize(
-                                    width = intSize.width,
+                                    width = width,
                                     height = height,
                                 ),
                             )
@@ -443,11 +447,15 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     onTapShortcutConfig = { uri ->
                         context.startActivity(Intent.parseUri(uri, 0))
                     },
-                    onTapFolderGridItem = { intOffset, intSize ->
+                    onTapFolderGridItem = {
                         onTapFolderGridItem(
-                            gridItem.id, intOffset,
+                            gridItem.id,
+                            IntOffset(
+                                x = x,
+                                y = y,
+                            ),
                             IntSize(
-                                width = intSize.width,
+                                width = width,
                                 height = height,
                             ),
                         )

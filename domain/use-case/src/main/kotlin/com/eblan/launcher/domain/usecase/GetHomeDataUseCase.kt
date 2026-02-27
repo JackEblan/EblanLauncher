@@ -55,7 +55,7 @@ class GetHomeDataUseCase @Inject constructor(
     ) { userData, gridItems, folderGridItems, colorHints ->
         val currentGridItems = gridItems + folderGridItems
 
-        val gridItemsSpanWithinBounds = currentGridItems.filter { gridItem ->
+        val gridItemsByPage = currentGridItems.filter { gridItem ->
             isGridItemSpanWithinBounds(
                 gridItem = gridItem,
                 columns = userData.homeSettings.columns,
@@ -63,7 +63,7 @@ class GetHomeDataUseCase @Inject constructor(
             ) && gridItem.associate == Associate.Grid
         }.groupBy { gridItem -> gridItem.page }
 
-        val dockGridItemsWithinBounds = currentGridItems.filter { gridItem ->
+        val dockGridItemsByPage = currentGridItems.filter { gridItem ->
             isGridItemSpanWithinBounds(
                 gridItem = gridItem,
                 columns = userData.homeSettings.dockColumns,
@@ -87,8 +87,8 @@ class GetHomeDataUseCase @Inject constructor(
         HomeData(
             userData = userData,
             gridItems = currentGridItems,
-            gridItemsByPage = gridItemsSpanWithinBounds,
-            dockGridItemsByPage = dockGridItemsWithinBounds,
+            gridItemsByPage = gridItemsByPage,
+            dockGridItemsByPage = dockGridItemsByPage,
             hasShortcutHostPermission = launcherAppsWrapper.hasShortcutHostPermission,
             hasSystemFeatureAppWidgets = packageManagerWrapper.hasSystemFeatureAppWidgets,
             textColor = textColor,

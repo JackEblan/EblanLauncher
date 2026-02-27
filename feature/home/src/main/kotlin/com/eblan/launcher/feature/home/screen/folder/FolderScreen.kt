@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -224,25 +223,16 @@ internal fun SharedTransitionScope.FolderScreen(
             ),
         )
 
-        val parentCenterX = x + folderPopupIntSize.width / 2
-
-        val childX = (parentCenterX - placeable.width / 2).coerceIn(
-            0,
-            constraints.maxWidth - placeable.width,
-        )
-
-        val topY = y - placeable.height
-        val bottomY = y + folderPopupIntSize.height
-
-        val childY = (if (topY < 0) bottomY else topY).coerceIn(
-            0,
-            constraints.maxHeight - placeable.height,
-        )
-
         layout(constraints.maxWidth, constraints.maxHeight) {
+            val popupX = folderPopupIntOffset.x + folderPopupIntSize.width / 2 - gridWidthPx / 2
+            val popupY = folderPopupIntOffset.y + folderPopupIntSize.height / 2 - gridHeightPx / 2
+
+            val centeredX = popupX.coerceIn(0, constraints.maxWidth - gridWidthPx)
+            val centeredY = popupY.coerceIn(0, constraints.maxHeight - gridHeightPx)
+
             placeable.place(
-                x = childX,
-                y = childY,
+                x = centeredX,
+                y = centeredY,
             )
         }
     }

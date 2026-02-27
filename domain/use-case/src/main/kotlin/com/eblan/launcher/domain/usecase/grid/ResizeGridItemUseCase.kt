@@ -75,7 +75,7 @@ class ResizeGridItemUseCase @Inject constructor(
                 lockMovement = lockMovement,
             )
         } else {
-            gridCacheRepository.insertGridItems(gridItems = gridItems)
+            gridCacheRepository.upsertGridItems(gridItems = gridItems)
         }
 
         MoveGridItemResult(
@@ -108,7 +108,7 @@ class ResizeGridItemUseCase @Inject constructor(
         )
 
         if (resolvedConflicts && !lockMovement) {
-            gridCacheRepository.insertGridItems(gridItems = gridItems)
+            gridCacheRepository.upsertGridItems(gridItems = gridItems)
         }
     }
 }

@@ -55,7 +55,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                 )
             }
 
-            gridCacheRepository.insertGridItems(gridItems = gridItems)
+            gridCacheRepository.upsertGridItems(gridItems = gridItems)
 
             gridRepository.updateGridItems(gridItems = gridItems)
         }

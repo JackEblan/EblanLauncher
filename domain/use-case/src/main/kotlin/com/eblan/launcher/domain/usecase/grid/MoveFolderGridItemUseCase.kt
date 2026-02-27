@@ -7,17 +7,15 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MoveFolderGridItemUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
-    @param:Dispatcher(EblanDispatchers.Default)
-    private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-
     suspend operator fun invoke(
+        folderGridItem: GridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
         movingApplicationInfoGridItem: ApplicationInfoGridItem,
         dragX: Int,
@@ -28,53 +26,79 @@ class MoveFolderGridItemUseCase @Inject constructor(
         gridHeight: Int,
         lockMovement: Boolean,
     ) {
-        return withContext(defaultDispatcher) {
-
-            val gridItems = gridCacheRepository.gridItemsCache
-                .first()
-                .filter { gridItem ->
-                    gridItem.page == movingApplicationInfoGridItem.page &&
-                            gridItem.associate == movingApplicationInfoGridItem.associate &&
-                            gridItem.data is GridItemData.ApplicationInfo
-                }
-                .toMutableList()
-
-            val fromIndex =
-                gridItems.indexOfFirst { it.id == movingApplicationInfoGridItem.id }
-
-            if (fromIndex == -1) {
-                return@withContext
-            }
-
+        withContext(defaultDispatcher) {
             val cellWidth = gridWidth / columns
             val cellHeight = gridHeight / rows
 
-            var targetColumn = dragX / cellWidth
-            var targetRow = dragY / cellHeight
+            val targetColumn = (dragX / cellWidth).coerceIn(0, columns - 1)
+            val targetRow = (dragY / cellHeight).coerceIn(0, rows - 1)
 
-            targetColumn = targetColumn.coerceIn(0, columns - 1)
-            targetRow = targetRow.coerceIn(0, rows - 1)
+            val maxIndex = applicationInfoGridItems.size - 1
+            val targetIndex = (targetRow * columns + targetColumn)
+                .coerceIn(0, maxIndex)
 
-            var toIndex = targetRow * columns + targetColumn
-            toIndex = toIndex.coerceIn(0, gridItems.lastIndex)
+            val fromIndex = movingApplicationInfoGridItem.index
 
-            if (toIndex == fromIndex) {
-                return@withContext
-            }
+            val gridItems = buildList(applicationInfoGridItems.size) {
+                for (applicationInfoGridItem in applicationInfoGridItems) {
+                    when {
+                        applicationInfoGridItem.id == movingApplicationInfoGridItem.id -> {
+                            add(applicationInfoGridItem.copy(index = targetIndex))
+                        }
 
-            val item = gridItems.removeAt(fromIndex)
+                        fromIndex < targetIndex &&
+                                applicationInfoGridItem.index in (fromIndex + 1)..targetIndex -> {
+                            add(
+                                applicationInfoGridItem.copy(index = applicationInfoGridItem.index - 1),
+                            )
+                        }
 
-            if (toIndex > fromIndex) {
-                gridItems.add(toIndex, item)
-            } else {
-                gridItems.add(toIndex, item)
+                        fromIndex > targetIndex &&
+                                applicationInfoGridItem.index in targetIndex until fromIndex -> {
+                            add(
+                                applicationInfoGridItem.copy(index = applicationInfoGridItem.index + 1),
+                            )
+                        }
+
+                        else -> {
+                            add(applicationInfoGridItem)
+                        }
+                    }
+                }
             }
 
             if (!lockMovement) {
-                gridCacheRepository.upsertGridItems(
-                    gridItems = gridItems,
-                )
+                val newData = folderGridItem.data as? GridItemData.Folder
+                    ?: error("Expected GridItemData.Folder")
+
+
             }
         }
     }
+
+    private fun ApplicationInfoGridItem.asGridItem(): GridItem = GridItem(
+        id = id,
+        page = page,
+        startColumn = startColumn,
+        startRow = startRow,
+        columnSpan = columnSpan,
+        rowSpan = rowSpan,
+        data = GridItemData.ApplicationInfo(
+            serialNumber = serialNumber,
+            componentName = componentName,
+            packageName = packageName,
+            icon = icon,
+            label = label,
+            customIcon = customIcon,
+            customLabel = customLabel,
+            index = index,
+            folderId = folderId,
+        ),
+        associate = associate,
+        override = override,
+        gridItemSettings = gridItemSettings,
+        doubleTap = doubleTap,
+        swipeUp = swipeUp,
+        swipeDown = swipeDown,
+    )
 }

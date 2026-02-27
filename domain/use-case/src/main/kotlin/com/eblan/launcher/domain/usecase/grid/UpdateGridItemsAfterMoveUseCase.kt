@@ -56,8 +56,6 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                 )
             }
 
-            gridCacheRepository.upsertGridItems(gridItems = gridItems)
-
             gridRepository.updateGridItems(gridItems = gridItems)
         }
     }
@@ -121,9 +119,9 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         )
 
         gridItems[conflictingIndex] = conflictingGridItem.copy(data = conflictingData)
-
         gridItems.remove(movingGridItem)
 
+        gridCacheRepository.updateGridItemData(id = conflictingGridItem.id, data = conflictingData)
         gridCacheRepository.deleteGridItem(gridItem = movingGridItem)
 
         applicationInfoGridItemRepository.deleteApplicationInfoGridItemById(id = movingGridItem.id)
@@ -164,35 +162,30 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
             movingApplicationInfoGridItem,
         )
 
-        val newData = GridItemData.Folder(
+        val newGridItem = conflictingGridItem.copy(
             id = id,
-            label = "Unknown",
-            gridItems = folderGridItems,
-            gridItemsByPage = mapOf(0 to folderGridItems),
-            previewGridItemsByPage = folderGridItems,
-            icon = null,
-            columns = 1,
-            rows = 2,
+            data = GridItemData.Folder(
+                id = id,
+                label = "Unknown",
+                gridItems = folderGridItems,
+                gridItemsByPage = mapOf(0 to folderGridItems),
+                previewGridItemsByPage = folderGridItems,
+                icon = null,
+                columns = 1,
+                rows = 2,
+            ),
         )
 
         gridItems.remove(conflictingGridItem)
-
         gridItems.remove(movingGridItem)
+        gridItems.add(newGridItem)
 
         gridCacheRepository.deleteGridItem(gridItem = conflictingGridItem)
-
         gridCacheRepository.deleteGridItem(gridItem = movingGridItem)
+        gridCacheRepository.insertGridItem(gridItem = newGridItem)
 
         applicationInfoGridItemRepository.deleteApplicationInfoGridItemById(id = conflictingGridItem.id)
-
         applicationInfoGridItemRepository.deleteApplicationInfoGridItemById(id = movingGridItem.id)
-
-        gridItems.add(
-            conflictingGridItem.copy(
-                id = id,
-                data = newData,
-            ),
-        )
     }
 
     private fun GridItem.asApplicationInfoGridItem(data: GridItemData.ApplicationInfo): ApplicationInfoGridItem {

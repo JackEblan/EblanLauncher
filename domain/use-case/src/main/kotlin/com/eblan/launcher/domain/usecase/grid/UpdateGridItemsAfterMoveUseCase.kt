@@ -23,6 +23,7 @@ import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
+import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -35,6 +36,7 @@ import kotlin.uuid.Uuid
 class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val gridRepository: GridRepository,
+    private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(moveGridItemResult: MoveGridItemResult) {
@@ -51,7 +53,6 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     gridItems = gridItems,
                     conflictingGridItem = conflictingGridItem,
                     movingGridItem = gridItems[movingIndex],
-                    movingIndex = movingIndex,
                 )
             }
 
@@ -62,11 +63,10 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    private fun groupConflictingGridItemsIntoFolder(
+    private suspend fun groupConflictingGridItemsIntoFolder(
         gridItems: MutableList<GridItem>,
         conflictingGridItem: GridItem,
         movingGridItem: GridItem,
-        movingIndex: Int,
     ) {
         val conflictingIndex = gridItems.indexOfFirst { it.id == conflictingGridItem.id }
 
@@ -76,7 +76,6 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     data = data,
                     movingGridItem = movingGridItem,
                     gridItems = gridItems,
-                    movingIndex = movingIndex,
                     conflictingGridItem = conflictingGridItem,
                     conflictingIndex = conflictingIndex,
                 )
@@ -87,18 +86,15 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     conflictingGridItem = conflictingGridItem,
                     movingGridItem = movingGridItem,
                     gridItems = gridItems,
-                    conflictingIndex = conflictingIndex,
-                    movingIndex = movingIndex,
                 )
             }
         }
     }
 
-    private fun addMovingGridItemIntoFolder(
+    private suspend fun addMovingGridItemIntoFolder(
         data: GridItemData.Folder,
         movingGridItem: GridItem,
         gridItems: MutableList<GridItem>,
-        movingIndex: Int,
         conflictingGridItem: GridItem,
         conflictingIndex: Int,
     ) {
@@ -112,30 +108,32 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
             folderId = data.id,
         )
 
+        val applicationInfoGridItem = movingGridItem.asApplicationInfoGridItem(data = newData)
+
+        val folderGridItems = data.gridItems + applicationInfoGridItem
+
         val previewGridItemsByPage =
-            data.gridItemsByPage.values.firstOrNull()?.toMutableList()?.apply {
-                add(movingGridItem.asApplicationInfoGridItem(data = newData))
-            } ?: emptyList()
+            data.gridItemsByPage.values.firstOrNull()?.plus(applicationInfoGridItem) ?: emptyList()
 
         val conflictingData = data.copy(
+            gridItems = folderGridItems,
             previewGridItemsByPage = previewGridItemsByPage,
         )
 
-        gridItems[movingIndex] = movingGridItem.copy(
-            data = newData,
-            associate = conflictingGridItem.associate,
-        )
-
         gridItems[conflictingIndex] = conflictingGridItem.copy(data = conflictingData)
+
+        gridItems.remove(movingGridItem)
+
+        gridCacheRepository.deleteGridItem(gridItem = movingGridItem)
+
+        applicationInfoGridItemRepository.deleteApplicationInfoGridItemById(id = movingGridItem.id)
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    private fun createNewFolder(
+    private suspend fun createNewFolder(
         conflictingGridItem: GridItem,
         movingGridItem: GridItem,
         gridItems: MutableList<GridItem>,
-        conflictingIndex: Int,
-        movingIndex: Int,
     ) {
         val id = Uuid.random().toHexString()
 
@@ -145,25 +143,21 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         val movingData = movingGridItem.data as? GridItemData.ApplicationInfo
             ?: error("Expected GridItemData.ApplicationInfo")
 
-        val firstGridItem = conflictingGridItem.copy(
-            data = conflictingData.copy(
-                index = 0,
-                folderId = id,
-            ),
-        )
-
-        val secondGridItem = movingGridItem.copy(
-            data = movingData.copy(
-                index = 1,
-                folderId = id,
-            ),
-        )
-
         val conflictingApplicationInfoGridItem =
-            conflictingGridItem.asApplicationInfoGridItem(data = conflictingData)
+            conflictingGridItem.asApplicationInfoGridItem(
+                data = conflictingData.copy(
+                    folderId = id,
+                    index = 0,
+                ),
+            )
 
         val movingApplicationInfoGridItem =
-            movingGridItem.asApplicationInfoGridItem(data = movingData)
+            movingGridItem.asApplicationInfoGridItem(
+                data = movingData.copy(
+                    folderId = id,
+                    index = 1,
+                ),
+            )
 
         val folderGridItems = listOf(
             conflictingApplicationInfoGridItem,
@@ -181,9 +175,17 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
             rows = 2,
         )
 
-        gridItems[conflictingIndex] = firstGridItem
+        gridItems.remove(conflictingGridItem)
 
-        gridItems[movingIndex] = secondGridItem
+        gridItems.remove(movingGridItem)
+
+        gridCacheRepository.deleteGridItem(gridItem = conflictingGridItem)
+
+        gridCacheRepository.deleteGridItem(gridItem = movingGridItem)
+
+        applicationInfoGridItemRepository.deleteApplicationInfoGridItemById(id = conflictingGridItem.id)
+
+        applicationInfoGridItemRepository.deleteApplicationInfoGridItemById(id = movingGridItem.id)
 
         gridItems.add(
             conflictingGridItem.copy(

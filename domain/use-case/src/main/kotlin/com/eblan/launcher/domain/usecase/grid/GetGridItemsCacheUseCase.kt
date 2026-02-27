@@ -41,14 +41,11 @@ class GetGridItemsCacheUseCase @Inject constructor(
         gridCacheRepository.gridItemsCache,
     ) { userData, gridItems ->
         val gridItemsCacheByPage = gridItems.filter { gridItem ->
-            val data = gridItem.data as? GridItemData.ApplicationInfo
-
             isGridItemSpanWithinBounds(
                 gridItem = gridItem,
                 columns = userData.homeSettings.columns,
                 rows = userData.homeSettings.rows,
-            ) && gridItem.associate == Associate.Grid &&
-                    data?.folderId == null
+            ) && gridItem.associate == Associate.Grid
         }.groupBy { gridItem -> gridItem.page }
 
         val dockGridItemsCache = gridItems.filter { gridItem ->

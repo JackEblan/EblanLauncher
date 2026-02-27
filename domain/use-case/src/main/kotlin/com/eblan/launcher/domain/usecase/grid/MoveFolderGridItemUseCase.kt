@@ -16,6 +16,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         folderGridItem: GridItem,
+        page: Int,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
         movingApplicationInfoGridItem: ApplicationInfoGridItem,
         dragX: Int,
@@ -34,8 +35,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
             val targetRow = (dragY / cellHeight).coerceIn(0, rows - 1)
 
             val maxIndex = applicationInfoGridItems.size - 1
-            val targetIndex = (targetRow * columns + targetColumn)
-                .coerceIn(0, maxIndex)
+            val targetIndex = (targetRow * columns + targetColumn).coerceIn(0, maxIndex)
 
             val fromIndex = movingApplicationInfoGridItem.index
 
@@ -68,37 +68,22 @@ class MoveFolderGridItemUseCase @Inject constructor(
             }
 
             if (!lockMovement) {
-                val newData = folderGridItem.data as? GridItemData.Folder
+                val folderGridItemData = folderGridItem.data as? GridItemData.Folder
                     ?: error("Expected GridItemData.Folder")
 
+                val gridItemsByPage = folderGridItemData.gridItemsByPage.toMutableMap().apply {
+                    set(page, gridItems)
+                }
 
+                val newData = folderGridItemData.copy(
+                    gridItemsByPage = gridItemsByPage,
+                )
+
+                gridCacheRepository.updateGridItemData(
+                    id = folderGridItem.id,
+                    data = newData,
+                )
             }
         }
     }
-
-    private fun ApplicationInfoGridItem.asGridItem(): GridItem = GridItem(
-        id = id,
-        page = page,
-        startColumn = startColumn,
-        startRow = startRow,
-        columnSpan = columnSpan,
-        rowSpan = rowSpan,
-        data = GridItemData.ApplicationInfo(
-            serialNumber = serialNumber,
-            componentName = componentName,
-            packageName = packageName,
-            icon = icon,
-            label = label,
-            customIcon = customIcon,
-            customLabel = customLabel,
-            index = index,
-            folderId = folderId,
-        ),
-        associate = associate,
-        override = override,
-        gridItemSettings = gridItemSettings,
-        doubleTap = doubleTap,
-        swipeUp = swipeUp,
-        swipeDown = swipeDown,
-    )
 }

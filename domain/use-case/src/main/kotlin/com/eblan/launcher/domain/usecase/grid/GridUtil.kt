@@ -23,7 +23,6 @@ internal fun FolderGridItemWrapper.asFolder(): Folder {
     return Folder(
         id = folderGridItem.id,
         label = folderGridItem.label,
-        gridItems = applicationInfoGridItems,
         gridItemsByPage = gridItemsByPage,
         previewGridItemsByPage = gridItemsByPage.values.firstOrNull() ?: emptyList(),
         icon = folderGridItem.icon,

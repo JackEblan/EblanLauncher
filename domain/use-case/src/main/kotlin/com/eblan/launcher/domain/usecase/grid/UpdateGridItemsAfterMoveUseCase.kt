@@ -99,7 +99,10 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         val movingData = movingGridItem.data as? GridItemData.ApplicationInfo
             ?: error("Expected GridItemData.ApplicationInfo")
 
-        val lastIndex = data.gridItemsByPage.values.flatten().maxOfOrNull { gridItem -> gridItem.index } ?: 0
+        val applicationInfoGridItems = data.gridItemsByPage.values.flatten().toMutableList()
+
+        val lastIndex =
+            applicationInfoGridItems.maxOfOrNull { gridItem -> gridItem.index } ?: 0
 
         val newData = movingData.copy(
             index = lastIndex + 1,
@@ -108,10 +111,15 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
         val applicationInfoGridItem = movingGridItem.asApplicationInfoGridItem(data = newData)
 
+        applicationInfoGridItems.add(applicationInfoGridItem)
+
         val previewGridItemsByPage =
             data.gridItemsByPage.values.firstOrNull()?.plus(applicationInfoGridItem) ?: emptyList()
 
-        val conflictingData = data.copy(previewGridItemsByPage = previewGridItemsByPage)
+        val conflictingData = data.copy(
+            gridItemsByPage = applicationInfoGridItems.getGridItemsByPage(),
+            previewGridItemsByPage = previewGridItemsByPage,
+        )
 
         gridItems[conflictingIndex] = conflictingGridItem.copy(data = conflictingData)
         gridItems.remove(movingGridItem)

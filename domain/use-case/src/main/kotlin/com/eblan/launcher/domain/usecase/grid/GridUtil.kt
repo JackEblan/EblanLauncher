@@ -1,5 +1,6 @@
 package com.eblan.launcher.domain.usecase.grid
 
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.FolderGridItemWrapper
 import com.eblan.launcher.domain.model.GridItemData.Folder
 import kotlin.math.ceil
@@ -11,11 +12,7 @@ private const val maxColumns = 5
 private const val maxRows = 4
 
 internal fun FolderGridItemWrapper.asFolder(): Folder {
-    val gridItemsByPage =
-        applicationInfoGridItems.sortedBy { it.index }
-            .chunked(maxColumns * maxRows)
-            .mapIndexed { pageIndex, pageItems -> pageIndex to pageItems }
-            .toMap()
+    val gridItemsByPage = applicationInfoGridItems.getGridItemsByPage()
     val firstPageGridItems = gridItemsByPage[0] ?: emptyList()
 
     val (columns, rows) = getGridDimension(count = firstPageGridItems.size)
@@ -30,6 +27,12 @@ internal fun FolderGridItemWrapper.asFolder(): Folder {
         rows = rows,
     )
 }
+
+internal fun List<ApplicationInfoGridItem>.getGridItemsByPage(): Map<Int, List<ApplicationInfoGridItem>> =
+    sortedBy { it.index }
+        .chunked(maxColumns * maxRows)
+        .mapIndexed { pageIndex, pageItems -> pageIndex to pageItems }
+        .toMap()
 
 private fun getGridDimension(count: Int): Pair<Int, Int> {
     if (count <= 0) return 0 to 0

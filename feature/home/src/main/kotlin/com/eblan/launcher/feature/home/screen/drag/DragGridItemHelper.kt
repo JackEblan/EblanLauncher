@@ -292,7 +292,16 @@ private suspend fun handleDragGridItem(
     screen: Screen,
     lockMovement: Boolean,
     onUpdateAssociate: (Associate) -> Unit,
-    onMoveGridItem: (GridItem, Int, Int, Int, Int, Int, Int, Boolean) -> Unit,
+    onMoveGridItem: (
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        lockMovement: Boolean,
+    ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     delay(100L)
@@ -361,7 +370,16 @@ private suspend fun handleDragDockGridItem(
     screen: Screen,
     lockMovement: Boolean,
     onUpdateAssociate: (Associate) -> Unit,
-    onMoveGridItem: (GridItem, Int, Int, Int, Int, Int, Int, Boolean) -> Unit,
+    onMoveGridItem: (
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        lockMovement: Boolean,
+    ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     delay(100L)

@@ -119,6 +119,8 @@ internal fun SharedTransitionScope.PagerScreen(
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     folderGridHorizontalPagerState: PagerState,
     gridItemDataFolder: GridItemData.Folder?,
+    folderPopupIntOffset: IntOffset,
+    folderPopupIntSize: IntSize,
     onDraggingGridItem: (
         screen: Screen,
         gridItems: List<GridItem>,
@@ -154,7 +156,11 @@ internal fun SharedTransitionScope.PagerScreen(
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
-    onUpdateFolderGridItemId: (String?) -> Unit,
+    onTapFolderGridItem: (
+        id: String?,
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -387,6 +393,8 @@ internal fun SharedTransitionScope.PagerScreen(
         folderGridHorizontalPagerState = folderGridHorizontalPagerState,
         screenWidth = screenWidth,
         screenHeight = screenHeight,
+        folderPopupIntOffset = folderPopupIntOffset,
+        folderPopupIntSize = folderPopupIntSize,
         onEditGridItem = onEditGridItem,
         onResize = onResize,
         onSettings = onSettings,
@@ -411,7 +419,7 @@ internal fun SharedTransitionScope.PagerScreen(
         onOpenAppDrawer = {
             showAppDrawer = true
         },
-        onUpdateFolderGridItemId = onUpdateFolderGridItemId,
+        onTapFolderGridItem = onTapFolderGridItem,
     )
 
     if (gestureSettings.swipeUp.eblanActionType == EblanActionType.OpenAppDrawer || gestureSettings.swipeDown.eblanActionType == EblanActionType.OpenAppDrawer) {

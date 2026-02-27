@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.Associate
@@ -65,6 +66,7 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.screen.folderdrag.FolderDragScreen
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -103,6 +105,9 @@ internal fun SharedTransitionScope.DragScreen(
     associate: Associate?,
     configureResultCode: Int?,
     gridItemDataFolder: GridItemData.Folder?,
+    folderPopupIntOffset: IntOffset,
+    folderPopupIntSize: IntSize,
+    folderGridHorizontalPagerState: PagerState,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -134,6 +139,7 @@ internal fun SharedTransitionScope.DragScreen(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateAssociate: (Associate) -> Unit,
     onResetConfigureResultCode: () -> Unit,
+    onUpdateFolderGridItemId: (String?) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -246,6 +252,9 @@ internal fun SharedTransitionScope.DragScreen(
             paddingValues = paddingValues,
             lockMovement = lockMovement,
             screen = screen,
+            gridItemDataFolder = gridItemDataFolder,
+            folderPopupIntOffset = folderPopupIntOffset,
+            folderPopupIntSize = folderPopupIntSize,
             onMoveGridItem = onMoveGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onUpdateAssociate = onUpdateAssociate,
@@ -480,5 +489,27 @@ internal fun SharedTransitionScope.DragScreen(
                 },
             )
         }
+    }
+
+    if (gridItemDataFolder != null) {
+        FolderDragScreen(
+            gridItemDataFolder = gridItemDataFolder,
+            folderPopupIntOffset = folderPopupIntOffset,
+            folderPopupIntSize = folderPopupIntSize,
+            paddingValues = paddingValues,
+            folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            homeSettings = homeSettings,
+            textColor = textColor,
+            gridItemSettings = homeSettings.gridItemSettings,
+            statusBarNotifications = statusBarNotifications,
+            iconPackFilePaths = iconPackFilePaths,
+            drag = drag,
+            screen = screen,
+            onDismissRequest = {
+                onUpdateFolderGridItemId(null)
+            },
+        )
     }
 }

@@ -725,6 +725,10 @@ private fun SharedTransitionScope.Success(
         },
     )
 
+    var folderPopupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var folderPopupIntSize by remember { mutableStateOf(IntSize.Zero) }
+
     LaunchedEffect(key1 = pinGridItem) {
         val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
@@ -805,6 +809,8 @@ private fun SharedTransitionScope.Success(
                     eblanApplicationInfoTags = eblanApplicationInfoTags,
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     gridItemDataFolder = gridItemDataFolder,
+                    folderPopupIntOffset = folderPopupIntOffset,
+                    folderPopupIntSize = folderPopupIntSize,
                     onDraggingGridItem = onShowGridCache,
                     onEditGridItem = onEditGridItem,
                     onResize = onShowGridCache,
@@ -832,7 +838,13 @@ private fun SharedTransitionScope.Success(
                     onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
                     onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
                     onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
-                    onUpdateFolderGridItemId = onUpdateFolderGridItemId,
+                    onTapFolderGridItem = { id, intOffset, intSize ->
+                        folderPopupIntOffset = intOffset
+
+                        folderPopupIntSize = intSize
+
+                        onUpdateFolderGridItemId(id)
+                    },
                 )
             }
 
@@ -859,6 +871,9 @@ private fun SharedTransitionScope.Success(
                     associate = associate,
                     configureResultCode = configureResultCode,
                     gridItemDataFolder = gridItemDataFolder,
+                    folderPopupIntOffset = folderPopupIntOffset,
+                    folderPopupIntSize = folderPopupIntSize,
+                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = onResetGridCacheAfterMove,
                     onDragEndAfterMoveWidgetGridItem = onResetGridCacheAfterMoveWidgetGridItem,
@@ -872,6 +887,7 @@ private fun SharedTransitionScope.Success(
                         associate = newAssociate
                     },
                     onResetConfigureResultCode = onResetConfigureResultCode,
+                    onUpdateFolderGridItemId = onUpdateFolderGridItemId,
                 )
             }
 

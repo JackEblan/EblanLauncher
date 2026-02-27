@@ -103,6 +103,8 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     folderGridHorizontalPagerState: PagerState,
     screenWidth: Int,
     screenHeight: Int,
+    folderPopupIntOffset: IntOffset,
+    folderPopupIntSize: IntSize,
     gridItemDataFolder: GridItemData.Folder?,
     onEditGridItem: (String) -> Unit,
     onResize: (
@@ -133,7 +135,11 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
     onOpenAppDrawer: () -> Unit,
-    onUpdateFolderGridItemId: (String?) -> Unit,
+    onTapFolderGridItem: (
+        id: String?,
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -162,10 +168,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     var popupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var popupIntSize by remember { mutableStateOf(IntSize.Zero) }
-
-    var folderPopupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
-
-    var folderPopupIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -304,14 +306,13 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                             context.startActivity(Intent.parseUri(uri, 0))
                         },
                         onTapFolderGridItem = { intOffset, intSize ->
-                            folderPopupIntOffset = intOffset
-
-                            folderPopupIntSize = IntSize(
-                                width = intSize.width,
-                                height = height,
+                            onTapFolderGridItem(
+                                gridItem.id, intOffset,
+                                IntSize(
+                                    width = intSize.width,
+                                    height = height,
+                                ),
                             )
-
-                            onUpdateFolderGridItemId(gridItem.id)
                         },
                         onUpdateGridItemOffset = { intOffset, intSize ->
                             popupIntOffset = intOffset
@@ -443,14 +444,13 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         context.startActivity(Intent.parseUri(uri, 0))
                     },
                     onTapFolderGridItem = { intOffset, intSize ->
-                        folderPopupIntOffset = intOffset
-
-                        folderPopupIntSize = IntSize(
-                            width = intSize.width,
-                            height = height,
+                        onTapFolderGridItem(
+                            gridItem.id, intOffset,
+                            IntSize(
+                                width = intSize.width,
+                                height = height,
+                            ),
                         )
-
-                        onUpdateFolderGridItemId(gridItem.id)
                     },
                     onUpdateGridItemOffset = { intOffset, intSize ->
                         popupIntOffset = intOffset
@@ -577,8 +577,8 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     if (gridItemDataFolder != null) {
         FolderScreen(
             gridItemDataFolder = gridItemDataFolder,
-            popupIntOffset = folderPopupIntOffset,
-            popupIntSize = folderPopupIntSize,
+            folderPopupIntOffset = folderPopupIntOffset,
+            folderPopupIntSize = folderPopupIntSize,
             paddingValues = paddingValues,
             folderGridHorizontalPagerState = folderGridHorizontalPagerState,
             screenWidth = screenWidth,
@@ -591,7 +591,11 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             drag = drag,
             screen = screen,
             onDismissRequest = {
-                onUpdateFolderGridItemId(null)
+                onTapFolderGridItem(
+                    null,
+                    IntOffset.Zero,
+                    IntSize.Zero,
+                )
             },
             onUpdateGridItemOffset = { intOffset, intSize ->
                 popupIntOffset = intOffset

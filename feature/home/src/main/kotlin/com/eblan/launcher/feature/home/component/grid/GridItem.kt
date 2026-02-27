@@ -53,6 +53,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -497,6 +498,74 @@ internal fun ShortcutConfigGridItemContent(
     if (gridItemSettings.showLabel) {
         Text(
             text = (label).toString(),
+            color = textColor,
+            textAlign = TextAlign.Center,
+            maxLines = maxLines,
+            fontSize = gridItemSettings.textSize.sp,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+@Composable
+internal fun ApplicationInfoFolderGridItemContent(
+    modifier: Modifier = Modifier,
+    gridItem: ApplicationInfoGridItem,
+    textColor: Color,
+    gridItemSettings: GridItemSettings,
+    statusBarNotifications: Map<String, Int>,
+    iconPackFilePaths: Map<String, String>,
+) {
+    val settings = LocalSettings.current
+
+    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
+    val icon = iconPackFilePaths[gridItem.componentName] ?: gridItem.icon
+
+    val hasNotifications =
+        statusBarNotifications[gridItem.packageName] != null && (
+                statusBarNotifications[gridItem.packageName]
+                    ?: 0
+                ) > 0
+
+    Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current).data(gridItem.customIcon ?: icon)
+                .addLastModifiedToFileCacheKey(true).build(),
+            contentDescription = null,
+            modifier = modifier.matchParentSize(),
+        )
+
+        if (settings.isNotificationAccessGranted() && hasNotifications) {
+            Box(
+                modifier = Modifier
+                    .size((gridItemSettings.iconSize * 0.3).dp)
+                    .align(Alignment.TopEnd)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = CircleShape,
+                    ),
+            )
+        }
+
+        if (gridItem.serialNumber != 0L) {
+            ElevatedCard(
+                modifier = Modifier
+                    .size((gridItemSettings.iconSize * 0.4).dp)
+                    .align(Alignment.BottomEnd),
+            ) {
+                Icon(
+                    imageVector = EblanLauncherIcons.Work,
+                    contentDescription = null,
+                    modifier = Modifier.padding(2.dp),
+                )
+            }
+        }
+    }
+
+    if (gridItemSettings.showLabel) {
+        Text(
+            text = gridItem.customLabel ?: gridItem.label,
             color = textColor,
             textAlign = TextAlign.Center,
             maxLines = maxLines,

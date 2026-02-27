@@ -24,7 +24,6 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.grid.getWidgetGridItemSize
@@ -113,9 +112,6 @@ internal suspend fun handleDragGridItem(
     paddingValues: PaddingValues,
     lockMovement: Boolean,
     screen: Screen,
-    gridItemDataFolder: GridItemData.Folder?,
-    folderPopupIntOffset: IntOffset,
-    folderPopupIntSize: IntSize,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -171,16 +167,7 @@ internal suspend fun handleDragGridItem(
 
     val isOnDock = dockHeightPx > 0 && dragY > safeDrawingHeight - dockHeightPx
 
-    val folderX = dragX - folderPopupIntOffset.x
-
-    val folderY = dragY - folderPopupIntOffset.x
-
-    val isInsideFolder = folderX in 0..folderPopupIntSize.width &&
-            folderY in 0..folderPopupIntSize.height
-
-    if (gridItemDataFolder != null && isInsideFolder) {
-        println("Inside Folder")
-    } else if (isOnDock) {
+    if (isOnDock) {
         delay(100L)
 
         onUpdateAssociate(Associate.Dock)

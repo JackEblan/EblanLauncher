@@ -26,21 +26,28 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -74,6 +81,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
     onDismissRequest: () -> Unit,
     drag: Drag,
     screen: Screen,
+    dragIntOffset: IntOffset,
 ) {
     val density = LocalDensity.current
 
@@ -119,6 +127,28 @@ internal fun SharedTransitionScope.FolderDragScreen(
         (cellHeight * gridItemDataFolder.rows).toDp()
     }
 
+    val gridWidthPx = with(density) {
+        gridWidthDp.roundToPx() - (gridPaddingDp.roundToPx() * 2)
+    }
+
+    val gridHeightPx = with(density) {
+        gridHeightDp.roundToPx() - (gridPaddingDp.roundToPx() * 2)
+    }
+
+    var folderGridIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var folderGridIntSize by remember { mutableStateOf(IntSize.Zero) }
+
+    LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
+        handleDragGridItem(
+            drag = drag,
+            dragIntOffset = dragIntOffset,
+            gridItemDataFolder = gridItemDataFolder,
+            folderGridIntOffset = folderGridIntOffset,
+            folderGridIntSize = folderGridIntSize,
+        )
+    }
+
     Layout(
         modifier = modifier
             .pointerInput(Unit) {
@@ -135,11 +165,11 @@ internal fun SharedTransitionScope.FolderDragScreen(
         content = {
             Surface(
                 modifier = Modifier
-                    .size(
-                        width = gridWidthDp,
-                        height = gridHeightDp,
-                    )
-                    .padding(gridPaddingDp),
+                    .onGloballyPositioned { layoutCoordinates ->
+                        folderGridIntOffset = layoutCoordinates.positionInRoot().round()
+
+                        folderGridIntSize = layoutCoordinates.size
+                    },
                 shape = RoundedCornerShape(5.dp),
                 shadowElevation = 2.dp,
                 content = {
@@ -172,6 +202,8 @@ internal fun SharedTransitionScope.FolderDragScreen(
             constraints.copy(
                 minWidth = 0,
                 minHeight = 0,
+                maxWidth = gridWidthPx,
+                maxHeight = gridHeightPx,
             ),
         )
 

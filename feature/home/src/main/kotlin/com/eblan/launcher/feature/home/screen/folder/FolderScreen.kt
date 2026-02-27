@@ -22,12 +22,15 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,7 +51,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
@@ -135,33 +137,29 @@ internal fun SharedTransitionScope.FolderScreen(
 
     val safeDrawingHeight = screenHeight - verticalPadding
 
-    val x = folderPopupIntOffset.x - leftPadding
+    val folderCellWidth = safeDrawingWidth / homeSettings.columns
 
-    val y = folderPopupIntOffset.y - topPadding
+    val folderCellHeight = safeDrawingHeight / homeSettings.rows
 
-    val cellWidth = safeDrawingWidth / homeSettings.columns
+    val folderGridPaddingDp = 10.dp
 
-    val cellHeight = safeDrawingHeight / homeSettings.rows
-
-    val gridPaddingDp = 10.dp
-
-    val gridWidthDp = with(density) {
-        (cellWidth * gridItemDataFolder.columns).toDp()
+    val folderGridWidthDp = with(density) {
+        (folderCellWidth * gridItemDataFolder.columns).toDp()
     }
 
-    val gridHeightDp = with(density) {
-        (cellHeight * gridItemDataFolder.rows).toDp()
+    val folderGridHeightDp = with(density) {
+        (folderCellHeight * gridItemDataFolder.rows).toDp()
     }
 
-    val gridWidthPx = with(density) {
-        gridWidthDp.roundToPx() - (gridPaddingDp.roundToPx() * 2)
+    val folderGridWidthPx = with(density) {
+        folderGridWidthDp.roundToPx() - (folderGridPaddingDp.roundToPx() * 2)
     }
 
-    val gridHeightPx = with(density) {
-        gridHeightDp.roundToPx() - (gridPaddingDp.roundToPx() * 2)
+    val folderGridHeightPx = with(density) {
+        folderGridHeightDp.roundToPx() - (folderGridPaddingDp.roundToPx() * 2)
     }
 
-    Layout(
+    Box(
         modifier = modifier
             .pointerInput(Unit) {
                 detectTapGestures(
@@ -174,67 +172,65 @@ internal fun SharedTransitionScope.FolderScreen(
             }
             .fillMaxSize()
             .padding(paddingValues),
-        content = {
-            Surface(
-                shape = RoundedCornerShape(5.dp),
-                shadowElevation = 2.dp,
-                content = {
-                    HorizontalPager(
-                        state = folderGridHorizontalPagerState,
-                    ) { index ->
-                        FolderGridLayout(
-                            modifier = Modifier.fillMaxSize(),
-                            gridItems = gridItemDataFolder.gridItemsByPage[index],
-                            columns = gridItemDataFolder.columns,
-                            rows = gridItemDataFolder.rows,
-                            { gridItem ->
-                                FolderGridItemContent(
-                                    gridItem = gridItem,
-                                    textColor = textColor,
-                                    gridItemSettings = gridItemSettings,
-                                    statusBarNotifications = statusBarNotifications,
-                                    iconPackFilePaths = iconPackFilePaths,
-                                    drag = drag,
-                                    screen = screen,
-                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                    onUpdateImageBitmap = { imageBitmap ->
-                                        onLongPressGridItem(
-                                            GridItemSource.Existing(gridItem = gridItem.asGridItem()),
-                                            imageBitmap,
-                                        )
-                                    },
-                                    onDraggingGridItem = onDraggingGridItem,
-                                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                    onOpenAppDrawer = onOpenAppDrawer,
-                                )
-                            },
-                        )
-                    }
-                },
-            )
-        },
-    ) { measurables, constraints ->
-        val placeable = measurables.first().measure(
-            constraints.copy(
-                minWidth = 0,
-                minHeight = 0,
-                maxWidth = gridWidthPx,
-                maxHeight = gridHeightPx,
-            ),
+    ) {
+        Surface(
+            modifier = Modifier
+                .offset {
+                    val centeredX =
+                        folderPopupIntOffset.x + (folderPopupIntSize.width / 2) - (folderGridWidthPx / 2)
+
+                    val centeredY =
+                        folderPopupIntOffset.y + (folderPopupIntSize.height / 2) - (folderGridHeightPx / 2)
+
+                    val popupX = centeredX.coerceIn(0, safeDrawingWidth - folderGridWidthPx)
+                    val popupY = centeredY.coerceIn(0, safeDrawingHeight - folderGridHeightPx)
+
+                    IntOffset(
+                        x = popupX,
+                        y = popupY,
+                    )
+                }
+                .size(
+                    width = folderGridWidthDp,
+                    height = folderGridHeightDp,
+                )
+                .padding(folderGridPaddingDp),
+            shape = RoundedCornerShape(5.dp),
+            shadowElevation = 2.dp,
+            content = {
+                HorizontalPager(
+                    state = folderGridHorizontalPagerState,
+                ) { index ->
+                    FolderGridLayout(
+                        modifier = Modifier.fillMaxSize(),
+                        gridItems = gridItemDataFolder.gridItemsByPage[index],
+                        columns = gridItemDataFolder.columns,
+                        rows = gridItemDataFolder.rows,
+                        { gridItem ->
+                            FolderGridItemContent(
+                                gridItem = gridItem,
+                                textColor = textColor,
+                                gridItemSettings = gridItemSettings,
+                                statusBarNotifications = statusBarNotifications,
+                                iconPackFilePaths = iconPackFilePaths,
+                                drag = drag,
+                                screen = screen,
+                                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                                onUpdateImageBitmap = { imageBitmap ->
+                                    onLongPressGridItem(
+                                        GridItemSource.Existing(gridItem = gridItem.asGridItem()),
+                                        imageBitmap,
+                                    )
+                                },
+                                onDraggingGridItem = onDraggingGridItem,
+                                onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+                        },
+                    )
+                }
+            },
         )
-
-        layout(constraints.maxWidth, constraints.maxHeight) {
-            val popupX = folderPopupIntOffset.x + folderPopupIntSize.width / 2 - gridWidthPx / 2
-            val popupY = folderPopupIntOffset.y + folderPopupIntSize.height / 2 - gridHeightPx / 2
-
-            val centeredX = popupX.coerceIn(0, constraints.maxWidth - gridWidthPx)
-            val centeredY = popupY.coerceIn(0, constraints.maxHeight - gridHeightPx)
-
-            placeable.place(
-                x = centeredX,
-                y = centeredY,
-            )
-        }
     }
 }
 

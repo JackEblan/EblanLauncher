@@ -24,6 +24,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.grid.getWidgetGridItemSize
@@ -112,6 +113,9 @@ internal suspend fun handleDragGridItem(
     paddingValues: PaddingValues,
     lockMovement: Boolean,
     screen: Screen,
+    gridItemDataFolder: GridItemData.Folder?,
+    folderPopupIntOffset: IntOffset,
+    folderPopupIntSize: IntSize,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -167,108 +171,243 @@ internal suspend fun handleDragGridItem(
 
     val isOnDock = dockHeightPx > 0 && dragY > safeDrawingHeight - dockHeightPx
 
-    if (isOnDock) {
-        delay(100L)
-
-        onUpdateAssociate(Associate.Dock)
-
-        val cellWidth = safeDrawingWidth / dockColumns
-
-        val cellHeight = dockHeightPx / dockRows
-
-        val dockY = dragY - (safeDrawingHeight - dockHeightPx)
-
-        val moveGridItem = getMoveGridItem(
-            targetPage = currentPage,
+    if (gridItemDataFolder != null) {
+        handleDragFolderGridItem(
+            safeDrawingWidth = safeDrawingWidth,
+            columns = columns,
+            safeDrawingHeight = safeDrawingHeight,
+            rows = rows,
+            density = density,
+            gridItemDataFolder = gridItemDataFolder,
+            folderPopupIntOffset = folderPopupIntOffset,
+            folderPopupIntSize = folderPopupIntSize,
+            dragX = dragX,
+            dragY = dragY,
+        )
+    } else if (isOnDock) {
+        handleDragDockGridItem(
+            safeDrawingWidth = safeDrawingWidth,
+            dockColumns = dockColumns,
+            dockHeightPx = dockHeightPx,
+            dockRows = dockRows,
+            dragY = dragY,
+            safeDrawingHeight = safeDrawingHeight,
+            currentPage = currentPage,
             gridItem = gridItem,
-            cellWidth = cellWidth,
-            cellHeight = cellHeight,
-            columns = dockColumns,
-            rows = dockRows,
-            gridWidth = safeDrawingWidth,
-            gridHeight = dockHeightPx,
-            gridX = dragX,
-            gridY = dockY,
-            associate = Associate.Dock,
+            dragX = dragX,
             gridItemSource = gridItemSource,
+            screen = screen,
+            lockMovement = lockMovement,
+            onUpdateAssociate = onUpdateAssociate,
+            onMoveGridItem = onMoveGridItem,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
-
-        val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
-            gridItem = moveGridItem,
-            columns = dockColumns,
-            rows = dockRows,
-        )
-
-        if (isGridItemSpanWithinBounds) {
-            onUpdateSharedElementKey(
-                SharedElementKey(
-                    id = moveGridItem.id,
-                    screen = screen,
-                ),
-            )
-
-            onMoveGridItem(
-                moveGridItem,
-                dragX,
-                dockY,
-                dockColumns,
-                dockRows,
-                safeDrawingWidth,
-                dockHeightPx,
-                lockMovement,
-            )
-        }
     } else {
-        delay(100L)
-
-        onUpdateAssociate(Associate.Grid)
-
-        val gridHeightWithPadding = safeDrawingHeight - dockHeightPx - pageIndicatorHeight
-
-        val cellWidth = safeDrawingWidth / columns
-
-        val cellHeight = gridHeightWithPadding / rows
-
-        val moveGridItem = getMoveGridItem(
-            targetPage = currentPage,
+        handleDragGridItem(
+            safeDrawingHeight = safeDrawingHeight,
+            dockHeightPx = dockHeightPx,
+            pageIndicatorHeight = pageIndicatorHeight,
+            safeDrawingWidth = safeDrawingWidth,
+            columns = columns,
+            rows = rows,
+            currentPage = currentPage,
             gridItem = gridItem,
-            cellWidth = cellWidth,
-            cellHeight = cellHeight,
-            columns = columns,
-            rows = rows,
-            gridWidth = safeDrawingWidth,
-            gridHeight = gridHeightWithPadding,
-            gridX = dragX,
-            gridY = dragY,
-            associate = Associate.Grid,
+            dragX = dragX,
+            dragY = dragY,
             gridItemSource = gridItemSource,
+            screen = screen,
+            lockMovement = lockMovement,
+            onUpdateAssociate = onUpdateAssociate,
+            onMoveGridItem = onMoveGridItem,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
+        )
+    }
+}
+
+private fun handleDragFolderGridItem(
+    safeDrawingWidth: Int,
+    columns: Int,
+    safeDrawingHeight: Int,
+    rows: Int,
+    density: Density,
+    gridItemDataFolder: GridItemData.Folder,
+    folderPopupIntOffset: IntOffset,
+    folderPopupIntSize: IntSize,
+    dragX: Int,
+    dragY: Int,
+) {
+    val folderCellWidth = safeDrawingWidth / columns
+
+    val folderCellHeight = safeDrawingHeight / rows
+
+    val folderGridPaddingDp = 10.dp
+
+    val folderGridPaddingPx = with(density){
+        folderGridPaddingDp.roundToPx()
+    }
+
+    val folderGridWidthPx = (folderCellWidth * gridItemDataFolder.columns) - (folderGridPaddingPx * 2)
+
+    val folderGridHeightPx = (folderCellHeight * gridItemDataFolder.rows) - (folderGridPaddingPx * 2)
+
+    val centeredX =
+        folderPopupIntOffset.x + (folderPopupIntSize.width / 2) - (folderGridWidthPx / 2)
+    val centeredY =
+        folderPopupIntOffset.y + (folderPopupIntSize.height / 2) - (folderGridHeightPx / 2)
+
+    val popupX = centeredX.coerceIn(0, safeDrawingWidth - folderGridWidthPx)
+    val popupY = centeredY.coerceIn(0, safeDrawingHeight - folderGridHeightPx)
+
+    val folderDragX = dragX - (popupX + folderGridPaddingPx)
+
+    val folderDragY = dragY - (popupY + folderGridPaddingPx)
+
+    val isInsideFolder = folderDragX in 0..folderGridWidthPx &&
+            folderDragY in 0..folderGridHeightPx
+
+    if (isInsideFolder) {
+        println("Inside Folder")
+    } else {
+        println("Outside Folder")
+    }
+}
+
+private suspend fun handleDragGridItem(
+    safeDrawingHeight: Int,
+    dockHeightPx: Int,
+    pageIndicatorHeight: Int,
+    safeDrawingWidth: Int,
+    columns: Int,
+    rows: Int,
+    currentPage: Int,
+    gridItem: GridItem,
+    dragX: Int,
+    dragY: Int,
+    gridItemSource: GridItemSource,
+    screen: Screen,
+    lockMovement: Boolean,
+    onUpdateAssociate: (Associate) -> Unit,
+    onMoveGridItem: (GridItem, Int, Int, Int, Int, Int, Int, Boolean) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+) {
+    delay(100L)
+
+    onUpdateAssociate(Associate.Grid)
+
+    val gridHeightWithPadding = safeDrawingHeight - dockHeightPx - pageIndicatorHeight
+
+    val cellWidth = safeDrawingWidth / columns
+
+    val cellHeight = gridHeightWithPadding / rows
+
+    val moveGridItem = getMoveGridItem(
+        targetPage = currentPage,
+        gridItem = gridItem,
+        cellWidth = cellWidth,
+        cellHeight = cellHeight,
+        columns = columns,
+        rows = rows,
+        gridWidth = safeDrawingWidth,
+        gridHeight = gridHeightWithPadding,
+        gridX = dragX,
+        gridY = dragY,
+        associate = Associate.Grid,
+        gridItemSource = gridItemSource,
+    )
+
+    val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
+        gridItem = moveGridItem,
+        columns = columns,
+        rows = rows,
+    )
+
+    if (isGridItemSpanWithinBounds) {
+        onUpdateSharedElementKey(
+            SharedElementKey(
+                id = moveGridItem.id,
+                screen = screen,
+            ),
         )
 
-        val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
-            gridItem = moveGridItem,
-            columns = columns,
-            rows = rows,
+        onMoveGridItem(
+            moveGridItem,
+            dragX,
+            dragY,
+            columns,
+            rows,
+            safeDrawingWidth,
+            gridHeightWithPadding,
+            lockMovement,
+        )
+    }
+}
+
+private suspend fun handleDragDockGridItem(
+    safeDrawingWidth: Int,
+    dockColumns: Int,
+    dockHeightPx: Int,
+    dockRows: Int,
+    dragY: Int,
+    safeDrawingHeight: Int,
+    currentPage: Int,
+    gridItem: GridItem,
+    dragX: Int,
+    gridItemSource: GridItemSource,
+    screen: Screen,
+    lockMovement: Boolean,
+    onUpdateAssociate: (Associate) -> Unit,
+    onMoveGridItem: (GridItem, Int, Int, Int, Int, Int, Int, Boolean) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+) {
+    delay(100L)
+
+    onUpdateAssociate(Associate.Dock)
+
+    val cellWidth = safeDrawingWidth / dockColumns
+
+    val cellHeight = dockHeightPx / dockRows
+
+    val dockY = dragY - (safeDrawingHeight - dockHeightPx)
+
+    val moveGridItem = getMoveGridItem(
+        targetPage = currentPage,
+        gridItem = gridItem,
+        cellWidth = cellWidth,
+        cellHeight = cellHeight,
+        columns = dockColumns,
+        rows = dockRows,
+        gridWidth = safeDrawingWidth,
+        gridHeight = dockHeightPx,
+        gridX = dragX,
+        gridY = dockY,
+        associate = Associate.Dock,
+        gridItemSource = gridItemSource,
+    )
+
+    val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
+        gridItem = moveGridItem,
+        columns = dockColumns,
+        rows = dockRows,
+    )
+
+    if (isGridItemSpanWithinBounds) {
+        onUpdateSharedElementKey(
+            SharedElementKey(
+                id = moveGridItem.id,
+                screen = screen,
+            ),
         )
 
-        if (isGridItemSpanWithinBounds) {
-            onUpdateSharedElementKey(
-                SharedElementKey(
-                    id = moveGridItem.id,
-                    screen = screen,
-                ),
-            )
-
-            onMoveGridItem(
-                moveGridItem,
-                dragX,
-                dragY,
-                columns,
-                rows,
-                safeDrawingWidth,
-                gridHeightWithPadding,
-                lockMovement,
-            )
-        }
+        onMoveGridItem(
+            moveGridItem,
+            dragX,
+            dockY,
+            dockColumns,
+            dockRows,
+            safeDrawingWidth,
+            dockHeightPx,
+            lockMovement,
+        )
     }
 }
 

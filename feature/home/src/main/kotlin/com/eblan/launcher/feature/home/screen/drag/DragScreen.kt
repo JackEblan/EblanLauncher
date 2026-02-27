@@ -252,6 +252,9 @@ internal fun SharedTransitionScope.DragScreen(
             paddingValues = paddingValues,
             lockMovement = lockMovement,
             screen = screen,
+            gridItemDataFolder = gridItemDataFolder,
+            folderPopupIntOffset = folderPopupIntOffset,
+            folderPopupIntSize = folderPopupIntSize,
             onMoveGridItem = onMoveGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onUpdateAssociate = onUpdateAssociate,
@@ -504,7 +507,6 @@ internal fun SharedTransitionScope.DragScreen(
             iconPackFilePaths = iconPackFilePaths,
             drag = drag,
             screen = screen,
-            dragIntOffset = dragIntOffset,
             onDismissRequest = {
                 onUpdateFolderGridItemId(null)
             },

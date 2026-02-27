@@ -117,11 +117,11 @@ internal fun SharedTransitionScope.FolderDragScreen(
     }
 
     val folderGridWidthPx = with(density) {
-        folderGridWidthDp.roundToPx() - (folderGridPaddingDp.roundToPx() * 2)
+        folderGridWidthDp.roundToPx()
     }
 
     val folderGridHeightPx = with(density) {
-        folderGridHeightDp.roundToPx() - (folderGridPaddingDp.roundToPx() * 2)
+        folderGridHeightDp.roundToPx()
     }
 
     Box(

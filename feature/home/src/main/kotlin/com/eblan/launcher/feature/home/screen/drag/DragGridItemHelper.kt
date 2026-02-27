@@ -48,9 +48,12 @@ internal fun handleAnimateScrollToPage(
     screenWidth: Int,
     dragIntOffset: IntOffset,
     associate: Associate?,
+    gridItemDataFolder: GridItemData.Folder?,
     onUpdateGridPageDirection: (PageDirection?) -> Unit,
     onUpdateDockPageDirection: (PageDirection?) -> Unit,
 ) {
+    if (gridItemDataFolder != null) return
+
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
@@ -242,13 +245,12 @@ private fun handleDragFolderGridItem(
 
     val folderGridPaddingDp = 10.dp
 
-    val folderGridPaddingPx = with(density){
+    val folderGridPaddingPx = with(density) {
         folderGridPaddingDp.roundToPx()
     }
 
-    val folderGridWidthPx = (folderCellWidth * gridItemDataFolder.columns) - (folderGridPaddingPx * 2)
-
-    val folderGridHeightPx = (folderCellHeight * gridItemDataFolder.rows) - (folderGridPaddingPx * 2)
+    val folderGridWidthPx = folderCellWidth * gridItemDataFolder.columns
+    val folderGridHeightPx = folderCellHeight * gridItemDataFolder.rows
 
     val centeredX =
         folderPopupIntOffset.x + (folderPopupIntSize.width / 2) - (folderGridWidthPx / 2)
@@ -258,12 +260,15 @@ private fun handleDragFolderGridItem(
     val popupX = centeredX.coerceIn(0, safeDrawingWidth - folderGridWidthPx)
     val popupY = centeredY.coerceIn(0, safeDrawingHeight - folderGridHeightPx)
 
-    val folderDragX = dragX - (popupX + folderGridPaddingPx)
+    val folderDragX = dragX - popupX - folderGridPaddingPx
 
-    val folderDragY = dragY - (popupY + folderGridPaddingPx)
+    val folderDragY = dragY - popupY - folderGridPaddingPx
 
-    val isInsideFolder = folderDragX in 0..folderGridWidthPx &&
-            folderDragY in 0..folderGridHeightPx
+    val folderGridVisibleWidthPx = folderGridWidthPx - folderGridPaddingPx * 2
+    val folderGridVisibleHeightPx = folderGridHeightPx - folderGridPaddingPx * 2
+
+    val isInsideFolder = folderDragX in 0..folderGridVisibleWidthPx &&
+            folderDragY in 0..folderGridVisibleHeightPx
 
     if (isInsideFolder) {
         println("Inside Folder")

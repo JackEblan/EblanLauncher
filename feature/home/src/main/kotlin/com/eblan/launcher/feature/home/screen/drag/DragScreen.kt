@@ -354,6 +354,7 @@ internal fun SharedTransitionScope.DragScreen(
             screenWidth = screenWidth,
             dragIntOffset = dragIntOffset,
             associate = associate,
+            gridItemDataFolder = gridItemDataFolder,
             onUpdateGridPageDirection = { pageDirection ->
                 gridPageDirection = pageDirection
             },

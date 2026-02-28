@@ -24,6 +24,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        currentPage: Int,
     ) {
         withContext(defaultDispatcher) {
             val cellWidth = gridWidth / columns
@@ -32,18 +33,17 @@ class MoveFolderGridItemUseCase @Inject constructor(
             val targetColumn = dragX / cellWidth
             val targetRow = dragY / cellHeight
 
-            val targetIndex = (targetRow * columns + targetColumn).coerceIn(0, applicationInfoGridItems.lastIndex)
+            val targetIndex = currentPage * (columns * rows) + targetRow * columns + targetColumn
 
-            val fromIndex =
-                applicationInfoGridItems.indexOfFirst { it.id == movingApplicationInfoGridItem.id }
+            val fromIndex = applicationInfoGridItems.indexOfFirst {
+                it.id == movingApplicationInfoGridItem.id
+            }
 
             val gridItems = applicationInfoGridItems.toMutableList().apply {
-                add(
-                    index = targetIndex,
-                    element = removeAt(fromIndex),
-                )
-            }.mapIndexed { index, applicationInfoGridItem ->
-                applicationInfoGridItem.copy(index = index)
+                val movedItem = removeAt(fromIndex)
+                add(targetIndex.coerceIn(0, size), movedItem)
+            }.mapIndexed { index, item ->
+                item.copy(index = index)
             }
 
             val folderGridItemData = folderGridItem.data as? GridItemData.Folder

@@ -161,6 +161,7 @@ internal suspend fun handleDragGridItem(
     folderGridItem: GridItem?,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
+    folderCurrentPage: Int,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -183,6 +184,7 @@ internal suspend fun handleDragGridItem(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        currentPage: Int,
     ) -> Unit,
 ) {
     if (drag == Drag.None ||
@@ -282,6 +284,7 @@ internal suspend fun handleDragGridItem(
                 lockMovement = lockMovement,
                 gridItemSource = gridItemSource,
                 onMoveFolderGridItem = onMoveFolderGridItem,
+                folderCurrentPage = folderCurrentPage,
             )
         }
     }
@@ -300,6 +303,7 @@ private suspend fun handleDragFolderGridItem(
     dragY: Int,
     lockMovement: Boolean,
     gridItemSource: GridItemSource?,
+    folderCurrentPage: Int,
     onMoveFolderGridItem: (
         folderGridItem: GridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
@@ -310,6 +314,7 @@ private suspend fun handleDragFolderGridItem(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        currentPage: Int,
     ) -> Unit,
 ) {
     val data = folderGridItem?.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
@@ -363,6 +368,7 @@ private suspend fun handleDragFolderGridItem(
             data.rows,
             folderGridWidthPx,
             folderGridHeightPx,
+            folderCurrentPage,
         )
     } else {
         println("Outside Folder")

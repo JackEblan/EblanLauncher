@@ -320,6 +320,7 @@ internal fun HomeScreen(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        currentPage: Int,
     ) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
 ) {
@@ -651,6 +652,7 @@ private fun SharedTransitionScope.Success(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        currentPage: Int,
     ) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
 ) {

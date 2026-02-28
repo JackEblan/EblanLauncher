@@ -151,6 +151,7 @@ internal fun SharedTransitionScope.DragScreen(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        currentPage: Int,
     ) -> Unit,
     onDragEndAfterMoveFolder: () -> Unit,
 ) {
@@ -269,6 +270,7 @@ internal fun SharedTransitionScope.DragScreen(
             folderGridItem = folderGridItem,
             folderPopupIntOffset = folderPopupIntOffset,
             folderPopupIntSize = folderPopupIntSize,
+            folderCurrentPage = folderGridHorizontalPagerState.currentPage,
             onMoveGridItem = onMoveGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onUpdateAssociate = onUpdateAssociate,

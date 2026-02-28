@@ -650,6 +650,7 @@ internal class HomeViewModel @Inject constructor(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
+        currentPage: Int,
     ) {
         moveGridItemJob?.cancel()
 
@@ -664,6 +665,7 @@ internal class HomeViewModel @Inject constructor(
                 rows = rows,
                 gridWidth = gridWidth,
                 gridHeight = gridHeight,
+                currentPage = currentPage,
             )
         }
     }

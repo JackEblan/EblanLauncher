@@ -48,9 +48,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.popup.SettingsPopupPositionProvider
+import com.eblan.launcher.feature.home.model.GridItemSource
 
 @Composable
 internal fun SettingsPopup(
@@ -119,15 +122,16 @@ internal fun SettingsPopup(
 @Composable
 internal fun FolderGridItemPopup(
     modifier: Modifier = Modifier,
-    gridItem: GridItem?,
+    gridItemSource: GridItemSource,
     popupIntOffset: IntOffset,
     popupIntSize: IntSize,
     paddingValues: PaddingValues,
     onEdit: (String) -> Unit,
-    onDeleteGridItem: (GridItem) -> Unit,
+    onDeleteApplicationInfoGridItem: (ApplicationInfoGridItem) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    requireNotNull(gridItem)
+    val gridItemSourceFolder =
+        gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemSource.Folder")
 
     val density = LocalDensity.current
 
@@ -158,12 +162,12 @@ internal fun FolderGridItemPopup(
         content = {
             FolderGridItemPopupContent(
                 onEdit = {
-                    onEdit(gridItem.id)
+                    onEdit(gridItemSourceFolder.applicationInfoGridItem.id)
 
                     onDismissRequest()
                 },
                 onDelete = {
-                    onDeleteGridItem(gridItem)
+                    onDeleteApplicationInfoGridItem(gridItemSource.applicationInfoGridItem)
 
                     onDismissRequest()
                 },

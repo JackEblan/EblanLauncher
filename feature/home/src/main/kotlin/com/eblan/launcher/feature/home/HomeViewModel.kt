@@ -36,6 +36,7 @@ import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
+import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoTagRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -117,6 +118,7 @@ internal class HomeViewModel @Inject constructor(
     private val moveFolderGridItemUseCase: MoveFolderGridItemUseCase,
     getFolderGridItemsCacheByIdUseCase: GetFolderGridItemsCacheByIdUseCase,
     private val moveFolderGridItemOutsideFolderUseCase: MoveFolderGridItemOutsideFolderUseCase,
+    private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -716,6 +718,12 @@ internal class HomeViewModel @Inject constructor(
             }
 
             gridCacheRepository.deleteGridItem(gridItem = movingGridItem)
+        }
+    }
+
+    fun deleteApplicationInfoGridItem(applicationInfoGridItem: ApplicationInfoGridItem) {
+        viewModelScope.launch {
+            applicationInfoGridItemRepository.deleteApplicationInfoGridItem(applicationInfoGridItem = applicationInfoGridItem)
         }
     }
 }

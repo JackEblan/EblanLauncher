@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
@@ -131,6 +132,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         gridItems: List<GridItem>,
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
+    onDeleteApplicationInfoGridItem: (ApplicationInfoGridItem) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
     onOpenAppDrawer: () -> Unit,
@@ -625,14 +627,14 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         )
     }
 
-    if (showFolderGridItemPopup && gridItemSource?.gridItem != null) {
+    if (showFolderGridItemPopup && gridItemSource != null) {
         FolderGridItemPopup(
-            gridItem = gridItemSource.gridItem,
+            gridItemSource = gridItemSource,
             popupIntOffset = popupIntOffset,
             popupIntSize = popupIntSize,
             paddingValues = paddingValues,
             onEdit = onEditGridItem,
-            onDeleteGridItem = onDeleteGridItem,
+            onDeleteApplicationInfoGridItem = onDeleteApplicationInfoGridItem,
             onDismissRequest = {
                 showFolderGridItemPopup = false
             },

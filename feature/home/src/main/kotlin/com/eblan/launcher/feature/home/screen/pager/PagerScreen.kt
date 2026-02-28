@@ -147,6 +147,7 @@ internal fun SharedTransitionScope.PagerScreen(
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
+    onDeleteApplicationInfoGridItem: (ApplicationInfoGridItem) -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -412,6 +413,7 @@ internal fun SharedTransitionScope.PagerScreen(
         onUpdateGridItemOffset = onUpdateGridItemOffset,
         onDraggingGridItem = onDraggingGridItem,
         onDeleteGridItem = onDeleteGridItem,
+        onDeleteApplicationInfoGridItem = onDeleteApplicationInfoGridItem,
         onUpdateSharedElementKey = onUpdateSharedElementKey,
         onUpdateEblanApplicationInfoGroup = { newEblanApplicationInfoGroup ->
             eblanApplicationInfoGroup = newEblanApplicationInfoGroup

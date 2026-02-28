@@ -605,6 +605,7 @@ internal suspend fun handleConflictingGridItem(
     rows: Int,
     onShowFolderWhenDragging: (
         id: String,
+        movingGridItem: GridItem,
         gridItemSource: GridItemSource,
         intOffset: IntOffset,
         intSize: IntSize,
@@ -626,7 +627,8 @@ internal suspend fun handleConflictingGridItem(
 
     val conflictingData = conflictingGridItem.data as? GridItemData.Folder ?: return
 
-    val movingData = gridItemSource.gridItem.data as? GridItemData.ApplicationInfo ?: return
+    val movingData =
+        moveGridItemResult.movingGridItem.data as? GridItemData.ApplicationInfo ?: return
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -666,29 +668,30 @@ internal suspend fun handleConflictingGridItem(
 
     onShowFolderWhenDragging(
         conflictingData.id,
+        moveGridItemResult.movingGridItem,
         GridItemSource.Folder(
-            gridItem = gridItemSource.gridItem,
+            gridItem = conflictingGridItem,
             applicationInfoGridItem = ApplicationInfoGridItem(
-                id = gridItemSource.gridItem.id,
-                page = gridItemSource.gridItem.page,
-                startColumn = gridItemSource.gridItem.startColumn,
-                startRow = gridItemSource.gridItem.startRow,
-                columnSpan = gridItemSource.gridItem.columnSpan,
-                rowSpan = gridItemSource.gridItem.rowSpan,
-                associate = gridItemSource.gridItem.associate,
+                id = moveGridItemResult.movingGridItem.id,
+                page = moveGridItemResult.movingGridItem.page,
+                startColumn = moveGridItemResult.movingGridItem.startColumn,
+                startRow = moveGridItemResult.movingGridItem.startRow,
+                columnSpan = moveGridItemResult.movingGridItem.columnSpan,
+                rowSpan = moveGridItemResult.movingGridItem.rowSpan,
+                associate = moveGridItemResult.movingGridItem.associate,
                 componentName = movingData.componentName,
                 packageName = movingData.packageName,
                 icon = movingData.icon,
                 label = movingData.label,
-                override = gridItemSource.gridItem.override,
+                override = moveGridItemResult.movingGridItem.override,
                 serialNumber = movingData.serialNumber,
                 customIcon = movingData.customIcon,
                 customLabel = movingData.customLabel,
-                gridItemSettings = gridItemSource.gridItem.gridItemSettings,
-                doubleTap = gridItemSource.gridItem.doubleTap,
-                swipeUp = gridItemSource.gridItem.swipeUp,
-                swipeDown = gridItemSource.gridItem.swipeDown,
-                index = -1,
+                gridItemSettings = moveGridItemResult.movingGridItem.gridItemSettings,
+                doubleTap = moveGridItemResult.movingGridItem.doubleTap,
+                swipeUp = moveGridItemResult.movingGridItem.swipeUp,
+                swipeDown = moveGridItemResult.movingGridItem.swipeDown,
+                index = conflictingData.gridItems.lastIndex + 1,
                 folderId = conflictingData.id,
             ),
         ),

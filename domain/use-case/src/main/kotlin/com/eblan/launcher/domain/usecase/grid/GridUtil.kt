@@ -14,6 +14,7 @@ private const val maxRows = 4
 
 internal fun FolderGridItemWrapper.asGridItem(): GridItem {
     val gridItemsByPage = applicationInfoGridItems.getGridItemsByPage()
+
     val firstPageGridItems = gridItemsByPage[0] ?: emptyList()
 
     val (columns, rows) = getGridDimension(count = firstPageGridItems.size)
@@ -52,7 +53,7 @@ internal fun List<ApplicationInfoGridItem>.getGridItemsByPage(): Map<Int, List<A
         .mapIndexed { pageIndex, pageItems -> pageIndex to pageItems }
         .toMap()
 
-private fun getGridDimension(count: Int): Pair<Int, Int> {
+internal fun getGridDimension(count: Int): Pair<Int, Int> {
     if (count <= 0) return 0 to 0
 
     val columns = min(maxColumns, ceil(sqrt(count.toDouble())).toInt())

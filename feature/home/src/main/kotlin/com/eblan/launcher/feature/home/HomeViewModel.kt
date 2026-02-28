@@ -705,4 +705,17 @@ internal class HomeViewModel @Inject constructor(
             )
         }
     }
+
+    fun showFolderWhenDragging(
+        id: String,
+        movingGridItem: GridItem,
+    ) {
+        viewModelScope.launch {
+            _folderGridItemId.update {
+                id
+            }
+
+            gridCacheRepository.deleteGridItem(gridItem = movingGridItem)
+        }
+    }
 }

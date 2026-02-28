@@ -162,6 +162,7 @@ internal fun SharedTransitionScope.DragScreen(
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onShowFolderWhenDragging: (
         id: String,
+        movingGridItem: GridItem,
         gridItemSource: GridItemSource,
         intOffset: IntOffset,
         intSize: IntSize,

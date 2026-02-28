@@ -219,6 +219,7 @@ internal fun HomeRoute(
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResetGridCacheAfterMoveFolder = viewModel::resetGridCacheAfterMoveFolder,
         onMoveFolderGridItemOutsideFolder = viewModel::moveFolderGridItemOutsideFolder,
+        onShowFolderWhenDragging = viewModel::showFolderWhenDragging,
     )
 }
 
@@ -328,6 +329,10 @@ internal fun HomeScreen(
         folderGridItem: GridItem,
         movingApplicationInfoGridItem: ApplicationInfoGridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
+    ) -> Unit,
+    onShowFolderWhenDragging: (
+        id: String,
+        movingGridItem: GridItem,
     ) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -536,6 +541,7 @@ internal fun HomeScreen(
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
                     onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
+                    onShowFolderWhenDragging = onShowFolderWhenDragging,
                 )
 
                 OverlayImage(
@@ -666,6 +672,10 @@ private fun SharedTransitionScope.Success(
         folderGridItem: GridItem,
         movingApplicationInfoGridItem: ApplicationInfoGridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
+    ) -> Unit,
+    onShowFolderWhenDragging: (
+        id: String,
+        movingGridItem: GridItem,
     ) -> Unit,
 ) {
     val context = LocalContext.current
@@ -943,8 +953,11 @@ private fun SharedTransitionScope.Success(
                     onUpdateGridItemSource = { newGridItemSource ->
                         gridItemSource = newGridItemSource
                     },
-                    onShowFolderWhenDragging = { id, newGridItemSource, intOffset, intSize ->
-                        onUpdateFolderGridItemId(id)
+                    onShowFolderWhenDragging = { id, movingGridItem, newGridItemSource, intOffset, intSize ->
+                        onShowFolderWhenDragging(
+                            id,
+                            movingGridItem,
+                        )
 
                         gridItemSource = newGridItemSource
 

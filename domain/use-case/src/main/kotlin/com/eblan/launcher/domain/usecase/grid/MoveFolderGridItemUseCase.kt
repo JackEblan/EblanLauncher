@@ -27,30 +27,53 @@ class MoveFolderGridItemUseCase @Inject constructor(
         currentPage: Int,
     ) {
         withContext(defaultDispatcher) {
+            val gridItemsPerPage = columns * rows
+
             val cellWidth = gridWidth / columns
             val cellHeight = gridHeight / rows
 
             val targetColumn = dragX / cellWidth
             val targetRow = dragY / cellHeight
 
-            val targetIndex = currentPage * (columns * rows) + targetRow * columns + targetColumn
+            val targetIndex = currentPage * gridItemsPerPage + targetRow * columns + targetColumn
 
-            val fromIndex = applicationInfoGridItems.indexOfFirst {
-                it.id == movingApplicationInfoGridItem.id
+            val currentApplicationInfoGridItems = applicationInfoGridItems.toMutableList()
+
+            val movingIndex =
+                currentApplicationInfoGridItems.indexOfFirst { it.id == movingApplicationInfoGridItem.id }
+
+            val applicationInfoGridItem = if (movingIndex >= 0) {
+                currentApplicationInfoGridItems.removeAt(movingIndex)
+            } else {
+                movingApplicationInfoGridItem
             }
 
-            val gridItems = applicationInfoGridItems.toMutableList().apply {
-                add(targetIndex.coerceIn(0, size), removeAt(fromIndex))
-            }.mapIndexed { index, item ->
-                item.copy(index = index)
+            currentApplicationInfoGridItems.add(
+                targetIndex.coerceIn(
+                    0,
+                    currentApplicationInfoGridItems.size,
+                ),
+                applicationInfoGridItem,
+            )
+
+            val gridItems = currentApplicationInfoGridItems.mapIndexed { index, gridItem ->
+                gridItem.copy(index = index)
             }
 
-            val folderGridItemData = folderGridItem.data as? GridItemData.Folder
+            val folderData = folderGridItem.data as? GridItemData.Folder
                 ?: error("Expected GridItemData.Folder")
 
-            val newData = folderGridItemData.copy(
+            val gridItemsByPage = gridItems.getGridItemsByPage()
+
+            val firstPageGridItems = gridItemsByPage[0] ?: emptyList()
+
+            val (columns, rows) = getGridDimension(count = firstPageGridItems.size)
+
+            val newData = folderData.copy(
                 gridItems = gridItems,
-                gridItemsByPage = gridItems.getGridItemsByPage(),
+                gridItemsByPage = gridItemsByPage,
+                columns = columns,
+                rows = rows,
             )
 
             gridCacheRepository.updateGridItemData(

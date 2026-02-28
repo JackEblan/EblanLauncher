@@ -99,13 +99,10 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         val movingData = movingGridItem.data as? GridItemData.ApplicationInfo
             ?: error("Expected GridItemData.ApplicationInfo")
 
-        val applicationInfoGridItems = data.gridItemsByPage.values.flatten().toMutableList()
-
-        val lastIndex =
-            applicationInfoGridItems.maxOfOrNull { gridItem -> gridItem.index } ?: 0
+        val applicationInfoGridItems = data.gridItems.toMutableList()
 
         val newData = movingData.copy(
-            index = lastIndex + 1,
+            index = applicationInfoGridItems.lastIndex + 1,
             folderId = data.id,
         )
 
@@ -117,7 +114,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
             data.gridItemsByPage.values.firstOrNull()?.plus(applicationInfoGridItem) ?: emptyList()
 
         val conflictingData = data.copy(
-            gridItemsByPage = applicationInfoGridItems.getGridItemsByPage(),
+            gridItems = applicationInfoGridItems,
             previewGridItemsByPage = previewGridItemsByPage,
         )
 
@@ -170,6 +167,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
             data = GridItemData.Folder(
                 id = id,
                 label = "Unknown",
+                gridItems = folderGridItems,
                 gridItemsByPage = mapOf(0 to folderGridItems),
                 previewGridItemsByPage = folderGridItems,
                 icon = null,

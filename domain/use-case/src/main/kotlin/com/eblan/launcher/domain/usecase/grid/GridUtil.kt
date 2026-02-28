@@ -21,6 +21,7 @@ internal fun FolderGridItemWrapper.asGridItem(): GridItem {
     val data =  Folder(
         id = folderGridItem.id,
         label = folderGridItem.label,
+        gridItems = applicationInfoGridItems,
         gridItemsByPage = gridItemsByPage,
         previewGridItemsByPage = gridItemsByPage.values.firstOrNull() ?: emptyList(),
         icon = folderGridItem.icon,

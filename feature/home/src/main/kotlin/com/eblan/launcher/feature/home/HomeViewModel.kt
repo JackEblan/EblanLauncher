@@ -48,6 +48,7 @@ import com.eblan.launcher.domain.usecase.application.GetEblanShortcutConfigsByLa
 import com.eblan.launcher.domain.usecase.application.GetEblanShortcutInfosUseCase
 import com.eblan.launcher.domain.usecase.application.UpdateEblanApplicationInfosIndexesUseCase
 import com.eblan.launcher.domain.usecase.grid.GetFolderGridItemsByIdUseCase
+import com.eblan.launcher.domain.usecase.grid.GetFolderGridItemsCacheByIdUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveGridItemUseCase
@@ -113,6 +114,7 @@ internal class HomeViewModel @Inject constructor(
     private val updateEblanApplicationInfosIndexesUseCase: UpdateEblanApplicationInfosIndexesUseCase,
     getFolderGridItemsByIdUseCase: GetFolderGridItemsByIdUseCase,
     private val moveFolderGridItemUseCase: MoveFolderGridItemUseCase,
+    getFolderGridItemsCacheByIdUseCase: GetFolderGridItemsCacheByIdUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -225,6 +227,13 @@ internal class HomeViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = null,
     )
+
+    val folderGridItemCache =
+        getFolderGridItemsCacheByIdUseCase(idFlow = _folderGridItemId).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null,
+        )
 
     fun moveGridItem(
         movingGridItem: GridItem,

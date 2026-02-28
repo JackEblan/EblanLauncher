@@ -166,6 +166,8 @@ internal fun HomeRoute(
 
     val folderGridItem by viewModel.folderGridItem.collectAsStateWithLifecycle()
 
+    val folderGridItemCache by viewModel.folderGridItemCache.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -183,6 +185,7 @@ internal fun HomeRoute(
         eblanApplicationInfoTags = eblanApplicationInfoTags,
         configureResultCode = configureResultCode,
         folderGridItem = folderGridItem,
+        folderGridItemCache = folderGridItemCache,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onShowGridCache = viewModel::showGridCache,
@@ -236,6 +239,7 @@ internal fun HomeScreen(
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     configureResultCode: Int?,
     folderGridItem: GridItem?,
+    folderGridItemCache: GridItem?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -471,6 +475,7 @@ internal fun HomeScreen(
                     eblanApplicationInfoTags = eblanApplicationInfoTags,
                     configureResultCode = configureResultCode,
                     folderGridItem = folderGridItem,
+                    folderGridItemCache = folderGridItemCache,
                     onMoveGridItem = onMoveGridItem,
                     onResizeGridItem = onResizeGridItem,
                     onShowGridCache = onShowGridCache,
@@ -558,6 +563,7 @@ private fun SharedTransitionScope.Success(
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     configureResultCode: Int?,
     folderGridItem: GridItem?,
+    folderGridItemCache: GridItem?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -895,7 +901,7 @@ private fun SharedTransitionScope.Success(
                     screen = targetState,
                     associate = associate,
                     configureResultCode = configureResultCode,
-                    folderGridItem = folderGridItem,
+                    folderGridItem = folderGridItemCache,
                     folderPopupIntOffset = folderPopupIntOffset,
                     folderPopupIntSize = folderPopupIntSize,
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,

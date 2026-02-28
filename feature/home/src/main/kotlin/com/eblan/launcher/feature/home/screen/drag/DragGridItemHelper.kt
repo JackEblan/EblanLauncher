@@ -311,7 +311,7 @@ private fun handleDragFolderGridItem(
     if (isInsideFolder) {
         onMoveFolderGridItem(
             gridItemSource.gridItem,
-            data.gridItemsByPage.values.flatten(),
+            data.gridItems,
             gridItemSourceFolder.applicationInfoGridItem,
             folderDragX,
             folderDragY,

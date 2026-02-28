@@ -217,7 +217,7 @@ internal class DefaultGridRepository @Inject constructor(
                         gridItem.asFolderGridItem(data = data),
                     )
 
-                    applicationInfoGridItems.addAll(data.gridItemsByPage.values.flatten())
+                    applicationInfoGridItems.addAll(data.gridItems)
                 }
 
                 is GridItemData.Widget -> {

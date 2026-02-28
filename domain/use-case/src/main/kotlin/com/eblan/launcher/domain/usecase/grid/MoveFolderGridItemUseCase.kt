@@ -29,46 +29,28 @@ class MoveFolderGridItemUseCase @Inject constructor(
             val cellWidth = gridWidth / columns
             val cellHeight = gridHeight / rows
 
-            val targetColumn = (dragX / cellWidth).coerceIn(0, columns - 1)
-            val targetRow = (dragY / cellHeight).coerceIn(0, rows - 1)
+            val targetColumn = dragX / cellWidth
+            val targetRow = dragY / cellHeight
 
-            val maxIndex = applicationInfoGridItems.size - 1
-            val targetIndex = (targetRow * columns + targetColumn).coerceIn(0, maxIndex)
+            val targetIndex = (targetRow * columns + targetColumn).coerceIn(0, applicationInfoGridItems.lastIndex)
 
-            val fromIndex = movingApplicationInfoGridItem.index
+            val fromIndex =
+                applicationInfoGridItems.indexOfFirst { it.id == movingApplicationInfoGridItem.id }
 
-            val gridItems = buildList(applicationInfoGridItems.size) {
-                for (applicationInfoGridItem in applicationInfoGridItems) {
-                    when {
-                        applicationInfoGridItem.id == movingApplicationInfoGridItem.id -> {
-                            add(applicationInfoGridItem.copy(index = targetIndex))
-                        }
-
-                        fromIndex < targetIndex &&
-                                applicationInfoGridItem.index in (fromIndex + 1)..targetIndex -> {
-                            add(
-                                applicationInfoGridItem.copy(index = applicationInfoGridItem.index - 1),
-                            )
-                        }
-
-                        fromIndex > targetIndex &&
-                                applicationInfoGridItem.index in targetIndex until fromIndex -> {
-                            add(
-                                applicationInfoGridItem.copy(index = applicationInfoGridItem.index + 1),
-                            )
-                        }
-
-                        else -> {
-                            add(applicationInfoGridItem)
-                        }
-                    }
-                }
+            val gridItems = applicationInfoGridItems.toMutableList().apply {
+                add(
+                    index = targetIndex,
+                    element = removeAt(fromIndex),
+                )
+            }.mapIndexed { index, applicationInfoGridItem ->
+                applicationInfoGridItem.copy(index = index)
             }
 
             val folderGridItemData = folderGridItem.data as? GridItemData.Folder
                 ?: error("Expected GridItemData.Folder")
 
             val newData = folderGridItemData.copy(
+                gridItems = gridItems,
                 gridItemsByPage = gridItems.getGridItemsByPage(),
             )
 

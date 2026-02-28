@@ -160,6 +160,12 @@ internal fun SharedTransitionScope.DragScreen(
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
     ) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onShowFolderWhenDragging: (
+        id: String,
+        gridItemSource: GridItemSource,
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -367,9 +373,13 @@ internal fun SharedTransitionScope.DragScreen(
             gridItemSource = gridItemSource,
             drag = drag,
             moveGridItemResult = moveGridItemResult,
-            onShowFolderWhenDragging = {
-                TODO()
-            },
+            density = density,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            paddingValues = paddingValues,
+            columns = homeSettings.columns,
+            rows = homeSettings.rows,
+            onShowFolderWhenDragging = onShowFolderWhenDragging,
         )
     }
 

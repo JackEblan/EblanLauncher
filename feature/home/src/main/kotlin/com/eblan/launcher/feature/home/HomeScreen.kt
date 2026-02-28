@@ -943,6 +943,15 @@ private fun SharedTransitionScope.Success(
                     onUpdateGridItemSource = { newGridItemSource ->
                         gridItemSource = newGridItemSource
                     },
+                    onShowFolderWhenDragging = { id, newGridItemSource, intOffset, intSize ->
+                        onUpdateFolderGridItemId(id)
+
+                        gridItemSource = newGridItemSource
+
+                        folderPopupIntOffset = intOffset
+
+                        folderPopupIntSize = intSize
+                    },
                 )
             }
 

@@ -597,9 +597,20 @@ internal suspend fun handleConflictingGridItem(
     gridItemSource: GridItemSource,
     drag: Drag,
     moveGridItemResult: MoveGridItemResult?,
-    onShowFolderWhenDragging: (String) -> Unit,
+    density: Density,
+    screenWidth: Int,
+    screenHeight: Int,
+    paddingValues: PaddingValues,
+    columns: Int,
+    rows: Int,
+    onShowFolderWhenDragging: (
+        id: String,
+        gridItemSource: GridItemSource,
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
 ) {
-    delay(1500L)
+    delay(1000L)
 
     if (drag != Drag.Dragging ||
         moveGridItemResult == null
@@ -611,11 +622,85 @@ internal suspend fun handleConflictingGridItem(
         return
     }
 
-    val conflictingGridItem = moveGridItemResult.conflictingGridItem
+    val conflictingGridItem = moveGridItemResult.conflictingGridItem ?: return
 
-    if (conflictingGridItem != null) {
-        onShowFolderWhenDragging(conflictingGridItem.id)
+    val conflictingData = conflictingGridItem.data as? GridItemData.Folder ?: return
+
+    val movingData = gridItemSource.gridItem.data as? GridItemData.ApplicationInfo ?: return
+
+    val leftPadding = with(density) {
+        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
+
+    val rightPadding = with(density) {
+        paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
+    val bottomPadding = with(density) {
+        paddingValues.calculateBottomPadding().roundToPx()
+    }
+
+    val horizontalPadding = leftPadding + rightPadding
+
+    val verticalPadding = topPadding + bottomPadding
+
+    val safeDrawingWidth = screenWidth - horizontalPadding
+
+    val safeDrawingHeight = screenHeight - verticalPadding
+
+    val cellWidth = safeDrawingWidth / columns
+
+    val cellHeight = safeDrawingHeight / rows
+
+    val x = conflictingGridItem.startColumn * cellWidth
+
+    val y = conflictingGridItem.startRow * cellHeight
+
+    val width = conflictingGridItem.columnSpan * cellWidth
+
+    val height = conflictingGridItem.rowSpan * cellHeight
+
+    onShowFolderWhenDragging(
+        conflictingData.id,
+        GridItemSource.Folder(
+            gridItem = gridItemSource.gridItem,
+            applicationInfoGridItem = ApplicationInfoGridItem(
+                id = gridItemSource.gridItem.id,
+                page = gridItemSource.gridItem.page,
+                startColumn = gridItemSource.gridItem.startColumn,
+                startRow = gridItemSource.gridItem.startRow,
+                columnSpan = gridItemSource.gridItem.columnSpan,
+                rowSpan = gridItemSource.gridItem.rowSpan,
+                associate = gridItemSource.gridItem.associate,
+                componentName = movingData.componentName,
+                packageName = movingData.packageName,
+                icon = movingData.icon,
+                label = movingData.label,
+                override = gridItemSource.gridItem.override,
+                serialNumber = movingData.serialNumber,
+                customIcon = movingData.customIcon,
+                customLabel = movingData.customLabel,
+                gridItemSettings = gridItemSource.gridItem.gridItemSettings,
+                doubleTap = gridItemSource.gridItem.doubleTap,
+                swipeUp = gridItemSource.gridItem.swipeUp,
+                swipeDown = gridItemSource.gridItem.swipeDown,
+                index = -1,
+                folderId = conflictingData.id,
+            ),
+        ),
+        IntOffset(
+            x = x,
+            y = y,
+        ),
+        IntSize(
+            width = width,
+            height = height,
+        ),
+    )
 }
 
 internal suspend fun handlePageDirection(

@@ -185,57 +185,63 @@ internal suspend fun handleDragGridItem(
 
     val isOnDock = dockHeightPx > 0 && dragY > safeDrawingHeight - dockHeightPx
 
-    if (folderGridItem != null) {
-        handleDragFolderGridItem(
-            safeDrawingWidth = safeDrawingWidth,
-            columns = columns,
-            safeDrawingHeight = safeDrawingHeight,
-            rows = rows,
-            density = density,
-            folderGridItem = folderGridItem,
-            folderPopupIntOffset = folderPopupIntOffset,
-            folderPopupIntSize = folderPopupIntSize,
-            dragX = dragX,
-            dragY = dragY,
-            lockMovement = lockMovement,
-            gridItemSource = gridItemSource,
-            onMoveFolderGridItem = onMoveFolderGridItem,
-        )
-    } else if (isOnDock) {
-        handleDragDockGridItem(
-            safeDrawingWidth = safeDrawingWidth,
-            dockColumns = dockColumns,
-            dockHeightPx = dockHeightPx,
-            dockRows = dockRows,
-            dragY = dragY,
-            safeDrawingHeight = safeDrawingHeight,
-            currentPage = currentPage,
-            dragX = dragX,
-            gridItemSource = gridItemSource,
-            screen = screen,
-            lockMovement = lockMovement,
-            onUpdateAssociate = onUpdateAssociate,
-            onMoveGridItem = onMoveGridItem,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
-        )
-    } else {
-        handleDragGridItem(
-            safeDrawingHeight = safeDrawingHeight,
-            dockHeightPx = dockHeightPx,
-            pageIndicatorHeight = pageIndicatorHeight,
-            safeDrawingWidth = safeDrawingWidth,
-            columns = columns,
-            rows = rows,
-            currentPage = currentPage,
-            dragX = dragX,
-            dragY = dragY,
-            gridItemSource = gridItemSource,
-            screen = screen,
-            lockMovement = lockMovement,
-            onUpdateAssociate = onUpdateAssociate,
-            onMoveGridItem = onMoveGridItem,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
-        )
+    when (gridItemSource) {
+        is GridItemSource.Existing, is GridItemSource.New, is GridItemSource.Pin -> {
+            if (isOnDock) {
+                handleDragDockGridItem(
+                    safeDrawingWidth = safeDrawingWidth,
+                    dockColumns = dockColumns,
+                    dockHeightPx = dockHeightPx,
+                    dockRows = dockRows,
+                    dragY = dragY,
+                    safeDrawingHeight = safeDrawingHeight,
+                    currentPage = currentPage,
+                    dragX = dragX,
+                    gridItemSource = gridItemSource,
+                    screen = screen,
+                    lockMovement = lockMovement,
+                    onUpdateAssociate = onUpdateAssociate,
+                    onMoveGridItem = onMoveGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                )
+            } else {
+                handleDragGridItem(
+                    safeDrawingHeight = safeDrawingHeight,
+                    dockHeightPx = dockHeightPx,
+                    pageIndicatorHeight = pageIndicatorHeight,
+                    safeDrawingWidth = safeDrawingWidth,
+                    columns = columns,
+                    rows = rows,
+                    currentPage = currentPage,
+                    dragX = dragX,
+                    dragY = dragY,
+                    gridItemSource = gridItemSource,
+                    screen = screen,
+                    lockMovement = lockMovement,
+                    onUpdateAssociate = onUpdateAssociate,
+                    onMoveGridItem = onMoveGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                )
+            }
+        }
+
+        is GridItemSource.Folder -> {
+            handleDragFolderGridItem(
+                safeDrawingWidth = safeDrawingWidth,
+                columns = columns,
+                safeDrawingHeight = safeDrawingHeight,
+                rows = rows,
+                density = density,
+                folderGridItem = folderGridItem,
+                folderPopupIntOffset = folderPopupIntOffset,
+                folderPopupIntSize = folderPopupIntSize,
+                dragX = dragX,
+                dragY = dragY,
+                lockMovement = lockMovement,
+                gridItemSource = gridItemSource,
+                onMoveFolderGridItem = onMoveFolderGridItem,
+            )
+        }
     }
 }
 
@@ -245,7 +251,7 @@ private fun handleDragFolderGridItem(
     safeDrawingHeight: Int,
     rows: Int,
     density: Density,
-    folderGridItem: GridItem,
+    folderGridItem: GridItem?,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
     dragX: Int,
@@ -264,12 +270,12 @@ private fun handleDragFolderGridItem(
         gridHeight: Int,
     ) -> Unit,
 ) {
+    val data = folderGridItem?.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
+
     val gridItemSourceFolder =
         gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemSource.Folder")
 
     if (lockMovement) return
-
-    val data = folderGridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
 
     val folderCellWidth = safeDrawingWidth / columns
 
@@ -304,11 +310,11 @@ private fun handleDragFolderGridItem(
 
     if (isInsideFolder) {
         onMoveFolderGridItem(
-            folderGridItem,
+            gridItemSource.gridItem,
             data.gridItemsByPage.values.flatten(),
             gridItemSourceFolder.applicationInfoGridItem,
-            dragX,
-            dragY,
+            folderDragX,
+            folderDragY,
             data.columns,
             data.rows,
             folderGridWidthPx,
@@ -492,7 +498,7 @@ internal suspend fun handleConflictingGridItem(
         return
     }
 
-    if (gridItemSource.gridItem?.data !is GridItemData.ApplicationInfo) {
+    if (gridItemSource.gridItem.data !is GridItemData.ApplicationInfo) {
         return
     }
 

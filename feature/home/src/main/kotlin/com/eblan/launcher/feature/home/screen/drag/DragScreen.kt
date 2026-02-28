@@ -430,7 +430,7 @@ internal fun SharedTransitionScope.DragScreen(
                 rows = homeSettings.rows,
                 content = { gridItem ->
                     val isDragging =
-                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem?.id
+                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
 
                     GridItemContent(
                         gridItem = gridItem,
@@ -485,7 +485,7 @@ internal fun SharedTransitionScope.DragScreen(
                 rows = homeSettings.dockRows,
                 { gridItem ->
                     val isDragging =
-                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem?.id
+                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
 
                     GridItemContent(
                         gridItem = gridItem,

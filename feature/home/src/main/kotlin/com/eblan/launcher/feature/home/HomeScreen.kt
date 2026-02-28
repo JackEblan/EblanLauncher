@@ -848,7 +848,7 @@ private fun SharedTransitionScope.Success(
                     onLongPressGridItem = { newGridItemSource, imageBitmap ->
                         gridItemSource = newGridItemSource
 
-                        associate = newGridItemSource.gridItem?.associate
+                        associate = newGridItemSource.gridItem.associate
 
                         onUpdateGridItemImageBitmap(imageBitmap)
                     },

@@ -22,8 +22,7 @@ import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.GridItem
 
 internal sealed interface GridItemSource {
-    val gridItem: GridItem?
-        get() = null
+    val gridItem: GridItem
 
     data class Existing(override val gridItem: GridItem) : GridItemSource
 
@@ -34,5 +33,8 @@ internal sealed interface GridItemSource {
         val pinItemRequest: PinItemRequest,
     ) : GridItemSource
 
-    data class Folder(val applicationInfoGridItem: ApplicationInfoGridItem) : GridItemSource
+    data class Folder(
+        override val gridItem: GridItem,
+        val applicationInfoGridItem: ApplicationInfoGridItem,
+    ) : GridItemSource
 }

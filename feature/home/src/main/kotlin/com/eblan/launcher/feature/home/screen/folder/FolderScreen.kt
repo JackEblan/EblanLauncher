@@ -220,7 +220,10 @@ internal fun SharedTransitionScope.FolderScreen(
                                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                                 onUpdateImageBitmap = { imageBitmap ->
                                     onLongPressGridItem(
-                                        GridItemSource.Folder(applicationInfoGridItem = applicationInfoGridItem),
+                                        GridItemSource.Folder(
+                                            gridItem = folderGridItem,
+                                            applicationInfoGridItem = applicationInfoGridItem,
+                                        ),
                                         imageBitmap,
                                     )
                                 },
@@ -437,29 +440,3 @@ private fun SharedTransitionScope.FolderGridItemContent(
         }
     }
 }
-
-private fun ApplicationInfoGridItem.asGridItem(): GridItem = GridItem(
-    id = id,
-    page = page,
-    startColumn = startColumn,
-    startRow = startRow,
-    columnSpan = columnSpan,
-    rowSpan = rowSpan,
-    data = GridItemData.ApplicationInfo(
-        serialNumber = serialNumber,
-        componentName = componentName,
-        packageName = packageName,
-        icon = icon,
-        label = label,
-        customIcon = customIcon,
-        customLabel = customLabel,
-        index = index,
-        folderId = folderId,
-    ),
-    associate = associate,
-    override = override,
-    gridItemSettings = gridItemSettings,
-    doubleTap = doubleTap,
-    swipeUp = swipeUp,
-    swipeDown = swipeDown,
-)

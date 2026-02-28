@@ -283,8 +283,10 @@ internal suspend fun handleDragGridItem(
                 dragY = dragY,
                 lockMovement = lockMovement,
                 gridItemSource = gridItemSource,
-                onMoveFolderGridItem = onMoveFolderGridItem,
                 folderCurrentPage = folderCurrentPage,
+                screen = screen,
+                onMoveFolderGridItem = onMoveFolderGridItem,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         }
     }
@@ -304,6 +306,7 @@ private suspend fun handleDragFolderGridItem(
     lockMovement: Boolean,
     gridItemSource: GridItemSource?,
     folderCurrentPage: Int,
+    screen: Screen,
     onMoveFolderGridItem: (
         folderGridItem: GridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
@@ -316,6 +319,7 @@ private suspend fun handleDragFolderGridItem(
         gridHeight: Int,
         currentPage: Int,
     ) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val data = folderGridItem?.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
 
@@ -358,6 +362,13 @@ private suspend fun handleDragFolderGridItem(
             folderDragY in 0..folderGridVisibleHeightPx
 
     if (isInsideFolder) {
+        onUpdateSharedElementKey(
+            SharedElementKey(
+                id = gridItemSourceFolder.applicationInfoGridItem.id,
+                screen = screen,
+            ),
+        )
+
         onMoveFolderGridItem(
             gridItemSource.gridItem,
             data.gridItems,

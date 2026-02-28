@@ -186,7 +186,7 @@ internal fun SharedTransitionScope.GridItemContent(
 }
 
 @Composable
-private fun WhiteBox(
+internal fun WhiteBox(
     modifier: Modifier,
     textColor: Color,
 ) {

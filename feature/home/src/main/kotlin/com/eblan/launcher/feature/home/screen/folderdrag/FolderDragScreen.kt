@@ -50,7 +50,9 @@ import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoFolderGridItemContent
 import com.eblan.launcher.feature.home.component.grid.FolderGridLayout
+import com.eblan.launcher.feature.home.component.grid.WhiteBox
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
@@ -76,8 +78,12 @@ internal fun SharedTransitionScope.FolderDragScreen(
     onDismissRequest: () -> Unit,
     drag: Drag,
     screen: Screen,
+    gridItemSource: GridItemSource,
 ) {
     val data = folderGridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
+
+    val gridItemSourceFolder =
+        gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemSource.Folder")
 
     val density = LocalDensity.current
 
@@ -183,6 +189,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
                                 iconPackFilePaths = iconPackFilePaths,
                                 drag = drag,
                                 screen = screen,
+                                gridItemSourceFolder = gridItemSourceFolder,
                             )
                         },
                     )
@@ -202,6 +209,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
     iconPackFilePaths: Map<String, String>,
     drag: Drag,
     screen: Screen,
+    gridItemSourceFolder: GridItemSource.Folder,
 ) {
     val currentGridItemSettings = if (applicationInfoGridItem.override) {
         applicationInfoGridItem.gridItemSettings
@@ -228,34 +236,45 @@ private fun SharedTransitionScope.FolderGridItemContent(
     val verticalArrangement =
         getVerticalArrangement(verticalArrangement = currentGridItemSettings.verticalArrangement)
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(currentGridItemSettings.padding.dp)
-            .background(
-                color = Color(currentGridItemSettings.customBackgroundColor),
-                shape = RoundedCornerShape(size = currentGridItemSettings.cornerRadius.dp),
-            ),
-        horizontalAlignment = horizontalAlignment,
-        verticalArrangement = verticalArrangement,
-    ) {
-        ApplicationInfoFolderGridItemContent(
-            modifier = modifier
-                .sharedElementWithCallerManagedVisibility(
-                    rememberSharedContentState(
-                        key = SharedElementKey(
-                            id = applicationInfoGridItem.id,
-                            screen = screen,
-                        ),
-                    ),
-                    visible = drag == Drag.Cancel || drag == Drag.End,
-                )
-                .fillMaxSize(),
-            gridItem = applicationInfoGridItem,
+    val isDragging =
+        (drag == Drag.Start || drag == Drag.Dragging) &&
+                gridItemSourceFolder.applicationInfoGridItem.id == applicationInfoGridItem.id
+
+    if (isDragging) {
+        WhiteBox(
+            modifier = modifier,
             textColor = currentTextColor,
-            gridItemSettings = currentGridItemSettings,
-            statusBarNotifications = statusBarNotifications,
-            iconPackFilePaths = iconPackFilePaths,
         )
+    } else {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(currentGridItemSettings.padding.dp)
+                .background(
+                    color = Color(currentGridItemSettings.customBackgroundColor),
+                    shape = RoundedCornerShape(size = currentGridItemSettings.cornerRadius.dp),
+                ),
+            horizontalAlignment = horizontalAlignment,
+            verticalArrangement = verticalArrangement,
+        ) {
+            ApplicationInfoFolderGridItemContent(
+                modifier = modifier
+                    .sharedElementWithCallerManagedVisibility(
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = applicationInfoGridItem.id,
+                                screen = screen,
+                            ),
+                        ),
+                        visible = drag == Drag.Cancel || drag == Drag.End,
+                    )
+                    .fillMaxSize(),
+                gridItem = applicationInfoGridItem,
+                textColor = currentTextColor,
+                gridItemSettings = currentGridItemSettings,
+                statusBarNotifications = statusBarNotifications,
+                iconPackFilePaths = iconPackFilePaths,
+            )
+        }
     }
 }

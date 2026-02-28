@@ -542,6 +542,7 @@ internal fun SharedTransitionScope.DragScreen(
             iconPackFilePaths = iconPackFilePaths,
             drag = drag,
             screen = screen,
+            gridItemSource = gridItemSource,
             onDismissRequest = {
                 onUpdateFolderGridItemId(null)
             },

@@ -40,7 +40,6 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.util.EDGE_DISTANCE
 import kotlinx.coroutines.delay
 
 internal fun handleAnimateScrollToPage(
@@ -49,12 +48,13 @@ internal fun handleAnimateScrollToPage(
     screenWidth: Int,
     dragIntOffset: IntOffset,
     associate: Associate?,
+    gridItemSource: GridItemSource,
     folderGridItem: GridItem?,
+    folderPopupIntOffset: IntOffset,
     onUpdateGridPageDirection: (PageDirection?) -> Unit,
     onUpdateDockPageDirection: (PageDirection?) -> Unit,
+    onUpdateFolderPageDirection: (PageDirection?) -> Unit,
 ) {
-    if (folderGridItem != null) return
-
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
@@ -63,38 +63,71 @@ internal fun handleAnimateScrollToPage(
         paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
     }
 
-    val edgeDistance = with(density) {
-        EDGE_DISTANCE.dp.roundToPx()
-    }
-
     val horizontalPadding = leftPadding + rightPadding
 
     val gridWidth = screenWidth - horizontalPadding
 
-    val isOnLeftGrid = dragIntOffset.x - edgeDistance < 0
-
-    val isOnRightGrid = dragIntOffset.x + edgeDistance > gridWidth
-
-    fun animateScrollToPage(onUpdatePageDirection: (PageDirection?) -> Unit) {
-        if (isOnLeftGrid) {
-            onUpdatePageDirection(PageDirection.Left)
-        } else if (isOnRightGrid) {
-            onUpdatePageDirection(PageDirection.Right)
-        } else {
-            onUpdatePageDirection(null)
-        }
+    val edgeDistance = with(density) {
+        20.dp.roundToPx()
     }
 
-    when (associate) {
-        Associate.Grid -> {
-            animateScrollToPage(onUpdatePageDirection = onUpdateGridPageDirection)
+    when (gridItemSource) {
+        is GridItemSource.Existing, is GridItemSource.New, is GridItemSource.Pin -> {
+            val isOnLeftGrid = dragIntOffset.x - edgeDistance < 0
+
+            val isOnRightGrid = dragIntOffset.x + edgeDistance > gridWidth
+
+            fun animateScrollToPage(onUpdatePageDirection: (PageDirection?) -> Unit) {
+                if (isOnLeftGrid) {
+                    onUpdatePageDirection(PageDirection.Left)
+                } else if (isOnRightGrid) {
+                    onUpdatePageDirection(PageDirection.Right)
+                } else {
+                    onUpdatePageDirection(null)
+                }
+            }
+
+            when (associate) {
+                Associate.Grid -> {
+                    animateScrollToPage(onUpdatePageDirection = onUpdateGridPageDirection)
+                }
+
+                Associate.Dock -> {
+                    animateScrollToPage(onUpdatePageDirection = onUpdateDockPageDirection)
+                }
+
+                null -> Unit
+            }
         }
 
-        Associate.Dock -> {
-            animateScrollToPage(onUpdatePageDirection = onUpdateDockPageDirection)
-        }
+        is GridItemSource.Folder -> {
+            val data = folderGridItem?.data as? GridItemData.Folder
+                ?: error("Expected GridItemData.Folder")
 
-        null -> Unit
+            val folderDragX = dragIntOffset.x - folderPopupIntOffset.x
+
+            val folderCellWidth = gridWidth / data.columns
+
+            val folderGridPaddingDp = 10.dp
+
+            val folderGridPaddingPx = with(density) {
+                folderGridPaddingDp.roundToPx()
+            }
+
+            val folderGridWidthPx = folderCellWidth * data.columns
+
+            val isOnLeftGrid = folderDragX - edgeDistance < 0
+
+            val isOnRightGrid = folderDragX + edgeDistance > folderGridWidthPx + folderGridPaddingPx
+
+            if (isOnLeftGrid) {
+                onUpdateFolderPageDirection(PageDirection.Left)
+            } else if (isOnRightGrid) {
+                onUpdateFolderPageDirection(PageDirection.Right)
+            } else {
+                onUpdateFolderPageDirection(null)
+            }
+        }
     }
 }
 

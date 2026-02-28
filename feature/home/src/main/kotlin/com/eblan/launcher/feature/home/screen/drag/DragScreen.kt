@@ -190,10 +190,12 @@ internal fun SharedTransitionScope.DragScreen(
 
     var dockPageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
+    var folderPageDirection by remember { mutableStateOf<PageDirection?>(null) }
+
     val dockHeight = homeSettings.dockHeight.dp
 
     val pageIndicatorHeightPx = with(density) {
-        PAGE_INDICATOR_HEIGHT.dp.roundToPx()
+        PAGE_INDICATOR_HEIGHT.roundToPx()
     }
 
     val appWidgetLauncher = rememberLauncherForActivityResult(
@@ -369,11 +371,16 @@ internal fun SharedTransitionScope.DragScreen(
             dragIntOffset = dragIntOffset,
             associate = associate,
             folderGridItem = folderGridItem,
+            gridItemSource = gridItemSource,
+            folderPopupIntOffset = folderPopupIntOffset,
             onUpdateGridPageDirection = { pageDirection ->
                 gridPageDirection = pageDirection
             },
             onUpdateDockPageDirection = { pageDirection ->
                 dockPageDirection = pageDirection
+            },
+            onUpdateFolderPageDirection = { pageDirection ->
+                folderPageDirection = pageDirection
             },
         )
     }
@@ -389,15 +396,24 @@ internal fun SharedTransitionScope.DragScreen(
         )
     }
 
-    LaunchedEffect(key1 = gridPageDirection, key2 = dockPageDirection) {
+    LaunchedEffect(key1 = gridPageDirection) {
         handlePageDirection(
             pageDirection = gridPageDirection,
             pagerState = gridHorizontalPagerState,
         )
+    }
 
+    LaunchedEffect(key1 = dockPageDirection) {
         handlePageDirection(
             pageDirection = dockPageDirection,
             pagerState = dockGridHorizontalPagerState,
+        )
+    }
+
+    LaunchedEffect(key1 = folderPageDirection) {
+        handlePageDirection(
+            pageDirection = folderPageDirection,
+            pagerState = folderGridHorizontalPagerState,
         )
     }
 
@@ -452,7 +468,7 @@ internal fun SharedTransitionScope.DragScreen(
 
         PageIndicator(
             modifier = Modifier
-                .height(PAGE_INDICATOR_HEIGHT.dp)
+                .height(PAGE_INDICATOR_HEIGHT)
                 .fillMaxWidth(),
             gridHorizontalPagerState = gridHorizontalPagerState,
             infiniteScroll = homeSettings.infiniteScroll,

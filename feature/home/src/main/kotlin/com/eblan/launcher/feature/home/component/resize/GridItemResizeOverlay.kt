@@ -91,7 +91,7 @@ internal fun GridItemResizeOverlay(
     var dragHandle by remember { mutableStateOf(Alignment.Center) }
 
     val dragHandleSizePx = with(density) {
-        DRAG_HANDLE_SIZE.dp.roundToPx()
+        DRAG_HANDLE_SIZE.roundToPx()
     }
 
     val borderWidth by remember {
@@ -187,7 +187,7 @@ internal fun GridItemResizeOverlay(
     }
 
     val circleModifier = Modifier
-        .size(DRAG_HANDLE_SIZE.dp)
+        .size(DRAG_HANDLE_SIZE)
         .background(color = color, shape = CircleShape)
 
     LaunchedEffect(

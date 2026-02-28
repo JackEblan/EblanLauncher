@@ -67,7 +67,6 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.util.GRID_ITEM_MAX_SWIPE_Y
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -1117,7 +1116,7 @@ internal fun Modifier.swipeGestures(
         val swipeY = remember { Animatable(0f) }
 
         val maxSwipeY = with(density) {
-            GRID_ITEM_MAX_SWIPE_Y.dp.roundToPx()
+            40.dp.roundToPx()
         }
 
         pointerInput(key1 = Unit) {

@@ -179,7 +179,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     val dockTopPadding = topPadding + gridHeight - dockHeightPx
 
     val pageIndicatorHeightPx = with(density) {
-        PAGE_INDICATOR_HEIGHT.dp.roundToPx()
+        PAGE_INDICATOR_HEIGHT.roundToPx()
     }
 
     LaunchedEffect(key1 = gridHorizontalPagerState) {
@@ -353,7 +353,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         PageIndicator(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(PAGE_INDICATOR_HEIGHT.dp),
+                .height(PAGE_INDICATOR_HEIGHT),
             gridHorizontalPagerState = gridHorizontalPagerState,
             infiniteScroll = homeSettings.infiniteScroll,
             pageCount = homeSettings.pageCount,

@@ -40,6 +40,7 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import kotlinx.coroutines.delay
 
 internal fun handleAnimateScrollToPage(
@@ -147,7 +148,6 @@ internal suspend fun handleDragGridItem(
     dragIntOffset: IntOffset,
     screenWidth: Int,
     screenHeight: Int,
-    pageIndicatorHeight: Int,
     dockHeight: Dp,
     rows: Int,
     columns: Int,
@@ -221,6 +221,10 @@ internal suspend fun handleDragGridItem(
         dockHeight.roundToPx()
     }
 
+    val pageIndicatorHeightPx = with(density) {
+        PAGE_INDICATOR_HEIGHT.roundToPx()
+    }
+
     val horizontalPadding = leftPadding + rightPadding
 
     val verticalPadding = topPadding + bottomPadding
@@ -258,7 +262,7 @@ internal suspend fun handleDragGridItem(
                 handleDragGridItem(
                     safeDrawingHeight = safeDrawingHeight,
                     dockHeightPx = dockHeightPx,
-                    pageIndicatorHeight = pageIndicatorHeight,
+                    pageIndicatorHeightPx = pageIndicatorHeightPx,
                     safeDrawingWidth = safeDrawingWidth,
                     columns = columns,
                     rows = rows,
@@ -437,7 +441,7 @@ private suspend fun handleDragFolderGridItem(
 private suspend fun handleDragGridItem(
     safeDrawingHeight: Int,
     dockHeightPx: Int,
-    pageIndicatorHeight: Int,
+    pageIndicatorHeightPx: Int,
     safeDrawingWidth: Int,
     columns: Int,
     rows: Int,
@@ -466,7 +470,7 @@ private suspend fun handleDragGridItem(
 
     onUpdateAssociate(Associate.Grid)
 
-    val gridHeightWithPadding = safeDrawingHeight - dockHeightPx - pageIndicatorHeight
+    val gridHeightWithPadding = safeDrawingHeight - dockHeightPx - pageIndicatorHeightPx
 
     val cellWidth = safeDrawingWidth / columns
 
@@ -603,6 +607,7 @@ internal suspend fun handleConflictingGridItem(
     paddingValues: PaddingValues,
     columns: Int,
     rows: Int,
+    dockHeight: Dp,
     onShowFolderWhenDragging: (
         id: String,
         movingGridItem: GridItem,
@@ -646,6 +651,14 @@ internal suspend fun handleConflictingGridItem(
         paddingValues.calculateBottomPadding().roundToPx()
     }
 
+    val dockHeightPx = with(density) {
+        dockHeight.roundToPx()
+    }
+
+    val pageIndicatorHeightPx = with(density) {
+        PAGE_INDICATOR_HEIGHT.roundToPx()
+    }
+
     val horizontalPadding = leftPadding + rightPadding
 
     val verticalPadding = topPadding + bottomPadding
@@ -656,7 +669,7 @@ internal suspend fun handleConflictingGridItem(
 
     val cellWidth = safeDrawingWidth / columns
 
-    val cellHeight = safeDrawingHeight / rows
+    val cellHeight = (safeDrawingHeight - pageIndicatorHeightPx - dockHeightPx) / rows
 
     val x = conflictingGridItem.startColumn * cellWidth
 

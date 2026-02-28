@@ -208,10 +208,6 @@ internal fun SharedTransitionScope.DragScreen(
 
     val dockHeight = homeSettings.dockHeight.dp
 
-    val pageIndicatorHeightPx = with(density) {
-        PAGE_INDICATOR_HEIGHT.roundToPx()
-    }
-
     val appWidgetLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
@@ -269,7 +265,6 @@ internal fun SharedTransitionScope.DragScreen(
             dragIntOffset = dragIntOffset,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
-            pageIndicatorHeight = pageIndicatorHeightPx,
             dockHeight = dockHeight,
             rows = homeSettings.rows,
             columns = homeSettings.columns,
@@ -380,6 +375,7 @@ internal fun SharedTransitionScope.DragScreen(
             paddingValues = paddingValues,
             columns = homeSettings.columns,
             rows = homeSettings.rows,
+            dockHeight = dockHeight,
             onShowFolderWhenDragging = onShowFolderWhenDragging,
         )
     }

@@ -186,6 +186,12 @@ internal suspend fun handleDragGridItem(
         gridHeight: Int,
         currentPage: Int,
     ) -> Unit,
+    onMoveFolderGridItemOutsideFolder: (
+        folderGridItem: GridItem,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+    ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     if (drag == Drag.None ||
         drag == Drag.End ||
@@ -287,6 +293,8 @@ internal suspend fun handleDragGridItem(
                 screen = screen,
                 onMoveFolderGridItem = onMoveFolderGridItem,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
+                onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
+                onUpdateGridItemSource = onUpdateGridItemSource,
             )
         }
     }
@@ -320,6 +328,12 @@ private suspend fun handleDragFolderGridItem(
         currentPage: Int,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onMoveFolderGridItemOutsideFolder: (
+        folderGridItem: GridItem,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+    ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val data = folderGridItem?.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
 
@@ -382,7 +396,41 @@ private suspend fun handleDragFolderGridItem(
             folderCurrentPage,
         )
     } else {
-        println("Outside Folder")
+        onMoveFolderGridItemOutsideFolder(
+            folderGridItem,
+            gridItemSourceFolder.applicationInfoGridItem,
+            data.gridItems,
+        )
+
+        onUpdateGridItemSource(
+            GridItemSource.New(
+                gridItem = GridItem(
+                    id = gridItemSourceFolder.applicationInfoGridItem.id,
+                    page = gridItemSourceFolder.applicationInfoGridItem.page,
+                    startColumn = gridItemSourceFolder.applicationInfoGridItem.startColumn,
+                    startRow = gridItemSourceFolder.applicationInfoGridItem.startRow,
+                    columnSpan = gridItemSourceFolder.applicationInfoGridItem.columnSpan,
+                    rowSpan = gridItemSourceFolder.applicationInfoGridItem.rowSpan,
+                    data = GridItemData.ApplicationInfo(
+                        serialNumber = gridItemSourceFolder.applicationInfoGridItem.serialNumber,
+                        componentName = gridItemSourceFolder.applicationInfoGridItem.componentName,
+                        packageName = gridItemSourceFolder.applicationInfoGridItem.packageName,
+                        icon = gridItemSourceFolder.applicationInfoGridItem.icon,
+                        label = gridItemSourceFolder.applicationInfoGridItem.label,
+                        customIcon = gridItemSourceFolder.applicationInfoGridItem.customIcon,
+                        customLabel = gridItemSourceFolder.applicationInfoGridItem.customLabel,
+                        index = -1,
+                        folderId = null,
+                    ),
+                    associate = gridItemSourceFolder.applicationInfoGridItem.associate,
+                    override = gridItemSourceFolder.applicationInfoGridItem.override,
+                    gridItemSettings = gridItemSourceFolder.applicationInfoGridItem.gridItemSettings,
+                    doubleTap = gridItemSourceFolder.applicationInfoGridItem.doubleTap,
+                    swipeUp = gridItemSourceFolder.applicationInfoGridItem.swipeUp,
+                    swipeDown = gridItemSourceFolder.applicationInfoGridItem.swipeDown,
+                ),
+            ),
+        )
     }
 }
 

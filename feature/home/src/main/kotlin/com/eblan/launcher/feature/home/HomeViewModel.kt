@@ -50,6 +50,7 @@ import com.eblan.launcher.domain.usecase.application.UpdateEblanApplicationInfos
 import com.eblan.launcher.domain.usecase.grid.GetFolderGridItemsByIdUseCase
 import com.eblan.launcher.domain.usecase.grid.GetFolderGridItemsCacheByIdUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
+import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemOutsideFolderUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.ResizeGridItemUseCase
@@ -115,6 +116,7 @@ internal class HomeViewModel @Inject constructor(
     getFolderGridItemsByIdUseCase: GetFolderGridItemsByIdUseCase,
     private val moveFolderGridItemUseCase: MoveFolderGridItemUseCase,
     getFolderGridItemsCacheByIdUseCase: GetFolderGridItemsCacheByIdUseCase,
+    private val moveFolderGridItemOutsideFolderUseCase: MoveFolderGridItemOutsideFolderUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -683,6 +685,24 @@ internal class HomeViewModel @Inject constructor(
             _screen.update {
                 Screen.Pager
             }
+        }
+    }
+
+    fun moveFolderGridItemOutsideFolder(
+        folderGridItem: GridItem,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+    ) {
+        viewModelScope.launch {
+            _folderGridItemId.update {
+                null
+            }
+
+            moveFolderGridItemOutsideFolderUseCase(
+                folderGridItem = folderGridItem,
+                movingApplicationInfoGridItem = movingApplicationInfoGridItem,
+                applicationInfoGridItems = applicationInfoGridItems,
+            )
         }
     }
 }

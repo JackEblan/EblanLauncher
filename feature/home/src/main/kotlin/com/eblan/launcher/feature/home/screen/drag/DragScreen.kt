@@ -154,6 +154,12 @@ internal fun SharedTransitionScope.DragScreen(
         currentPage: Int,
     ) -> Unit,
     onDragEndAfterMoveFolder: () -> Unit,
+    onMoveFolderGridItemOutsideFolder: (
+        folderGridItem: GridItem,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+    ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -275,6 +281,8 @@ internal fun SharedTransitionScope.DragScreen(
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onUpdateAssociate = onUpdateAssociate,
             onMoveFolderGridItem = onMoveFolderGridItem,
+            onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
+            onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
 

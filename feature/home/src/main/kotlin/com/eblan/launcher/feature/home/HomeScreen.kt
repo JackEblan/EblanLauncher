@@ -218,6 +218,7 @@ internal fun HomeRoute(
         onUpdateFolderGridItemId = viewModel::updateFolderGridItemId,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResetGridCacheAfterMoveFolder = viewModel::resetGridCacheAfterMoveFolder,
+        onMoveFolderGridItemOutsideFolder = viewModel::moveFolderGridItemOutsideFolder,
     )
 }
 
@@ -323,6 +324,11 @@ internal fun HomeScreen(
         currentPage: Int,
     ) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
+    onMoveFolderGridItemOutsideFolder: (
+        folderGridItem: GridItem,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+    ) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -529,6 +535,7 @@ internal fun HomeScreen(
                     onUpdateFolderGridItemId = onUpdateFolderGridItemId,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
+                    onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
                 )
 
                 OverlayImage(
@@ -655,6 +662,11 @@ private fun SharedTransitionScope.Success(
         currentPage: Int,
     ) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
+    onMoveFolderGridItemOutsideFolder: (
+        folderGridItem: GridItem,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -927,6 +939,10 @@ private fun SharedTransitionScope.Success(
                     onUpdateFolderGridItemId = onUpdateFolderGridItemId,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEndAfterMoveFolder = onResetGridCacheAfterMoveFolder,
+                    onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
+                    onUpdateGridItemSource = { newGridItemSource ->
+                        gridItemSource = newGridItemSource
+                    },
                 )
             }
 

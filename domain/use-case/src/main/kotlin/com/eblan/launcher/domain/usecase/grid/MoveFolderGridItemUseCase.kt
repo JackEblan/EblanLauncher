@@ -40,8 +40,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
             }
 
             val gridItems = applicationInfoGridItems.toMutableList().apply {
-                val movedItem = removeAt(fromIndex)
-                add(targetIndex.coerceIn(0, size), movedItem)
+                add(targetIndex.coerceIn(0, size), removeAt(fromIndex))
             }.mapIndexed { index, item ->
                 item.copy(index = index)
             }

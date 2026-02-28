@@ -651,7 +651,9 @@ internal class HomeViewModel @Inject constructor(
         gridWidth: Int,
         gridHeight: Int,
     ) {
-        viewModelScope.launch {
+        moveGridItemJob?.cancel()
+
+        moveGridItemJob = viewModelScope.launch {
             moveFolderGridItemUseCase(
                 folderGridItem = folderGridItem,
                 applicationInfoGridItems = applicationInfoGridItems,
@@ -663,6 +665,22 @@ internal class HomeViewModel @Inject constructor(
                 gridWidth = gridWidth,
                 gridHeight = gridHeight,
             )
+        }
+    }
+
+    fun resetGridCacheAfterMoveFolder() {
+        viewModelScope.launch {
+            moveGridItemJob?.cancelAndJoin()
+
+            val gridItems = gridCacheRepository.gridItemsCache.first().toMutableList()
+
+            gridRepository.updateGridItems(gridItems = gridItems)
+
+            delay(defaultDelay)
+
+            _screen.update {
+                Screen.Pager
+            }
         }
     }
 }

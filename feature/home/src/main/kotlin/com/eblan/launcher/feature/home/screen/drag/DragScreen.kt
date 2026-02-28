@@ -152,6 +152,7 @@ internal fun SharedTransitionScope.DragScreen(
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
+    onDragEndAfterMoveFolder: () -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -283,7 +284,6 @@ internal fun SharedTransitionScope.DragScreen(
                     gridItemSource = gridItemSource,
                     userManagerWrapper = userManager,
                     launcherAppsWrapper = launcherApps,
-                    folderGridItem = folderGridItem,
                     onLaunchWidgetIntent = appWidgetLauncher::launch,
                     onLaunchShortcutConfigIntent = shortcutConfigLauncher::launch,
                     onLaunchShortcutConfigIntentSenderRequest = shortcutConfigIntentSenderLauncher::launch,
@@ -303,6 +303,7 @@ internal fun SharedTransitionScope.DragScreen(
                             Toast.LENGTH_LONG,
                         ).show()
                     },
+                    onDragEndAfterMoveFolder = onDragEndAfterMoveFolder,
                 )
 
                 onResetConfigureResultCode()

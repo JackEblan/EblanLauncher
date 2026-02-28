@@ -50,7 +50,6 @@ internal suspend fun handleDropGridItem(
     gridItemSource: GridItemSource,
     userManagerWrapper: AndroidUserManagerWrapper,
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
-    folderGridItem: GridItem?,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onLaunchWidgetIntent: (Intent) -> Unit,
     onLaunchShortcutConfigIntent: (Intent) -> Unit,
@@ -60,21 +59,30 @@ internal suspend fun handleDropGridItem(
     onUpdateWidgetGridItem: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
     onToast: () -> Unit,
+    onDragEndAfterMoveFolder: () -> Unit,
 ) {
-    if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
-        onDragCancelAfterMove()
-
-        onToast()
-
-        return
-    }
-
     when (gridItemSource) {
         is GridItemSource.Existing -> {
+            if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
+                onDragCancelAfterMove()
+
+                onToast()
+
+                return
+            }
+
             onDragEndAfterMove(moveGridItemResult)
         }
 
         is GridItemSource.New -> {
+            if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
+                onDragCancelAfterMove()
+
+                onToast()
+
+                return
+            }
+
             when (val data = gridItemSource.gridItem.data) {
                 is GridItemData.Widget -> {
                     onDragEndWidget(
@@ -107,6 +115,14 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.Pin -> {
+            if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
+                onDragCancelAfterMove()
+
+                onToast()
+
+                return
+            }
+
             when (val data = gridItemSource.gridItem.data) {
                 is GridItemData.ShortcutInfo -> {
                     onDragEndPinShortcut(
@@ -130,12 +146,14 @@ internal suspend fun handleDropGridItem(
                     )
                 }
 
-                else -> Unit
+                else -> {
+                    onDragEndAfterMove(moveGridItemResult)
+                }
             }
         }
 
         is GridItemSource.Folder -> {
-
+            onDragEndAfterMoveFolder()
         }
     }
 }

@@ -245,7 +245,7 @@ internal suspend fun handleDragGridItem(
     }
 }
 
-private fun handleDragFolderGridItem(
+private suspend fun handleDragFolderGridItem(
     safeDrawingWidth: Int,
     columns: Int,
     safeDrawingHeight: Int,
@@ -276,6 +276,8 @@ private fun handleDragFolderGridItem(
         gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemSource.Folder")
 
     if (lockMovement) return
+
+    delay(100L)
 
     val folderCellWidth = safeDrawingWidth / columns
 

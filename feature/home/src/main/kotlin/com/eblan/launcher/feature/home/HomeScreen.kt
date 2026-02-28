@@ -217,6 +217,7 @@ internal fun HomeRoute(
         onUpdateEblanApplicationInfos = viewModel::updateEblanApplicationInfos,
         onUpdateFolderGridItemId = viewModel::updateFolderGridItemId,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
+        onResetGridCacheAfterMoveFolder = viewModel::resetGridCacheAfterMoveFolder,
     )
 }
 
@@ -320,6 +321,7 @@ internal fun HomeScreen(
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
+    onResetGridCacheAfterMoveFolder: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -525,6 +527,7 @@ internal fun HomeScreen(
                     onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
                     onUpdateFolderGridItemId = onUpdateFolderGridItemId,
                     onMoveFolderGridItem = onMoveFolderGridItem,
+                    onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
                 )
 
                 OverlayImage(
@@ -649,6 +652,7 @@ private fun SharedTransitionScope.Success(
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
+    onResetGridCacheAfterMoveFolder: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -920,6 +924,7 @@ private fun SharedTransitionScope.Success(
                     onResetConfigureResultCode = onResetConfigureResultCode,
                     onUpdateFolderGridItemId = onUpdateFolderGridItemId,
                     onMoveFolderGridItem = onMoveFolderGridItem,
+                    onDragEndAfterMoveFolder = onResetGridCacheAfterMoveFolder,
                 )
             }
 

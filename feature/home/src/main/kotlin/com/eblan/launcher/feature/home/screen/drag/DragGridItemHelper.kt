@@ -51,6 +51,8 @@ internal fun handleAnimateScrollToPage(
     gridItemSource: GridItemSource,
     folderGridItem: GridItem?,
     folderPopupIntOffset: IntOffset,
+    folderPopupIntSize: IntSize,
+    columns: Int,
     onUpdateGridPageDirection: (PageDirection?) -> Unit,
     onUpdateDockPageDirection: (PageDirection?) -> Unit,
     onUpdateFolderPageDirection: (PageDirection?) -> Unit,
@@ -65,17 +67,19 @@ internal fun handleAnimateScrollToPage(
 
     val horizontalPadding = leftPadding + rightPadding
 
-    val gridWidth = screenWidth - horizontalPadding
+    val safeDrawingWidth = screenWidth - horizontalPadding
 
     val edgeDistance = with(density) {
         20.dp.roundToPx()
     }
 
+    val dragX = dragIntOffset.x - leftPadding
+
     when (gridItemSource) {
         is GridItemSource.Existing, is GridItemSource.New, is GridItemSource.Pin -> {
-            val isOnLeftGrid = dragIntOffset.x - edgeDistance < 0
+            val isOnLeftGrid = dragX < edgeDistance
 
-            val isOnRightGrid = dragIntOffset.x + edgeDistance > gridWidth
+            val isOnRightGrid = dragX > safeDrawingWidth - edgeDistance
 
             fun animateScrollToPage(onUpdatePageDirection: (PageDirection?) -> Unit) {
                 if (isOnLeftGrid) {
@@ -104,9 +108,7 @@ internal fun handleAnimateScrollToPage(
             val data = folderGridItem?.data as? GridItemData.Folder
                 ?: error("Expected GridItemData.Folder")
 
-            val folderDragX = dragIntOffset.x - folderPopupIntOffset.x
-
-            val folderCellWidth = gridWidth / data.columns
+            val folderCellWidth = safeDrawingWidth / columns
 
             val folderGridPaddingDp = 10.dp
 
@@ -116,9 +118,16 @@ internal fun handleAnimateScrollToPage(
 
             val folderGridWidthPx = folderCellWidth * data.columns
 
-            val isOnLeftGrid = folderDragX - edgeDistance < 0
+            val centeredX =
+                folderPopupIntOffset.x + (folderPopupIntSize.width / 2) - (folderGridWidthPx / 2)
 
-            val isOnRightGrid = folderDragX + edgeDistance > folderGridWidthPx + folderGridPaddingPx
+            val popupX = centeredX.coerceIn(0, safeDrawingWidth - folderGridWidthPx)
+
+            val folderDragX = dragX - popupX - folderGridPaddingPx
+
+            val isOnLeftGrid = folderDragX < edgeDistance
+
+            val isOnRightGrid = folderDragX > folderGridWidthPx - folderGridPaddingPx - edgeDistance
 
             if (isOnLeftGrid) {
                 onUpdateFolderPageDirection(PageDirection.Left)

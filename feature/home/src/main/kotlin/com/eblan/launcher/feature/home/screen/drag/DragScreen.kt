@@ -373,6 +373,8 @@ internal fun SharedTransitionScope.DragScreen(
             folderGridItem = folderGridItem,
             gridItemSource = gridItemSource,
             folderPopupIntOffset = folderPopupIntOffset,
+            folderPopupIntSize = folderPopupIntSize,
+            columns = homeSettings.columns,
             onUpdateGridPageDirection = { pageDirection ->
                 gridPageDirection = pageDirection
             },

@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
@@ -104,7 +105,7 @@ internal fun SharedTransitionScope.DragScreen(
     screen: Screen,
     associate: Associate?,
     configureResultCode: Int?,
-    gridItemDataFolder: GridItemData.Folder?,
+    folderGridItem: GridItem?,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
     folderGridHorizontalPagerState: PagerState,
@@ -140,6 +141,17 @@ internal fun SharedTransitionScope.DragScreen(
     onUpdateAssociate: (Associate) -> Unit,
     onResetConfigureResultCode: () -> Unit,
     onUpdateFolderGridItemId: (String?) -> Unit,
+    onMoveFolderGridItem: (
+        folderGridItem: GridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        dragX: Int,
+        dragY: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+    ) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -188,7 +200,7 @@ internal fun SharedTransitionScope.DragScreen(
     ) { result ->
         handleAppWidgetLauncherResult(
             result = result,
-            gridItem = gridItemSource.gridItem,
+            gridItemSource = gridItemSource,
             appWidgetManager = appWidgetManager,
             onUpdateWidgetGridItem = { gridItem ->
                 updatedWidgetGridItem = gridItem
@@ -237,7 +249,6 @@ internal fun SharedTransitionScope.DragScreen(
             density = density,
             currentPage = currentPage,
             drag = drag,
-            gridItem = gridItemSource.gridItem,
             dragIntOffset = dragIntOffset,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
@@ -252,12 +263,13 @@ internal fun SharedTransitionScope.DragScreen(
             paddingValues = paddingValues,
             lockMovement = lockMovement,
             screen = screen,
-            gridItemDataFolder = gridItemDataFolder,
+            folderGridItem = folderGridItem,
             folderPopupIntOffset = folderPopupIntOffset,
             folderPopupIntSize = folderPopupIntSize,
             onMoveGridItem = onMoveGridItem,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onUpdateAssociate = onUpdateAssociate,
+            onMoveFolderGridItem = onMoveFolderGridItem,
         )
     }
 
@@ -271,6 +283,7 @@ internal fun SharedTransitionScope.DragScreen(
                     gridItemSource = gridItemSource,
                     userManagerWrapper = userManager,
                     launcherAppsWrapper = launcherApps,
+                    folderGridItem = folderGridItem,
                     onLaunchWidgetIntent = appWidgetLauncher::launch,
                     onLaunchShortcutConfigIntent = shortcutConfigLauncher::launch,
                     onLaunchShortcutConfigIntentSenderRequest = shortcutConfigIntentSenderLauncher::launch,
@@ -305,7 +318,7 @@ internal fun SharedTransitionScope.DragScreen(
 
     LaunchedEffect(key1 = deleteAppWidgetId) {
         handleDeleteAppWidgetId(
-            gridItem = gridItemSource.gridItem,
+            gridItemSource = gridItemSource,
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
@@ -354,7 +367,7 @@ internal fun SharedTransitionScope.DragScreen(
             screenWidth = screenWidth,
             dragIntOffset = dragIntOffset,
             associate = associate,
-            gridItemDataFolder = gridItemDataFolder,
+            folderGridItem = folderGridItem,
             onUpdateGridPageDirection = { pageDirection ->
                 gridPageDirection = pageDirection
             },
@@ -417,7 +430,7 @@ internal fun SharedTransitionScope.DragScreen(
                 rows = homeSettings.rows,
                 content = { gridItem ->
                     val isDragging =
-                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
+                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem?.id
 
                     GridItemContent(
                         gridItem = gridItem,
@@ -430,7 +443,7 @@ internal fun SharedTransitionScope.DragScreen(
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
                         isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
-                        gridItemDataFolder = gridItemDataFolder,
+                        folderGridItem = folderGridItem,
                     )
                 },
             )
@@ -472,7 +485,7 @@ internal fun SharedTransitionScope.DragScreen(
                 rows = homeSettings.dockRows,
                 { gridItem ->
                     val isDragging =
-                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
+                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem?.id
 
                     GridItemContent(
                         gridItem = gridItem,
@@ -485,16 +498,16 @@ internal fun SharedTransitionScope.DragScreen(
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
                         isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
-                        gridItemDataFolder = gridItemDataFolder,
+                        folderGridItem = folderGridItem,
                     )
                 },
             )
         }
     }
 
-    if (gridItemDataFolder != null) {
+    if (folderGridItem != null) {
         FolderDragScreen(
-            gridItemDataFolder = gridItemDataFolder,
+            folderGridItem = folderGridItem,
             folderPopupIntOffset = folderPopupIntOffset,
             folderPopupIntSize = folderPopupIntSize,
             paddingValues = paddingValues,

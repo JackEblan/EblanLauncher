@@ -19,6 +19,7 @@ package com.eblan.launcher.domain.usecase.grid
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData.Folder
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -31,14 +32,14 @@ class GetFolderGridItemsByIdUseCase @Inject constructor(
     private val folderGridItemRepository: FolderGridItemRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(idFlow: Flow<String?>): Flow<Folder?> {
+    operator fun invoke(idFlow: Flow<String?>): Flow<GridItem?> {
         return combine(
             idFlow,
             folderGridItemRepository.folderGridItemWrappers,
         ) { id, folderGridItemWrappers ->
             folderGridItemWrappers.firstOrNull { folderGridItemWrapper ->
                 folderGridItemWrapper.folderGridItem.id == id
-            }?.asFolder()
+            }?.asGridItem()
         }.flowOn(defaultDispatcher)
     }
 }

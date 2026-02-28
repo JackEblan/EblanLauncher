@@ -34,22 +34,7 @@ class GetFolderGridItemsUseCase @Inject constructor(
     operator fun invoke(): Flow<List<GridItem>> =
         folderGridItemRepository.folderGridItemWrappers.map { folderGridItemWrappers ->
             folderGridItemWrappers.map { folderGridItemWrapper ->
-                GridItem(
-                    id = folderGridItemWrapper.folderGridItem.id,
-                    page = folderGridItemWrapper.folderGridItem.page,
-                    startColumn = folderGridItemWrapper.folderGridItem.startColumn,
-                    startRow = folderGridItemWrapper.folderGridItem.startRow,
-                    columnSpan = folderGridItemWrapper.folderGridItem.columnSpan,
-                    rowSpan = folderGridItemWrapper.folderGridItem.rowSpan,
-                    data = folderGridItemWrapper.asFolder(),
-                    associate = folderGridItemWrapper.folderGridItem.associate,
-                    override = folderGridItemWrapper.folderGridItem.override,
-                    gridItemSettings = folderGridItemWrapper.folderGridItem.gridItemSettings,
-                    doubleTap = folderGridItemWrapper.folderGridItem.doubleTap,
-                    swipeUp = folderGridItemWrapper.folderGridItem.swipeUp,
-                    swipeDown = folderGridItemWrapper.folderGridItem.swipeDown,
-                )
-
+                folderGridItemWrapper.asGridItem()
             }
         }.flowOn(defaultDispatcher)
 }

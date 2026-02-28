@@ -83,7 +83,7 @@ internal fun SharedTransitionScope.GridItemContent(
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
     isScrollInProgress: Boolean,
-    gridItemDataFolder: GridItemData.Folder?,
+    folderGridItem: GridItem?,
 ) {
     key(gridItem.id) {
         val currentGridItemSettings = if (gridItem.override) {
@@ -164,7 +164,7 @@ internal fun SharedTransitionScope.GridItemContent(
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
                         isScrollInProgress = isScrollInProgress,
-                        gridItemDataFolder = gridItemDataFolder,
+                        folderGridItem = folderGridItem,
                     )
                 }
 
@@ -352,7 +352,7 @@ internal fun SharedTransitionScope.FolderGridItemContent(
     screen: Screen,
     drag: Drag,
     isScrollInProgress: Boolean,
-    gridItemDataFolder: GridItemData.Folder?,
+    folderGridItem: GridItem?,
 ) {
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
@@ -364,7 +364,7 @@ internal fun SharedTransitionScope.FolderGridItemContent(
             contentDescription = null,
             modifier = commonModifier,
         )
-    } else if (gridItemDataFolder != null && data.id == gridItemDataFolder.id) {
+    } else if (folderGridItem != null && data.id == folderGridItem.id) {
         Box(
             modifier = commonModifier.background(
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
@@ -685,7 +685,7 @@ private fun SharedTransitionScope.FolderGridItem(
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
     isScrollInProgress: Boolean,
-    gridItemDataFolder: GridItemData.Folder?,
+    folderGridItem: GridItem?,
 ) {
     val horizontalAlignment =
         getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
@@ -721,7 +721,7 @@ private fun SharedTransitionScope.FolderGridItem(
             screen = screen,
             drag = drag,
             isScrollInProgress = isScrollInProgress,
-            gridItemDataFolder = gridItemDataFolder,
+            folderGridItem = folderGridItem,
         )
     }
 }

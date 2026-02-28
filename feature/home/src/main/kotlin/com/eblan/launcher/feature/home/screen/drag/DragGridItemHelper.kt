@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.grid.getWidgetGridItemSize
 import com.eblan.launcher.domain.grid.getWidgetGridItemSpan
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -48,11 +49,11 @@ internal fun handleAnimateScrollToPage(
     screenWidth: Int,
     dragIntOffset: IntOffset,
     associate: Associate?,
-    gridItemDataFolder: GridItemData.Folder?,
+    folderGridItem: GridItem?,
     onUpdateGridPageDirection: (PageDirection?) -> Unit,
     onUpdateDockPageDirection: (PageDirection?) -> Unit,
 ) {
-    if (gridItemDataFolder != null) return
+    if (folderGridItem != null) return
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -101,7 +102,6 @@ internal suspend fun handleDragGridItem(
     density: Density,
     currentPage: Int,
     drag: Drag,
-    gridItem: GridItem,
     dragIntOffset: IntOffset,
     screenWidth: Int,
     screenHeight: Int,
@@ -116,7 +116,7 @@ internal suspend fun handleDragGridItem(
     paddingValues: PaddingValues,
     lockMovement: Boolean,
     screen: Screen,
-    gridItemDataFolder: GridItemData.Folder?,
+    folderGridItem: GridItem?,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
     onMoveGridItem: (
@@ -131,6 +131,17 @@ internal suspend fun handleDragGridItem(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateAssociate: (Associate) -> Unit,
+    onMoveFolderGridItem: (
+        folderGridItem: GridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        dragX: Int,
+        dragY: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+    ) -> Unit,
 ) {
     if (drag == Drag.None ||
         drag == Drag.End ||
@@ -174,18 +185,21 @@ internal suspend fun handleDragGridItem(
 
     val isOnDock = dockHeightPx > 0 && dragY > safeDrawingHeight - dockHeightPx
 
-    if (gridItemDataFolder != null) {
+    if (folderGridItem != null) {
         handleDragFolderGridItem(
             safeDrawingWidth = safeDrawingWidth,
             columns = columns,
             safeDrawingHeight = safeDrawingHeight,
             rows = rows,
             density = density,
-            gridItemDataFolder = gridItemDataFolder,
+            folderGridItem = folderGridItem,
             folderPopupIntOffset = folderPopupIntOffset,
             folderPopupIntSize = folderPopupIntSize,
             dragX = dragX,
             dragY = dragY,
+            lockMovement = lockMovement,
+            gridItemSource = gridItemSource,
+            onMoveFolderGridItem = onMoveFolderGridItem,
         )
     } else if (isOnDock) {
         handleDragDockGridItem(
@@ -196,7 +210,6 @@ internal suspend fun handleDragGridItem(
             dragY = dragY,
             safeDrawingHeight = safeDrawingHeight,
             currentPage = currentPage,
-            gridItem = gridItem,
             dragX = dragX,
             gridItemSource = gridItemSource,
             screen = screen,
@@ -214,7 +227,6 @@ internal suspend fun handleDragGridItem(
             columns = columns,
             rows = rows,
             currentPage = currentPage,
-            gridItem = gridItem,
             dragX = dragX,
             dragY = dragY,
             gridItemSource = gridItemSource,
@@ -233,12 +245,32 @@ private fun handleDragFolderGridItem(
     safeDrawingHeight: Int,
     rows: Int,
     density: Density,
-    gridItemDataFolder: GridItemData.Folder,
+    folderGridItem: GridItem,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
     dragX: Int,
     dragY: Int,
+    lockMovement: Boolean,
+    gridItemSource: GridItemSource?,
+    onMoveFolderGridItem: (
+        folderGridItem: GridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        dragX: Int,
+        dragY: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+    ) -> Unit,
 ) {
+    val gridItemSourceFolder =
+        gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemSource.Folder")
+
+    if (lockMovement) return
+
+    val data = folderGridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
+
     val folderCellWidth = safeDrawingWidth / columns
 
     val folderCellHeight = safeDrawingHeight / rows
@@ -249,8 +281,8 @@ private fun handleDragFolderGridItem(
         folderGridPaddingDp.roundToPx()
     }
 
-    val folderGridWidthPx = folderCellWidth * gridItemDataFolder.columns
-    val folderGridHeightPx = folderCellHeight * gridItemDataFolder.rows
+    val folderGridWidthPx = folderCellWidth * data.columns
+    val folderGridHeightPx = folderCellHeight * data.rows
 
     val centeredX =
         folderPopupIntOffset.x + (folderPopupIntSize.width / 2) - (folderGridWidthPx / 2)
@@ -264,14 +296,24 @@ private fun handleDragFolderGridItem(
 
     val folderDragY = dragY - popupY - folderGridPaddingPx
 
-    val folderGridVisibleWidthPx = folderGridWidthPx - folderGridPaddingPx * 2
-    val folderGridVisibleHeightPx = folderGridHeightPx - folderGridPaddingPx * 2
+    val folderGridVisibleWidthPx = folderGridWidthPx - (folderGridPaddingPx * 2)
+    val folderGridVisibleHeightPx = folderGridHeightPx - (folderGridPaddingPx * 2)
 
     val isInsideFolder = folderDragX in 0..folderGridVisibleWidthPx &&
             folderDragY in 0..folderGridVisibleHeightPx
 
     if (isInsideFolder) {
-        println("Inside Folder")
+        onMoveFolderGridItem(
+            folderGridItem,
+            data.gridItemsByPage.values.flatten(),
+            gridItemSourceFolder.applicationInfoGridItem,
+            dragX,
+            dragY,
+            data.columns,
+            data.rows,
+            folderGridWidthPx,
+            folderGridHeightPx,
+        )
     } else {
         println("Outside Folder")
     }
@@ -285,7 +327,6 @@ private suspend fun handleDragGridItem(
     columns: Int,
     rows: Int,
     currentPage: Int,
-    gridItem: GridItem,
     dragX: Int,
     dragY: Int,
     gridItemSource: GridItemSource,
@@ -304,6 +345,8 @@ private suspend fun handleDragGridItem(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    val gridItem = requireNotNull(gridItemSource.gridItem)
+
     delay(100L)
 
     onUpdateAssociate(Associate.Grid)
@@ -364,9 +407,8 @@ private suspend fun handleDragDockGridItem(
     dragY: Int,
     safeDrawingHeight: Int,
     currentPage: Int,
-    gridItem: GridItem,
-    dragX: Int,
     gridItemSource: GridItemSource,
+    dragX: Int,
     screen: Screen,
     lockMovement: Boolean,
     onUpdateAssociate: (Associate) -> Unit,
@@ -382,6 +424,8 @@ private suspend fun handleDragDockGridItem(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    val gridItem = requireNotNull(gridItemSource.gridItem)
+
     delay(100L)
 
     onUpdateAssociate(Associate.Dock)
@@ -448,7 +492,7 @@ internal suspend fun handleConflictingGridItem(
         return
     }
 
-    if (gridItemSource.gridItem.data !is GridItemData.ApplicationInfo) {
+    if (gridItemSource.gridItem?.data !is GridItemData.ApplicationInfo) {
         return
     }
 
@@ -492,7 +536,7 @@ private fun getMoveGridItem(
     associate: Associate,
     gridItemSource: GridItemSource,
 ): GridItem = when (gridItemSource) {
-    is GridItemSource.Existing -> {
+    is GridItemSource.Existing, is GridItemSource.Folder -> {
         gridItem.copy(
             page = targetPage,
             startColumn = gridX / cellWidth,

@@ -16,7 +16,6 @@ class MoveFolderGridItemUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         folderGridItem: GridItem,
-        page: Int,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
         movingApplicationInfoGridItem: ApplicationInfoGridItem,
         dragX: Int,
@@ -25,7 +24,6 @@ class MoveFolderGridItemUseCase @Inject constructor(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
-        lockMovement: Boolean,
     ) {
         withContext(defaultDispatcher) {
             val cellWidth = gridWidth / columns
@@ -67,23 +65,17 @@ class MoveFolderGridItemUseCase @Inject constructor(
                 }
             }
 
-            if (!lockMovement) {
-                val folderGridItemData = folderGridItem.data as? GridItemData.Folder
-                    ?: error("Expected GridItemData.Folder")
+            val folderGridItemData = folderGridItem.data as? GridItemData.Folder
+                ?: error("Expected GridItemData.Folder")
 
-                val gridItemsByPage = folderGridItemData.gridItemsByPage.toMutableMap().apply {
-                    set(page, gridItems)
-                }
+            val newData = folderGridItemData.copy(
+                gridItemsByPage = gridItems.getGridItemsByPage(),
+            )
 
-                val newData = folderGridItemData.copy(
-                    gridItemsByPage = gridItemsByPage,
-                )
-
-                gridCacheRepository.updateGridItemData(
-                    id = folderGridItem.id,
-                    data = newData,
-                )
-            }
+            gridCacheRepository.updateGridItemData(
+                id = folderGridItem.id,
+                data = newData,
+            )
         }
     }
 }

@@ -94,7 +94,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
     isScrollInProgress: Boolean,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
-    gridItemDataFolder: GridItemData.Folder?,
+    folderGridItem: GridItem?,
     onTapApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -210,7 +210,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onOpenAppDrawer = onOpenAppDrawer,
-                    gridItemDataFolder = gridItemDataFolder,
+                    folderGridItem = folderGridItem,
                 )
             }
 
@@ -754,7 +754,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     isScrollInProgress: Boolean,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
-    gridItemDataFolder: GridItemData.Folder?,
+    folderGridItem: GridItem?,
     onTap: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -917,7 +917,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                 screen = screen,
                 drag = drag,
                 isScrollInProgress = isScrollInProgress,
-                gridItemDataFolder = gridItemDataFolder,
+                folderGridItem = folderGridItem,
             )
         }
     }

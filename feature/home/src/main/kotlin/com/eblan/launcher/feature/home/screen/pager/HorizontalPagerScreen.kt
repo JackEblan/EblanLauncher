@@ -56,7 +56,6 @@ import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
@@ -105,7 +104,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     screenHeight: Int,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
-    gridItemDataFolder: GridItemData.Folder?,
+    folderGridItem: GridItem?,
     onEditGridItem: (String) -> Unit,
     onResize: (
         screen: Screen,
@@ -266,7 +265,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
-                        gridItemDataFolder = gridItemDataFolder,
+                        folderGridItem = folderGridItem,
                         onTapApplicationInfo = { serialNumber, componentName ->
                             val sourceBoundsX = x + leftPadding
 
@@ -408,7 +407,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
-                    gridItemDataFolder = gridItemDataFolder,
+                    folderGridItem = folderGridItem,
                     onTapApplicationInfo = { serialNumber, componentName ->
                         val sourceBoundsX = x + leftPadding
 
@@ -582,9 +581,9 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         )
     }
 
-    if (gridItemDataFolder != null) {
+    if (folderGridItem != null) {
         FolderScreen(
-            gridItemDataFolder = gridItemDataFolder,
+            folderGridItem = folderGridItem,
             folderPopupIntOffset = folderPopupIntOffset,
             folderPopupIntSize = folderPopupIntSize,
             paddingValues = paddingValues,

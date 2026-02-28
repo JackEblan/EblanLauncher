@@ -119,7 +119,7 @@ internal fun SettingsPopup(
 @Composable
 internal fun FolderGridItemPopup(
     modifier: Modifier = Modifier,
-    gridItem: GridItem,
+    gridItem: GridItem?,
     popupIntOffset: IntOffset,
     popupIntSize: IntSize,
     paddingValues: PaddingValues,
@@ -127,6 +127,8 @@ internal fun FolderGridItemPopup(
     onDeleteGridItem: (GridItem) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
+    requireNotNull(gridItem)
+
     val density = LocalDensity.current
 
     val leftPadding = with(density) {

@@ -84,7 +84,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun SharedTransitionScope.FolderScreen(
     modifier: Modifier = Modifier,
-    gridItemDataFolder: GridItemData.Folder,
+    folderGridItem: GridItem,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
     paddingValues: PaddingValues,
@@ -111,6 +111,8 @@ internal fun SharedTransitionScope.FolderScreen(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onOpenAppDrawer: () -> Unit,
 ) {
+    val data = folderGridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
+
     val density = LocalDensity.current
 
     val leftPadding = with(density) {
@@ -144,11 +146,11 @@ internal fun SharedTransitionScope.FolderScreen(
     val folderGridPaddingDp = 10.dp
 
     val folderGridWidthDp = with(density) {
-        (folderCellWidth * gridItemDataFolder.columns).toDp()
+        (folderCellWidth * data.columns).toDp()
     }
 
     val folderGridHeightDp = with(density) {
-        (folderCellHeight * gridItemDataFolder.rows).toDp()
+        (folderCellHeight * data.rows).toDp()
     }
 
     val folderGridWidthPx = with(density) {
@@ -203,12 +205,12 @@ internal fun SharedTransitionScope.FolderScreen(
                 ) { index ->
                     FolderGridLayout(
                         modifier = Modifier.fillMaxSize(),
-                        gridItems = gridItemDataFolder.gridItemsByPage[index],
-                        columns = gridItemDataFolder.columns,
-                        rows = gridItemDataFolder.rows,
-                        { gridItem ->
+                        gridItems = data.gridItemsByPage[index],
+                        columns = data.columns,
+                        rows = data.rows,
+                        { applicationInfoGridItem ->
                             FolderGridItemContent(
-                                gridItem = gridItem,
+                                gridItem = applicationInfoGridItem,
                                 textColor = textColor,
                                 gridItemSettings = gridItemSettings,
                                 statusBarNotifications = statusBarNotifications,
@@ -218,7 +220,7 @@ internal fun SharedTransitionScope.FolderScreen(
                                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                                 onUpdateImageBitmap = { imageBitmap ->
                                     onLongPressGridItem(
-                                        GridItemSource.Existing(gridItem = gridItem.asGridItem()),
+                                        GridItemSource.Folder(applicationInfoGridItem = applicationInfoGridItem),
                                         imageBitmap,
                                     )
                                 },

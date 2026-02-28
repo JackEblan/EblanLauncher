@@ -80,6 +80,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -163,7 +164,7 @@ internal fun HomeRoute(
 
     val eblanApplicationInfoTags by viewModel.eblanApplicationInfoTags.collectAsStateWithLifecycle()
 
-    val gridItemDataFolder by viewModel.gridItemDataFolder.collectAsStateWithLifecycle()
+    val folderGridItem by viewModel.folderGridItem.collectAsStateWithLifecycle()
 
     HomeScreen(
         modifier = modifier,
@@ -181,7 +182,7 @@ internal fun HomeRoute(
         eblanShortcutConfigs = eblanShortcutConfigs,
         eblanApplicationInfoTags = eblanApplicationInfoTags,
         configureResultCode = configureResultCode,
-        gridItemDataFolder = gridItemDataFolder,
+        folderGridItem = folderGridItem,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onShowGridCache = viewModel::showGridCache,
@@ -212,6 +213,7 @@ internal fun HomeRoute(
         onUpdateAppDrawerSettings = viewModel::updateAppDrawerSettings,
         onUpdateEblanApplicationInfos = viewModel::updateEblanApplicationInfos,
         onUpdateFolderGridItemId = viewModel::updateFolderGridItemId,
+        onMoveFolderGridItem = viewModel::moveFolderGridItem,
     )
 }
 
@@ -233,7 +235,7 @@ internal fun HomeScreen(
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     configureResultCode: Int?,
-    gridItemDataFolder: GridItemData.Folder?,
+    folderGridItem: GridItem?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -303,6 +305,17 @@ internal fun HomeScreen(
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
     onUpdateFolderGridItemId: (String?) -> Unit,
+    onMoveFolderGridItem: (
+        folderGridItem: GridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        dragX: Int,
+        dragY: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+    ) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -457,7 +470,7 @@ internal fun HomeScreen(
                     eblanShortcutConfigs = eblanShortcutConfigs,
                     eblanApplicationInfoTags = eblanApplicationInfoTags,
                     configureResultCode = configureResultCode,
-                    gridItemDataFolder = gridItemDataFolder,
+                    folderGridItem = folderGridItem,
                     onMoveGridItem = onMoveGridItem,
                     onResizeGridItem = onResizeGridItem,
                     onShowGridCache = onShowGridCache,
@@ -506,6 +519,7 @@ internal fun HomeScreen(
                     onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
                     onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
                     onUpdateFolderGridItemId = onUpdateFolderGridItemId,
+                    onMoveFolderGridItem = onMoveFolderGridItem,
                 )
 
                 OverlayImage(
@@ -543,7 +557,7 @@ private fun SharedTransitionScope.Success(
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     configureResultCode: Int?,
-    gridItemDataFolder: GridItemData.Folder?,
+    folderGridItem: GridItem?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -618,6 +632,17 @@ private fun SharedTransitionScope.Success(
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
     onUpdateFolderGridItemId: (String?) -> Unit,
+    onMoveFolderGridItem: (
+        folderGridItem: GridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        dragX: Int,
+        dragY: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -715,9 +740,9 @@ private fun SharedTransitionScope.Success(
 
     val folderGridHorizontalPagerState = rememberPagerState(
         pageCount = {
-            when (gridItemDataFolder) {
+            when (val data = folderGridItem?.data) {
                 is GridItemData.Folder -> {
-                    gridItemDataFolder.gridItemsByPage.size
+                    data.gridItemsByPage.size
                 }
 
                 else -> 0
@@ -808,7 +833,7 @@ private fun SharedTransitionScope.Success(
                     eblanShortcutConfigs = eblanShortcutConfigs,
                     eblanApplicationInfoTags = eblanApplicationInfoTags,
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
-                    gridItemDataFolder = gridItemDataFolder,
+                    folderGridItem = folderGridItem,
                     folderPopupIntOffset = folderPopupIntOffset,
                     folderPopupIntSize = folderPopupIntSize,
                     onDraggingGridItem = onShowGridCache,
@@ -823,7 +848,7 @@ private fun SharedTransitionScope.Success(
                     onLongPressGridItem = { newGridItemSource, imageBitmap ->
                         gridItemSource = newGridItemSource
 
-                        associate = newGridItemSource.gridItem.associate
+                        associate = newGridItemSource.gridItem?.associate
 
                         onUpdateGridItemImageBitmap(imageBitmap)
                     },
@@ -870,7 +895,7 @@ private fun SharedTransitionScope.Success(
                     screen = targetState,
                     associate = associate,
                     configureResultCode = configureResultCode,
-                    gridItemDataFolder = gridItemDataFolder,
+                    folderGridItem = folderGridItem,
                     folderPopupIntOffset = folderPopupIntOffset,
                     folderPopupIntSize = folderPopupIntSize,
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
@@ -888,6 +913,7 @@ private fun SharedTransitionScope.Success(
                     },
                     onResetConfigureResultCode = onResetConfigureResultCode,
                     onUpdateFolderGridItemId = onUpdateFolderGridItemId,
+                    onMoveFolderGridItem = onMoveFolderGridItem,
                 )
             }
 

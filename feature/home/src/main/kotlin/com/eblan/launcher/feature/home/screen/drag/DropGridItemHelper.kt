@@ -31,6 +31,7 @@ import android.os.Process
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
 import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.model.FolderGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
@@ -50,6 +51,7 @@ internal suspend fun handleDropGridItem(
     gridItemSource: GridItemSource,
     userManagerWrapper: AndroidUserManagerWrapper,
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
+    folderGridItem: GridItem?,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onLaunchWidgetIntent: (Intent) -> Unit,
     onLaunchShortcutConfigIntent: (Intent) -> Unit,
@@ -60,6 +62,8 @@ internal suspend fun handleDropGridItem(
     onUpdateAppWidgetId: (Int) -> Unit,
     onToast: () -> Unit,
 ) {
+    if (folderGridItem != null) return
+
     if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
         onDragCancelAfterMove()
 
@@ -137,11 +141,13 @@ internal suspend fun handleDropGridItem(
 
 internal fun handleAppWidgetLauncherResult(
     result: ActivityResult,
-    gridItem: GridItem,
+    gridItemSource: GridItemSource,
     appWidgetManager: AndroidAppWidgetManagerWrapper,
     onUpdateWidgetGridItem: (GridItem) -> Unit,
     onDeleteAppWidgetId: () -> Unit,
 ) {
+    val gridItem = requireNotNull(gridItemSource.gridItem)
+
     val data = (gridItem.data as? GridItemData.Widget) ?: error("Expected GridItemData.Widget")
 
     if (result.resultCode == Activity.RESULT_OK) {
@@ -197,7 +203,7 @@ internal fun handleConfigureLauncherResult(
 }
 
 internal fun handleDeleteAppWidgetId(
-    gridItem: GridItem,
+    gridItemSource: GridItemSource,
     appWidgetId: Int,
     deleteAppWidgetId: Boolean,
     onDeleteWidgetGridItemCache: (
@@ -206,6 +212,8 @@ internal fun handleDeleteAppWidgetId(
     ) -> Unit,
 ) {
     if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID && deleteAppWidgetId) {
+        val gridItem = requireNotNull(gridItemSource.gridItem)
+
         check(gridItem.data is GridItemData.Widget)
 
         onDeleteWidgetGridItemCache(gridItem, appWidgetId)
@@ -274,8 +282,10 @@ internal suspend fun handleShortcutConfigLauncherResult(
 ) {
     requireNotNull(moveGridItemResult)
 
+    val gridItem = requireNotNull(gridItemSource.gridItem)
+
     if (result.resultCode == Activity.RESULT_CANCELED) {
-        onDeleteGridItemCache(gridItemSource.gridItem)
+        onDeleteGridItemCache(gridItem)
 
         return
     }
@@ -306,13 +316,13 @@ internal suspend fun handleShortcutConfigLauncherResult(
         }
     }?.toUri(Intent.URI_INTENT_SCHEME)
 
-    val data = (gridItemSource.gridItem.data as? GridItemData.ShortcutConfig)
+    val data = (gridItem.data as? GridItemData.ShortcutConfig)
         ?: error("Expected GridItemData.ShortcutConfig")
 
     onUpdateShortcutConfigGridItemDataCache(
         icon,
         moveGridItemResult,
-        gridItemSource.gridItem,
+        gridItem,
         data.copy(
             shortcutIntentName = name,
             shortcutIntentUri = shortcutIntentUri,
@@ -337,8 +347,10 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
 ) {
     requireNotNull(moveGridItemResult)
 
+    val gridItem = requireNotNull(gridItemSource.gridItem)
+
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || result.resultCode == Activity.RESULT_CANCELED) {
-        onDeleteGridItemCache(gridItemSource.gridItem)
+        onDeleteGridItemCache(gridItem)
 
         return
     }
@@ -389,7 +401,7 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
             pinItemRequestType,
         )
     } else {
-        onDeleteGridItemCache(gridItemSource.gridItem)
+        onDeleteGridItemCache(gridItem)
     }
 }
 

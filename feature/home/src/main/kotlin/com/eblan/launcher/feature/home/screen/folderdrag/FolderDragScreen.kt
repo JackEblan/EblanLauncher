@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
@@ -60,7 +61,7 @@ import com.eblan.launcher.feature.home.util.getVerticalArrangement
 @Composable
 internal fun SharedTransitionScope.FolderDragScreen(
     modifier: Modifier = Modifier,
-    gridItemDataFolder: GridItemData.Folder,
+    folderGridItem: GridItem,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
     paddingValues: PaddingValues,
@@ -76,6 +77,8 @@ internal fun SharedTransitionScope.FolderDragScreen(
     drag: Drag,
     screen: Screen,
 ) {
+    val data = folderGridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
+
     val density = LocalDensity.current
 
     val leftPadding = with(density) {
@@ -109,11 +112,11 @@ internal fun SharedTransitionScope.FolderDragScreen(
     val folderGridPaddingDp = 10.dp
 
     val folderGridWidthDp = with(density) {
-        (folderCellWidth * gridItemDataFolder.columns).toDp()
+        (folderCellWidth * data.columns).toDp()
     }
 
     val folderGridHeightDp = with(density) {
-        (folderCellHeight * gridItemDataFolder.rows).toDp()
+        (folderCellHeight * data.rows).toDp()
     }
 
     val folderGridWidthPx = with(density) {
@@ -168,12 +171,12 @@ internal fun SharedTransitionScope.FolderDragScreen(
                 ) { index ->
                     FolderGridLayout(
                         modifier = Modifier.fillMaxSize(),
-                        gridItems = gridItemDataFolder.gridItemsByPage[index],
-                        columns = gridItemDataFolder.columns,
-                        rows = gridItemDataFolder.rows,
-                        { gridItem ->
+                        gridItems = data.gridItemsByPage[index],
+                        columns = data.columns,
+                        rows = data.rows,
+                        { applicationInfoGridItem ->
                             FolderGridItemContent(
-                                gridItem = gridItem,
+                                applicationInfoGridItem = applicationInfoGridItem,
                                 textColor = textColor,
                                 gridItemSettings = gridItemSettings,
                                 statusBarNotifications = statusBarNotifications,
@@ -192,7 +195,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
 @Composable
 private fun SharedTransitionScope.FolderGridItemContent(
     modifier: Modifier = Modifier,
-    gridItem: ApplicationInfoGridItem,
+    applicationInfoGridItem: ApplicationInfoGridItem,
     textColor: TextColor,
     gridItemSettings: GridItemSettings,
     statusBarNotifications: Map<String, Int>,
@@ -200,18 +203,18 @@ private fun SharedTransitionScope.FolderGridItemContent(
     drag: Drag,
     screen: Screen,
 ) {
-    val currentGridItemSettings = if (gridItem.override) {
-        gridItem.gridItemSettings
+    val currentGridItemSettings = if (applicationInfoGridItem.override) {
+        applicationInfoGridItem.gridItemSettings
     } else {
         gridItemSettings
     }
 
-    val currentTextColor = if (gridItem.override) {
+    val currentTextColor = if (applicationInfoGridItem.override) {
         getGridItemTextColor(
             systemTextColor = textColor,
             systemCustomTextColor = gridItemSettings.customTextColor,
-            gridItemTextColor = gridItem.gridItemSettings.textColor,
-            gridItemCustomTextColor = gridItem.gridItemSettings.customTextColor,
+            gridItemTextColor = applicationInfoGridItem.gridItemSettings.textColor,
+            gridItemCustomTextColor = applicationInfoGridItem.gridItemSettings.customTextColor,
         )
     } else {
         getSystemTextColor(
@@ -241,14 +244,14 @@ private fun SharedTransitionScope.FolderGridItemContent(
                 .sharedElementWithCallerManagedVisibility(
                     rememberSharedContentState(
                         key = SharedElementKey(
-                            id = gridItem.id,
+                            id = applicationInfoGridItem.id,
                             screen = screen,
                         ),
                     ),
                     visible = drag == Drag.Cancel || drag == Drag.End,
                 )
                 .fillMaxSize(),
-            gridItem = gridItem,
+            gridItem = applicationInfoGridItem,
             textColor = currentTextColor,
             gridItemSettings = currentGridItemSettings,
             statusBarNotifications = statusBarNotifications,

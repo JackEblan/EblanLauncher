@@ -2,6 +2,7 @@ package com.eblan.launcher.domain.usecase.grid
 
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.FolderGridItemWrapper
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData.Folder
 import kotlin.math.ceil
 import kotlin.math.min
@@ -11,13 +12,13 @@ private const val maxColumns = 5
 
 private const val maxRows = 4
 
-internal fun FolderGridItemWrapper.asFolder(): Folder {
+internal fun FolderGridItemWrapper.asGridItem(): GridItem {
     val gridItemsByPage = applicationInfoGridItems.getGridItemsByPage()
     val firstPageGridItems = gridItemsByPage[0] ?: emptyList()
 
     val (columns, rows) = getGridDimension(count = firstPageGridItems.size)
 
-    return Folder(
+    val data =  Folder(
         id = folderGridItem.id,
         label = folderGridItem.label,
         gridItemsByPage = gridItemsByPage,
@@ -25,6 +26,22 @@ internal fun FolderGridItemWrapper.asFolder(): Folder {
         icon = folderGridItem.icon,
         columns = columns,
         rows = rows,
+    )
+
+    return GridItem(
+        id = folderGridItem.id,
+        page = folderGridItem.page,
+        startColumn = folderGridItem.startColumn,
+        startRow = folderGridItem.startRow,
+        columnSpan = folderGridItem.columnSpan,
+        rowSpan = folderGridItem.rowSpan,
+        data = data,
+        associate = folderGridItem.associate,
+        override = folderGridItem.override,
+        gridItemSettings = folderGridItem.gridItemSettings,
+        doubleTap = folderGridItem.doubleTap,
+        swipeUp = folderGridItem.swipeUp,
+        swipeDown = folderGridItem.swipeDown
     )
 }
 

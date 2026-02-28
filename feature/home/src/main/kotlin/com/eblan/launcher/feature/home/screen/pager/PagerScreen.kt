@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
@@ -69,7 +70,6 @@ import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.domain.model.TextColor
@@ -118,7 +118,7 @@ internal fun SharedTransitionScope.PagerScreen(
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     folderGridHorizontalPagerState: PagerState,
-    gridItemDataFolder: GridItemData.Folder?,
+    folderGridItem: GridItem?,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
     onDraggingGridItem: (
@@ -389,7 +389,7 @@ internal fun SharedTransitionScope.PagerScreen(
         iconPackFilePaths = iconPackFilePaths,
         isPressHome = isPressHome,
         screen = screen,
-        gridItemDataFolder = gridItemDataFolder,
+        folderGridItem = folderGridItem,
         folderGridHorizontalPagerState = folderGridHorizontalPagerState,
         screenWidth = screenWidth,
         screenHeight = screenHeight,

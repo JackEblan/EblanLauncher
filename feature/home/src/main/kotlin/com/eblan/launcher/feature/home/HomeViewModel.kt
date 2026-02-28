@@ -24,6 +24,7 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
@@ -48,6 +49,7 @@ import com.eblan.launcher.domain.usecase.application.GetEblanShortcutInfosUseCas
 import com.eblan.launcher.domain.usecase.application.UpdateEblanApplicationInfosIndexesUseCase
 import com.eblan.launcher.domain.usecase.grid.GetFolderGridItemsByIdUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
+import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterMoveUseCase
@@ -110,6 +112,7 @@ internal class HomeViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val updateEblanApplicationInfosIndexesUseCase: UpdateEblanApplicationInfosIndexesUseCase,
     getFolderGridItemsByIdUseCase: GetFolderGridItemsByIdUseCase,
+    private val moveFolderGridItemUseCase: MoveFolderGridItemUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -217,7 +220,7 @@ internal class HomeViewModel @Inject constructor(
 
     private val _folderGridItemId = MutableStateFlow<String?>(null)
 
-    val gridItemDataFolder = getFolderGridItemsByIdUseCase(idFlow = _folderGridItemId).stateIn(
+    val folderGridItem = getFolderGridItemsByIdUseCase(idFlow = _folderGridItemId).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = null,
@@ -625,6 +628,32 @@ internal class HomeViewModel @Inject constructor(
     fun updateFolderGridItemId(id: String?) {
         _folderGridItemId.update {
             id
+        }
+    }
+
+    fun moveFolderGridItem(
+        folderGridItem: GridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        dragX: Int,
+        dragY: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+    ) {
+        viewModelScope.launch {
+            moveFolderGridItemUseCase(
+                folderGridItem = folderGridItem,
+                applicationInfoGridItems = applicationInfoGridItems,
+                movingApplicationInfoGridItem = movingApplicationInfoGridItem,
+                dragX = dragX,
+                dragY = dragY,
+                columns = columns,
+                rows = rows,
+                gridWidth = gridWidth,
+                gridHeight = gridHeight,
+            )
         }
     }
 }

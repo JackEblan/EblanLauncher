@@ -241,8 +241,6 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 launcherApps.profiles.filter { userHandle ->
                     isUserAvailable(userHandle = userHandle)
-                }.filter { userHandle ->
-                    isUserAvailable(userHandle = userHandle)
                 }.flatMap { userHandle ->
                     currentCoroutineContext().ensureActive()
 

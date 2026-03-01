@@ -19,5 +19,5 @@ package com.eblan.launcher.feature.home.model
 
 internal data class SharedElementKey(
     val id: String,
-    val screen: Screen,
+    val screen: Any,
 )

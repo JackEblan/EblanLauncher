@@ -38,8 +38,6 @@ import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
-import com.eblan.launcher.feature.home.model.Screen
-import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import kotlinx.coroutines.delay
 
@@ -157,7 +155,6 @@ internal suspend fun handleDragGridItem(
     gridItemSource: GridItemSource,
     paddingValues: PaddingValues,
     lockMovement: Boolean,
-    screen: Screen,
     folderGridItem: GridItem?,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
@@ -172,7 +169,6 @@ internal suspend fun handleDragGridItem(
         gridHeight: Int,
         lockMovement: Boolean,
     ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateAssociate: (Associate) -> Unit,
     onMoveFolderGridItem: (
         folderGridItem: GridItem,
@@ -252,11 +248,9 @@ internal suspend fun handleDragGridItem(
                     currentPage = currentPage,
                     dragX = dragX,
                     gridItemSource = gridItemSource,
-                    screen = screen,
                     lockMovement = lockMovement,
                     onUpdateAssociate = onUpdateAssociate,
                     onMoveGridItem = onMoveGridItem,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             } else {
                 handleDragGridItem(
@@ -270,11 +264,9 @@ internal suspend fun handleDragGridItem(
                     dragX = dragX,
                     dragY = dragY,
                     gridItemSource = gridItemSource,
-                    screen = screen,
                     lockMovement = lockMovement,
                     onUpdateAssociate = onUpdateAssociate,
                     onMoveGridItem = onMoveGridItem,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
@@ -294,9 +286,7 @@ internal suspend fun handleDragGridItem(
                 lockMovement = lockMovement,
                 gridItemSource = gridItemSource,
                 folderCurrentPage = folderCurrentPage,
-                screen = screen,
                 onMoveFolderGridItem = onMoveFolderGridItem,
-                onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
                 onUpdateGridItemSource = onUpdateGridItemSource,
             )
@@ -318,7 +308,6 @@ private suspend fun handleDragFolderGridItem(
     lockMovement: Boolean,
     gridItemSource: GridItemSource?,
     folderCurrentPage: Int,
-    screen: Screen,
     onMoveFolderGridItem: (
         folderGridItem: GridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
@@ -331,7 +320,6 @@ private suspend fun handleDragFolderGridItem(
         gridHeight: Int,
         currentPage: Int,
     ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onMoveFolderGridItemOutsideFolder: (
         folderGridItem: GridItem,
         movingApplicationInfoGridItem: ApplicationInfoGridItem,
@@ -380,12 +368,12 @@ private suspend fun handleDragFolderGridItem(
             folderDragY in 0..folderGridVisibleHeightPx
 
     if (isInsideFolder) {
-        onUpdateSharedElementKey(
-            SharedElementKey(
-                id = gridItemSourceFolder.applicationInfoGridItem.id,
-                screen = screen,
-            ),
-        )
+//        onUpdateSharedElementKey(
+//            SharedElementKey(
+//                id = gridItemSourceFolder.applicationInfoGridItem.id,
+//                screen = screen,
+//            ),
+//        )
 
         onMoveFolderGridItem(
             gridItemSource.gridItem,
@@ -449,7 +437,6 @@ private suspend fun handleDragGridItem(
     dragX: Int,
     dragY: Int,
     gridItemSource: GridItemSource,
-    screen: Screen,
     lockMovement: Boolean,
     onUpdateAssociate: (Associate) -> Unit,
     onMoveGridItem: (
@@ -462,7 +449,6 @@ private suspend fun handleDragGridItem(
         gridHeight: Int,
         lockMovement: Boolean,
     ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val gridItem = requireNotNull(gridItemSource.gridItem)
 
@@ -498,12 +484,12 @@ private suspend fun handleDragGridItem(
     )
 
     if (isGridItemSpanWithinBounds) {
-        onUpdateSharedElementKey(
-            SharedElementKey(
-                id = moveGridItem.id,
-                screen = screen,
-            ),
-        )
+//        onUpdateSharedElementKey(
+//            SharedElementKey(
+//                id = moveGridItem.id,
+//                screen = screen,
+//            ),
+//        )
 
         onMoveGridItem(
             moveGridItem,
@@ -528,7 +514,6 @@ private suspend fun handleDragDockGridItem(
     currentPage: Int,
     gridItemSource: GridItemSource,
     dragX: Int,
-    screen: Screen,
     lockMovement: Boolean,
     onUpdateAssociate: (Associate) -> Unit,
     onMoveGridItem: (
@@ -541,7 +526,6 @@ private suspend fun handleDragDockGridItem(
         gridHeight: Int,
         lockMovement: Boolean,
     ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val gridItem = requireNotNull(gridItemSource.gridItem)
 
@@ -577,13 +561,6 @@ private suspend fun handleDragDockGridItem(
     )
 
     if (isGridItemSpanWithinBounds) {
-        onUpdateSharedElementKey(
-            SharedElementKey(
-                id = moveGridItem.id,
-                screen = screen,
-            ),
-        )
-
         onMoveGridItem(
             moveGridItem,
             dragX,

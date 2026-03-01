@@ -52,6 +52,7 @@ import com.eblan.launcher.feature.home.component.grid.ApplicationInfoFolderGridI
 import com.eblan.launcher.feature.home.component.grid.FolderGridLayout
 import com.eblan.launcher.feature.home.component.grid.WhiteBox
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.FolderScreen
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
@@ -263,7 +264,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
                         rememberSharedContentState(
                             key = SharedElementKey(
                                 id = applicationInfoGridItem.id,
-                                screen = screen,
+                                screen = FolderScreen.Drag,
                             ),
                         ),
                         visible = drag == Drag.Cancel || drag == Drag.End,

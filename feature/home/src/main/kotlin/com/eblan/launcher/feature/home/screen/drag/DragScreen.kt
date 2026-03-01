@@ -63,6 +63,7 @@ import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.FolderScreen
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
@@ -274,13 +275,11 @@ internal fun SharedTransitionScope.DragScreen(
             gridItemSource = gridItemSource,
             paddingValues = paddingValues,
             lockMovement = lockMovement,
-            screen = screen,
             folderGridItem = folderGridItem,
             folderPopupIntOffset = folderPopupIntOffset,
             folderPopupIntSize = folderPopupIntSize,
             folderCurrentPage = folderGridHorizontalPagerState.currentPage,
             onMoveGridItem = onMoveGridItem,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
             onUpdateAssociate = onUpdateAssociate,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
@@ -434,6 +433,28 @@ internal fun SharedTransitionScope.DragScreen(
             pageDirection = folderPageDirection,
             pagerState = folderGridHorizontalPagerState,
         )
+    }
+
+    LaunchedEffect(key1 = gridItemSource) {
+        when (gridItemSource) {
+            is GridItemSource.Existing, is GridItemSource.New, is GridItemSource.Pin -> {
+                onUpdateSharedElementKey(
+                    SharedElementKey(
+                        id = gridItemSource.gridItem.id,
+                        screen = screen,
+                    ),
+                )
+            }
+
+            is GridItemSource.Folder -> {
+                onUpdateSharedElementKey(
+                    SharedElementKey(
+                        id = gridItemSource.applicationInfoGridItem.id,
+                        screen = FolderScreen.Drag,
+                    ),
+                )
+            }
+        }
     }
 
     Column(

@@ -131,7 +131,7 @@ internal fun FolderGridItemPopup(
     onDismissRequest: () -> Unit,
 ) {
     val gridItemSourceFolder =
-        gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemSource.Folder")
+        gridItemSource as? GridItemSource.Folder ?: return
 
     val density = LocalDensity.current
 

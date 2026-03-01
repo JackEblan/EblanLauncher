@@ -42,7 +42,6 @@ import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
@@ -56,7 +55,6 @@ internal class DefaultGridRepository @Inject constructor(
     private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
-    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : GridRepository {
     override val gridItems: Flow<List<GridItem>> = combine(
         applicationInfoGridItemRepository.gridItems,
@@ -65,7 +63,7 @@ internal class DefaultGridRepository @Inject constructor(
         shortcutConfigGridItemRepository.gridItems,
     ) { applicationInfoGridItems, widgetGridItems, shortcutInfoGridItems, shortcutConfigGridItems ->
         (applicationInfoGridItems + widgetGridItems + shortcutInfoGridItems + shortcutConfigGridItems)
-    }.flowOn(defaultDispatcher)
+    }
 
     override suspend fun updateGridItem(gridItem: GridItem) {
         when (val data = gridItem.data) {

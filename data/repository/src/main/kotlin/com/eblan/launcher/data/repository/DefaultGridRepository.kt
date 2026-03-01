@@ -196,6 +196,8 @@ internal class DefaultGridRepository @Inject constructor(
     override suspend fun updateGridItems(gridItems: List<GridItem>) {
         val applicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
 
+        val folderApplicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
+
         val widgetGridItems = mutableListOf<WidgetGridItem>()
 
         val shortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()
@@ -217,7 +219,7 @@ internal class DefaultGridRepository @Inject constructor(
                         gridItem.asFolderGridItem(data = data),
                     )
 
-                    applicationInfoGridItems.addAll(data.gridItems)
+                    folderApplicationInfoGridItems.addAll(data.gridItems)
                 }
 
                 is GridItemData.Widget -> {
@@ -242,6 +244,10 @@ internal class DefaultGridRepository @Inject constructor(
 
         applicationInfoGridItemRepository.upsertApplicationInfoGridItems(
             applicationInfoGridItems = applicationInfoGridItems,
+        )
+
+        applicationInfoGridItemRepository.upsertApplicationInfoGridItems(
+            applicationInfoGridItems = folderApplicationInfoGridItems,
         )
 
         widgetGridItemRepository.upsertWidgetGridItems(widgetGridItems = widgetGridItems)

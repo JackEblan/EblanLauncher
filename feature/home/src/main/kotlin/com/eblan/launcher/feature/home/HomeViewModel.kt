@@ -55,6 +55,7 @@ import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemOutsideFolderUse
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.ResizeGridItemUseCase
+import com.eblan.launcher.domain.usecase.grid.ShowFolderWhenDraggingUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterMoveUseCase
 import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterResizeUseCase
 import com.eblan.launcher.domain.usecase.iconpack.GetIconPackFilePathsUseCase
@@ -119,6 +120,7 @@ internal class HomeViewModel @Inject constructor(
     getFolderGridItemsCacheByIdUseCase: GetFolderGridItemsCacheByIdUseCase,
     private val moveFolderGridItemOutsideFolderUseCase: MoveFolderGridItemOutsideFolderUseCase,
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
+    private val showFolderWhenDraggingUseCase: ShowFolderWhenDraggingUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -713,11 +715,14 @@ internal class HomeViewModel @Inject constructor(
         movingGridItem: GridItem,
     ) {
         viewModelScope.launch {
+            showFolderWhenDraggingUseCase(
+                id = id,
+                movingGridItem = movingGridItem,
+            )
+
             _folderGridItemId.update {
                 id
             }
-
-            gridCacheRepository.deleteGridItem(gridItem = movingGridItem)
         }
     }
 

@@ -57,6 +57,7 @@ import com.eblan.launcher.feature.home.model.FolderScreen
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.folder.FolderTitle
+import com.eblan.launcher.feature.home.screen.folder.getFolderScreenOffset
 import com.eblan.launcher.feature.home.util.FOLDER_GRID_PADDING
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
@@ -141,18 +142,13 @@ internal fun SharedTransitionScope.FolderDragScreen(
         Surface(
             modifier = Modifier
                 .offset {
-                    val centeredX =
-                        folderPopupIntOffset.x + (folderPopupIntSize.width / 2) - (folderGridWidthPx / 2)
-
-                    val centeredY =
-                        folderPopupIntOffset.y + (folderPopupIntSize.height / 2) - (folderGridHeightPx / 2)
-
-                    val popupX = centeredX.coerceIn(0, safeDrawingWidth - folderGridWidthPx)
-                    val popupY = centeredY.coerceIn(0, safeDrawingHeight - folderGridHeightPx)
-
-                    IntOffset(
-                        x = popupX,
-                        y = popupY,
+                    getFolderScreenOffset(
+                        folderPopupIntOffset = folderPopupIntOffset,
+                        folderPopupIntSize = folderPopupIntSize,
+                        folderGridWidthPx = folderGridWidthPx,
+                        folderGridHeightPx = folderGridHeightPx,
+                        safeDrawingWidth = safeDrawingWidth,
+                        safeDrawingHeight = safeDrawingHeight
                     )
                 }
                 .size(

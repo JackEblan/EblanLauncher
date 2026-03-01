@@ -201,18 +201,13 @@ internal fun SharedTransitionScope.FolderScreen(
         Surface(
             modifier = Modifier
                 .offset {
-                    val centeredX =
-                        folderPopupIntOffset.x + (folderPopupIntSize.width / 2) - (folderGridWidthPx / 2)
-
-                    val centeredY =
-                        folderPopupIntOffset.y + (folderPopupIntSize.height / 2) - (folderGridHeightPx / 2)
-
-                    val popupX = centeredX.coerceIn(0, safeDrawingWidth - folderGridWidthPx)
-                    val popupY = centeredY.coerceIn(0, safeDrawingHeight - folderGridHeightPx)
-
-                    IntOffset(
-                        x = popupX,
-                        y = popupY,
+                    getFolderScreenOffset(
+                        folderPopupIntOffset = folderPopupIntOffset,
+                        folderPopupIntSize = folderPopupIntSize,
+                        folderGridWidthPx = folderGridWidthPx,
+                        folderGridHeightPx = folderGridHeightPx,
+                        safeDrawingWidth = safeDrawingWidth,
+                        safeDrawingHeight = safeDrawingHeight
                     )
                 }
                 .size(

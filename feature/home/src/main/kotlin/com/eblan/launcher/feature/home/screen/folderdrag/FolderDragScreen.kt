@@ -78,7 +78,6 @@ internal fun SharedTransitionScope.FolderDragScreen(
     gridItemSettings: GridItemSettings,
     statusBarNotifications: Map<String, Int>,
     iconPackFilePaths: Map<String, String>,
-    onDismissRequest: () -> Unit,
     drag: Drag,
     gridItemSource: GridItemSource,
     onUpdateFolderTitleHeight: (Int) -> Unit,
@@ -136,15 +135,6 @@ internal fun SharedTransitionScope.FolderDragScreen(
 
     Box(
         modifier = modifier
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = {
-                        awaitRelease()
-
-                        onDismissRequest()
-                    },
-                )
-            }
             .fillMaxSize()
             .padding(paddingValues),
     ) {

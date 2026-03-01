@@ -129,8 +129,7 @@ internal fun FolderGridItemPopup(
     onDeleteApplicationInfoGridItem: (ApplicationInfoGridItem) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    val gridItemSourceFolder =
-        gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemData.Folder")
+    val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder ?: return
 
     val density = LocalDensity.current
 

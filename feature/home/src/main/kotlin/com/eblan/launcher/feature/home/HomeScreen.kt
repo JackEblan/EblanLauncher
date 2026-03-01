@@ -981,7 +981,6 @@ private fun SharedTransitionScope.Success(
                         associate = newAssociate
                     },
                     onResetConfigureResultCode = onResetConfigureResultCode,
-                    onUpdateFolderGridItemId = onUpdateFolderGridItemId,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEndAfterMoveFolder = onResetGridCacheAfterMoveFolder,
                     onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,

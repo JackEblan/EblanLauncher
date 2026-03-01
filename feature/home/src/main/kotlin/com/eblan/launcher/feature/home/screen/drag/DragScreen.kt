@@ -141,7 +141,6 @@ internal fun SharedTransitionScope.DragScreen(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateAssociate: (Associate) -> Unit,
     onResetConfigureResultCode: () -> Unit,
-    onUpdateFolderGridItemId: (String?) -> Unit,
     onMoveFolderGridItem: (
         folderGridItem: GridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
@@ -581,9 +580,6 @@ internal fun SharedTransitionScope.DragScreen(
             iconPackFilePaths = iconPackFilePaths,
             drag = drag,
             gridItemSource = gridItemSource,
-            onDismissRequest = {
-                onUpdateFolderGridItemId(null)
-            },
             onUpdateFolderTitleHeight = { newFolderTitleHeightPx ->
                 folderTitleHeightPx = newFolderTitleHeightPx
             },

@@ -279,31 +279,49 @@ internal fun FolderTitle(
     homeSettings: HomeSettings,
     folderGridHorizontalPagerState: PagerState,
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(5.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            text = data.label,
-            color = getSystemTextColor(
-                systemTextColor = textColor,
-                systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
-            ),
-            style = MaterialTheme.typography.bodySmall,
-        )
+    if (data.gridItemsByPage.size > 1) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = data.label,
+                color = getSystemTextColor(
+                    systemTextColor = textColor,
+                    systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
+                ),
+                style = MaterialTheme.typography.bodySmall,
+            )
 
-        PageIndicator(
-            modifier = Modifier.height(PAGE_INDICATOR_HEIGHT),
-            gridHorizontalPagerState = folderGridHorizontalPagerState,
-            infiniteScroll = false,
-            pageCount = data.gridItemsByPage.size,
-            color = getSystemTextColor(
-                systemTextColor = textColor,
-                systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
-            ),
-        )
+            PageIndicator(
+                modifier = Modifier.height(PAGE_INDICATOR_HEIGHT),
+                gridHorizontalPagerState = folderGridHorizontalPagerState,
+                infiniteScroll = false,
+                pageCount = data.gridItemsByPage.size,
+                color = getSystemTextColor(
+                    systemTextColor = textColor,
+                    systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
+                ),
+            )
+        }
+    } else {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = data.label,
+                color = getSystemTextColor(
+                    systemTextColor = textColor,
+                    systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
+                ),
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
 }
 

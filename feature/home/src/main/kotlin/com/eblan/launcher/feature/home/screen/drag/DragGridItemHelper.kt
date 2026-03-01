@@ -41,6 +41,7 @@ import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.util.FOLDER_GRID_PADDING
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import kotlinx.coroutines.delay
+import kotlin.error
 
 internal fun handleAnimateScrollToPage(
     density: Density,
@@ -329,9 +330,9 @@ private suspend fun handleDragFolderGridItem(
     ) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
-    val data = folderGridItem?.data as? GridItemData.Folder ?: return
+    val data = folderGridItem?.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
 
-    val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder ?: return
+    val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemData.Folder")
 
     if (lockMovement) return
 
@@ -477,13 +478,6 @@ private suspend fun handleDragGridItem(
     )
 
     if (isGridItemSpanWithinBounds) {
-//        onUpdateSharedElementKey(
-//            SharedElementKey(
-//                id = moveGridItem.id,
-//                screen = screen,
-//            ),
-//        )
-
         onMoveGridItem(
             moveGridItem,
             dragX,

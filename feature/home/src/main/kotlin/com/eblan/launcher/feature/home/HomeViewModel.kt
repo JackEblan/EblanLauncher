@@ -680,14 +680,16 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
-            val gridItems = gridCacheRepository.gridItemsCache.first().toMutableList()
-
-            gridRepository.updateGridItems(gridItems = gridItems)
+            gridRepository.updateGridItems(gridItems = gridCacheRepository.gridItemsCache.first())
 
             delay(defaultDelay)
 
             _screen.update {
                 Screen.Pager
+            }
+
+            _moveGridItemResult.update {
+                null
             }
         }
     }

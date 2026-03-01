@@ -38,6 +38,7 @@ import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
+import com.eblan.launcher.feature.home.util.FOLDER_GRID_PADDING
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import kotlinx.coroutines.delay
 
@@ -109,10 +110,8 @@ internal fun handleAnimateScrollToPage(
 
             val folderCellWidth = safeDrawingWidth / columns
 
-            val folderGridPaddingDp = 10.dp
-
             val folderGridPaddingPx = with(density) {
-                folderGridPaddingDp.roundToPx()
+                FOLDER_GRID_PADDING.roundToPx()
             }
 
             val folderGridWidthPx = folderCellWidth * data.columns
@@ -340,10 +339,8 @@ private suspend fun handleDragFolderGridItem(
 
     val folderCellHeight = safeDrawingHeight / rows
 
-    val folderGridPaddingDp = 10.dp
-
     val folderGridPaddingPx = with(density) {
-        folderGridPaddingDp.roundToPx()
+        FOLDER_GRID_PADDING.roundToPx()
     }
 
     val folderGridWidthPx = folderCellWidth * data.columns

@@ -107,3 +107,4 @@ internal const val KUSTOM_ACTION_VAR_VALUE = "org.kustom.action.VAR_VALUE"
 
 internal val PAGE_INDICATOR_HEIGHT = 30.dp
 internal val DRAG_HANDLE_SIZE = 30.dp
+internal val FOLDER_GRID_PADDING = 10.dp

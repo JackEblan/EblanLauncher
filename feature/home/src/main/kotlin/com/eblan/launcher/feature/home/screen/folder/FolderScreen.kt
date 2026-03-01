@@ -74,6 +74,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.FolderScreen
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.util.FOLDER_GRID_PADDING
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -142,8 +143,6 @@ internal fun SharedTransitionScope.FolderScreen(
 
     val folderCellHeight = safeDrawingHeight / homeSettings.rows
 
-    val folderGridPaddingDp = 10.dp
-
     val folderGridWidthDp = with(density) {
         (folderCellWidth * data.columns).toDp()
     }
@@ -195,7 +194,7 @@ internal fun SharedTransitionScope.FolderScreen(
                     width = folderGridWidthDp,
                     height = folderGridHeightDp,
                 )
-                .padding(folderGridPaddingDp),
+                .padding(FOLDER_GRID_PADDING),
             shape = RoundedCornerShape(5.dp),
             shadowElevation = 2.dp,
             content = {

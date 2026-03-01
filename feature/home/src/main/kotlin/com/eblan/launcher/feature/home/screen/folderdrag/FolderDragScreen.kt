@@ -54,8 +54,8 @@ import com.eblan.launcher.feature.home.component.grid.WhiteBox
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.FolderScreen
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.util.FOLDER_GRID_PADDING
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -78,7 +78,6 @@ internal fun SharedTransitionScope.FolderDragScreen(
     iconPackFilePaths: Map<String, String>,
     onDismissRequest: () -> Unit,
     drag: Drag,
-    screen: Screen,
     gridItemSource: GridItemSource,
 ) {
     val data = folderGridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
@@ -115,8 +114,6 @@ internal fun SharedTransitionScope.FolderDragScreen(
     val folderCellWidth = safeDrawingWidth / homeSettings.columns
 
     val folderCellHeight = safeDrawingHeight / homeSettings.rows
-
-    val folderGridPaddingDp = 10.dp
 
     val folderGridWidthDp = with(density) {
         (folderCellWidth * data.columns).toDp()
@@ -169,7 +166,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
                     width = folderGridWidthDp,
                     height = folderGridHeightDp,
                 )
-                .padding(folderGridPaddingDp),
+                .padding(FOLDER_GRID_PADDING),
             shape = RoundedCornerShape(5.dp),
             shadowElevation = 2.dp,
             content = {
@@ -189,7 +186,6 @@ internal fun SharedTransitionScope.FolderDragScreen(
                                 statusBarNotifications = statusBarNotifications,
                                 iconPackFilePaths = iconPackFilePaths,
                                 drag = drag,
-                                screen = screen,
                                 gridItemSourceFolder = gridItemSourceFolder,
                             )
                         },
@@ -209,7 +205,6 @@ private fun SharedTransitionScope.FolderGridItemContent(
     statusBarNotifications: Map<String, Int>,
     iconPackFilePaths: Map<String, String>,
     drag: Drag,
-    screen: Screen,
     gridItemSourceFolder: GridItemSource.Folder,
 ) {
     val currentGridItemSettings = if (applicationInfoGridItem.override) {

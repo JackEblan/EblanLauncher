@@ -308,7 +308,7 @@ private suspend fun handleDragFolderGridItem(
     dragX: Int,
     dragY: Int,
     lockMovement: Boolean,
-    gridItemSource: GridItemSource?,
+    gridItemSource: GridItemSource,
     folderCurrentPage: Int,
     folderTitleHeightPx: Int,
     onMoveFolderGridItem: (
@@ -330,7 +330,9 @@ private suspend fun handleDragFolderGridItem(
     ) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
-    val data = folderGridItem?.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
+    requireNotNull(folderGridItem)
+
+    val data = folderGridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
 
     val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemData.Folder")
 

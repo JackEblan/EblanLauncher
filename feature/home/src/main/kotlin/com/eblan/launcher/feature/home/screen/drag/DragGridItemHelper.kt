@@ -158,6 +158,7 @@ internal suspend fun handleDragGridItem(
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
     folderCurrentPage: Int,
+    folderTitleHeightPx: Int,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -285,6 +286,7 @@ internal suspend fun handleDragGridItem(
                 lockMovement = lockMovement,
                 gridItemSource = gridItemSource,
                 folderCurrentPage = folderCurrentPage,
+                folderTitleHeightPx = folderTitleHeightPx,
                 onMoveFolderGridItem = onMoveFolderGridItem,
                 onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
                 onUpdateGridItemSource = onUpdateGridItemSource,
@@ -307,6 +309,7 @@ private suspend fun handleDragFolderGridItem(
     lockMovement: Boolean,
     gridItemSource: GridItemSource?,
     folderCurrentPage: Int,
+    folderTitleHeightPx: Int,
     onMoveFolderGridItem: (
         folderGridItem: GridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
@@ -359,7 +362,8 @@ private suspend fun handleDragFolderGridItem(
     val folderDragY = dragY - popupY - folderGridPaddingPx
 
     val folderGridVisibleWidthPx = folderGridWidthPx - (folderGridPaddingPx * 2)
-    val folderGridVisibleHeightPx = folderGridHeightPx - (folderGridPaddingPx * 2)
+    val folderGridVisibleHeightPx =
+        (folderGridHeightPx - folderTitleHeightPx) - (folderGridPaddingPx * 2)
 
     val isInsideFolder = folderDragX in 0..folderGridVisibleWidthPx &&
             folderDragY in 0..folderGridVisibleHeightPx
@@ -374,7 +378,7 @@ private suspend fun handleDragFolderGridItem(
             data.columns,
             data.rows,
             folderGridWidthPx,
-            folderGridHeightPx,
+            folderGridHeightPx - folderTitleHeightPx,
             folderCurrentPage,
         )
     } else {

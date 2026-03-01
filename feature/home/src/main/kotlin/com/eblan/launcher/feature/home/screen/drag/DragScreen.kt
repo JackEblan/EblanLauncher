@@ -258,6 +258,8 @@ internal fun SharedTransitionScope.DragScreen(
         }
     }
 
+    var folderTitleHeightPx by remember { mutableIntStateOf(0) }
+
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleDragGridItem(
             density = density,
@@ -279,6 +281,7 @@ internal fun SharedTransitionScope.DragScreen(
             folderPopupIntOffset = folderPopupIntOffset,
             folderPopupIntSize = folderPopupIntSize,
             folderCurrentPage = folderGridHorizontalPagerState.currentPage,
+            folderTitleHeightPx = folderTitleHeightPx,
             onMoveGridItem = onMoveGridItem,
             onUpdateAssociate = onUpdateAssociate,
             onMoveFolderGridItem = onMoveFolderGridItem,
@@ -580,6 +583,9 @@ internal fun SharedTransitionScope.DragScreen(
             gridItemSource = gridItemSource,
             onDismissRequest = {
                 onUpdateFolderGridItemId(null)
+            },
+            onUpdateFolderTitleHeight = { newFolderTitleHeightPx ->
+                folderTitleHeightPx = newFolderTitleHeightPx
             },
         )
     }

@@ -34,9 +34,14 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -55,6 +60,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.FolderScreen
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.screen.folder.FolderTitle
 import com.eblan.launcher.feature.home.util.FOLDER_GRID_PADDING
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
@@ -79,6 +85,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
     onDismissRequest: () -> Unit,
     drag: Drag,
     gridItemSource: GridItemSource,
+    onUpdateFolderTitleHeight: (Int) -> Unit,
 ) {
     val data = folderGridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
 
@@ -170,25 +177,38 @@ internal fun SharedTransitionScope.FolderDragScreen(
             shape = RoundedCornerShape(5.dp),
             shadowElevation = 2.dp,
             content = {
-                HorizontalPager(
-                    state = folderGridHorizontalPagerState,
-                ) { index ->
-                    FolderGridLayout(
-                        modifier = Modifier.fillMaxSize(),
-                        gridItems = data.gridItemsByPage[index],
-                        columns = data.columns,
-                        rows = data.rows,
-                        { applicationInfoGridItem ->
-                            FolderGridItemContent(
-                                applicationInfoGridItem = applicationInfoGridItem,
-                                textColor = textColor,
-                                gridItemSettings = gridItemSettings,
-                                statusBarNotifications = statusBarNotifications,
-                                iconPackFilePaths = iconPackFilePaths,
-                                drag = drag,
-                                gridItemSourceFolder = gridItemSourceFolder,
-                            )
+                Column(modifier = Modifier.fillMaxSize()) {
+                    HorizontalPager(
+                        modifier = Modifier.weight(1f),
+                        state = folderGridHorizontalPagerState,
+                    ) { index ->
+                        FolderGridLayout(
+                            modifier = Modifier.fillMaxSize(),
+                            gridItems = data.gridItemsByPage[index],
+                            columns = data.columns,
+                            rows = data.rows,
+                            { applicationInfoGridItem ->
+                                FolderGridItemContent(
+                                    applicationInfoGridItem = applicationInfoGridItem,
+                                    textColor = textColor,
+                                    gridItemSettings = gridItemSettings,
+                                    statusBarNotifications = statusBarNotifications,
+                                    iconPackFilePaths = iconPackFilePaths,
+                                    drag = drag,
+                                    gridItemSourceFolder = gridItemSourceFolder,
+                                )
+                            },
+                        )
+                    }
+
+                    FolderTitle(
+                        modifier = Modifier.onSizeChanged { intSize ->
+                            onUpdateFolderTitleHeight(intSize.height)
                         },
+                        data = data,
+                        textColor = textColor,
+                        homeSettings = homeSettings,
+                        folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     )
                 }
             },
@@ -233,8 +253,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
         getVerticalArrangement(verticalArrangement = currentGridItemSettings.verticalArrangement)
 
     val isDragging =
-        (drag == Drag.Start || drag == Drag.Dragging) &&
-                gridItemSourceFolder.applicationInfoGridItem.id == applicationInfoGridItem.id
+        (drag == Drag.Start || drag == Drag.Dragging) && gridItemSourceFolder.applicationInfoGridItem.id == applicationInfoGridItem.id
 
     if (isDragging) {
         WhiteBox(

@@ -22,19 +22,25 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -70,11 +76,13 @@ import com.eblan.launcher.feature.home.component.grid.ApplicationInfoFolderGridI
 import com.eblan.launcher.feature.home.component.grid.FolderGridLayout
 import com.eblan.launcher.feature.home.component.grid.onDoubleTap
 import com.eblan.launcher.feature.home.component.grid.swipeGestures
+import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.FolderScreen
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.FOLDER_GRID_PADDING
+import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -198,40 +206,86 @@ internal fun SharedTransitionScope.FolderScreen(
             shape = RoundedCornerShape(5.dp),
             shadowElevation = 2.dp,
             content = {
-                HorizontalPager(
-                    state = folderGridHorizontalPagerState,
-                ) { index ->
-                    FolderGridLayout(
-                        modifier = Modifier.fillMaxSize(),
-                        gridItems = data.gridItemsByPage[index],
-                        columns = data.columns,
-                        rows = data.rows,
-                        { applicationInfoGridItem ->
-                            FolderGridItemContent(
-                                gridItem = applicationInfoGridItem,
-                                textColor = textColor,
-                                gridItemSettings = gridItemSettings,
-                                statusBarNotifications = statusBarNotifications,
-                                iconPackFilePaths = iconPackFilePaths,
-                                drag = drag,
-                                onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                onUpdateImageBitmap = { imageBitmap ->
-                                    onLongPressGridItem(
-                                        GridItemSource.Folder(
-                                            gridItem = folderGridItem,
-                                            applicationInfoGridItem = applicationInfoGridItem,
-                                        ),
-                                        imageBitmap,
-                                    )
-                                },
-                                onDraggingGridItem = onDraggingGridItem,
-                                onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                onOpenAppDrawer = onOpenAppDrawer,
-                            )
-                        },
+                Column(modifier = Modifier.fillMaxSize()) {
+                    HorizontalPager(
+                        modifier = Modifier.weight(1f),
+                        state = folderGridHorizontalPagerState,
+                    ) { index ->
+                        FolderGridLayout(
+                            modifier = Modifier.fillMaxSize(),
+                            gridItems = data.gridItemsByPage[index],
+                            columns = data.columns,
+                            rows = data.rows,
+                            { applicationInfoGridItem ->
+                                FolderGridItemContent(
+                                    gridItem = applicationInfoGridItem,
+                                    textColor = textColor,
+                                    gridItemSettings = gridItemSettings,
+                                    statusBarNotifications = statusBarNotifications,
+                                    iconPackFilePaths = iconPackFilePaths,
+                                    drag = drag,
+                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                                    onUpdateImageBitmap = { imageBitmap ->
+                                        onLongPressGridItem(
+                                            GridItemSource.Folder(
+                                                gridItem = folderGridItem,
+                                                applicationInfoGridItem = applicationInfoGridItem,
+                                            ),
+                                            imageBitmap,
+                                        )
+                                    },
+                                    onDraggingGridItem = onDraggingGridItem,
+                                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                    onOpenAppDrawer = onOpenAppDrawer,
+                                )
+                            },
+                        )
+                    }
+
+                    FolderTitle(
+                        data = data,
+                        textColor = textColor,
+                        homeSettings = homeSettings,
+                        folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     )
                 }
             },
+        )
+    }
+}
+
+@Composable
+internal fun FolderTitle(
+    modifier: Modifier = Modifier,
+    data: GridItemData.Folder,
+    textColor: TextColor,
+    homeSettings: HomeSettings,
+    folderGridHorizontalPagerState: PagerState,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(5.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = data.label,
+            color = getSystemTextColor(
+                systemTextColor = textColor,
+                systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
+            ),
+            style = MaterialTheme.typography.bodySmall,
+        )
+
+        PageIndicator(
+            modifier = Modifier.height(PAGE_INDICATOR_HEIGHT),
+            gridHorizontalPagerState = folderGridHorizontalPagerState,
+            infiniteScroll = false,
+            pageCount = data.gridItemsByPage.size,
+            color = getSystemTextColor(
+                systemTextColor = textColor,
+                systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
+            ),
         )
     }
 }

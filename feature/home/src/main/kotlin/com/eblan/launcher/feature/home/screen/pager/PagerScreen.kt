@@ -30,8 +30,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -47,11 +45,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
@@ -165,8 +161,6 @@ internal fun SharedTransitionScope.PagerScreen(
 ) {
     val context = LocalContext.current
 
-    val density = LocalDensity.current
-
     val launcherApps = LocalLauncherApps.current
 
     var hasDoubleTap by remember { mutableStateOf(false) }
@@ -178,30 +172,6 @@ internal fun SharedTransitionScope.PagerScreen(
     var showShortcutConfigActivities by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
-
-    val leftPadding = with(density) {
-        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
-    }
-
-    val rightPadding = with(density) {
-        paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
-    }
-
-    val topPadding = with(density) {
-        paddingValues.calculateTopPadding().roundToPx()
-    }
-
-    val bottomPadding = with(density) {
-        paddingValues.calculateBottomPadding().roundToPx()
-    }
-
-    val horizontalPadding = leftPadding + rightPadding
-
-    val verticalPadding = topPadding + bottomPadding
-
-    val gridWidth = screenWidth - horizontalPadding
-
-    val gridHeight = screenHeight - verticalPadding
 
     val swipeUpY = remember { Animatable(screenHeight.toFloat()) }
 
@@ -374,8 +344,6 @@ internal fun SharedTransitionScope.PagerScreen(
         currentPage = currentPage,
         gridItems = gridItems,
         gridItemsByPage = gridItemsByPage,
-        gridWidth = gridWidth,
-        gridHeight = gridHeight,
         paddingValues = paddingValues,
         dockGridItemsByPage = dockGridItemsByPage,
         textColor = textColor,

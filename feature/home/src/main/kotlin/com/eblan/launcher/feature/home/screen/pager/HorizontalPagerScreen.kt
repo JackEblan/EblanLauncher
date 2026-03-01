@@ -84,8 +84,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     currentPage: Int,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
-    gridWidth: Int,
-    gridHeight: Int,
     paddingValues: PaddingValues,
     dockGridItemsByPage: Map<Int, List<GridItem>>,
     textColor: TextColor,
@@ -174,11 +172,27 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
 
+    val rightPadding = with(density) {
+        paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
     val topPadding = with(density) {
         paddingValues.calculateTopPadding().roundToPx()
     }
 
-    val dockTopPadding = topPadding + gridHeight - dockHeightPx
+    val bottomPadding = with(density) {
+        paddingValues.calculateBottomPadding().roundToPx()
+    }
+
+    val horizontalPadding = leftPadding + rightPadding
+
+    val verticalPadding = topPadding + bottomPadding
+
+    val safeDrawingWidth = screenWidth - horizontalPadding
+
+    val safeDrawingHeight = screenHeight - verticalPadding
+
+    val dockTopLeft = safeDrawingHeight - dockHeightPx
 
     val pageIndicatorHeightPx = with(density) {
         PAGE_INDICATOR_HEIGHT.roundToPx()
@@ -244,10 +258,12 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                 columns = homeSettings.columns,
                 rows = homeSettings.rows,
                 { gridItem ->
-                    val cellWidth = gridWidth / homeSettings.columns
+                    val gridHeight = safeDrawingHeight - pageIndicatorHeightPx - dockHeightPx
+
+                    val cellWidth = safeDrawingWidth / homeSettings.columns
 
                     val cellHeight =
-                        (gridHeight - pageIndicatorHeightPx - dockHeightPx) / homeSettings.rows
+                        gridHeight / homeSettings.rows
 
                     val x = gridItem.startColumn * cellWidth
 
@@ -387,7 +403,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                 columns = homeSettings.dockColumns,
                 rows = homeSettings.dockRows,
             ) { gridItem ->
-                val cellWidth = gridWidth / homeSettings.dockColumns
+                val cellWidth = safeDrawingWidth / homeSettings.dockColumns
 
                 val cellHeight = dockHeightPx / homeSettings.dockRows
 
@@ -413,7 +429,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     onTapApplicationInfo = { serialNumber, componentName ->
                         val sourceBoundsX = x + leftPadding
 
-                        val sourceBoundsY = y + dockTopPadding
+                        val sourceBoundsY = y + dockTopLeft
 
                         launcherApps.startMainActivity(
                             serialNumber = serialNumber,
@@ -429,7 +445,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
                         val sourceBoundsX = x + leftPadding
 
-                        val sourceBoundsY = y + dockTopPadding
+                        val sourceBoundsY = y + dockTopLeft
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
                             launcherApps.startShortcut(
@@ -453,7 +469,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                             gridItem.id,
                             IntOffset(
                                 x = x,
-                                y = y,
+                                y = y + dockTopLeft,
                             ),
                             IntSize(
                                 width = width,
@@ -598,7 +614,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
             statusBarNotifications = statusBarNotifications,
             iconPackFilePaths = iconPackFilePaths,
             drag = drag,
-            screen = screen,
             onDismissRequest = {
                 onTapFolderGridItem(
                     null,

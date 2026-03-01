@@ -73,7 +73,6 @@ import com.eblan.launcher.feature.home.component.grid.swipeGestures
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.FolderScreen
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
@@ -99,7 +98,6 @@ internal fun SharedTransitionScope.FolderScreen(
     iconPackFilePaths: Map<String, String>,
     onDismissRequest: () -> Unit,
     drag: Drag,
-    screen: Screen,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -217,7 +215,6 @@ internal fun SharedTransitionScope.FolderScreen(
                                 statusBarNotifications = statusBarNotifications,
                                 iconPackFilePaths = iconPackFilePaths,
                                 drag = drag,
-                                screen = screen,
                                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                                 onUpdateImageBitmap = { imageBitmap ->
                                     onLongPressGridItem(
@@ -249,7 +246,6 @@ private fun SharedTransitionScope.FolderGridItemContent(
     statusBarNotifications: Map<String, Int>,
     iconPackFilePaths: Map<String, String>,
     drag: Drag,
-    screen: Screen,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,

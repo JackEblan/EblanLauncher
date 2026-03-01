@@ -368,13 +368,6 @@ private suspend fun handleDragFolderGridItem(
             folderDragY in 0..folderGridVisibleHeightPx
 
     if (isInsideFolder) {
-//        onUpdateSharedElementKey(
-//            SharedElementKey(
-//                id = gridItemSourceFolder.applicationInfoGridItem.id,
-//                screen = screen,
-//            ),
-//        )
-
         onMoveFolderGridItem(
             gridItemSource.gridItem,
             data.gridItems,
@@ -644,9 +637,11 @@ internal suspend fun handleConflictingGridItem(
 
     val safeDrawingHeight = screenHeight - verticalPadding
 
+    val gridHeight = safeDrawingHeight - pageIndicatorHeightPx - dockHeightPx
+
     val cellWidth = safeDrawingWidth / columns
 
-    val cellHeight = (safeDrawingHeight - pageIndicatorHeightPx - dockHeightPx) / rows
+    val cellHeight = gridHeight / rows
 
     val x = conflictingGridItem.startColumn * cellWidth
 
@@ -655,6 +650,23 @@ internal suspend fun handleConflictingGridItem(
     val width = conflictingGridItem.columnSpan * cellWidth
 
     val height = conflictingGridItem.rowSpan * cellHeight
+
+    val dockTopLeft = gridHeight - dockHeightPx
+
+    val intOffset = when (conflictingGridItem.associate) {
+        Associate.Grid -> {
+            IntOffset(x = x, y = y)
+        }
+
+        Associate.Dock -> {
+            IntOffset(x = x, y = y + dockTopLeft)
+        }
+    }
+
+    val intSize = IntSize(
+        width = width,
+        height = height,
+    )
 
     onShowFolderWhenDragging(
         conflictingData.id,
@@ -685,14 +697,8 @@ internal suspend fun handleConflictingGridItem(
                 folderId = conflictingData.id,
             ),
         ),
-        IntOffset(
-            x = x,
-            y = y,
-        ),
-        IntSize(
-            width = width,
-            height = height,
-        ),
+        intOffset,
+        intSize,
     )
 }
 

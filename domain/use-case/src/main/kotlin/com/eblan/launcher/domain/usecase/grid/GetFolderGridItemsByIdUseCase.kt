@@ -32,14 +32,12 @@ class GetFolderGridItemsByIdUseCase @Inject constructor(
     private val folderGridItemRepository: FolderGridItemRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(idFlow: Flow<String?>): Flow<GridItem?> {
-        return combine(
-            idFlow,
-            folderGridItemRepository.folderGridItemWrappers,
-        ) { id, folderGridItemWrappers ->
-            folderGridItemWrappers.firstOrNull { folderGridItemWrapper ->
-                folderGridItemWrapper.folderGridItem.id == id
-            }?.asGridItem()
-        }.flowOn(defaultDispatcher)
-    }
+    operator fun invoke(idFlow: Flow<String?>): Flow<GridItem?> = combine(
+        idFlow,
+        folderGridItemRepository.folderGridItemWrappers,
+    ) { id, folderGridItemWrappers ->
+        folderGridItemWrappers.firstOrNull { folderGridItemWrapper ->
+            folderGridItemWrapper.folderGridItem.id == id
+        }?.asGridItem()
+    }.flowOn(defaultDispatcher)
 }

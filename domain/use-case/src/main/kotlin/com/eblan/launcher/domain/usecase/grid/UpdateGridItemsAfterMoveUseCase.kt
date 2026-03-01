@@ -188,29 +188,27 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         applicationInfoGridItemRepository.deleteApplicationInfoGridItemById(id = movingGridItem.id)
     }
 
-    private fun GridItem.asApplicationInfoGridItem(data: GridItemData.ApplicationInfo): ApplicationInfoGridItem {
-        return ApplicationInfoGridItem(
-            id = id,
-            page = page,
-            startColumn = startColumn,
-            startRow = startRow,
-            columnSpan = columnSpan,
-            rowSpan = rowSpan,
-            associate = associate,
-            componentName = data.componentName,
-            packageName = data.packageName,
-            icon = data.icon,
-            label = data.label,
-            override = override,
-            serialNumber = data.serialNumber,
-            customIcon = data.customIcon,
-            customLabel = data.customLabel,
-            gridItemSettings = gridItemSettings,
-            doubleTap = doubleTap,
-            swipeUp = swipeUp,
-            swipeDown = swipeDown,
-            index = data.index,
-            folderId = data.folderId,
-        )
-    }
+    private fun GridItem.asApplicationInfoGridItem(data: GridItemData.ApplicationInfo): ApplicationInfoGridItem = ApplicationInfoGridItem(
+        id = id,
+        page = page,
+        startColumn = startColumn,
+        startRow = startRow,
+        columnSpan = columnSpan,
+        rowSpan = rowSpan,
+        associate = associate,
+        componentName = data.componentName,
+        packageName = data.packageName,
+        icon = data.icon,
+        label = data.label,
+        override = override,
+        serialNumber = data.serialNumber,
+        customIcon = data.customIcon,
+        customLabel = data.customLabel,
+        gridItemSettings = gridItemSettings,
+        doubleTap = doubleTap,
+        swipeUp = swipeUp,
+        swipeDown = swipeDown,
+        index = data.index,
+        folderId = data.folderId,
+    )
 }

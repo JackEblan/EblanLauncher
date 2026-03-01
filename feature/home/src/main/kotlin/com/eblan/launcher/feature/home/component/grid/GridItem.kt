@@ -243,9 +243,9 @@ internal fun ApplicationInfoGridItemContent(
 
     val hasNotifications =
         statusBarNotifications[data.packageName] != null && (
-                statusBarNotifications[data.packageName]
-                    ?: 0
-                ) > 0
+            statusBarNotifications[data.packageName]
+                ?: 0
+            ) > 0
 
     Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
         AsyncImage(
@@ -524,9 +524,9 @@ internal fun ApplicationInfoFolderGridItemContent(
 
     val hasNotifications =
         statusBarNotifications[gridItem.packageName] != null && (
-                statusBarNotifications[gridItem.packageName]
-                    ?: 0
-                ) > 0
+            statusBarNotifications[gridItem.packageName]
+                ?: 0
+            ) > 0
 
     Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
         AsyncImage(

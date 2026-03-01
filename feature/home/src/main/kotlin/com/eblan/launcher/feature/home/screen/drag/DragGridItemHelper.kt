@@ -329,10 +329,9 @@ private suspend fun handleDragFolderGridItem(
     ) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
-    val data = folderGridItem?.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
+    val data = folderGridItem?.data as? GridItemData.Folder ?: return
 
-    val gridItemSourceFolder =
-        gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemSource.Folder")
+    val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder ?: return
 
     if (lockMovement) return
 
@@ -366,7 +365,7 @@ private suspend fun handleDragFolderGridItem(
         (folderGridHeightPx - folderTitleHeightPx) - (folderGridPaddingPx * 2)
 
     val isInsideFolder = folderDragX in 0..folderGridVisibleWidthPx &&
-            folderDragY in 0..folderGridVisibleHeightPx
+        folderDragY in 0..folderGridVisibleHeightPx
 
     if (isInsideFolder) {
         onMoveFolderGridItem(

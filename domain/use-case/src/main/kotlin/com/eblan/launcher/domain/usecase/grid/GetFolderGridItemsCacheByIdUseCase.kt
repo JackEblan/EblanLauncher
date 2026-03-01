@@ -33,14 +33,12 @@ class GetFolderGridItemsCacheByIdUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(idFlow: Flow<String?>): Flow<GridItem?> {
-        return combine(
-            idFlow,
-            gridCacheRepository.gridItemsCache,
-        ) { id, gridItems ->
-            gridItems.firstOrNull { gridItem ->
-                gridItem.id == id
-            }
-        }.flowOn(defaultDispatcher)
-    }
+    operator fun invoke(idFlow: Flow<String?>): Flow<GridItem?> = combine(
+        idFlow,
+        gridCacheRepository.gridItemsCache,
+    ) { id, gridItems ->
+        gridItems.firstOrNull { gridItem ->
+            gridItem.id == id
+        }
+    }.flowOn(defaultDispatcher)
 }

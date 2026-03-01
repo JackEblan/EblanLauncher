@@ -121,7 +121,6 @@ internal fun FolderGridLayout(
                     ) {
                         content(gridItem)
                     }
-
                 }.forEach { measurable ->
                     val parentData = measurable.parentData as GridItemParentData
 

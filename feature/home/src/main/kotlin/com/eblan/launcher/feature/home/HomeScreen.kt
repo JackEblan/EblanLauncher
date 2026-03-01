@@ -52,9 +52,11 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
@@ -788,9 +790,31 @@ private fun SharedTransitionScope.Success(
         },
     )
 
-    var folderPopupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+    var lastFolderPopupX by rememberSaveable { mutableIntStateOf(0) }
 
-    var folderPopupIntSize by remember { mutableStateOf(IntSize.Zero) }
+    var lastFolderPopupY by rememberSaveable { mutableIntStateOf(0) }
+
+    var lastFolderPopupWidth by rememberSaveable { mutableIntStateOf(0) }
+
+    var lastFolderPopupHeight by rememberSaveable { mutableIntStateOf(0) }
+
+    var folderPopupIntOffset by remember {
+        mutableStateOf(
+            IntOffset(
+                x = lastFolderPopupX,
+                y = lastFolderPopupY,
+            ),
+        )
+    }
+
+    var folderPopupIntSize by remember {
+        mutableStateOf(
+            IntSize(
+                width = lastFolderPopupWidth,
+                height = lastFolderPopupHeight,
+            ),
+        )
+    }
 
     LaunchedEffect(key1 = pinGridItem) {
         val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
@@ -905,6 +929,12 @@ private fun SharedTransitionScope.Success(
                     onTapFolderGridItem = { id, intOffset, intSize ->
                         onUpdateFolderGridItemId(id)
 
+                        lastFolderPopupX = intOffset.x
+                        lastFolderPopupY = intOffset.y
+
+                        lastFolderPopupWidth = intSize.width
+                        lastFolderPopupHeight = intSize.height
+
                         folderPopupIntOffset = intOffset
 
                         folderPopupIntSize = intSize
@@ -965,6 +995,12 @@ private fun SharedTransitionScope.Success(
                         )
 
                         gridItemSource = newGridItemSource
+
+                        lastFolderPopupX = intOffset.x
+                        lastFolderPopupY = intOffset.y
+
+                        lastFolderPopupWidth = intSize.width
+                        lastFolderPopupHeight = intSize.height
 
                         folderPopupIntOffset = intOffset
 

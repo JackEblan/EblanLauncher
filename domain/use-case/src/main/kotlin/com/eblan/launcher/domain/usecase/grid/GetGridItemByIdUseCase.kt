@@ -41,44 +41,42 @@ class GetGridItemByIdUseCase @Inject constructor(
     private val folderGridItemRepository: FolderGridItemRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(id: String): GridItem? {
-        return withContext(defaultDispatcher) {
-            val folderGridItems = folderGridItemRepository.folderGridItemWrappers.first()
-                .flatMap { folderGridItemWrapper ->
-                    folderGridItemWrapper.applicationInfoGridItems.map { gridItem ->
-                        GridItem(
-                            id = gridItem.id,
-                            page = gridItem.page,
-                            startColumn = gridItem.startColumn,
-                            startRow = gridItem.startRow,
-                            columnSpan = gridItem.columnSpan,
-                            rowSpan = gridItem.rowSpan,
-                            data = GridItemData.ApplicationInfo(
-                                serialNumber = gridItem.serialNumber,
-                                componentName = gridItem.componentName,
-                                packageName = gridItem.packageName,
-                                icon = gridItem.icon,
-                                label = gridItem.label,
-                                customIcon = gridItem.customIcon,
-                                customLabel = gridItem.customLabel,
-                                index = gridItem.index,
-                                folderId = gridItem.folderId,
-                            ),
-                            associate = gridItem.associate,
-                            override = gridItem.override,
-                            gridItemSettings = gridItem.gridItemSettings,
-                            doubleTap = gridItem.doubleTap,
-                            swipeUp = gridItem.swipeUp,
-                            swipeDown = gridItem.swipeDown,
-                        )
-                    }
+    suspend operator fun invoke(id: String): GridItem? = withContext(defaultDispatcher) {
+        val folderGridItems = folderGridItemRepository.folderGridItemWrappers.first()
+            .flatMap { folderGridItemWrapper ->
+                folderGridItemWrapper.applicationInfoGridItems.map { gridItem ->
+                    GridItem(
+                        id = gridItem.id,
+                        page = gridItem.page,
+                        startColumn = gridItem.startColumn,
+                        startRow = gridItem.startRow,
+                        columnSpan = gridItem.columnSpan,
+                        rowSpan = gridItem.rowSpan,
+                        data = GridItemData.ApplicationInfo(
+                            serialNumber = gridItem.serialNumber,
+                            componentName = gridItem.componentName,
+                            packageName = gridItem.packageName,
+                            icon = gridItem.icon,
+                            label = gridItem.label,
+                            customIcon = gridItem.customIcon,
+                            customLabel = gridItem.customLabel,
+                            index = gridItem.index,
+                            folderId = gridItem.folderId,
+                        ),
+                        associate = gridItem.associate,
+                        override = gridItem.override,
+                        gridItemSettings = gridItem.gridItemSettings,
+                        doubleTap = gridItem.doubleTap,
+                        swipeUp = gridItem.swipeUp,
+                        swipeDown = gridItem.swipeDown,
+                    )
                 }
-
-            val gridItems = gridRepository.gridItems.first() + folderGridItems
-
-            gridItems.find { gridItem ->
-                gridItem.id == id
             }
+
+        val gridItems = gridRepository.gridItems.first() + folderGridItems
+
+        gridItems.find { gridItem ->
+            gridItem.id == id
         }
     }
 }

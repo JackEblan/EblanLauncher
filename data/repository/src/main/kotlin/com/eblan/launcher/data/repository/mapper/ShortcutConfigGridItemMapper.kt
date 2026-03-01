@@ -24,7 +24,6 @@ import com.eblan.launcher.domain.model.ShortcutConfigGridItem
 
 internal fun ShortcutConfigGridItemEntity.asGridItem(): GridItem = GridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -54,7 +53,6 @@ internal fun ShortcutConfigGridItemEntity.asGridItem(): GridItem = GridItem(
 
 internal fun ShortcutConfigGridItemEntity.asModel(): ShortcutConfigGridItem = ShortcutConfigGridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -82,7 +80,6 @@ internal fun ShortcutConfigGridItemEntity.asModel(): ShortcutConfigGridItem = Sh
 
 internal fun ShortcutConfigGridItem.asEntity(): ShortcutConfigGridItemEntity = ShortcutConfigGridItemEntity(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -110,7 +107,6 @@ internal fun ShortcutConfigGridItem.asEntity(): ShortcutConfigGridItemEntity = S
 
 internal fun GridItem.asShortcutConfigGridItem(data: GridItemData.ShortcutConfig): ShortcutConfigGridItem = ShortcutConfigGridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,

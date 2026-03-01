@@ -15,15 +15,17 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.repository
+package com.eblan.launcher.data.room.entity
 
-import com.eblan.launcher.domain.model.GridItem
-import kotlinx.coroutines.flow.Flow
+import androidx.room.Embedded
+import androidx.room.Relation
 
-interface FolderGridCacheRepository {
-    val gridItemsCache: Flow<List<GridItem>>
+data class FolderGridItemWrapperEntity(
+    @Embedded val folderGridItemEntity: FolderGridItemEntity,
 
-    fun insertGridItems(gridItems: List<GridItem>)
-
-    suspend fun upsertGridItems(gridItems: List<GridItem>)
-}
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "folderId",
+    )
+    val applicationInfoGridItemEntities: List<ApplicationInfoGridItemEntity>,
+)

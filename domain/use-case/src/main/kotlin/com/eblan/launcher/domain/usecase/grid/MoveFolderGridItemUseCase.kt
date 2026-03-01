@@ -19,186 +19,84 @@ package com.eblan.launcher.domain.usecase.grid
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.grid.getGridItemByCoordinates
-import com.eblan.launcher.domain.grid.getRelativeResolveDirection
-import com.eblan.launcher.domain.grid.getResolveDirectionByX
-import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
-import com.eblan.launcher.domain.grid.rectanglesOverlap
-import com.eblan.launcher.domain.grid.resolveConflicts
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.MoveGridItemResult
-import com.eblan.launcher.domain.model.ResolveDirection
-import com.eblan.launcher.domain.repository.FolderGridCacheRepository
+import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MoveFolderGridItemUseCase @Inject constructor(
-    private val folderGridCacheRepository: FolderGridCacheRepository,
+    private val gridCacheRepository: GridCacheRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
-        movingGridItem: GridItem,
-        x: Int,
-        y: Int,
+        folderGridItem: GridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        dragX: Int,
+        dragY: Int,
         columns: Int,
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
-        lockMovement: Boolean,
-    ): MoveGridItemResult {
-        return withContext(defaultDispatcher) {
-            val gridItems = folderGridCacheRepository.gridItemsCache.first().filter { gridItem ->
-                isGridItemSpanWithinBounds(
-                    gridItem = gridItem,
-                    columns = columns,
-                    rows = rows,
-                ) && gridItem.page == movingGridItem.page
-            }.toMutableList()
+        currentPage: Int,
+    ) {
+        withContext(defaultDispatcher) {
+            val gridItemsPerPage = columns * rows
 
-            val index =
-                gridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
+            val cellWidth = gridWidth / columns
+            val cellHeight = gridHeight / rows
 
-            if (index != -1) {
-                gridItems[index] = movingGridItem
+            val targetColumn = dragX / cellWidth
+            val targetRow = dragY / cellHeight
+
+            val targetIndex = currentPage * gridItemsPerPage + targetRow * columns + targetColumn
+
+            val currentApplicationInfoGridItems = applicationInfoGridItems.toMutableList()
+
+            val movingIndex =
+                currentApplicationInfoGridItems.indexOfFirst { it.id == movingApplicationInfoGridItem.id }
+
+            val applicationInfoGridItem = if (movingIndex >= 0) {
+                currentApplicationInfoGridItems.removeAt(movingIndex)
             } else {
-                gridItems.add(movingGridItem)
+                movingApplicationInfoGridItem
             }
 
-            val gridItemByCoordinates = getGridItemByCoordinates(
-                id = movingGridItem.id,
+            currentApplicationInfoGridItems.add(
+                targetIndex.coerceIn(
+                    0,
+                    currentApplicationInfoGridItems.size,
+                ),
+                applicationInfoGridItem,
+            )
+
+            val gridItems = currentApplicationInfoGridItems.mapIndexed { index, gridItem ->
+                gridItem.copy(index = index)
+            }
+
+            val folderData = folderGridItem.data as? GridItemData.Folder
+                ?: error("Expected GridItemData.Folder")
+
+            val gridItemsByPage = gridItems.getGridItemsByPage()
+
+            val firstPageGridItems = gridItemsByPage[0] ?: emptyList()
+
+            val (columns, rows) = getGridDimension(count = firstPageGridItems.size)
+
+            val newData = folderData.copy(
                 gridItems = gridItems,
+                gridItemsByPage = gridItemsByPage,
                 columns = columns,
                 rows = rows,
-                x = x,
-                y = y,
-                gridWidth = gridWidth,
-                gridHeight = gridHeight,
             )
 
-            if (gridItemByCoordinates != null) {
-                return@withContext handleConflictsOfGridItemCoordinates(
-                    gridItems = gridItems,
-                    movingGridItem = movingGridItem,
-                    gridItemByCoordinates = gridItemByCoordinates,
-                    x = x,
-                    columns = columns,
-                    rows = rows,
-                    gridWidth = gridWidth,
-                    lockMovement = lockMovement,
-                )
-            }
-
-            val gridItemBySpan = gridItems.find { gridItem ->
-                gridItem.id != movingGridItem.id && rectanglesOverlap(
-                    moving = movingGridItem,
-                    other = gridItem,
-                )
-            }
-
-            if (gridItemBySpan != null) {
-                return@withContext handleConflictsOfGridItemSpan(
-                    movingGridItem = movingGridItem,
-                    gridItemBySpan = gridItemBySpan,
-                    gridItems = gridItems,
-                    columns = columns,
-                    rows = rows,
-                    lockMovement = lockMovement,
-                )
-            }
-
-            folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
-
-            return@withContext MoveGridItemResult(
-                isSuccess = true,
-                movingGridItem = movingGridItem,
-                conflictingGridItem = null,
+            gridCacheRepository.updateGridItemData(
+                id = folderGridItem.id,
+                data = newData,
             )
         }
-    }
-
-    private suspend fun handleConflictsOfGridItemCoordinates(
-        gridItems: MutableList<GridItem>,
-        movingGridItem: GridItem,
-        gridItemByCoordinates: GridItem,
-        x: Int,
-        columns: Int,
-        rows: Int,
-        gridWidth: Int,
-        lockMovement: Boolean,
-    ): MoveGridItemResult {
-        val resolveDirection = getResolveDirectionByX(
-            gridItem = gridItemByCoordinates,
-            x = x,
-            columns = columns,
-            gridWidth = gridWidth,
-        )
-
-        return when (resolveDirection) {
-            ResolveDirection.Left, ResolveDirection.Right -> {
-                val resolvedConflicts = resolveConflicts(
-                    gridItems = gridItems,
-                    resolveDirection = resolveDirection,
-                    movingGridItem = movingGridItem,
-                    columns = columns,
-                    rows = rows,
-                )
-
-                if (resolvedConflicts && !lockMovement) {
-                    folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
-                }
-
-                MoveGridItemResult(
-                    isSuccess = resolvedConflicts,
-                    movingGridItem = movingGridItem,
-                    conflictingGridItem = null,
-                )
-            }
-
-            ResolveDirection.Center -> {
-                MoveGridItemResult(
-                    isSuccess = false,
-                    movingGridItem = movingGridItem,
-                    conflictingGridItem = null,
-                )
-            }
-        }
-    }
-
-    private suspend fun handleConflictsOfGridItemSpan(
-        movingGridItem: GridItem,
-        gridItemBySpan: GridItem,
-        gridItems: MutableList<GridItem>,
-        columns: Int,
-        rows: Int,
-        lockMovement: Boolean,
-    ): MoveGridItemResult {
-        val resolveDirection = getRelativeResolveDirection(
-            moving = movingGridItem,
-            other = gridItemBySpan,
-        ) ?: return MoveGridItemResult(
-            isSuccess = false,
-            movingGridItem = movingGridItem,
-            conflictingGridItem = null,
-        )
-
-        val resolvedConflicts = resolveConflicts(
-            gridItems = gridItems,
-            resolveDirection = resolveDirection,
-            movingGridItem = movingGridItem,
-            columns = columns,
-            rows = rows,
-        )
-
-        if (resolvedConflicts && !lockMovement) {
-            folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
-        }
-
-        return MoveGridItemResult(
-            isSuccess = resolvedConflicts,
-            movingGridItem = movingGridItem,
-            conflictingGridItem = null,
-        )
     }
 }

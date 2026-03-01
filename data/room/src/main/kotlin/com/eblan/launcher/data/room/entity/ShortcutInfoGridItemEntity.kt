@@ -28,7 +28,6 @@ import com.eblan.launcher.domain.model.GridItemSettings
 data class ShortcutInfoGridItemEntity(
     @PrimaryKey
     val id: String,
-    val folderId: String?,
     val page: Int,
     val startColumn: Int,
     val startRow: Int,

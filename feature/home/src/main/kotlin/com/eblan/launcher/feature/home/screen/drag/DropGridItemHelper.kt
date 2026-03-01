@@ -59,17 +59,30 @@ internal suspend fun handleDropGridItem(
     onUpdateWidgetGridItem: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
     onToast: () -> Unit,
+    onDragEndAfterMoveFolder: () -> Unit,
 ) {
-    if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
-        onDragCancelAfterMove()
-
-        onToast()
-
-        return
-    }
-
     when (gridItemSource) {
+        is GridItemSource.Existing -> {
+            if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
+                onDragCancelAfterMove()
+
+                onToast()
+
+                return
+            }
+
+            onDragEndAfterMove(moveGridItemResult)
+        }
+
         is GridItemSource.New -> {
+            if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
+                onDragCancelAfterMove()
+
+                onToast()
+
+                return
+            }
+
             when (val data = gridItemSource.gridItem.data) {
                 is GridItemData.Widget -> {
                     onDragEndWidget(
@@ -102,6 +115,14 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.Pin -> {
+            if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
+                onDragCancelAfterMove()
+
+                onToast()
+
+                return
+            }
+
             when (val data = gridItemSource.gridItem.data) {
                 is GridItemData.ShortcutInfo -> {
                     onDragEndPinShortcut(
@@ -125,24 +146,27 @@ internal suspend fun handleDropGridItem(
                     )
                 }
 
-                else -> Unit
+                else -> {
+                    onDragEndAfterMove(moveGridItemResult)
+                }
             }
         }
 
-        else -> {
-            onDragEndAfterMove(moveGridItemResult)
+        is GridItemSource.Folder -> {
+            onDragEndAfterMoveFolder()
         }
     }
 }
 
 internal fun handleAppWidgetLauncherResult(
     result: ActivityResult,
-    gridItem: GridItem,
+    gridItemSource: GridItemSource,
     appWidgetManager: AndroidAppWidgetManagerWrapper,
     onUpdateWidgetGridItem: (GridItem) -> Unit,
     onDeleteAppWidgetId: () -> Unit,
 ) {
-    val data = (gridItem.data as? GridItemData.Widget) ?: error("Expected GridItemData.Widget")
+    val data = (gridItemSource.gridItem.data as? GridItemData.Widget)
+        ?: error("Expected GridItemData.Widget")
 
     if (result.resultCode == Activity.RESULT_OK) {
         val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
@@ -161,7 +185,7 @@ internal fun handleAppWidgetLauncherResult(
 
         val newData = data.copy(appWidgetId = appWidgetId)
 
-        onUpdateWidgetGridItem(gridItem.copy(data = newData))
+        onUpdateWidgetGridItem(gridItemSource.gridItem.copy(data = newData))
     } else {
         onDeleteAppWidgetId()
     }
@@ -197,7 +221,7 @@ internal fun handleConfigureLauncherResult(
 }
 
 internal fun handleDeleteAppWidgetId(
-    gridItem: GridItem,
+    gridItemSource: GridItemSource,
     appWidgetId: Int,
     deleteAppWidgetId: Boolean,
     onDeleteWidgetGridItemCache: (
@@ -206,9 +230,9 @@ internal fun handleDeleteAppWidgetId(
     ) -> Unit,
 ) {
     if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID && deleteAppWidgetId) {
-        check(gridItem.data is GridItemData.Widget)
+        check(gridItemSource.gridItem.data is GridItemData.Widget)
 
-        onDeleteWidgetGridItemCache(gridItem, appWidgetId)
+        onDeleteWidgetGridItemCache(gridItemSource.gridItem, appWidgetId)
     }
 }
 

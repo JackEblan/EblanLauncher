@@ -15,12 +15,11 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.settings.folder.model
+package com.eblan.launcher.domain.model
 
-import com.eblan.launcher.domain.model.HomeSettings
-
-internal sealed interface FolderSettingsUiState {
-    data object Loading : FolderSettingsUiState
-
-    data class Success(val homeSettings: HomeSettings) : FolderSettingsUiState
-}
+data class UpdateApplicationInfoFolderGridItem(
+    val id: String,
+    val componentName: String,
+    val icon: String?,
+    val label: String?,
+)

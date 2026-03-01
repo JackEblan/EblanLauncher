@@ -19,31 +19,24 @@ package com.eblan.launcher.domain.usecase.grid
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.repository.FolderGridCacheRepository
-import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-class UpdateFolderGridItemsAfterResizeUseCase @Inject constructor(
-    private val folderGridCacheRepository: FolderGridCacheRepository,
-    private val gridRepository: GridRepository,
+class GetFolderGridItemsCacheByIdUseCase @Inject constructor(
+    private val gridCacheRepository: GridCacheRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(resizingGridItem: GridItem) {
-        withContext(defaultDispatcher) {
-            val gridItems = folderGridCacheRepository.gridItemsCache.first()
-
-            if (resizingGridItem.associate == Associate.Grid) {
-                gridRepository.updateGridItems(
-                    gridItems = gridItems.filter { gridItem ->
-                        gridItem.page == resizingGridItem.page
-                    },
-                )
-            }
+    operator fun invoke(idFlow: Flow<String?>): Flow<GridItem?> = combine(
+        idFlow,
+        gridCacheRepository.gridItemsCache,
+    ) { id, gridItems ->
+        gridItems.firstOrNull { gridItem ->
+            gridItem.id == id
         }
-    }
+    }.flowOn(defaultDispatcher)
 }

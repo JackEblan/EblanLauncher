@@ -64,7 +64,6 @@ internal fun SettingsRoute(
     onHome: () -> Unit,
     onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
-    onFolder: () -> Unit,
     onExperimental: () -> Unit,
 ) {
     SettingsScreen(
@@ -74,7 +73,6 @@ internal fun SettingsRoute(
         onHome = onHome,
         onAppDrawer = onAppDrawer,
         onGestures = onGestures,
-        onFolder = onFolder,
         onExperimental = onExperimental,
     )
 }
@@ -88,7 +86,6 @@ internal fun SettingsScreen(
     onHome: () -> Unit,
     onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
-    onFolder: () -> Unit,
     onExperimental: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -176,15 +173,6 @@ internal fun SettingsScreen(
                     title = "App Drawer",
                     subtitle = "Columns and rows count",
                     onClick = onAppDrawer,
-                )
-
-                HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-                SettingsRow(
-                    imageVector = EblanLauncherIcons.Folder,
-                    title = "Folder",
-                    subtitle = "Columns and rows count",
-                    onClick = onFolder,
                 )
 
                 HorizontalDivider(modifier = Modifier.fillMaxWidth())

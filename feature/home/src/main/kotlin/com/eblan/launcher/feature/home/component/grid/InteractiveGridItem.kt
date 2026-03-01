@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
+import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -66,7 +67,6 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.util.GRID_ITEM_MAX_SWIPE_Y
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -93,6 +93,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
     isScrollInProgress: Boolean,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
+    folderGridItem: GridItem?,
     onTapApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -208,6 +209,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onOpenAppDrawer = onOpenAppDrawer,
+                    folderGridItem = folderGridItem,
                 )
             }
 
@@ -312,7 +314,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onDoubleTap = onDoubleTap(
-                        gridItem = gridItem,
+                        doubleTap = gridItem.doubleTap,
                         scope = scope,
                         scale = scale,
                         launcherApps = launcherApps,
@@ -366,7 +368,8 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                 )
             }
             .swipeGestures(
-                gridItem = gridItem,
+                swipeUp = gridItem.swipeUp,
+                swipeDown = gridItem.swipeDown,
                 onOpenAppDrawer = onOpenAppDrawer,
             )
             .scale(
@@ -631,7 +634,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onDoubleTap = onDoubleTap(
-                        gridItem = gridItem,
+                        doubleTap = gridItem.doubleTap,
                         scope = scope,
                         scale = scale,
                         launcherApps = launcherApps,
@@ -688,7 +691,8 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                 )
             }
             .swipeGestures(
-                gridItem = gridItem,
+                swipeUp = gridItem.swipeUp,
+                swipeDown = gridItem.swipeDown,
                 onOpenAppDrawer = onOpenAppDrawer,
             )
             .scale(
@@ -749,6 +753,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     isScrollInProgress: Boolean,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
+    folderGridItem: GridItem?,
     onTap: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -812,7 +817,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onDoubleTap = onDoubleTap(
-                        gridItem = gridItem,
+                        doubleTap = gridItem.doubleTap,
                         scope = scope,
                         scale = scale,
                         launcherApps = launcherApps,
@@ -863,7 +868,8 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                 )
             }
             .swipeGestures(
-                gridItem = gridItem,
+                swipeUp = gridItem.swipeUp,
+                swipeDown = gridItem.swipeDown,
                 onOpenAppDrawer = onOpenAppDrawer,
             )
             .scale(
@@ -910,6 +916,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                 screen = screen,
                 drag = drag,
                 isScrollInProgress = isScrollInProgress,
+                folderGridItem = folderGridItem,
             )
         }
     }
@@ -989,7 +996,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onDoubleTap = onDoubleTap(
-                        gridItem = gridItem,
+                        doubleTap = gridItem.doubleTap,
                         scope = scope,
                         scale = scale,
                         launcherApps = launcherApps,
@@ -1040,7 +1047,8 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                 )
             }
             .swipeGestures(
-                gridItem = gridItem,
+                swipeUp = gridItem.swipeUp,
+                swipeDown = gridItem.swipeDown,
                 onOpenAppDrawer = onOpenAppDrawer,
             )
             .scale(
@@ -1089,8 +1097,9 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
 }
 
 @Composable
-private fun Modifier.swipeGestures(
-    gridItem: GridItem,
+internal fun Modifier.swipeGestures(
+    swipeUp: EblanAction,
+    swipeDown: EblanAction,
     onOpenAppDrawer: () -> Unit,
 ): Modifier {
     val context = LocalContext.current
@@ -1101,13 +1110,13 @@ private fun Modifier.swipeGestures(
 
     val launcherApps = LocalLauncherApps.current
 
-    return if (gridItem.swipeUp.eblanActionType != EblanActionType.None ||
-        gridItem.swipeDown.eblanActionType != EblanActionType.None
+    return if (swipeUp.eblanActionType != EblanActionType.None ||
+        swipeDown.eblanActionType != EblanActionType.None
     ) {
         val swipeY = remember { Animatable(0f) }
 
         val maxSwipeY = with(density) {
-            GRID_ITEM_MAX_SWIPE_Y.dp.roundToPx()
+            40.dp.roundToPx()
         }
 
         pointerInput(key1 = Unit) {
@@ -1134,7 +1143,7 @@ private fun Modifier.swipeGestures(
                                 swipeY.animateTo(0f)
 
                                 handleEblanAction(
-                                    eblanAction = gridItem.swipeUp,
+                                    eblanAction = swipeUp,
                                     launcherApps = launcherApps,
                                     context = context,
                                     onOpenAppDrawer = onOpenAppDrawer,
@@ -1145,7 +1154,7 @@ private fun Modifier.swipeGestures(
                                 swipeY.animateTo(0f)
 
                                 handleEblanAction(
-                                    eblanAction = gridItem.swipeDown,
+                                    eblanAction = swipeDown,
                                     launcherApps = launcherApps,
                                     context = context,
                                     onOpenAppDrawer = onOpenAppDrawer,
@@ -1166,14 +1175,14 @@ private fun Modifier.swipeGestures(
     }
 }
 
-private fun onDoubleTap(
-    gridItem: GridItem,
+internal fun onDoubleTap(
+    doubleTap: EblanAction,
     scope: CoroutineScope,
     scale: Animatable<Float, AnimationVector1D>,
     launcherApps: AndroidLauncherAppsWrapper,
     context: Context,
     onOpenAppDrawer: () -> Unit,
-): ((Offset) -> Unit)? = if (gridItem.doubleTap.eblanActionType != EblanActionType.None) {
+): ((Offset) -> Unit)? = if (doubleTap.eblanActionType != EblanActionType.None) {
     {
         scope.launch {
             scale.animateTo(0.5f)
@@ -1181,7 +1190,7 @@ private fun onDoubleTap(
             scale.animateTo(1f)
 
             handleEblanAction(
-                eblanAction = gridItem.doubleTap,
+                eblanAction = doubleTap,
                 launcherApps = launcherApps,
                 context = context,
                 onOpenAppDrawer = onOpenAppDrawer,

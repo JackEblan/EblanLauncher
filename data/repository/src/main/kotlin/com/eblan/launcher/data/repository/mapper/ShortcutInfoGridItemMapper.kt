@@ -24,7 +24,6 @@ import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 
 internal fun ShortcutInfoGridItemEntity.asGridItem(): GridItem = GridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -52,7 +51,6 @@ internal fun ShortcutInfoGridItemEntity.asGridItem(): GridItem = GridItem(
 
 internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem = ShortcutInfoGridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -78,7 +76,6 @@ internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem = Shortc
 
 internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity = ShortcutInfoGridItemEntity(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -104,7 +101,6 @@ internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity = Short
 
 internal fun GridItem.asShortcutInfoGridItem(data: GridItemData.ShortcutInfo): ShortcutInfoGridItem = ShortcutInfoGridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,

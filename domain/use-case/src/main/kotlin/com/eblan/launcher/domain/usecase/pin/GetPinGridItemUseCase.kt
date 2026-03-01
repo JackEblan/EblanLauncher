@@ -88,7 +88,6 @@ class GetPinGridItemUseCase @Inject constructor(
                 GridItem(
                     id = Uuid.random()
                         .toHexString(),
-                    folderId = null,
                     page = homeSettings.initialPage,
                     startColumn = 0,
                     startRow = 0,
@@ -145,7 +144,6 @@ class GetPinGridItemUseCase @Inject constructor(
 
                 GridItem(
                     id = pinItemRequestType.shortcutId,
-                    folderId = null,
                     page = homeSettings.initialPage,
                     startColumn = 0,
                     startRow = 0,

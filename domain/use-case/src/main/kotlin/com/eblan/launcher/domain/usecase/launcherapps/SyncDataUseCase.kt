@@ -581,7 +581,6 @@ class SyncDataUseCase @Inject constructor(
             applicationInfoGridItemRepository.insertApplicationInfoGridItem(
                 applicationInfoGridItem = ApplicationInfoGridItem(
                     id = Uuid.random().toHexString(),
-                    folderId = null,
                     page = 0,
                     startColumn = startColumn,
                     startRow = startRow,
@@ -612,6 +611,8 @@ class SyncDataUseCase @Inject constructor(
                         serialNumber = 0L,
                         componentName = "",
                     ),
+                    index = -1,
+                    folderId = null,
                 ),
             )
         }

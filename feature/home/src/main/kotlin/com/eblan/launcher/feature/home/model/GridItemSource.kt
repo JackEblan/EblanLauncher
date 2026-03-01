@@ -18,6 +18,7 @@
 package com.eblan.launcher.feature.home.model
 
 import android.content.pm.LauncherApps.PinItemRequest
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.GridItem
 
 internal sealed interface GridItemSource {
@@ -30,5 +31,10 @@ internal sealed interface GridItemSource {
     data class Pin(
         override val gridItem: GridItem,
         val pinItemRequest: PinItemRequest,
+    ) : GridItemSource
+
+    data class Folder(
+        override val gridItem: GridItem,
+        val applicationInfoGridItem: ApplicationInfoGridItem,
     ) : GridItemSource
 }

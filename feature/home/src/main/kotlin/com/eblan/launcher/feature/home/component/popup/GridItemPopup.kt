@@ -57,7 +57,7 @@ import com.eblan.launcher.feature.home.model.SharedElementKey
 @Composable
 internal fun GridItemPopup(
     modifier: Modifier = Modifier,
-    gridItem: GridItem,
+    gridItem: GridItem?,
     popupIntOffset: IntOffset,
     popupIntSize: IntSize,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
@@ -85,6 +85,8 @@ internal fun GridItemPopup(
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    requireNotNull(gridItem)
+
     val density = LocalDensity.current
 
     val leftPadding = with(density) {

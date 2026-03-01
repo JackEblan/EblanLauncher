@@ -30,11 +30,11 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.Theme
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
+import com.eblan.launcher.domain.usecase.grid.GetFolderGridItemsUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class GetHomeDataUseCase @Inject constructor(
@@ -44,18 +44,18 @@ class GetHomeDataUseCase @Inject constructor(
     private val resourcesWrapper: ResourcesWrapper,
     private val packageManagerWrapper: PackageManagerWrapper,
     private val gridRepository: GridRepository,
+    private val getFolderGridItemsUseCase: GetFolderGridItemsUseCase,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     operator fun invoke(): Flow<HomeData> = combine(
         userDataRepository.userData,
-        gridRepository.gridItems.map { gridItems ->
-            gridItems.filterNot { gridItem ->
-                gridItem.folderId != null
-            }
-        },
+        gridRepository.gridItems,
+        getFolderGridItemsUseCase(),
         wallpaperManagerWrapper.getColorsChanged(),
-    ) { userData, gridItems, colorHints ->
-        val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
+    ) { userData, gridItems, folderGridItems, colorHints ->
+        val currentGridItems = gridItems + folderGridItems
+
+        val gridItemsByPage = currentGridItems.filter { gridItem ->
             isGridItemSpanWithinBounds(
                 gridItem = gridItem,
                 columns = userData.homeSettings.columns,
@@ -63,7 +63,7 @@ class GetHomeDataUseCase @Inject constructor(
             ) && gridItem.associate == Associate.Grid
         }.groupBy { gridItem -> gridItem.page }
 
-        val dockGridItemsWithinBounds = gridItems.filter { gridItem ->
+        val dockGridItemsByPage = currentGridItems.filter { gridItem ->
             isGridItemSpanWithinBounds(
                 gridItem = gridItem,
                 columns = userData.homeSettings.dockColumns,
@@ -86,9 +86,9 @@ class GetHomeDataUseCase @Inject constructor(
 
         HomeData(
             userData = userData,
-            gridItems = gridItems,
-            gridItemsByPage = gridItemsSpanWithinBounds,
-            dockGridItemsByPage = dockGridItemsWithinBounds,
+            gridItems = currentGridItems,
+            gridItemsByPage = gridItemsByPage,
+            dockGridItemsByPage = dockGridItemsByPage,
             hasShortcutHostPermission = launcherAppsWrapper.hasShortcutHostPermission,
             hasSystemFeatureAppWidgets = packageManagerWrapper.hasSystemFeatureAppWidgets,
             textColor = textColor,

@@ -24,7 +24,6 @@ import com.eblan.launcher.domain.model.GridItemData
 
 internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem = GridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -38,6 +37,8 @@ internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem = GridItem(
         label = label,
         customIcon = customIcon,
         customLabel = customLabel,
+        index = index,
+        folderId = folderId,
     ),
     associate = associate,
     override = override,
@@ -49,7 +50,6 @@ internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem = GridItem(
 
 internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem = ApplicationInfoGridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -68,12 +68,13 @@ internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem = 
     doubleTap = doubleTap,
     swipeUp = swipeUp,
     swipeDown = swipeDown,
+    index = index,
+    folderId = folderId,
 )
 
 internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity = ApplicationInfoGridItemEntity(
     id = id,
     serialNumber = serialNumber,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -91,11 +92,12 @@ internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity =
     doubleTap = doubleTap,
     swipeUp = swipeUp,
     swipeDown = swipeDown,
+    index = index,
+    folderId = folderId,
 )
 
-internal fun GridItem.asApplicationInfo(data: GridItemData.ApplicationInfo): ApplicationInfoGridItem = ApplicationInfoGridItem(
+internal fun GridItem.asApplicationInfoGridItem(data: GridItemData.ApplicationInfo): ApplicationInfoGridItem = ApplicationInfoGridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -114,4 +116,6 @@ internal fun GridItem.asApplicationInfo(data: GridItemData.ApplicationInfo): App
     doubleTap = doubleTap,
     swipeUp = swipeUp,
     swipeDown = swipeDown,
+    index = data.index,
+    folderId = data.folderId,
 )

@@ -27,7 +27,6 @@ fun NavGraphBuilder.settingsScreen(
     onHome: () -> Unit,
     onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
-    onFolder: () -> Unit,
     onExperimental: () -> Unit,
 ) {
     composable<SettingsRouteData> {
@@ -37,7 +36,6 @@ fun NavGraphBuilder.settingsScreen(
             onHome = onHome,
             onAppDrawer = onAppDrawer,
             onGestures = onGestures,
-            onFolder = onFolder,
             onExperimental = onExperimental,
         )
     }

@@ -19,47 +19,44 @@ package com.eblan.launcher.domain.usecase.grid
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class MoveGridItemOutsideFolderUseCase @Inject constructor(
-    private val folderGridCacheRepository: FolderGridCacheRepository,
+class MoveFolderGridItemOutsideFolderUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
-        folderId: String,
-        movingGridItem: GridItem,
-        gridItems: List<GridItem>,
+        folderGridItem: GridItem,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
     ) {
         withContext(defaultDispatcher) {
-            val folderGridItems =
-                folderGridCacheRepository.gridItemsCache.first().toMutableList().apply {
-                    removeIf { gridItem ->
-                        gridItem.id == movingGridItem.id
+            val data =
+                folderGridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
+
+            val newData = data.copy(
+                gridItems = applicationInfoGridItems.toMutableList().apply {
+                    removeIf { applicationInfoGridItem ->
+                        applicationInfoGridItem.id == movingApplicationInfoGridItem.id
                     }
-                }
+                },
+                previewGridItemsByPage = data.previewGridItemsByPage.toMutableList().apply {
+                    removeIf { applicationInfoGridItem ->
+                        applicationInfoGridItem.id == movingApplicationInfoGridItem.id
+                    }
+                },
+            )
 
-            val folderGridItem = gridItems.find { gridItem ->
-                gridItem.id == folderId && gridItem.data is GridItemData.Folder
-            }
-
-            if (folderGridItem != null) {
-                val data = folderGridItem.data as GridItemData.Folder
-
-                gridCacheRepository.insertGridItems(gridItems = gridItems)
-
-                gridCacheRepository.updateGridItemData(
-                    id = folderId,
-                    data = data.copy(gridItems = folderGridItems),
-                )
-            }
+            gridCacheRepository.updateGridItemData(
+                id = folderGridItem.id,
+                data = newData,
+            )
         }
     }
 }

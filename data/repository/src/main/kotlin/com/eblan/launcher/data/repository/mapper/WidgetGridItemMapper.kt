@@ -26,7 +26,6 @@ import com.eblan.launcher.domain.model.WidgetGridItem
 
 internal fun WidgetGridItemEntity.asGridItem(): GridItem = GridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -73,7 +72,6 @@ internal fun WidgetGridItemEntity.asGridItem(): GridItem = GridItem(
 
 internal fun WidgetGridItemEntity.asModel(): WidgetGridItem = WidgetGridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -103,7 +101,6 @@ internal fun WidgetGridItemEntity.asModel(): WidgetGridItem = WidgetGridItem(
 
 internal fun WidgetGridItem.asEntity(): WidgetGridItemEntity = WidgetGridItemEntity(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,
@@ -133,7 +130,6 @@ internal fun WidgetGridItem.asEntity(): WidgetGridItemEntity = WidgetGridItemEnt
 
 internal fun GridItem.asWidgetGridItem(data: GridItemData.Widget): WidgetGridItem = WidgetGridItem(
     id = id,
-    folderId = folderId,
     page = page,
     startColumn = startColumn,
     startRow = startRow,

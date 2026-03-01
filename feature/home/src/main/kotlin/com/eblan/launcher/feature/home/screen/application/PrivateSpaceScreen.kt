@@ -336,13 +336,14 @@ private fun PrivateSpaceEblanApplicationInfoItem(
                                 label = eblanApplicationInfo.label,
                                 customIcon = eblanApplicationInfo.customIcon,
                                 customLabel = eblanApplicationInfo.customLabel,
+                                index = -1,
+                                folderId = null,
                             )
 
                             onLongPressGridItem(
                                 GridItemSource.New(
                                     gridItem = GridItem(
                                         id = id,
-                                        folderId = null,
                                         page = -1,
                                         startColumn = -1,
                                         startRow = -1,

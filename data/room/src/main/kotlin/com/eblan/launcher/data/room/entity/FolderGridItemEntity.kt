@@ -28,7 +28,6 @@ import com.eblan.launcher.domain.model.GridItemSettings
 data class FolderGridItemEntity(
     @PrimaryKey
     val id: String,
-    val folderId: String?,
     val page: Int,
     val startColumn: Int,
     val startRow: Int,
@@ -37,7 +36,6 @@ data class FolderGridItemEntity(
     val associate: Associate,
     val label: String,
     val override: Boolean,
-    val pageCount: Int,
     val icon: String?,
     @Embedded val gridItemSettings: GridItemSettings,
     @Embedded(prefix = "doubleTap_") val doubleTap: EblanAction,

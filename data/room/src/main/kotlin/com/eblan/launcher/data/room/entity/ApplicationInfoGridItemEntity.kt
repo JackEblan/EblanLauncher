@@ -28,7 +28,6 @@ import com.eblan.launcher.domain.model.GridItemSettings
 data class ApplicationInfoGridItemEntity(
     @PrimaryKey
     val id: String,
-    val folderId: String?,
     val page: Int,
     val startColumn: Int,
     val startRow: Int,
@@ -47,4 +46,6 @@ data class ApplicationInfoGridItemEntity(
     @Embedded(prefix = "doubleTap_") val doubleTap: EblanAction,
     @Embedded(prefix = "swipeUp_") val swipeUp: EblanAction,
     @Embedded(prefix = "swipeDown_") val swipeDown: EblanAction,
+    val index: Int,
+    val folderId: String?,
 )

@@ -54,8 +54,6 @@ internal fun HomeSettingsProto.toHomeSettings(): HomeSettings = HomeSettings(
     dockHeight = dockHeight,
     initialPage = initialPage,
     wallpaperScroll = wallpaperScroll,
-    folderColumns = folderColumns,
-    folderRows = folderRows,
     gridItemSettings = gridItemSettingsProto.toGridItemSettings(),
     lockScreenOrientation = lockScreenOrientation,
     dockPageCount = dockPageCount,
@@ -101,7 +99,6 @@ internal fun GridItemSettings.toGridItemSettingsProto(): GridItemSettingsProto =
 internal fun HomeSettings.toHomeSettingsProto(): HomeSettingsProto = HomeSettingsProto.newBuilder().setColumns(columns).setRows(rows).setPageCount(pageCount)
     .setInfiniteScroll(infiniteScroll).setDockColumns(dockColumns).setDockRows(dockRows)
     .setDockHeight(dockHeight).setInitialPage(initialPage).setWallpaperScroll(wallpaperScroll)
-    .setFolderColumns(folderColumns).setFolderRows(folderRows)
     .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
     .setLockScreenOrientation(lockScreenOrientation).setDockPageCount(dockPageCount)
     .setDockInfiniteScroll(dockInfiniteScroll).setDockInitialPage(dockInitialPage).build()

@@ -18,14 +18,11 @@
 package com.eblan.launcher.domain.repository
 
 import com.eblan.launcher.domain.model.FolderGridItem
-import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.FolderGridItemWrapper
 import kotlinx.coroutines.flow.Flow
 
 interface FolderGridItemRepository {
-    val gridItems: Flow<List<GridItem>>
-
-    suspend fun getFolderGridItemData(id: String): GridItemData.Folder?
+    val folderGridItemWrappers: Flow<List<FolderGridItemWrapper>>
 
     suspend fun upsertFolderGridItems(folderGridItems: List<FolderGridItem>)
 
@@ -34,4 +31,6 @@ interface FolderGridItemRepository {
     suspend fun deleteFolderGridItem(folderGridItem: FolderGridItem)
 
     suspend fun deleteFolderGridItems(folderGridItems: List<FolderGridItem>)
+
+    suspend fun insertFolderGridItem(folderGridItem: FolderGridItem)
 }

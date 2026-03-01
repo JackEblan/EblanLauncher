@@ -27,6 +27,8 @@ sealed interface GridItemData {
         val label: String,
         val customIcon: String?,
         val customLabel: String?,
+        val index: Int,
+        val folderId: String?,
     ) : GridItemData
 
     data class Widget(
@@ -65,9 +67,12 @@ sealed interface GridItemData {
     data class Folder(
         val id: String,
         val label: String,
-        val gridItems: List<GridItem>,
-        val pageCount: Int,
+        val gridItems: List<ApplicationInfoGridItem>,
+        val gridItemsByPage: Map<Int, List<ApplicationInfoGridItem>>,
+        val previewGridItemsByPage: List<ApplicationInfoGridItem>,
         val icon: String?,
+        val columns: Int,
+        val rows: Int,
     ) : GridItemData
 
     data class ShortcutConfig(

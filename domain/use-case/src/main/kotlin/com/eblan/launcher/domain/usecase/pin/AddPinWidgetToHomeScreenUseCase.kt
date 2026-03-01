@@ -32,6 +32,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
+import com.eblan.launcher.domain.usecase.grid.GetFolderGridItemsUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -46,6 +47,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val packageManagerWrapper: PackageManagerWrapper,
     private val gridRepository: GridRepository,
+    private val getFolderGridItemsUseCase: GetFolderGridItemsUseCase,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     @OptIn(ExperimentalUuidApi::class)
@@ -79,10 +81,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
         val dockHeight = homeSettings.dockHeight
 
-        val gridItems =
-            gridRepository.gridItems.first().filter { gridItem ->
-                gridItem.associate == Associate.Grid && gridItem.folderId == null
-            }
+        val gridItems = gridRepository.gridItems.first() + getFolderGridItemsUseCase().first()
 
         val applicationIcon =
             packageManagerWrapper.getComponentName(packageName = packageName)
@@ -145,7 +144,6 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
         val gridItem = GridItem(
             id = Uuid.random().toHexString(),
-            folderId = null,
             page = initialPage,
             startColumn = 0,
             startRow = 0,
@@ -181,7 +179,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
         )
 
         if (newGridItem != null) {
-            gridCacheRepository.insertGridItems(gridItems = gridItems + newGridItem)
+            gridCacheRepository.upsertGridItems(gridItems = gridItems + newGridItem)
         }
 
         newGridItem

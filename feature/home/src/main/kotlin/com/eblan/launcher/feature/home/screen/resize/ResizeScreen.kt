@@ -120,7 +120,7 @@ internal fun SharedTransitionScope.ResizeScreen(
     }
 
     val pageIndicatorHeightPx = with(density) {
-        PAGE_INDICATOR_HEIGHT.dp.roundToPx()
+        PAGE_INDICATOR_HEIGHT.roundToPx()
     }
 
     var currentGridItem by remember {
@@ -166,13 +166,14 @@ internal fun SharedTransitionScope.ResizeScreen(
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
                     isScrollInProgress = false,
+                    folderGridItem = null,
                 )
             },
         )
 
         PageIndicator(
             modifier = Modifier
-                .height(PAGE_INDICATOR_HEIGHT.dp)
+                .height(PAGE_INDICATOR_HEIGHT)
                 .fillMaxWidth(),
             gridHorizontalPagerState = gridHorizontalPagerState,
             infiniteScroll = homeSettings.infiniteScroll,
@@ -202,6 +203,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
                     isScrollInProgress = false,
+                    folderGridItem = null,
                 )
             },
         )

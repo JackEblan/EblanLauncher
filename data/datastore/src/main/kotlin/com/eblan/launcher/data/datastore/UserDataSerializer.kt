@@ -71,8 +71,6 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         dockHeight = 100
         initialPage = 0
         wallpaperScroll = false
-        folderColumns = 5
-        folderRows = 5
         gridItemSettingsProto = defaultGridItemSettingsProto
         lockScreenOrientation = false
         dockPageCount = 1

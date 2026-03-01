@@ -15,9 +15,9 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.settings.folder.navigation
+package com.eblan.launcher.domain.model
 
-import kotlinx.serialization.Serializable
-
-@Serializable
-data object FolderSettingsRouteData
+data class FolderGridItemWrapper(
+    val folderGridItem: FolderGridItem,
+    val applicationInfoGridItems: List<ApplicationInfoGridItem>,
+)

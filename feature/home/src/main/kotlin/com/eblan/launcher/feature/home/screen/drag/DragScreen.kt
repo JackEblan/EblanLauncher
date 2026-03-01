@@ -47,8 +47,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
@@ -61,10 +63,12 @@ import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.FolderScreen
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.screen.folderdrag.FolderDragScreen
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -102,6 +106,10 @@ internal fun SharedTransitionScope.DragScreen(
     screen: Screen,
     associate: Associate?,
     configureResultCode: Int?,
+    folderGridItem: GridItem?,
+    folderPopupIntOffset: IntOffset,
+    folderPopupIntSize: IntSize,
+    folderGridHorizontalPagerState: PagerState,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -130,10 +138,35 @@ internal fun SharedTransitionScope.DragScreen(
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
     ) -> Unit,
-    onShowFolderWhenDragging: (String) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateAssociate: (Associate) -> Unit,
     onResetConfigureResultCode: () -> Unit,
+    onMoveFolderGridItem: (
+        folderGridItem: GridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        dragX: Int,
+        dragY: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        currentPage: Int,
+    ) -> Unit,
+    onDragEndAfterMoveFolder: () -> Unit,
+    onMoveFolderGridItemOutsideFolder: (
+        folderGridItem: GridItem,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+    ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onShowFolderWhenDragging: (
+        id: String,
+        movingGridItem: GridItem,
+        gridItemSource: GridItemSource,
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -171,18 +204,16 @@ internal fun SharedTransitionScope.DragScreen(
 
     var dockPageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
-    val dockHeight = homeSettings.dockHeight.dp
+    var folderPageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
-    val pageIndicatorHeightPx = with(density) {
-        PAGE_INDICATOR_HEIGHT.dp.roundToPx()
-    }
+    val dockHeight = homeSettings.dockHeight.dp
 
     val appWidgetLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         handleAppWidgetLauncherResult(
             result = result,
-            gridItem = gridItemSource.gridItem,
+            gridItemSource = gridItemSource,
             appWidgetManager = appWidgetManager,
             onUpdateWidgetGridItem = { gridItem ->
                 updatedWidgetGridItem = gridItem
@@ -226,16 +257,16 @@ internal fun SharedTransitionScope.DragScreen(
         }
     }
 
+    var folderTitleHeightPx by remember { mutableIntStateOf(0) }
+
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleDragGridItem(
             density = density,
             currentPage = currentPage,
             drag = drag,
-            gridItem = gridItemSource.gridItem,
             dragIntOffset = dragIntOffset,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
-            pageIndicatorHeight = pageIndicatorHeightPx,
             dockHeight = dockHeight,
             rows = homeSettings.rows,
             columns = homeSettings.columns,
@@ -245,10 +276,16 @@ internal fun SharedTransitionScope.DragScreen(
             gridItemSource = gridItemSource,
             paddingValues = paddingValues,
             lockMovement = lockMovement,
-            screen = screen,
+            folderGridItem = folderGridItem,
+            folderPopupIntOffset = folderPopupIntOffset,
+            folderPopupIntSize = folderPopupIntSize,
+            folderCurrentPage = folderGridHorizontalPagerState.currentPage,
+            folderTitleHeightPx = folderTitleHeightPx,
             onMoveGridItem = onMoveGridItem,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
             onUpdateAssociate = onUpdateAssociate,
+            onMoveFolderGridItem = onMoveFolderGridItem,
+            onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
+            onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
 
@@ -281,6 +318,7 @@ internal fun SharedTransitionScope.DragScreen(
                             Toast.LENGTH_LONG,
                         ).show()
                     },
+                    onDragEndAfterMoveFolder = onDragEndAfterMoveFolder,
                 )
 
                 onResetConfigureResultCode()
@@ -296,7 +334,7 @@ internal fun SharedTransitionScope.DragScreen(
 
     LaunchedEffect(key1 = deleteAppWidgetId) {
         handleDeleteAppWidgetId(
-            gridItem = gridItemSource.gridItem,
+            gridItemSource = gridItemSource,
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
@@ -332,6 +370,13 @@ internal fun SharedTransitionScope.DragScreen(
             gridItemSource = gridItemSource,
             drag = drag,
             moveGridItemResult = moveGridItemResult,
+            density = density,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            paddingValues = paddingValues,
+            columns = homeSettings.columns,
+            rows = homeSettings.rows,
+            dockHeight = dockHeight,
             onShowFolderWhenDragging = onShowFolderWhenDragging,
         )
     }
@@ -343,11 +388,19 @@ internal fun SharedTransitionScope.DragScreen(
             screenWidth = screenWidth,
             dragIntOffset = dragIntOffset,
             associate = associate,
+            folderGridItem = folderGridItem,
+            gridItemSource = gridItemSource,
+            folderPopupIntOffset = folderPopupIntOffset,
+            folderPopupIntSize = folderPopupIntSize,
+            columns = homeSettings.columns,
             onUpdateGridPageDirection = { pageDirection ->
                 gridPageDirection = pageDirection
             },
             onUpdateDockPageDirection = { pageDirection ->
                 dockPageDirection = pageDirection
+            },
+            onUpdateFolderPageDirection = { pageDirection ->
+                folderPageDirection = pageDirection
             },
         )
     }
@@ -363,16 +416,47 @@ internal fun SharedTransitionScope.DragScreen(
         )
     }
 
-    LaunchedEffect(key1 = gridPageDirection, key2 = dockPageDirection) {
+    LaunchedEffect(key1 = gridPageDirection) {
         handlePageDirection(
             pageDirection = gridPageDirection,
             pagerState = gridHorizontalPagerState,
         )
+    }
 
+    LaunchedEffect(key1 = dockPageDirection) {
         handlePageDirection(
             pageDirection = dockPageDirection,
             pagerState = dockGridHorizontalPagerState,
         )
+    }
+
+    LaunchedEffect(key1 = folderPageDirection) {
+        handlePageDirection(
+            pageDirection = folderPageDirection,
+            pagerState = folderGridHorizontalPagerState,
+        )
+    }
+
+    LaunchedEffect(key1 = gridItemSource) {
+        when (gridItemSource) {
+            is GridItemSource.Existing, is GridItemSource.New, is GridItemSource.Pin -> {
+                onUpdateSharedElementKey(
+                    SharedElementKey(
+                        id = gridItemSource.gridItem.id,
+                        screen = screen,
+                    ),
+                )
+            }
+
+            is GridItemSource.Folder -> {
+                onUpdateSharedElementKey(
+                    SharedElementKey(
+                        id = gridItemSource.applicationInfoGridItem.id,
+                        screen = FolderScreen.Drag,
+                    ),
+                )
+            }
+        }
     }
 
     Column(
@@ -418,6 +502,7 @@ internal fun SharedTransitionScope.DragScreen(
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
                         isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+                        folderGridItem = folderGridItem,
                     )
                 },
             )
@@ -425,7 +510,7 @@ internal fun SharedTransitionScope.DragScreen(
 
         PageIndicator(
             modifier = Modifier
-                .height(PAGE_INDICATOR_HEIGHT.dp)
+                .height(PAGE_INDICATOR_HEIGHT)
                 .fillMaxWidth(),
             gridHorizontalPagerState = gridHorizontalPagerState,
             infiniteScroll = homeSettings.infiniteScroll,
@@ -472,9 +557,32 @@ internal fun SharedTransitionScope.DragScreen(
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
                         isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
+                        folderGridItem = folderGridItem,
                     )
                 },
             )
         }
+    }
+
+    if (folderGridItem != null) {
+        FolderDragScreen(
+            folderGridItem = folderGridItem,
+            folderPopupIntOffset = folderPopupIntOffset,
+            folderPopupIntSize = folderPopupIntSize,
+            paddingValues = paddingValues,
+            folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            homeSettings = homeSettings,
+            textColor = textColor,
+            gridItemSettings = homeSettings.gridItemSettings,
+            statusBarNotifications = statusBarNotifications,
+            iconPackFilePaths = iconPackFilePaths,
+            drag = drag,
+            gridItemSource = gridItemSource,
+            onUpdateFolderTitleHeight = { newFolderTitleHeightPx ->
+                folderTitleHeightPx = newFolderTitleHeightPx
+            },
+        )
     }
 }

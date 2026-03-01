@@ -706,7 +706,6 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                                 GridItemSource.New(
                                     gridItem = GridItem(
                                         id = id,
-                                        folderId = null,
                                         page = currentPage,
                                         startColumn = -1,
                                         startRow = -1,

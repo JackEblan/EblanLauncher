@@ -30,31 +30,31 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
@@ -82,6 +82,8 @@ import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalLayoutApi::class)
@@ -116,7 +118,10 @@ internal fun SharedTransitionScope.PagerScreen(
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
-    onTapFolderGridItem: (String) -> Unit,
+    folderGridHorizontalPagerState: PagerState,
+    folderGridItem: GridItem?,
+    folderPopupIntOffset: IntOffset,
+    folderPopupIntSize: IntSize,
     onDraggingGridItem: (
         screen: Screen,
         gridItems: List<GridItem>,
@@ -143,6 +148,7 @@ internal fun SharedTransitionScope.PagerScreen(
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
+    onDeleteApplicationInfoGridItem: (ApplicationInfoGridItem) -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -152,10 +158,13 @@ internal fun SharedTransitionScope.PagerScreen(
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
+    onTapFolderGridItem: (
+        id: String?,
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
-
-    val density = LocalDensity.current
 
     val launcherApps = LocalLauncherApps.current
 
@@ -169,33 +178,13 @@ internal fun SharedTransitionScope.PagerScreen(
 
     val scope = rememberCoroutineScope()
 
-    val leftPadding = with(density) {
-        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
-    }
+    var lastSwipeUpY by rememberSaveable { mutableFloatStateOf(screenHeight.toFloat()) }
 
-    val rightPadding = with(density) {
-        paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
-    }
+    var lastSwipeDownY by rememberSaveable { mutableFloatStateOf(screenHeight.toFloat()) }
 
-    val topPadding = with(density) {
-        paddingValues.calculateTopPadding().roundToPx()
-    }
+    val swipeUpY = remember { Animatable(lastSwipeUpY) }
 
-    val bottomPadding = with(density) {
-        paddingValues.calculateBottomPadding().roundToPx()
-    }
-
-    val horizontalPadding = leftPadding + rightPadding
-
-    val verticalPadding = topPadding + bottomPadding
-
-    val gridWidth = screenWidth - horizontalPadding
-
-    val gridHeight = screenHeight - verticalPadding
-
-    val swipeUpY = remember { Animatable(screenHeight.toFloat()) }
-
-    val swipeDownY = remember { Animatable(screenHeight.toFloat()) }
+    val swipeDownY = remember { Animatable(lastSwipeDownY) }
 
     val wallpaperManagerWrapper = LocalWallpaperManager.current
 
@@ -319,6 +308,18 @@ internal fun SharedTransitionScope.PagerScreen(
         )
     }
 
+    LaunchedEffect(key1 = swipeUpY) {
+        snapshotFlow { swipeUpY.value }.onEach { y ->
+            lastSwipeUpY = y
+        }.collect()
+    }
+
+    LaunchedEffect(key1 = swipeDownY) {
+        snapshotFlow { swipeDownY.value }.onEach { y ->
+            lastSwipeDownY = y
+        }.collect()
+    }
+
     HorizontalPagerScreen(
         modifier = modifier
             .pointerInput(Unit) {
@@ -364,8 +365,6 @@ internal fun SharedTransitionScope.PagerScreen(
         currentPage = currentPage,
         gridItems = gridItems,
         gridItemsByPage = gridItemsByPage,
-        gridWidth = gridWidth,
-        gridHeight = gridHeight,
         paddingValues = paddingValues,
         dockGridItemsByPage = dockGridItemsByPage,
         textColor = textColor,
@@ -380,7 +379,12 @@ internal fun SharedTransitionScope.PagerScreen(
         iconPackFilePaths = iconPackFilePaths,
         isPressHome = isPressHome,
         screen = screen,
-        onTapFolderGridItem = onTapFolderGridItem,
+        folderGridItem = folderGridItem,
+        folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+        screenWidth = screenWidth,
+        screenHeight = screenHeight,
+        folderPopupIntOffset = folderPopupIntOffset,
+        folderPopupIntSize = folderPopupIntSize,
         onEditGridItem = onEditGridItem,
         onResize = onResize,
         onSettings = onSettings,
@@ -398,6 +402,7 @@ internal fun SharedTransitionScope.PagerScreen(
         onUpdateGridItemOffset = onUpdateGridItemOffset,
         onDraggingGridItem = onDraggingGridItem,
         onDeleteGridItem = onDeleteGridItem,
+        onDeleteApplicationInfoGridItem = onDeleteApplicationInfoGridItem,
         onUpdateSharedElementKey = onUpdateSharedElementKey,
         onUpdateEblanApplicationInfoGroup = { newEblanApplicationInfoGroup ->
             eblanApplicationInfoGroup = newEblanApplicationInfoGroup
@@ -405,6 +410,7 @@ internal fun SharedTransitionScope.PagerScreen(
         onOpenAppDrawer = {
             showAppDrawer = true
         },
+        onTapFolderGridItem = onTapFolderGridItem,
     )
 
     if (gestureSettings.swipeUp.eblanActionType == EblanActionType.OpenAppDrawer || gestureSettings.swipeDown.eblanActionType == EblanActionType.OpenAppDrawer) {

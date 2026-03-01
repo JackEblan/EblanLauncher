@@ -17,7 +17,6 @@
  */
 package com.eblan.launcher.feature.home.component.popup
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -37,7 +36,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -142,19 +140,11 @@ private fun ShortcutInfoMenuItem(
 
     val scope = rememberCoroutineScope()
 
-    val scale = remember { Animatable(1f) }
-
     var isLongPress by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.End || drag == Drag.Cancel) {
             isLongPress = false
-
-            scale.stop()
-
-            if (scale.value < 1f) {
-                scale.animateTo(1f)
-            }
         }
     }
 
@@ -184,10 +174,6 @@ private fun ShortcutInfoMenuItem(
                         detectTapGestures(
                             onLongPress = {
                                 scope.launch {
-                                    scale.animateTo(0.5f)
-
-                                    scale.animateTo(1f)
-
                                     val id = Uuid.random().toHexString()
 
                                     val data = GridItemData.ShortcutInfo(
@@ -253,23 +239,8 @@ private fun ShortcutInfoMenuItem(
                                     isLongPress = true
                                 }
                             },
-                            onPress = {
-                                awaitRelease()
-
-                                scale.stop()
-
-                                isLongPress = false
-
-                                if (scale.value < 1f) {
-                                    scale.animateTo(1f)
-                                }
-                            },
                         )
                     }
-                    .scale(
-                        scaleX = scale.value,
-                        scaleY = scale.value,
-                    )
                     .onGloballyPositioned { layoutCoordinates ->
                         intOffset =
                             layoutCoordinates.positionInRoot().round()

@@ -23,7 +23,6 @@ import android.os.UserHandle
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -89,7 +88,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
@@ -660,8 +658,6 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     val graphicsLayer = rememberGraphicsLayer()
 
-    val scale = remember { Animatable(1f) }
-
     val scope = rememberCoroutineScope()
 
     val density = LocalDensity.current
@@ -716,12 +712,6 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
             }
 
             else -> Unit
@@ -733,33 +723,23 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onTap = {
-                        scope.launch {
-                            scale.animateTo(0.5f)
+                        val sourceBoundsX = intOffset.x + leftPadding
 
-                            scale.animateTo(1f)
+                        val sourceBoundsY = intOffset.y + topPadding
 
-                            val sourceBoundsX = intOffset.x + leftPadding
-
-                            val sourceBoundsY = intOffset.y + topPadding
-
-                            launcherApps.startMainActivity(
-                                serialNumber = eblanApplicationInfo.serialNumber,
-                                componentName = eblanApplicationInfo.componentName,
-                                sourceBounds = Rect(
-                                    sourceBoundsX,
-                                    sourceBoundsY,
-                                    sourceBoundsX + intSize.width,
-                                    sourceBoundsY + intSize.height,
-                                ),
-                            )
-                        }
+                        launcherApps.startMainActivity(
+                            serialNumber = eblanApplicationInfo.serialNumber,
+                            componentName = eblanApplicationInfo.componentName,
+                            sourceBounds = Rect(
+                                sourceBoundsX,
+                                sourceBoundsY,
+                                sourceBoundsX + intSize.width,
+                                sourceBoundsY + intSize.height,
+                            ),
+                        )
                     },
                     onLongPress = {
                         scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
                             val data = GridItemData.ApplicationInfo(
                                 serialNumber = eblanApplicationInfo.serialNumber,
                                 componentName = eblanApplicationInfo.componentName,
@@ -822,24 +802,9 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                             isLongPress = true
                         }
                     },
-                    onPress = {
-                        awaitRelease()
-
-                        scale.stop()
-
-                        isLongPress = false
-
-                        if (scale.value < 1f) {
-                            scale.animateTo(1f)
-                        }
-                    },
                 )
             }
             .height(appDrawerRowsHeight)
-            .scale(
-                scaleX = scale.value,
-                scaleY = scale.value,
-            )
             .padding(appDrawerSettings.gridItemSettings.padding.dp)
             .background(
                 color = Color(appDrawerSettings.gridItemSettings.customBackgroundColor),

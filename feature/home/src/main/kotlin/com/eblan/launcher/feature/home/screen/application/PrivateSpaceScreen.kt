@@ -23,7 +23,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -49,11 +48,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
@@ -90,7 +87,6 @@ import com.eblan.launcher.feature.home.util.getVerticalArrangement
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalUserManager
-import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -251,10 +247,6 @@ private fun PrivateSpaceEblanApplicationInfoItem(
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
 
-    val scale = remember { Animatable(1f) }
-
-    val scope = rememberCoroutineScope()
-
     val density = LocalDensity.current
 
     val launcherApps = LocalLauncherApps.current
@@ -286,117 +278,82 @@ private fun PrivateSpaceEblanApplicationInfoItem(
 
     val id = remember { Uuid.random().toHexString() }
 
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.End || drag == Drag.Cancel) {
-            scale.stop()
-
-            if (scale.value < 1f) {
-                scale.animateTo(1f)
-            }
-        }
-    }
-
     Column(
         modifier = modifier
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onTap = {
-                        scope.launch {
-                            scale.animateTo(0.5f)
+                        val sourceBoundsX = intOffset.x + leftPadding
 
-                            scale.animateTo(1f)
+                        val sourceBoundsY = intOffset.y + topPadding
 
-                            val sourceBoundsX = intOffset.x + leftPadding
-
-                            val sourceBoundsY = intOffset.y + topPadding
-
-                            launcherApps.startMainActivity(
-                                serialNumber = eblanApplicationInfo.serialNumber,
-                                componentName = eblanApplicationInfo.componentName,
-                                sourceBounds = Rect(
-                                    sourceBoundsX,
-                                    sourceBoundsY,
-                                    sourceBoundsX + intSize.width,
-                                    sourceBoundsY + intSize.height,
-                                ),
-                            )
-                        }
+                        launcherApps.startMainActivity(
+                            serialNumber = eblanApplicationInfo.serialNumber,
+                            componentName = eblanApplicationInfo.componentName,
+                            sourceBounds = Rect(
+                                sourceBoundsX,
+                                sourceBoundsY,
+                                sourceBoundsX + intSize.width,
+                                sourceBoundsY + intSize.height,
+                            ),
+                        )
                     },
                     onLongPress = {
-                        scope.launch {
-                            scale.animateTo(0.5f)
+                        val data = GridItemData.ApplicationInfo(
+                            serialNumber = eblanApplicationInfo.serialNumber,
+                            componentName = eblanApplicationInfo.componentName,
+                            packageName = eblanApplicationInfo.packageName,
+                            icon = eblanApplicationInfo.icon,
+                            label = eblanApplicationInfo.label,
+                            customIcon = eblanApplicationInfo.customIcon,
+                            customLabel = eblanApplicationInfo.customLabel,
+                            index = -1,
+                            folderId = null,
+                        )
 
-                            scale.animateTo(1f)
-
-                            val data = GridItemData.ApplicationInfo(
-                                serialNumber = eblanApplicationInfo.serialNumber,
-                                componentName = eblanApplicationInfo.componentName,
-                                packageName = eblanApplicationInfo.packageName,
-                                icon = eblanApplicationInfo.icon,
-                                label = eblanApplicationInfo.label,
-                                customIcon = eblanApplicationInfo.customIcon,
-                                customLabel = eblanApplicationInfo.customLabel,
-                                index = -1,
-                                folderId = null,
-                            )
-
-                            onLongPressGridItem(
-                                GridItemSource.New(
-                                    gridItem = GridItem(
-                                        id = id,
-                                        page = -1,
-                                        startColumn = -1,
-                                        startRow = -1,
-                                        columnSpan = 1,
-                                        rowSpan = 1,
-                                        data = data,
-                                        associate = Associate.Grid,
-                                        override = false,
-                                        gridItemSettings = appDrawerSettings.gridItemSettings,
-                                        doubleTap = EblanAction(
-                                            eblanActionType = EblanActionType.None,
-                                            serialNumber = 0L,
-                                            componentName = "",
-                                        ),
-                                        swipeUp = EblanAction(
-                                            eblanActionType = EblanActionType.None,
-                                            serialNumber = 0L,
-                                            componentName = "",
-                                        ),
-                                        swipeDown = EblanAction(
-                                            eblanActionType = EblanActionType.None,
-                                            serialNumber = 0L,
-                                            componentName = "",
-                                        ),
+                        onLongPressGridItem(
+                            GridItemSource.New(
+                                gridItem = GridItem(
+                                    id = id,
+                                    page = -1,
+                                    startColumn = -1,
+                                    startRow = -1,
+                                    columnSpan = 1,
+                                    rowSpan = 1,
+                                    data = data,
+                                    associate = Associate.Grid,
+                                    override = false,
+                                    gridItemSettings = appDrawerSettings.gridItemSettings,
+                                    doubleTap = EblanAction(
+                                        eblanActionType = EblanActionType.None,
+                                        serialNumber = 0L,
+                                        componentName = "",
+                                    ),
+                                    swipeUp = EblanAction(
+                                        eblanActionType = EblanActionType.None,
+                                        serialNumber = 0L,
+                                        componentName = "",
+                                    ),
+                                    swipeDown = EblanAction(
+                                        eblanActionType = EblanActionType.None,
+                                        serialNumber = 0L,
+                                        componentName = "",
                                     ),
                                 ),
-                                null,
-                            )
+                            ),
+                            null,
+                        )
 
-                            onUpdateGridItemOffset(
-                                intOffset,
-                                intSize,
-                            )
+                        onUpdateGridItemOffset(
+                            intOffset,
+                            intSize,
+                        )
 
-                            onUpdatePopupMenu(true)
-                        }
-                    },
-                    onPress = {
-                        awaitRelease()
-
-                        scale.stop()
-
-                        if (scale.value < 1f) {
-                            scale.animateTo(1f)
-                        }
+                        onUpdatePopupMenu(true)
                     },
                 )
             }
             .height(appDrawerRowsHeight)
-            .scale(
-                scaleX = scale.value,
-                scaleY = scale.value,
-            )
             .padding(appDrawerSettings.gridItemSettings.padding.dp)
             .background(
                 color = Color(appDrawerSettings.gridItemSettings.customBackgroundColor),

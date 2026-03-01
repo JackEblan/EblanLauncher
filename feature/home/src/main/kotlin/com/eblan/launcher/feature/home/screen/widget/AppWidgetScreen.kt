@@ -56,7 +56,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -348,8 +347,6 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
 
     val graphicsLayer = rememberGraphicsLayer()
 
-    val scale = remember { Animatable(1f) }
-
     var isLongPress by remember { mutableStateOf(false) }
 
     val isDragging by remember(key1 = drag) {
@@ -371,12 +368,6 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
             }
 
             else -> Unit
@@ -389,10 +380,6 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                 detectTapGestures(
                     onLongPress = {
                         scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
                             onLongPressGridItem(
                                 GridItemSource.New(
                                     gridItem = getWidgetGridItem(
@@ -435,25 +422,10 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                             isLongPress = true
                         }
                     },
-                    onPress = {
-                        awaitRelease()
-
-                        scale.stop()
-
-                        isLongPress = false
-
-                        if (scale.value < 1f) {
-                            scale.animateTo(1f)
-                        }
-                    },
                 )
             }
             .size(200.dp)
-            .padding(20.dp)
-            .scale(
-                scaleX = scale.value,
-                scaleY = scale.value,
-            ),
+            .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {

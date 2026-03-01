@@ -148,7 +148,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
                         folderGridWidthPx = folderGridWidthPx,
                         folderGridHeightPx = folderGridHeightPx,
                         safeDrawingWidth = safeDrawingWidth,
-                        safeDrawingHeight = safeDrawingHeight
+                        safeDrawingHeight = safeDrawingHeight,
                     )
                 }
                 .size(

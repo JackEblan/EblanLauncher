@@ -52,7 +52,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
@@ -207,7 +206,7 @@ internal fun SharedTransitionScope.FolderScreen(
                         folderGridWidthPx = folderGridWidthPx,
                         folderGridHeightPx = folderGridHeightPx,
                         safeDrawingWidth = safeDrawingWidth,
-                        safeDrawingHeight = safeDrawingHeight
+                        safeDrawingHeight = safeDrawingHeight,
                     )
                 }
                 .size(
@@ -375,8 +374,6 @@ private fun SharedTransitionScope.FolderGridItemContent(
 
     val scope = rememberCoroutineScope()
 
-    val scale = remember { Animatable(1f) }
-
     var isLongPress by remember { mutableStateOf(false) }
 
     val isDragging by remember(key1 = drag) {
@@ -393,12 +390,6 @@ private fun SharedTransitionScope.FolderGridItemContent(
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
             }
 
             else -> Unit
@@ -411,18 +402,12 @@ private fun SharedTransitionScope.FolderGridItemContent(
                 detectTapGestures(
                     onDoubleTap = onDoubleTap(
                         doubleTap = gridItem.doubleTap,
-                        scope = scope,
-                        scale = scale,
                         launcherApps = launcherApps,
                         context = context,
                         onOpenAppDrawer = onOpenAppDrawer,
                     ),
                     onLongPress = {
                         scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onUpdateGridItemOffset(
@@ -441,31 +426,16 @@ private fun SharedTransitionScope.FolderGridItemContent(
                         }
                     },
                     onTap = {
-                        scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
-                            launcherApps.startMainActivity(
-                                serialNumber = gridItem.serialNumber,
-                                componentName = gridItem.componentName,
-                                sourceBounds = Rect(
-                                    intOffset.x,
-                                    intOffset.y,
-                                    intOffset.x + intSize.width,
-                                    intOffset.y + intSize.height,
-                                ),
-                            )
-                        }
-                    },
-                    onPress = {
-                        awaitRelease()
-
-                        scale.stop()
-
-                        if (scale.value < 1f) {
-                            scale.animateTo(1f)
-                        }
+                        launcherApps.startMainActivity(
+                            serialNumber = gridItem.serialNumber,
+                            componentName = gridItem.componentName,
+                            sourceBounds = Rect(
+                                intOffset.x,
+                                intOffset.y,
+                                intOffset.x + intSize.width,
+                                intOffset.y + intSize.height,
+                            ),
+                        )
                     },
                 )
             }
@@ -473,10 +443,6 @@ private fun SharedTransitionScope.FolderGridItemContent(
                 swipeUp = gridItem.swipeUp,
                 swipeDown = gridItem.swipeDown,
                 onOpenAppDrawer = onOpenAppDrawer,
-            )
-            .scale(
-                scaleX = scale.value,
-                scaleY = scale.value,
             )
             .fillMaxSize()
             .padding(currentGridItemSettings.padding.dp)

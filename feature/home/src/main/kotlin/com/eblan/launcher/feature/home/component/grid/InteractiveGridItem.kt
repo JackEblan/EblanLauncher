@@ -21,7 +21,6 @@ import android.content.Context
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -41,7 +40,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -76,7 +74,6 @@ import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalLauncherApps
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -273,8 +270,6 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
     val scope = rememberCoroutineScope()
 
-    val scale = remember { Animatable(1f) }
-
     var isLongPress by remember { mutableStateOf(false) }
 
     val horizontalAlignment =
@@ -297,12 +292,6 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
             }
 
             else -> Unit
@@ -315,18 +304,12 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                 detectTapGestures(
                     onDoubleTap = onDoubleTap(
                         doubleTap = gridItem.doubleTap,
-                        scope = scope,
-                        scale = scale,
                         launcherApps = launcherApps,
                         context = context,
                         onOpenAppDrawer = onOpenAppDrawer,
                     ),
                     onLongPress = {
                         scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onUpdateGridItemOffset(
@@ -346,23 +329,10 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                     },
                     onTap = {
                         scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
                             onTapApplicationInfo(
                                 data.serialNumber,
                                 data.componentName,
                             )
-                        }
-                    },
-                    onPress = {
-                        awaitRelease()
-
-                        scale.stop()
-
-                        if (scale.value < 1f) {
-                            scale.animateTo(1f)
                         }
                     },
                 )
@@ -371,10 +341,6 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                 swipeUp = gridItem.swipeUp,
                 swipeDown = gridItem.swipeDown,
                 onOpenAppDrawer = onOpenAppDrawer,
-            )
-            .scale(
-                scaleX = scale.value,
-                scaleY = scale.value,
             )
             .fillMaxSize()
             .padding(gridItemSettings.padding.dp)
@@ -450,8 +416,6 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
 
     val scope = rememberCoroutineScope()
 
-    val scale = remember { Animatable(1f) }
-
     var isLongPress by remember { mutableStateOf(false) }
 
     val isDragging by remember(key1 = drag) {
@@ -468,12 +432,6 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
             }
 
             else -> Unit
@@ -503,10 +461,6 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
 
                 intSize = layoutCoordinates.size
             }
-            .scale(
-                scaleX = scale.value,
-                scaleY = scale.value,
-            )
             .fillMaxSize()
 
         if (appWidgetInfo != null) {
@@ -518,10 +472,6 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                     ).apply {
                         setOnLongClickListener {
                             scope.launch {
-                                scale.animateTo(0.5f)
-
-                                scale.animateTo(1f)
-
                                 onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                                 onUpdateGridItemOffset(
@@ -593,8 +543,6 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 
     val scope = rememberCoroutineScope()
 
-    val scale = remember { Animatable(1f) }
-
     var isLongPress by remember { mutableStateOf(false) }
 
     val horizontalAlignment =
@@ -617,12 +565,6 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
             }
 
             else -> Unit
@@ -635,18 +577,12 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                 detectTapGestures(
                     onDoubleTap = onDoubleTap(
                         doubleTap = gridItem.doubleTap,
-                        scope = scope,
-                        scale = scale,
                         launcherApps = launcherApps,
                         context = context,
                         onOpenAppDrawer = onOpenAppDrawer,
                     ),
                     onLongPress = {
                         scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onUpdateGridItemOffset(
@@ -667,10 +603,6 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                     onTap = {
                         if (hasShortcutHostPermission && data.isEnabled) {
                             scope.launch {
-                                scale.animateTo(0.5f)
-
-                                scale.animateTo(1f)
-
                                 onTapShortcutInfo(
                                     data.serialNumber,
                                     data.packageName,
@@ -679,25 +611,12 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                             }
                         }
                     },
-                    onPress = {
-                        awaitRelease()
-
-                        scale.stop()
-
-                        if (scale.value < 1f) {
-                            scale.animateTo(1f)
-                        }
-                    },
                 )
             }
             .swipeGestures(
                 swipeUp = gridItem.swipeUp,
                 swipeDown = gridItem.swipeDown,
                 onOpenAppDrawer = onOpenAppDrawer,
-            )
-            .scale(
-                scaleX = scale.value,
-                scaleY = scale.value,
             )
             .fillMaxSize()
             .padding(gridItemSettings.padding.dp)
@@ -776,8 +695,6 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
     val scope = rememberCoroutineScope()
 
-    val scale = remember { Animatable(1f) }
-
     var isLongPress by remember { mutableStateOf(false) }
 
     val horizontalAlignment =
@@ -800,12 +717,6 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
             }
 
             else -> Unit
@@ -818,18 +729,12 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                 detectTapGestures(
                     onDoubleTap = onDoubleTap(
                         doubleTap = gridItem.doubleTap,
-                        scope = scope,
-                        scale = scale,
                         launcherApps = launcherApps,
                         context = context,
                         onOpenAppDrawer = onOpenAppDrawer,
                     ),
                     onLongPress = {
                         scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onUpdateGridItemOffset(
@@ -848,22 +753,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                         }
                     },
                     onTap = {
-                        scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
-                            onTap()
-                        }
-                    },
-                    onPress = {
-                        awaitRelease()
-
-                        scale.stop()
-
-                        if (scale.value < 1f) {
-                            scale.animateTo(1f)
-                        }
+                        onTap()
                     },
                 )
             }
@@ -871,10 +761,6 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                 swipeUp = gridItem.swipeUp,
                 swipeDown = gridItem.swipeDown,
                 onOpenAppDrawer = onOpenAppDrawer,
-            )
-            .scale(
-                scaleX = scale.value,
-                scaleY = scale.value,
             )
             .fillMaxSize()
             .padding(gridItemSettings.padding.dp)
@@ -955,8 +841,6 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
 
     val scope = rememberCoroutineScope()
 
-    val scale = remember { Animatable(1f) }
-
     var isLongPress by remember { mutableStateOf(false) }
 
     val horizontalAlignment =
@@ -979,12 +863,6 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
             }
 
             else -> Unit
@@ -997,18 +875,12 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                 detectTapGestures(
                     onDoubleTap = onDoubleTap(
                         doubleTap = gridItem.doubleTap,
-                        scope = scope,
-                        scale = scale,
                         launcherApps = launcherApps,
                         context = context,
                         onOpenAppDrawer = onOpenAppDrawer,
                     ),
                     onLongPress = {
                         scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onUpdateGridItemOffset(
@@ -1027,22 +899,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                         }
                     },
                     onTap = {
-                        scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
-                            data.shortcutIntentUri?.let(onTapShortcutConfig)
-                        }
-                    },
-                    onPress = {
-                        awaitRelease()
-
-                        scale.stop()
-
-                        if (scale.value < 1f) {
-                            scale.animateTo(1f)
-                        }
+                        data.shortcutIntentUri?.let(onTapShortcutConfig)
                     },
                 )
             }
@@ -1050,10 +907,6 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                 swipeUp = gridItem.swipeUp,
                 swipeDown = gridItem.swipeDown,
                 onOpenAppDrawer = onOpenAppDrawer,
-            )
-            .scale(
-                scaleX = scale.value,
-                scaleY = scale.value,
             )
             .fillMaxSize()
             .padding(gridItemSettings.padding.dp)
@@ -1177,25 +1030,17 @@ internal fun Modifier.swipeGestures(
 
 internal fun onDoubleTap(
     doubleTap: EblanAction,
-    scope: CoroutineScope,
-    scale: Animatable<Float, AnimationVector1D>,
     launcherApps: AndroidLauncherAppsWrapper,
     context: Context,
     onOpenAppDrawer: () -> Unit,
 ): ((Offset) -> Unit)? = if (doubleTap.eblanActionType != EblanActionType.None) {
     {
-        scope.launch {
-            scale.animateTo(0.5f)
-
-            scale.animateTo(1f)
-
-            handleEblanAction(
-                eblanAction = doubleTap,
-                launcherApps = launcherApps,
-                context = context,
-                onOpenAppDrawer = onOpenAppDrawer,
-            )
-        }
+        handleEblanAction(
+            eblanAction = doubleTap,
+            launcherApps = launcherApps,
+            context = context,
+            onOpenAppDrawer = onOpenAppDrawer,
+        )
     }
 } else {
     null

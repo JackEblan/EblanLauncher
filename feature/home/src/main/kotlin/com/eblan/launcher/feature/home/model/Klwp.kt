@@ -20,7 +20,5 @@ package com.eblan.launcher.feature.home.model
 enum class Klwp {
     Pager,
     EditPage,
-    Folder,
-    FolderDrag,
     AppDrawer,
 }

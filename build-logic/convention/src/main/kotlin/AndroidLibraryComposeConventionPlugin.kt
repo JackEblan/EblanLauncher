@@ -16,10 +16,12 @@
  *
  */
 
+import com.android.build.api.dsl.LibraryExtension
 import com.eblan.launcher.configureComposeCompilerGradlePluginExtension
 import com.eblan.launcher.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.configure
 
 class AndroidLibraryComposeConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -27,6 +29,12 @@ class AndroidLibraryComposeConventionPlugin : Plugin<Project> {
             with(pluginManager) {
                 apply(libs.plugins.com.eblan.launcher.library.get().pluginId)
                 apply(libs.plugins.compose.get().pluginId)
+            }
+
+            configure<LibraryExtension> {
+                buildFeatures {
+                    compose = true
+                }
             }
 
             configureComposeCompilerGradlePluginExtension()

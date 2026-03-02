@@ -16,17 +16,13 @@
  *
  */
 
-import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.eblan.launcher.libs
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.configure
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
 class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -36,8 +32,9 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             }
 
             configure<LibraryExtension> {
+                compileSdk = 36
+
                 defaultConfig {
-                    compileSdk = 36
                     minSdk = 24
                 }
 

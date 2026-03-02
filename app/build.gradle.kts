@@ -28,6 +28,8 @@ android {
         applicationId = "com.eblan.launcher"
         versionCode = 46
         versionName = "0.4.6-alpha"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {

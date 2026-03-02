@@ -38,6 +38,13 @@ internal class DefaultApplicationInfoGridItemRepository @Inject constructor(priv
             }
         }
 
+    override val gridItemsWithFolderId =
+        applicationInfoGridItemDao.getApplicationInfoGridItemEntities().map { entities ->
+            entities.map { entity ->
+                entity.asGridItem()
+            }
+        }
+
     override val applicationInfoGridItems: Flow<List<ApplicationInfoGridItem>> =
         applicationInfoGridItemDao.getApplicationInfoGridItemEntities().map { entities ->
             entities.map { entity ->

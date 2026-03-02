@@ -25,6 +25,8 @@ import kotlinx.coroutines.flow.Flow
 interface ApplicationInfoGridItemRepository {
     val gridItems: Flow<List<GridItem>>
 
+    val gridItemsWithFolderId: Flow<List<GridItem>>
+
     val applicationInfoGridItems: Flow<List<ApplicationInfoGridItem>>
 
     suspend fun upsertApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>)

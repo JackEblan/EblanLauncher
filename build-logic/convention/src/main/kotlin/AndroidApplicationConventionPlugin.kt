@@ -17,12 +17,14 @@
  */
 
 import com.android.build.api.dsl.ApplicationExtension
-import com.eblan.launcher.configureAndroidCompose
-import com.eblan.launcher.configureKotlinAndroid
+import com.eblan.launcher.configureComposeCompilerGradlePluginExtension
 import com.eblan.launcher.libs
+import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -30,18 +32,32 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             with(pluginManager) {
                 apply(libs.plugins.android.application.get().pluginId)
                 apply(libs.plugins.compose.get().pluginId)
-                apply(libs.plugins.kotlin.android.get().pluginId)
             }
 
             configure<ApplicationExtension> {
                 defaultConfig {
                     targetSdk = 36
+                    compileSdk = 36
+                    minSdk = 24
                 }
 
-                configureKotlinAndroid(this)
+                compileOptions {
+                    sourceCompatibility = JavaVersion.VERSION_11
+                    targetCompatibility = JavaVersion.VERSION_11
+                }
 
-                configureAndroidCompose(this)
+                packaging {
+                    resources {
+                        excludes += "/META-INF/{AL2.0,LGPL2.1}"
+                    }
+                }
+
+                buildFeatures {
+                    compose = true
+                }
             }
+
+            configureComposeCompilerGradlePluginExtension()
         }
     }
 }

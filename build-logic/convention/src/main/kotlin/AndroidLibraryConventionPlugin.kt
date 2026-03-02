@@ -16,29 +16,49 @@
  *
  */
 
+import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
-import com.eblan.launcher.disableUnnecessaryAndroidTests
-import com.eblan.launcher.configureKotlinAndroid
 import com.eblan.launcher.libs
+import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
 class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
                 apply(libs.plugins.android.library.get().pluginId)
-                apply(libs.plugins.kotlin.android.get().pluginId)
             }
 
             configure<LibraryExtension> {
-                configureKotlinAndroid(this)
+                defaultConfig {
+                    compileSdk = 36
+                    minSdk = 24
+                }
+
+                compileOptions {
+                    sourceCompatibility = JavaVersion.VERSION_11
+                    targetCompatibility = JavaVersion.VERSION_11
+                }
+
+                packaging {
+                    resources {
+                        excludes += "/META-INF/{AL2.0,LGPL2.1}"
+                    }
+                }
             }
 
             configure<LibraryAndroidComponentsExtension> {
-                disableUnnecessaryAndroidTests(target)
+                beforeVariants {
+                    it.androidTest.enable =
+                        it.androidTest.enable && target.projectDir.resolve("src/androidTest")
+                            .exists()
+                }
             }
         }
     }

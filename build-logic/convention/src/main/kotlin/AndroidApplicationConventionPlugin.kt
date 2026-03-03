@@ -23,6 +23,7 @@ import com.eblan.launcher.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.getByType
 
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -33,14 +34,16 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 apply(libs.plugins.kotlin.android.get().pluginId)
             }
 
+            val extension = extensions.getByType<ApplicationExtension>()
+
+            configureAndroidCompose(extension)
+
+            configureKotlinAndroid(extension)
+
             configure<ApplicationExtension> {
                 defaultConfig {
                     targetSdk = 36
                 }
-
-                configureKotlinAndroid(this)
-
-                configureAndroidCompose(this)
             }
         }
     }

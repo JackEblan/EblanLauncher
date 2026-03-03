@@ -16,12 +16,17 @@
  *
  */
 
-import com.eblan.launcher.configureKotlinJvm
 import com.eblan.launcher.libs
+import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 class JvmLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -30,7 +35,15 @@ class JvmLibraryConventionPlugin : Plugin<Project> {
                 apply(libs.plugins.kotlin.jvm.get().pluginId)
             }
 
-            configureKotlinJvm()
+            this.configure<JavaPluginExtension> {
+                this.sourceCompatibility = JavaVersion.VERSION_11
+                this.targetCompatibility = JavaVersion.VERSION_11
+            }
+            this.configure<KotlinJvmProjectExtension> {
+                this.compilerOptions {
+                    jvmTarget = JvmTarget.JVM_11
+                }
+            }
 
             dependencies {
                 add("implementation", kotlin("stdlib"))

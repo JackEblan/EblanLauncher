@@ -21,19 +21,18 @@ package com.eblan.launcher
 import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 internal fun Project.configureKotlinAndroid(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    commonExtension: CommonExtension,
 ) {
     commonExtension.apply {
+        compileSdk = 36
+
         defaultConfig {
-            compileSdk = 36
             minSdk = 24
         }
 
@@ -50,19 +49,6 @@ internal fun Project.configureKotlinAndroid(
     }
 
     configure<KotlinAndroidProjectExtension> {
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_11
-        }
-    }
-}
-
-internal fun Project.configureKotlinJvm() {
-    configure<JavaPluginExtension> {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    configure<KotlinJvmProjectExtension> {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
         }

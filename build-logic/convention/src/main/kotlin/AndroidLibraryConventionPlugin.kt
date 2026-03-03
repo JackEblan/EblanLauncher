@@ -18,12 +18,12 @@
 
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
-import com.eblan.launcher.disableUnnecessaryAndroidTests
-import com.eblan.launcher.configureKotlinAndroid
+import com.eblan.launcher.configureAndroidCompose
 import com.eblan.launcher.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.getByType
 
 class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -33,12 +33,16 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 apply(libs.plugins.kotlin.android.get().pluginId)
             }
 
-            configure<LibraryExtension> {
-                configureKotlinAndroid(this)
-            }
+            val extension = extensions.getByType<LibraryExtension>()
+
+            configureAndroidCompose(extension)
 
             configure<LibraryAndroidComponentsExtension> {
-                disableUnnecessaryAndroidTests(target)
+                this.beforeVariants {
+                    it.androidTest.enable =
+                        it.androidTest.enable && target.projectDir.resolve("src/androidTest")
+                            .exists()
+                }
             }
         }
     }

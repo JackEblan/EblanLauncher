@@ -17,31 +17,55 @@
  */
 
 import com.android.build.api.dsl.ApplicationExtension
-import com.eblan.launcher.configureAndroidCompose
-import com.eblan.launcher.configureKotlinAndroid
+import com.eblan.launcher.configureComposeCompilerGradlePluginExtension
 import com.eblan.launcher.libs
+import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            with(pluginManager) {
-                apply(libs.plugins.android.application.get().pluginId)
-                apply(libs.plugins.compose.get().pluginId)
-                apply(libs.plugins.kotlin.android.get().pluginId)
-            }
+            apply(plugin = libs.plugins.android.application.get().pluginId)
+            apply(plugin = libs.plugins.compose.get().pluginId)
+            apply(plugin = libs.plugins.kotlin.android.get().pluginId)
 
             configure<ApplicationExtension> {
+                compileSdk = 36
+
                 defaultConfig {
                     targetSdk = 36
+                    minSdk = 24
                 }
 
-                configureKotlinAndroid(this)
+                buildFeatures {
+                    compose = true
+                }
 
-                configureAndroidCompose(this)
+                compileOptions {
+                    sourceCompatibility = JavaVersion.VERSION_11
+                    targetCompatibility = JavaVersion.VERSION_11
+                }
+
+                packaging {
+                    resources {
+                        excludes += "/META-INF/{AL2.0,LGPL2.1}"
+                    }
+                }
             }
+
+            configure<KotlinAndroidProjectExtension> {
+                compilerOptions {
+                    jvmTarget = JvmTarget.JVM_11
+                }
+            }
+
+            configureComposeCompilerGradlePluginExtension()
         }
     }
 }

@@ -16,21 +16,34 @@
  *
  */
 
-import com.eblan.launcher.configureKotlinJvm
 import com.eblan.launcher.libs
+import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 class JvmLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            with(pluginManager) {
-                apply(libs.plugins.kotlin.jvm.get().pluginId)
+            apply(plugin = libs.plugins.kotlin.jvm.get().pluginId)
+
+            configure<JavaPluginExtension> {
+                sourceCompatibility = JavaVersion.VERSION_11
+                targetCompatibility = JavaVersion.VERSION_11
             }
 
-            configureKotlinJvm()
+            configure<KotlinJvmProjectExtension> {
+                compilerOptions {
+                    jvmTarget = JvmTarget.JVM_11
+                }
+            }
 
             dependencies {
                 add("implementation", kotlin("stdlib"))

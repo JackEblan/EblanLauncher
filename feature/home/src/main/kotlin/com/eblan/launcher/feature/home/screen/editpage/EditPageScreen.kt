@@ -230,7 +230,6 @@ internal fun SharedTransitionScope.EditPageScreen(
                                     drag = Drag.None,
                                     screen = screen,
                                     isScrollInProgress = false,
-                                    folderGridItem = null,
                                 )
                             },
                         )

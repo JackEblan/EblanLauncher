@@ -502,7 +502,6 @@ internal fun SharedTransitionScope.DragScreen(
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
                         isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
-                        folderGridItem = folderGridItem,
                     )
                 },
             )
@@ -557,7 +556,6 @@ internal fun SharedTransitionScope.DragScreen(
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
                         isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
-                        folderGridItem = folderGridItem,
                     )
                 },
             )

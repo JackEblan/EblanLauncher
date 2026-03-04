@@ -283,7 +283,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
-                        folderGridItem = folderGridItem,
                         onTapApplicationInfo = { serialNumber, componentName ->
                             val sourceBoundsX = x + leftPadding
 
@@ -425,7 +424,6 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
-                    folderGridItem = folderGridItem,
                     onTapApplicationInfo = { serialNumber, componentName ->
                         val sourceBoundsX = x + leftPadding
 

@@ -36,6 +36,8 @@ Most Android launchers are just AOSP Launcher3 forks. I wanted to build from scr
 [<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width=19% alt="3">](fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg)
 [<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width=19% alt="4">](fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg)
 [<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width=19% alt="5">](fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg)
+[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg" width=19% alt="6">](fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg)
+[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.jpg" width=19% alt="7">](fastlane/metadata/android/en-US/images/phoneScreenshots/7.jpg)
 
 </div>
 

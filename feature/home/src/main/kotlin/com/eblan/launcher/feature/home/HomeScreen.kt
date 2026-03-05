@@ -1077,7 +1077,7 @@ private fun SharedTransitionScope.OverlayImage(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.End || drag == Drag.Cancel) {
+        if (drag == Drag.Cancel || drag == Drag.End) {
             onResetOverlay()
         }
     }

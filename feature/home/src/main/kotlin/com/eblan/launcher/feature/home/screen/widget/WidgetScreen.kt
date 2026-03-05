@@ -528,32 +528,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
 
     val graphicsLayer = rememberGraphicsLayer()
 
-    var isLongPress by remember { mutableStateOf(false) }
-
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
-
     val id = remember { Uuid.random().toHexString() }
-
-    LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Dragging if isLongPress -> {
-                onDraggingGridItem(
-                    Screen.Drag,
-                    gridItems,
-                )
-            }
-
-            Drag.End, Drag.Cancel -> {
-                isLongPress = false
-            }
-
-            else -> Unit
-        }
-    }
 
     Column(
         modifier = modifier
@@ -600,7 +575,10 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                                 ),
                             )
 
-                            isLongPress = true
+                            onDraggingGridItem(
+                                Screen.Drag,
+                                gridItems,
+                            )
                         }
                     },
                 )
@@ -615,35 +593,33 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                 .fillMaxWidth()
                 .height(100.dp),
         ) {
-            if (!isDragging) {
-                AsyncImage(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .drawWithContent {
-                            graphicsLayer.record {
-                                this@drawWithContent.drawContent()
-                            }
-
-                            drawLayer(graphicsLayer)
+            AsyncImage(
+                modifier = Modifier
+                    .matchParentSize()
+                    .drawWithContent {
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
                         }
-                        .onGloballyPositioned { layoutCoordinates ->
-                            intOffset = layoutCoordinates.positionInRoot().round()
 
-                            intSize = layoutCoordinates.size
-                        }
-                        .sharedElementWithCallerManagedVisibility(
-                            rememberSharedContentState(
-                                key = SharedElementKey(
-                                    id = id,
-                                    screen = screen,
-                                ),
+                        drawLayer(graphicsLayer)
+                    }
+                    .onGloballyPositioned { layoutCoordinates ->
+                        intOffset = layoutCoordinates.positionInRoot().round()
+
+                        intSize = layoutCoordinates.size
+                    }
+                    .sharedElementWithCallerManagedVisibility(
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = id,
+                                screen = screen,
                             ),
-                            visible = drag == Drag.Cancel || drag == Drag.End,
                         ),
-                    model = preview,
-                    contentDescription = null,
-                )
-            }
+                        visible = drag == Drag.Cancel || drag == Drag.End,
+                    ),
+                model = preview,
+                contentDescription = null,
+            )
         }
 
         val text =
@@ -663,19 +639,10 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                 null
             }
 
-        val textModifier = Modifier.alpha(
-            if (isDragging) {
-                0f
-            } else {
-                1f
-            },
-        )
-
         eblanAppWidgetProviderInfo.label?.let { label ->
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                modifier = textModifier,
                 text = label,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,
@@ -686,7 +653,6 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                modifier = textModifier,
                 text = text,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodySmall,
@@ -697,7 +663,6 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                modifier = textModifier,
                 text = description,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodySmall,

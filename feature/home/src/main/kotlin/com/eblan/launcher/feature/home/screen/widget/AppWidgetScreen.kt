@@ -46,7 +46,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -347,32 +346,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
 
     val graphicsLayer = rememberGraphicsLayer()
 
-    var isLongPress by remember { mutableStateOf(false) }
-
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
-
     val id = remember { Uuid.random().toHexString() }
-
-    LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Dragging if isLongPress -> {
-                onDraggingGridItem(
-                    Screen.Drag,
-                    gridItems,
-                )
-            }
-
-            Drag.End, Drag.Cancel -> {
-                isLongPress = false
-            }
-
-            else -> Unit
-        }
-    }
 
     Column(
         modifier = modifier
@@ -419,7 +393,10 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                                 ),
                             )
 
-                            isLongPress = true
+                            onDraggingGridItem(
+                                Screen.Drag,
+                                gridItems,
+                            )
                         }
                     },
                 )
@@ -429,80 +406,78 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        if (!isDragging) {
-            val text =
-                if (eblanAppWidgetProviderInfo.targetCellWidth > 0 && eblanAppWidgetProviderInfo.targetCellHeight > 0) {
-                    "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}"
-                } else if (eblanAppWidgetProviderInfo.minWidth > 0 && eblanAppWidgetProviderInfo.minHeight > 0) {
-                    val cellWidth = screenWidth / columns
+        val text =
+            if (eblanAppWidgetProviderInfo.targetCellWidth > 0 && eblanAppWidgetProviderInfo.targetCellHeight > 0) {
+                "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}"
+            } else if (eblanAppWidgetProviderInfo.minWidth > 0 && eblanAppWidgetProviderInfo.minHeight > 0) {
+                val cellWidth = screenWidth / columns
 
-                    val cellHeight = screenHeight / rows
+                val cellHeight = screenHeight / rows
 
-                    val spanX = (eblanAppWidgetProviderInfo.minWidth + cellWidth - 1) / cellWidth
+                val spanX = (eblanAppWidgetProviderInfo.minWidth + cellWidth - 1) / cellWidth
 
-                    val spanY = (eblanAppWidgetProviderInfo.minHeight + cellHeight - 1) / cellHeight
+                val spanY = (eblanAppWidgetProviderInfo.minHeight + cellHeight - 1) / cellHeight
 
-                    "${spanX}x$spanY"
-                } else {
-                    null
-                }
-
-            eblanAppWidgetProviderInfo.label?.let { label ->
-                Text(
-                    text = label,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
+                "${spanX}x$spanY"
+            } else {
+                null
             }
 
-            eblanAppWidgetProviderInfo.description?.let { description ->
-                Text(
-                    text = description,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-            }
-
-            if (text != null) {
-                Text(
-                    text = text,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-            }
-
-            AsyncImage(
-                modifier = Modifier
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
-
-                        drawLayer(graphicsLayer)
-                    }
-                    .onGloballyPositioned { layoutCoordinates ->
-                        intOffset = layoutCoordinates.positionInRoot().round()
-
-                        intSize = layoutCoordinates.size
-                    }
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = id,
-                                screen = screen,
-                            ),
-                        ),
-                        visible = drag == Drag.Cancel || drag == Drag.End,
-                    ),
-                model = preview,
-                contentDescription = null,
+        eblanAppWidgetProviderInfo.label?.let { label ->
+            Text(
+                text = label,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge,
             )
+
+            Spacer(modifier = Modifier.height(10.dp))
         }
+
+        eblanAppWidgetProviderInfo.description?.let { description ->
+            Text(
+                text = description,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodySmall,
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+
+        if (text != null) {
+            Text(
+                text = text,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodySmall,
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+
+        AsyncImage(
+            modifier = Modifier
+                .drawWithContent {
+                    graphicsLayer.record {
+                        this@drawWithContent.drawContent()
+                    }
+
+                    drawLayer(graphicsLayer)
+                }
+                .onGloballyPositioned { layoutCoordinates ->
+                    intOffset = layoutCoordinates.positionInRoot().round()
+
+                    intSize = layoutCoordinates.size
+                }
+                .sharedElementWithCallerManagedVisibility(
+                    rememberSharedContentState(
+                        key = SharedElementKey(
+                            id = id,
+                            screen = screen,
+                        ),
+                    ),
+                    visible = drag == Drag.Cancel || drag == Drag.End,
+                ),
+            model = preview,
+            contentDescription = null,
+        )
     }
 }

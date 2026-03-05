@@ -639,32 +639,7 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
 
     val graphicsLayer = rememberGraphicsLayer()
 
-    var isLongPress by remember { mutableStateOf(false) }
-
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
-
     val id = remember { Uuid.random().toHexString() }
-
-    LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Dragging if isLongPress -> {
-                onDraggingGridItem(
-                    Screen.Drag,
-                    gridItems,
-                )
-            }
-
-            Drag.End, Drag.Cancel -> {
-                isLongPress = false
-            }
-
-            else -> Unit
-        }
-    }
 
     Column(
         modifier = modifier
@@ -732,7 +707,10 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                                 ),
                             )
 
-                            isLongPress = true
+                            onDraggingGridItem(
+                                Screen.Drag,
+                                gridItems,
+                            )
                         }
                     },
                 )
@@ -743,47 +721,45 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
         verticalArrangement = Arrangement.Center,
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
-            if (!isDragging) {
-                AsyncImage(
-                    model = eblanShortcutConfig.activityIcon,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .matchParentSize()
-                        .drawWithContent {
-                            graphicsLayer.record {
-                                this@drawWithContent.drawContent()
-                            }
-
-                            drawLayer(graphicsLayer)
+            AsyncImage(
+                model = eblanShortcutConfig.activityIcon,
+                contentDescription = null,
+                modifier = Modifier
+                    .matchParentSize()
+                    .drawWithContent {
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
                         }
-                        .onGloballyPositioned { layoutCoordinates ->
-                            intOffset = layoutCoordinates.positionInRoot().round()
 
-                            intSize = layoutCoordinates.size
-                        }
-                        .sharedElementWithCallerManagedVisibility(
-                            rememberSharedContentState(
-                                key = SharedElementKey(
-                                    id = id,
-                                    screen = screen,
-                                ),
-                            ),
-                            visible = drag == Drag.Cancel || drag == Drag.End,
-                        ),
-                )
-
-                if (eblanShortcutConfig.serialNumber != 0L) {
-                    ElevatedCard(
-                        modifier = Modifier
-                            .size((gridItemSettings.iconSize * 0.40).dp)
-                            .align(Alignment.BottomEnd),
-                    ) {
-                        Icon(
-                            imageVector = EblanLauncherIcons.Work,
-                            contentDescription = null,
-                            modifier = Modifier.padding(2.dp),
-                        )
+                        drawLayer(graphicsLayer)
                     }
+                    .onGloballyPositioned { layoutCoordinates ->
+                        intOffset = layoutCoordinates.positionInRoot().round()
+
+                        intSize = layoutCoordinates.size
+                    }
+                    .sharedElementWithCallerManagedVisibility(
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = id,
+                                screen = screen,
+                            ),
+                        ),
+                        visible = drag == Drag.Cancel || drag == Drag.End,
+                    ),
+            )
+
+            if (eblanShortcutConfig.serialNumber != 0L) {
+                ElevatedCard(
+                    modifier = Modifier
+                        .size((gridItemSettings.iconSize * 0.40).dp)
+                        .align(Alignment.BottomEnd),
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Work,
+                        contentDescription = null,
+                        modifier = Modifier.padding(2.dp),
+                    )
                 }
             }
         }
@@ -791,13 +767,6 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
-            modifier = Modifier.alpha(
-                if (isDragging) {
-                    0f
-                } else {
-                    1f
-                },
-            ),
             text = eblanShortcutConfig.activityLabel.toString(),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodySmall,

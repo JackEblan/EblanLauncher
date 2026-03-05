@@ -740,6 +740,7 @@ internal fun SharedTransitionScope.PagerScreen(
             }
         }
     }
+
     if (showGridItemPopup && gridItemSource?.gridItem != null) {
         GridItemPopup(
             gridItem = gridItemSource.gridItem,

@@ -40,7 +40,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -288,7 +287,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
     val scope = rememberCoroutineScope()
 
-    var isLongPress by remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(true) }
 
     val horizontalAlignment =
         getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
@@ -296,30 +295,24 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     val verticalArrangement =
         getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
-
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     val icon = iconPackFilePaths[data.componentName] ?: data.icon
 
     val hasNotifications =
         statusBarNotifications[data.packageName] != null && (
-            statusBarNotifications[data.packageName]
-                ?: 0
-            ) > 0
+                statusBarNotifications[data.packageName]
+                    ?: 0
+                ) > 0
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging if isLongPress -> {
+            Drag.Dragging if !isVisible -> {
                 onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
-                isLongPress = false
+                isVisible = true
             }
 
             else -> Unit
@@ -352,7 +345,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                                 ),
                             )
 
-                            isLongPress = true
+                            isVisible = false
                         }
                     },
                     onTap = {
@@ -379,7 +372,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isDragging) {
+        if (isVisible) {
             Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = Builder(LocalContext.current).data(data.customIcon ?: icon)
@@ -482,29 +475,23 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
 
     val scope = rememberCoroutineScope()
 
-    var isLongPress by remember { mutableStateOf(false) }
-
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
+    var isVisible by remember { mutableStateOf(true) }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging if isLongPress -> {
+            Drag.Dragging if !isVisible -> {
                 onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
-                isLongPress = false
+                isVisible = true
             }
 
             else -> Unit
         }
     }
 
-    if (!isDragging) {
+    if (isVisible) {
         val commonModifier = modifier
             .fillMaxSize()
             .drawWithContent {
@@ -552,7 +539,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                                     ),
                                 )
 
-                                isLongPress = true
+                                isVisible = false
                             }
 
                             true
@@ -609,19 +596,13 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 
     val scope = rememberCoroutineScope()
 
-    var isLongPress by remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(true) }
 
     val horizontalAlignment =
         getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
 
     val verticalArrangement =
         getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
-
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
@@ -633,12 +614,12 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging if isLongPress -> {
+            Drag.Dragging if !isVisible -> {
                 onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
-                isLongPress = false
+                isVisible = true
             }
 
             else -> Unit
@@ -671,7 +652,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                                 ),
                             )
 
-                            isLongPress = true
+                            isVisible = false
                         }
                     },
                     onTap = {
@@ -701,7 +682,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isDragging) {
+        if (isVisible) {
             Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = customIcon,
@@ -791,7 +772,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
     val scope = rememberCoroutineScope()
 
-    var isLongPress by remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(true) }
 
     val horizontalAlignment =
         getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
@@ -799,22 +780,16 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     val verticalArrangement =
         getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
-
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging if isLongPress -> {
+            Drag.Dragging if !isVisible -> {
                 onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
-                isLongPress = false
+                isVisible = true
             }
 
             else -> Unit
@@ -847,7 +822,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                                 ),
                             )
 
-                            isLongPress = true
+                            isVisible = false
                         }
                     },
                     onTap = {
@@ -869,7 +844,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isDragging) {
+        if (isVisible) {
             val commonModifier = Modifier
                 .size(gridItemSettings.iconSize.dp)
                 .drawWithContent {
@@ -990,19 +965,13 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
 
     val scope = rememberCoroutineScope()
 
-    var isLongPress by remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(true) }
 
     val horizontalAlignment =
         getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
 
     val verticalArrangement =
         getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
-
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
@@ -1044,12 +1013,12 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging if isLongPress -> {
+            Drag.Dragging if !isVisible -> {
                 onDraggingGridItem()
             }
 
             Drag.End, Drag.Cancel -> {
-                isLongPress = false
+                isVisible = true
             }
 
             else -> Unit
@@ -1082,7 +1051,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                                 ),
                             )
 
-                            isLongPress = true
+                            isVisible = false
                         }
                     },
                     onTap = {
@@ -1104,7 +1073,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isDragging) {
+        if (isVisible) {
             Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = Builder(LocalContext.current).data(icon)

@@ -1076,8 +1076,8 @@ private fun SharedTransitionScope.OverlayImage(
         DpSize(width = overlayIntSize.width.toDp(), height = overlayIntSize.height.toDp())
     }
 
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.End || drag == Drag.Cancel) {
+    LaunchedEffect(key1 = drag, key2 = isTransitionActive) {
+        if (!isTransitionActive && (drag == Drag.End || drag == Drag.Cancel)) {
             onResetOverlay()
         }
     }

@@ -19,7 +19,6 @@ package com.eblan.launcher.feature.home.screen.widget
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -106,7 +105,7 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun SharedTransitionScope.WidgetScreen(
+internal fun WidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
@@ -232,7 +231,7 @@ internal fun SharedTransitionScope.WidgetScreen(
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
-private fun SharedTransitionScope.Success(
+private fun Success(
     modifier: Modifier = Modifier,
     currentPage: Int,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
@@ -314,11 +313,9 @@ private fun SharedTransitionScope.Success(
     }
 
     LaunchedEffect(key1 = textFieldState) {
-        snapshotFlow { textFieldState.text }
-            .debounce(500L)
-            .onEach { text ->
-                onGetEblanAppWidgetProviderInfosByLabel(text.toString())
-            }.collect()
+        snapshotFlow { textFieldState.text }.debounce(500L).onEach { text ->
+            onGetEblanAppWidgetProviderInfosByLabel(text.toString())
+        }.collect()
     }
 
     Column(
@@ -389,7 +386,7 @@ private fun SharedTransitionScope.Success(
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun SharedTransitionScope.EblanApplicationInfoItem(
+private fun EblanApplicationInfoItem(
     modifier: Modifier = Modifier,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
@@ -479,7 +476,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
+private fun EblanAppWidgetProviderInfoItem(
     modifier: Modifier = Modifier,
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     drag: Drag,

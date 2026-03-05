@@ -592,7 +592,6 @@ private fun SharedTransitionScope.Success(
             paddingValues = paddingValues,
             drag = drag,
             isPressHome = isPressHome,
-            screen = screen,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
             columns = columns,
@@ -604,7 +603,6 @@ private fun SharedTransitionScope.Success(
                 eblanApplicationInfoGroup = null
             },
             onDraggingGridItem = onDraggingGridItem,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 

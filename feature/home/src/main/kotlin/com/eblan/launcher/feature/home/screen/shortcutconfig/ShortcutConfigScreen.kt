@@ -19,7 +19,6 @@ package com.eblan.launcher.feature.home.screen.shortcutconfig
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -118,7 +117,7 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun SharedTransitionScope.ShortcutConfigScreen(
+internal fun ShortcutConfigScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
@@ -238,7 +237,7 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class, FlowPreview::class)
 @Composable
-private fun SharedTransitionScope.Success(
+private fun Success(
     modifier: Modifier = Modifier,
     currentPage: Int,
     paddingValues: PaddingValues,
@@ -404,7 +403,7 @@ private fun EblanShortcutConfigTabRow(
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun SharedTransitionScope.EblanShortcutConfigsPage(
+private fun EblanShortcutConfigsPage(
     modifier: Modifier = Modifier,
     index: Int,
     currentPage: Int,
@@ -508,7 +507,7 @@ private fun SharedTransitionScope.EblanShortcutConfigsPage(
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun SharedTransitionScope.EblanApplicationInfoItem(
+private fun EblanApplicationInfoItem(
     modifier: Modifier = Modifier,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup,
     eblanShortcutConfigs: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
@@ -590,7 +589,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun SharedTransitionScope.EblanShortcutConfigItem(
+private fun EblanShortcutConfigItem(
     modifier: Modifier = Modifier,
     eblanShortcutConfig: EblanShortcutConfig,
     drag: Drag,

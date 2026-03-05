@@ -154,7 +154,6 @@ internal fun SharedTransitionScope.PagerScreen(
         componentName: String,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onResetOverlay: () -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
@@ -291,12 +290,6 @@ internal fun SharedTransitionScope.PagerScreen(
 
         onDispose {
             activity.removeOnNewIntentListener(listener)
-        }
-    }
-
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.End || drag == Drag.Cancel) {
-            onResetOverlay()
         }
     }
 

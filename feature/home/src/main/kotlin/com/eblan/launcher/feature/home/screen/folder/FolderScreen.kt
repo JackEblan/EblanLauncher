@@ -38,7 +38,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -50,6 +53,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
@@ -62,26 +66,32 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest.Builder
+import coil3.request.addLastModifiedToFileCacheKey
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.grid.ApplicationInfoFolderGridItemContent
 import com.eblan.launcher.feature.home.component.grid.FolderGridLayout
-import com.eblan.launcher.feature.home.component.grid.onDoubleTap
-import com.eblan.launcher.feature.home.component.grid.swipeGestures
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.FolderScreen
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.screen.pager.onDoubleTap
+import com.eblan.launcher.feature.home.screen.pager.swipeGestures
 import com.eblan.launcher.feature.home.util.FOLDER_GRID_PADDING
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
@@ -89,6 +99,7 @@ import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.getVerticalArrangement
 import com.eblan.launcher.ui.local.LocalLauncherApps
+import com.eblan.launcher.ui.local.LocalSettings
 import kotlinx.coroutines.launch
 
 @Composable
@@ -454,35 +465,79 @@ private fun SharedTransitionScope.FolderGridItemContent(
         verticalArrangement = verticalArrangement,
     ) {
         if (!isDragging) {
-            ApplicationInfoFolderGridItemContent(
-                modifier = Modifier
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = gridItem.id,
-                                screen = FolderScreen.Folder,
+            val settings = LocalSettings.current
+            val maxLines = if (currentGridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+            val icon = iconPackFilePaths[gridItem.componentName] ?: gridItem.icon
+            val hasNotifications =
+                statusBarNotifications[gridItem.packageName] != null && (
+                    statusBarNotifications[gridItem.packageName]
+                        ?: 0
+                    ) > 0
+            Box(modifier = Modifier.size(currentGridItemSettings.iconSize.dp)) {
+                AsyncImage(
+                    model = Builder(LocalContext.current).data(gridItem.customIcon ?: icon)
+                        .addLastModifiedToFileCacheKey(true).build(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .sharedElementWithCallerManagedVisibility(
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = FolderScreen.Folder,
+                                ),
                             ),
-                        ),
-                        visible = drag == Drag.Cancel || drag == Drag.End,
-                    )
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
+                            visible = drag == Drag.Cancel || drag == Drag.End,
+                        )
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+
+                            drawLayer(graphicsLayer)
                         }
+                        .onGloballyPositioned { layoutCoordinates ->
+                            intOffset = layoutCoordinates.positionInRoot().round()
 
-                        drawLayer(graphicsLayer)
+                            intSize = layoutCoordinates.size
+                        }.matchParentSize(),
+                )
+
+                if (settings.isNotificationAccessGranted() && hasNotifications) {
+                    Box(
+                        modifier = Modifier
+                            .size((currentGridItemSettings.iconSize * 0.3).dp)
+                            .align(Alignment.TopEnd)
+                            .background(
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = CircleShape,
+                            ),
+                    )
+                }
+
+                if (gridItem.serialNumber != 0L) {
+                    ElevatedCard(
+                        modifier = Modifier
+                            .size((currentGridItemSettings.iconSize * 0.4).dp)
+                            .align(Alignment.BottomEnd),
+                    ) {
+                        Icon(
+                            imageVector = EblanLauncherIcons.Work,
+                            contentDescription = null,
+                            modifier = Modifier.padding(2.dp),
+                        )
                     }
-                    .onGloballyPositioned { layoutCoordinates ->
-                        intOffset = layoutCoordinates.positionInRoot().round()
-
-                        intSize = layoutCoordinates.size
-                    },
-                gridItem = gridItem,
-                textColor = currentTextColor,
-                gridItemSettings = currentGridItemSettings,
-                statusBarNotifications = statusBarNotifications,
-                iconPackFilePaths = iconPackFilePaths,
-            )
+                }
+            }
+            if (currentGridItemSettings.showLabel) {
+                Text(
+                    text = gridItem.customLabel ?: gridItem.label,
+                    color = currentTextColor,
+                    textAlign = TextAlign.Center,
+                    maxLines = maxLines,
+                    fontSize = currentGridItemSettings.textSize.sp,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }

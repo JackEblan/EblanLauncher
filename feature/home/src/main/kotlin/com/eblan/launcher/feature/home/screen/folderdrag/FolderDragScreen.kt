@@ -30,24 +30,37 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest.Builder
+import coil3.request.addLastModifiedToFileCacheKey
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.grid.ApplicationInfoFolderGridItemContent
 import com.eblan.launcher.feature.home.component.grid.FolderGridLayout
 import com.eblan.launcher.feature.home.component.grid.WhiteBox
 import com.eblan.launcher.feature.home.model.Drag
@@ -61,6 +74,7 @@ import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.getVerticalArrangement
+import com.eblan.launcher.ui.local.LocalSettings
 
 @Composable
 internal fun SharedTransitionScope.FolderDragScreen(
@@ -252,24 +266,71 @@ private fun SharedTransitionScope.FolderGridItemContent(
             horizontalAlignment = horizontalAlignment,
             verticalArrangement = verticalArrangement,
         ) {
-            ApplicationInfoFolderGridItemContent(
-                modifier = modifier
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = applicationInfoGridItem.id,
-                                screen = FolderScreen.Drag,
-                            ),
-                        ),
-                        visible = drag == Drag.Cancel || drag == Drag.End,
+            val settings = LocalSettings.current
+            val maxLines = if (currentGridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+            val icon = iconPackFilePaths[applicationInfoGridItem.componentName]
+                ?: applicationInfoGridItem.icon
+            val hasNotifications =
+                statusBarNotifications[applicationInfoGridItem.packageName] != null && (
+                    statusBarNotifications[applicationInfoGridItem.packageName]
+                        ?: 0
+                    ) > 0
+            Box(modifier = Modifier.size(currentGridItemSettings.iconSize.dp)) {
+                AsyncImage(
+                    model = Builder(LocalContext.current).data(
+                        applicationInfoGridItem.customIcon ?: icon,
                     )
-                    .fillMaxSize(),
-                gridItem = applicationInfoGridItem,
-                textColor = currentTextColor,
-                gridItemSettings = currentGridItemSettings,
-                statusBarNotifications = statusBarNotifications,
-                iconPackFilePaths = iconPackFilePaths,
-            )
+                        .addLastModifiedToFileCacheKey(true).build(),
+                    contentDescription = null,
+                    modifier = modifier
+                        .sharedElementWithCallerManagedVisibility(
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = applicationInfoGridItem.id,
+                                    screen = FolderScreen.Drag,
+                                ),
+                            ),
+                            visible = drag == Drag.Cancel || drag == Drag.End,
+                        )
+                        .fillMaxSize().matchParentSize(),
+                )
+
+                if (settings.isNotificationAccessGranted() && hasNotifications) {
+                    Box(
+                        modifier = Modifier
+                            .size((currentGridItemSettings.iconSize * 0.3).dp)
+                            .align(Alignment.TopEnd)
+                            .background(
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = CircleShape,
+                            ),
+                    )
+                }
+
+                if (applicationInfoGridItem.serialNumber != 0L) {
+                    ElevatedCard(
+                        modifier = Modifier
+                            .size((currentGridItemSettings.iconSize * 0.4).dp)
+                            .align(Alignment.BottomEnd),
+                    ) {
+                        Icon(
+                            imageVector = EblanLauncherIcons.Work,
+                            contentDescription = null,
+                            modifier = Modifier.padding(2.dp),
+                        )
+                    }
+                }
+            }
+            if (currentGridItemSettings.showLabel) {
+                Text(
+                    text = applicationInfoGridItem.customLabel ?: applicationInfoGridItem.label,
+                    color = currentTextColor,
+                    textAlign = TextAlign.Center,
+                    maxLines = maxLines,
+                    fontSize = currentGridItemSettings.textSize.sp,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }

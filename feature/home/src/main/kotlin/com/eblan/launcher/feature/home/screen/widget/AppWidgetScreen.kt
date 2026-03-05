@@ -479,15 +479,6 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
 
             AsyncImage(
                 modifier = Modifier
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = id,
-                                screen = screen,
-                            ),
-                        ),
-                        visible = drag == Drag.Cancel || drag == Drag.End,
-                    )
                     .drawWithContent {
                         graphicsLayer.record {
                             this@drawWithContent.drawContent()
@@ -499,7 +490,16 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                         intOffset = layoutCoordinates.positionInRoot().round()
 
                         intSize = layoutCoordinates.size
-                    },
+                    }
+                    .sharedElementWithCallerManagedVisibility(
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = id,
+                                screen = screen,
+                            ),
+                        ),
+                        visible = drag == Drag.Cancel || drag == Drag.End,
+                    ),
                 model = preview,
                 contentDescription = null,
             )

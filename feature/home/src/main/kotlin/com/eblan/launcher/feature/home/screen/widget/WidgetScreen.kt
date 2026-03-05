@@ -618,15 +618,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
             if (!isDragging) {
                 AsyncImage(
                     modifier = Modifier
-                        .sharedElementWithCallerManagedVisibility(
-                            rememberSharedContentState(
-                                key = SharedElementKey(
-                                    id = id,
-                                    screen = screen,
-                                ),
-                            ),
-                            visible = drag == Drag.Cancel || drag == Drag.End,
-                        )
+                        .matchParentSize()
                         .drawWithContent {
                             graphicsLayer.record {
                                 this@drawWithContent.drawContent()
@@ -639,7 +631,15 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
 
                             intSize = layoutCoordinates.size
                         }
-                        .matchParentSize(),
+                        .sharedElementWithCallerManagedVisibility(
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = id,
+                                    screen = screen,
+                                ),
+                            ),
+                            visible = drag == Drag.Cancel || drag == Drag.End,
+                        ),
                     model = preview,
                     contentDescription = null,
                 )

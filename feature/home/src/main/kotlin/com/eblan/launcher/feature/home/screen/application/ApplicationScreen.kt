@@ -814,24 +814,14 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         verticalArrangement = verticalArrangement,
     ) {
         if (!isDragging) {
-            Box(
-                modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp),
-            ) {
+            Box(modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(eblanApplicationInfo.customIcon ?: icon)
                         .addLastModifiedToFileCacheKey(true).build(),
                     contentDescription = null,
                     modifier = Modifier
-                        .sharedElementWithCallerManagedVisibility(
-                            rememberSharedContentState(
-                                key = SharedElementKey(
-                                    id = id,
-                                    screen = screen,
-                                ),
-                            ),
-                            visible = drag == Drag.Cancel || drag == Drag.End,
-                        )
+                        .matchParentSize()
                         .drawWithContent {
                             graphicsLayer.record {
                                 this@drawWithContent.drawContent()
@@ -844,7 +834,15 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
                             intSize = layoutCoordinates.size
                         }
-                        .matchParentSize(),
+                        .sharedElementWithCallerManagedVisibility(
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = id,
+                                    screen = screen,
+                                ),
+                            ),
+                            visible = drag == Drag.Cancel || drag == Drag.End,
+                        ),
                 )
 
                 if (eblanApplicationInfo.serialNumber != 0L) {

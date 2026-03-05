@@ -1044,7 +1044,6 @@ internal fun SharedTransitionScope.PagerScreen(
             paddingValues = paddingValues,
             drag = drag,
             isPressHome = isPressHome,
-            screen = screen,
             gridItems = gridItems,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
@@ -1059,7 +1058,6 @@ internal fun SharedTransitionScope.PagerScreen(
                 isPressHome = false
             },
             onDraggingGridItem = onDraggingGridItem,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 
@@ -1072,7 +1070,6 @@ internal fun SharedTransitionScope.PagerScreen(
             gridItemSettings = homeSettings.gridItemSettings,
             screenHeight = screenHeight,
             isPressHome = isPressHome,
-            screen = screen,
             gridItems = gridItems,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
@@ -1083,7 +1080,6 @@ internal fun SharedTransitionScope.PagerScreen(
                 isPressHome = false
             },
             onDraggingGridItem = onDraggingGridItem,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 
@@ -1096,7 +1092,6 @@ internal fun SharedTransitionScope.PagerScreen(
             paddingValues = paddingValues,
             drag = drag,
             isPressHome = isPressHome,
-            screen = screen,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
             columns = homeSettings.columns,
@@ -1110,7 +1105,6 @@ internal fun SharedTransitionScope.PagerScreen(
                 isPressHome = false
             },
             onDraggingGridItem = onDraggingGridItem,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 }

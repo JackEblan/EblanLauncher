@@ -94,7 +94,6 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
-import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
@@ -115,7 +114,6 @@ internal fun SharedTransitionScope.WidgetScreen(
     paddingValues: PaddingValues,
     drag: Drag,
     isPressHome: Boolean,
-    screen: Screen,
     gridItems: List<GridItem>,
     screenWidth: Int,
     screenHeight: Int,
@@ -135,7 +133,6 @@ internal fun SharedTransitionScope.WidgetScreen(
         screen: Screen,
         gridItems: List<GridItem>,
     ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -192,7 +189,6 @@ internal fun SharedTransitionScope.WidgetScreen(
             gridItemSettings = gridItemSettings,
             paddingValues = paddingValues,
             drag = drag,
-            screen = screen,
             gridItems = gridItems,
             isPressHome = isPressHome,
             screenWidth = screenWidth,
@@ -218,7 +214,6 @@ internal fun SharedTransitionScope.WidgetScreen(
                     )
                 }
             },
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
             onDismiss = {
                 scope.launch {
                     offsetY.animateTo(
@@ -244,7 +239,6 @@ private fun SharedTransitionScope.Success(
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
     drag: Drag,
-    screen: Screen,
     gridItems: List<GridItem>,
     isPressHome: Boolean,
     screenWidth: Int,
@@ -266,7 +260,6 @@ private fun SharedTransitionScope.Success(
     ) -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -379,14 +372,12 @@ private fun SharedTransitionScope.Success(
                         drag = drag,
                         currentPage = currentPage,
                         gridItemSettings = gridItemSettings,
-                        screen = screen,
                         gridItems = gridItems,
                         screenWidth = screenWidth,
                         screenHeight = screenHeight,
                         columns = columns,
                         rows = rows,
                         onDraggingGridItem = onDraggingGridItem,
-                        onUpdateSharedElementKey = onUpdateSharedElementKey,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onLongPressGridItem = onLongPressGridItem,
                     )
@@ -409,13 +400,11 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     rows: Int,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    screen: Screen,
     gridItems: List<GridItem>,
     onDraggingGridItem: (
         screen: Screen,
         gridItems: List<GridItem>,
     ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -474,14 +463,12 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                     drag = drag,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
-                    screen = screen,
                     gridItems = gridItems,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     columns = columns,
                     rows = rows,
                     onDraggingGridItem = onDraggingGridItem,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onLongPressGridItem = onLongPressGridItem,
                 )
@@ -496,7 +483,6 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
     modifier: Modifier = Modifier,
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     drag: Drag,
-    screen: Screen,
     gridItems: List<GridItem>,
     screenWidth: Int,
     screenHeight: Int,
@@ -516,7 +502,6 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
         screen: Screen,
         gridItems: List<GridItem>,
     ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -568,13 +553,6 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                                 intSize,
                             )
 
-                            onUpdateSharedElementKey(
-                                SharedElementKey(
-                                    id = id,
-                                    screen = screen,
-                                ),
-                            )
-
                             onDraggingGridItem(
                                 Screen.Drag,
                                 gridItems,
@@ -607,16 +585,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                         intOffset = layoutCoordinates.positionInRoot().round()
 
                         intSize = layoutCoordinates.size
-                    }
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = id,
-                                screen = screen,
-                            ),
-                        ),
-                        visible = drag == Drag.Cancel || drag == Drag.End,
-                    ),
+                    },
                 model = preview,
                 contentDescription = null,
             )

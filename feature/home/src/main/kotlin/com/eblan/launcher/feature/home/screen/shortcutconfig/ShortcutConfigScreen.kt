@@ -106,7 +106,6 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
-import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
@@ -128,7 +127,6 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
     gridItemSettings: GridItemSettings,
     screenHeight: Int,
     isPressHome: Boolean,
-    screen: Screen,
     gridItems: List<GridItem>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
@@ -144,7 +142,6 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
         screen: Screen,
         gridItems: List<GridItem>,
     ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -202,7 +199,6 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
             drag = drag,
             gridItemSettings = gridItemSettings,
             eblanShortcutConfigs = eblanShortcutConfigs,
-            screen = screen,
             gridItems = gridItems,
             isPressHome = isPressHome,
             onLongPressGridItem = onLongPressGridItem,
@@ -224,7 +220,6 @@ internal fun SharedTransitionScope.ShortcutConfigScreen(
                     )
                 }
             },
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
             onDismiss = {
                 scope.launch {
                     offsetY.animateTo(
@@ -250,7 +245,6 @@ private fun SharedTransitionScope.Success(
     drag: Drag,
     gridItemSettings: GridItemSettings,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
-    screen: Screen,
     gridItems: List<GridItem>,
     isPressHome: Boolean,
     onLongPressGridItem: (
@@ -268,7 +262,6 @@ private fun SharedTransitionScope.Success(
     ) -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val horizontalPagerState = rememberPagerState(
@@ -353,14 +346,12 @@ private fun SharedTransitionScope.Success(
                     drag = drag,
                     gridItemSettings = gridItemSettings,
                     eblanShortcutConfigs = eblanShortcutConfigs,
-                    screen = screen,
                     gridItems = gridItems,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onDraggingGridItem = onDraggingGridItem,
                     onVerticalDrag = onVerticalDrag,
                     onDragEnd = onDragEnd,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         } else {
@@ -371,14 +362,12 @@ private fun SharedTransitionScope.Success(
                 drag = drag,
                 gridItemSettings = gridItemSettings,
                 eblanShortcutConfigs = eblanShortcutConfigs,
-                screen = screen,
                 gridItems = gridItems,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onDraggingGridItem = onDraggingGridItem,
                 onVerticalDrag = onVerticalDrag,
                 onDragEnd = onDragEnd,
-                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         }
     }
@@ -423,7 +412,6 @@ private fun SharedTransitionScope.EblanShortcutConfigsPage(
     drag: Drag,
     gridItemSettings: GridItemSettings,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
-    screen: Screen,
     gridItems: List<GridItem>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
@@ -436,7 +424,6 @@ private fun SharedTransitionScope.EblanShortcutConfigsPage(
     ) -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -510,10 +497,8 @@ private fun SharedTransitionScope.EblanShortcutConfigsPage(
                         onLongPressGridItem = onLongPressGridItem,
                         currentPage = currentPage,
                         gridItemSettings = gridItemSettings,
-                        screen = screen,
                         gridItems = gridItems,
                         onDraggingGridItem = onDraggingGridItem,
-                        onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
                 }
             }
@@ -538,13 +523,11 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     ) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    screen: Screen,
     gridItems: List<GridItem>,
     onDraggingGridItem: (
         screen: Screen,
         gridItems: List<GridItem>,
     ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -597,10 +580,8 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                     onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
-                    screen = screen,
                     gridItems = gridItems,
                     onDraggingGridItem = onDraggingGridItem,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
@@ -613,7 +594,6 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
     modifier: Modifier = Modifier,
     eblanShortcutConfig: EblanShortcutConfig,
     drag: Drag,
-    screen: Screen,
     gridItems: List<GridItem>,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -629,7 +609,6 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
         screen: Screen,
         gridItems: List<GridItem>,
     ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -700,13 +679,6 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                                 intSize,
                             )
 
-                            onUpdateSharedElementKey(
-                                SharedElementKey(
-                                    id = id,
-                                    screen = screen,
-                                ),
-                            )
-
                             onDraggingGridItem(
                                 Screen.Drag,
                                 gridItems,
@@ -737,16 +709,7 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                         intOffset = layoutCoordinates.positionInRoot().round()
 
                         intSize = layoutCoordinates.size
-                    }
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = id,
-                                screen = screen,
-                            ),
-                        ),
-                        visible = drag == Drag.Cancel || drag == Drag.End,
-                    ),
+                    },
             )
 
             if (eblanShortcutConfig.serialNumber != 0L) {

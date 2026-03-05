@@ -689,19 +689,13 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         paddingValues.calculateTopPadding().roundToPx()
     }
 
-    var isLongPress by remember { mutableStateOf(false) }
-
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
+    var isVisible by remember { mutableStateOf(true) }
 
     val id = remember { Uuid.random().toHexString() }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging if isLongPress -> {
+            Drag.Dragging if !isVisible -> {
                 onDraggingGridItem(
                     Screen.Drag,
                     gridItems,
@@ -711,7 +705,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
             }
 
             Drag.End, Drag.Cancel -> {
-                isLongPress = false
+                isVisible = true
             }
 
             else -> Unit
@@ -799,7 +793,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
                             onUpdatePopupMenu(true)
 
-                            isLongPress = true
+                            isVisible = false
                         }
                     },
                 )
@@ -813,7 +807,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isDragging) {
+        if (isVisible) {
             Box(modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)

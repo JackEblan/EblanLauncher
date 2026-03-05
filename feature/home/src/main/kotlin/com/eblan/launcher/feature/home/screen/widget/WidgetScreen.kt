@@ -528,19 +528,13 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
 
     val graphicsLayer = rememberGraphicsLayer()
 
-    var isLongPress by remember { mutableStateOf(false) }
-
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
+    var isVisible by remember { mutableStateOf(true) }
 
     val id = remember { Uuid.random().toHexString() }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging if isLongPress -> {
+            Drag.Dragging if !isVisible -> {
                 onDraggingGridItem(
                     Screen.Drag,
                     gridItems,
@@ -548,7 +542,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
             }
 
             Drag.End, Drag.Cancel -> {
-                isLongPress = false
+                isVisible = true
             }
 
             else -> Unit
@@ -600,7 +594,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                                 ),
                             )
 
-                            isLongPress = true
+                            isVisible = false
                         }
                     },
                 )
@@ -615,7 +609,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                 .fillMaxWidth()
                 .height(100.dp),
         ) {
-            if (!isDragging) {
+            if (isVisible) {
                 AsyncImage(
                     modifier = Modifier
                         .matchParentSize()
@@ -664,10 +658,10 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
             }
 
         val textModifier = Modifier.alpha(
-            if (isDragging) {
-                0f
-            } else {
+            if (isVisible) {
                 1f
+            } else {
+                0f
             },
         )
 

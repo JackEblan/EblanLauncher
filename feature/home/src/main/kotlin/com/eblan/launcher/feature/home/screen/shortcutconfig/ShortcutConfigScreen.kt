@@ -639,19 +639,13 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
 
     val graphicsLayer = rememberGraphicsLayer()
 
-    var isLongPress by remember { mutableStateOf(false) }
-
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
+    var isVisible by remember { mutableStateOf(true) }
 
     val id = remember { Uuid.random().toHexString() }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging if isLongPress -> {
+            Drag.Dragging if !isVisible -> {
                 onDraggingGridItem(
                     Screen.Drag,
                     gridItems,
@@ -659,7 +653,7 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
             }
 
             Drag.End, Drag.Cancel -> {
-                isLongPress = false
+                isVisible = true
             }
 
             else -> Unit
@@ -732,7 +726,7 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                                 ),
                             )
 
-                            isLongPress = true
+                            isVisible = false
                         }
                     },
                 )
@@ -743,7 +737,7 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
         verticalArrangement = Arrangement.Center,
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
-            if (!isDragging) {
+            if (isVisible) {
                 AsyncImage(
                     model = eblanShortcutConfig.activityIcon,
                     contentDescription = null,
@@ -792,10 +786,10 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
 
         Text(
             modifier = Modifier.alpha(
-                if (isDragging) {
-                    0f
-                } else {
+                if (isVisible) {
                     1f
+                } else {
+                    0f
                 },
             ),
             text = eblanShortcutConfig.activityLabel.toString(),

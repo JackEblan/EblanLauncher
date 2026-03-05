@@ -46,7 +46,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -347,19 +346,13 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
 
     val graphicsLayer = rememberGraphicsLayer()
 
-    var isLongPress by remember { mutableStateOf(false) }
-
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
+    var isVisible by remember { mutableStateOf(true) }
 
     val id = remember { Uuid.random().toHexString() }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
-            Drag.Dragging if isLongPress -> {
+            Drag.Dragging if !isVisible -> {
                 onDraggingGridItem(
                     Screen.Drag,
                     gridItems,
@@ -367,7 +360,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
             }
 
             Drag.End, Drag.Cancel -> {
-                isLongPress = false
+                isVisible = true
             }
 
             else -> Unit
@@ -419,7 +412,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
                                 ),
                             )
 
-                            isLongPress = true
+                            isVisible = false
                         }
                     },
                 )
@@ -429,7 +422,7 @@ private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        if (!isDragging) {
+        if (isVisible) {
             val text =
                 if (eblanAppWidgetProviderInfo.targetCellWidth > 0 && eblanAppWidgetProviderInfo.targetCellHeight > 0) {
                     "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}"

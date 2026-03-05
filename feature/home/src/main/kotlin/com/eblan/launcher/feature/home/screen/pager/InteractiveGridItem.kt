@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.component.grid
+package com.eblan.launcher.feature.home.screen.pager
 
 import android.content.Context
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -24,11 +24,20 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -38,7 +47,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -50,12 +61,18 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.addLastModifiedToFileCacheKey
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.GridItem
@@ -74,6 +91,7 @@ import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalLauncherApps
+import com.eblan.launcher.ui.local.LocalSettings
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -276,11 +294,17 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     val verticalArrangement =
         getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
+    val settings = LocalSettings.current
+
+    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
+    val icon = iconPackFilePaths[data.componentName] ?: data.icon
+
+    val hasNotifications =
+        statusBarNotifications[data.packageName] != null && (
+                statusBarNotifications[data.packageName]
+                    ?: 0
+                ) > 0
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
@@ -349,18 +373,12 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isDragging) {
-            ApplicationInfoGridItemContent(
+        Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current).data(data.customIcon ?: icon)
+                    .addLastModifiedToFileCacheKey(true).build(),
+                contentDescription = null,
                 modifier = Modifier
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = gridItem.id,
-                                screen = screen,
-                            ),
-                        ),
-                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
-                    )
                     .drawWithContent {
                         graphicsLayer.record {
                             this@drawWithContent.drawContent()
@@ -372,12 +390,54 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                         intOffset = layoutCoordinates.positionInRoot().round()
 
                         intSize = layoutCoordinates.size
-                    },
-                data = data,
-                textColor = textColor,
-                gridItemSettings = gridItemSettings,
-                statusBarNotifications = statusBarNotifications,
-                iconPackFilePaths = iconPackFilePaths,
+                    }
+                    .matchParentSize()
+                    .sharedElementWithCallerManagedVisibility(
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = gridItem.id,
+                                screen = screen,
+                            ),
+                        ),
+                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
+                    ),
+            )
+
+            if (settings.isNotificationAccessGranted() && hasNotifications) {
+                Box(
+                    modifier = Modifier
+                        .size((gridItemSettings.iconSize * 0.3).dp)
+                        .align(Alignment.TopEnd)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = CircleShape,
+                        ),
+                )
+            }
+
+            if (data.serialNumber != 0L) {
+                ElevatedCard(
+                    modifier = Modifier
+                        .size((gridItemSettings.iconSize * 0.4).dp)
+                        .align(Alignment.BottomEnd),
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Work,
+                        contentDescription = null,
+                        modifier = Modifier.padding(2.dp),
+                    )
+                }
+            }
+        }
+
+        if (gridItemSettings.showLabel) {
+            Text(
+                text = data.customLabel ?: data.label,
+                color = textColor,
+                textAlign = TextAlign.Center,
+                maxLines = maxLines,
+                fontSize = gridItemSettings.textSize.sp,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -549,11 +609,13 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
     val verticalArrangement =
         getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
+    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
+    val customIcon = data.customIcon ?: data.icon
+
+    val customShortLabel = data.customShortLabel ?: data.shortLabel
+
+    val alpha = if (hasShortcutHostPermission && data.isEnabled) 1f else 0.3f
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
@@ -625,18 +687,10 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isDragging) {
-            ShortcutInfoGridItemContent(
+        Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
+            AsyncImage(
+                model = customIcon,
                 modifier = Modifier
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = gridItem.id,
-                                screen = screen,
-                            ),
-                        ),
-                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
-                    )
                     .drawWithContent {
                         graphicsLayer.record {
                             this@drawWithContent.drawContent()
@@ -648,11 +702,40 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                         intOffset = layoutCoordinates.positionInRoot().round()
 
                         intSize = layoutCoordinates.size
-                    },
-                data = data,
-                textColor = textColor,
-                gridItemSettings = gridItemSettings,
-                hasShortcutHostPermission = hasShortcutHostPermission,
+                    }
+                    .matchParentSize()
+                    .alpha(alpha)
+                    .sharedElementWithCallerManagedVisibility(
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = gridItem.id,
+                                screen = screen,
+                            ),
+                        ),
+                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
+                    ),
+                contentDescription = null,
+            )
+
+            AsyncImage(
+                model = data.eblanApplicationInfoIcon,
+                modifier = Modifier
+                    .size((gridItemSettings.iconSize * 0.25).dp)
+                    .align(Alignment.BottomEnd)
+                    .alpha(alpha),
+                contentDescription = null,
+            )
+        }
+
+        if (gridItemSettings.showLabel) {
+            Text(
+                modifier = Modifier.alpha(alpha),
+                text = customShortLabel,
+                color = textColor,
+                textAlign = TextAlign.Center,
+                maxLines = maxLines,
+                fontSize = gridItemSettings.textSize.sp,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -700,11 +783,32 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     val verticalArrangement =
         getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
+    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
+    val commonModifier =
+        modifier
+            .size(gridItemSettings.iconSize.dp)
+            .sharedElementWithCallerManagedVisibility(
+                rememberSharedContentState(
+                    key = SharedElementKey(
+                        id = gridItem.id,
+                        screen = screen,
+                    ),
+                ),
+                visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
+            )
+            .drawWithContent {
+                graphicsLayer.record {
+                    this@drawWithContent.drawContent()
+                }
+
+                drawLayer(graphicsLayer)
+            }
+            .onGloballyPositioned { layoutCoordinates ->
+                intOffset = layoutCoordinates.positionInRoot().round()
+
+                intSize = layoutCoordinates.size
+            }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
@@ -768,37 +872,64 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isDragging) {
-            FolderGridItemContent(
-                modifier = Modifier
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = gridItem.id,
-                                screen = screen,
-                            ),
-                        ),
-                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
-                    )
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
+        if (data.icon != null) {
+            AsyncImage(
+                model = data.icon,
+                contentDescription = null,
+                modifier = commonModifier,
+            )
+        } else {
+            Box(
+                modifier = commonModifier.background(
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(5.dp),
+                ),
+            ) {
+                FlowRow(
+                    modifier = Modifier.matchParentSize(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    maxItemsInEachRow = 3,
+                    maxLines = 3,
+                ) {
+                    data.previewGridItemsByPage.forEach { applicationInfoFolderGridItem ->
+                        val folderGridItemModifier =
+                            Modifier
+                                .size((gridItemSettings.iconSize * 0.25).dp)
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(
+                                        key = SharedElementKey(
+                                            id = applicationInfoFolderGridItem.id,
+                                            screen = screen,
+                                        ),
+                                    ),
+                                    visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
+                                )
 
-                        drawLayer(graphicsLayer)
+                        val icon =
+                            iconPackFilePaths[applicationInfoFolderGridItem.componentName]
+                                ?: applicationInfoFolderGridItem.icon
+
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(applicationInfoFolderGridItem.customIcon ?: icon)
+                                .addLastModifiedToFileCacheKey(true).build(),
+                            contentDescription = null,
+                            modifier = folderGridItemModifier,
+                        )
                     }
-                    .onGloballyPositioned { layoutCoordinates ->
-                        intOffset = layoutCoordinates.positionInRoot().round()
+                }
+            }
+        }
 
-                        intSize = layoutCoordinates.size
-                    },
-                gridItemSettings = gridItemSettings,
-                data = data,
-                iconPackFilePaths = iconPackFilePaths,
-                textColor = textColor,
-                screen = screen,
-                drag = drag,
-                isScrollInProgress = isScrollInProgress,
+        if (gridItemSettings.showLabel) {
+            Text(
+                text = data.label,
+                color = textColor,
+                textAlign = TextAlign.Center,
+                maxLines = maxLines,
+                fontSize = gridItemSettings.textSize.sp,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -845,9 +976,41 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     val verticalArrangement =
         getVerticalArrangement(verticalArrangement = gridItemSettings.verticalArrangement)
 
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
+    val icon = when {
+        data.customIcon != null -> {
+            data.customIcon
+        }
+
+        data.shortcutIntentIcon != null -> {
+            data.shortcutIntentIcon
+        }
+
+        data.activityIcon != null -> {
+            data.activityIcon
+        }
+
+        else -> {
+            data.applicationIcon
+        }
+    }
+
+    val label = when {
+        data.customLabel != null -> {
+            data.customLabel
+        }
+
+        data.shortcutIntentName != null -> {
+            data.shortcutIntentName
+        }
+
+        data.activityLabel != null -> {
+            data.activityLabel
+        }
+
+        else -> {
+            data.applicationLabel
         }
     }
 
@@ -913,9 +1076,13 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isDragging) {
-            ShortcutConfigGridItemContent(
+        Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current).data(icon)
+                    .addLastModifiedToFileCacheKey(true).build(),
+                contentDescription = null,
                 modifier = Modifier
+                    .matchParentSize()
                     .sharedElementWithCallerManagedVisibility(
                         rememberSharedContentState(
                             key = SharedElementKey(
@@ -937,9 +1104,31 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
 
                         intSize = layoutCoordinates.size
                     },
-                data = data,
-                textColor = textColor,
-                gridItemSettings = gridItemSettings,
+            )
+
+            if (data.serialNumber != 0L) {
+                ElevatedCard(
+                    modifier = Modifier
+                        .size((gridItemSettings.iconSize * 0.4).dp)
+                        .align(Alignment.BottomEnd),
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Work,
+                        contentDescription = null,
+                        modifier = Modifier.padding(2.dp),
+                    )
+                }
+            }
+        }
+
+        if (gridItemSettings.showLabel) {
+            Text(
+                text = (label).toString(),
+                color = textColor,
+                textAlign = TextAlign.Center,
+                maxLines = maxLines,
+                fontSize = gridItemSettings.textSize.sp,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }

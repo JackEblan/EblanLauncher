@@ -75,8 +75,8 @@ import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoFolderGridItemContent
 import com.eblan.launcher.feature.home.component.grid.FolderGridLayout
-import com.eblan.launcher.feature.home.component.grid.onDoubleTap
-import com.eblan.launcher.feature.home.component.grid.swipeGestures
+import com.eblan.launcher.feature.home.screen.pager.onDoubleTap
+import com.eblan.launcher.feature.home.screen.pager.swipeGestures
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.FolderScreen

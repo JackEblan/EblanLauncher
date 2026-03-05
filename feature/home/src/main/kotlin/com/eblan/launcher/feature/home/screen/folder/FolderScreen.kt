@@ -131,7 +131,7 @@ internal fun SharedTransitionScope.FolderScreen(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onOpenAppDrawer: () -> Unit,
 ) {
-    val data = folderGridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
+    val data = folderGridItem.data as? GridItemData.Folder ?: return
 
     val density = LocalDensity.current
 

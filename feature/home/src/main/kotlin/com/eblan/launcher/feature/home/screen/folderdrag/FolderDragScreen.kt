@@ -95,10 +95,10 @@ internal fun SharedTransitionScope.FolderDragScreen(
     gridItemSource: GridItemSource,
     onUpdateFolderTitleHeight: (Int) -> Unit,
 ) {
-    val data = folderGridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
+    val data = folderGridItem.data as? GridItemData.Folder ?: return
 
     val gridItemSourceFolder =
-        gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemSource.Folder")
+        gridItemSource as? GridItemSource.Folder ?: return
 
     val density = LocalDensity.current
 

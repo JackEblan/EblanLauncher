@@ -1152,7 +1152,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
 
             if (gridItemSettings.showLabel) {
                 Text(
-                    text = (label).toString(),
+                    text = label.toString(),
                     color = textColor,
                     textAlign = TextAlign.Center,
                     maxLines = maxLines,

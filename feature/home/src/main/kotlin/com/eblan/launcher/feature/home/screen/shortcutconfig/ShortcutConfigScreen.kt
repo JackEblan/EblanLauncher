@@ -284,11 +284,9 @@ private fun SharedTransitionScope.Success(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = textFieldState) {
-        snapshotFlow { textFieldState.text }
-            .debounce(500L)
-            .onEach { text ->
-                onGetEblanShortcutConfigsByLabel(text.toString())
-            }.collect()
+        snapshotFlow { textFieldState.text }.debounce(500L).onEach { text ->
+            onGetEblanShortcutConfigsByLabel(text.toString())
+        }.collect()
     }
 
     LaunchedEffect(key1 = isPressHome) {
@@ -750,15 +748,7 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
                     model = eblanShortcutConfig.activityIcon,
                     contentDescription = null,
                     modifier = Modifier
-                        .sharedElementWithCallerManagedVisibility(
-                            rememberSharedContentState(
-                                key = SharedElementKey(
-                                    id = id,
-                                    screen = screen,
-                                ),
-                            ),
-                            visible = drag == Drag.Cancel || drag == Drag.End,
-                        )
+                        .matchParentSize()
                         .drawWithContent {
                             graphicsLayer.record {
                                 this@drawWithContent.drawContent()
@@ -771,7 +761,15 @@ private fun SharedTransitionScope.EblanShortcutConfigItem(
 
                             intSize = layoutCoordinates.size
                         }
-                        .matchParentSize(),
+                        .sharedElementWithCallerManagedVisibility(
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = id,
+                                    screen = screen,
+                                ),
+                            ),
+                            visible = drag == Drag.Cancel || drag == Drag.End,
+                        ),
                 )
 
                 if (eblanShortcutConfig.serialNumber != 0L) {

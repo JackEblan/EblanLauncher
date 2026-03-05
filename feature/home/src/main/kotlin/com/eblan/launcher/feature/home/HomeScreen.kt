@@ -527,15 +527,6 @@ internal fun HomeScreen(
                     onUpdateSharedElementKey = { newSharedElementKey ->
                         sharedElementKey = newSharedElementKey
                     },
-                    onResetOverlay = {
-                        overlayIntOffset = IntOffset.Zero
-
-                        overlayIntSize = IntSize.Zero
-
-                        overlayImageBitmap = null
-
-                        sharedElementKey = null
-                    },
                     onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
                     onResetConfigureResultCode = onResetConfigureResultCode,
                     onStartSyncData = onStartSyncData,
@@ -555,6 +546,15 @@ internal fun HomeScreen(
                     overlayImageBitmap = overlayImageBitmap,
                     sharedElementKey = sharedElementKey,
                     drag = drag,
+                    onResetOverlay = {
+                        overlayImageBitmap = null
+
+                        sharedElementKey = null
+
+                        overlayIntOffset = IntOffset.Zero
+
+                        overlayIntSize = IntSize.Zero
+                    },
                 )
             }
         }
@@ -653,7 +653,6 @@ private fun SharedTransitionScope.Success(
         componentName: String,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onResetOverlay: () -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onResetConfigureResultCode: () -> Unit,
     onStartSyncData: () -> Unit,
@@ -922,7 +921,6 @@ private fun SharedTransitionScope.Success(
                     onDeleteApplicationInfoGridItem = onDeleteApplicationInfoGridItem,
                     onEditApplicationInfo = onEditApplicationInfo,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
-                    onResetOverlay = onResetOverlay,
                     onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
                     onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
                     onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
@@ -1068,28 +1066,35 @@ private fun SharedTransitionScope.OverlayImage(
     overlayImageBitmap: ImageBitmap?,
     sharedElementKey: SharedElementKey?,
     drag: Drag,
+    onResetOverlay: () -> Unit,
 ) {
+    if (overlayImageBitmap == null || sharedElementKey == null) return
+
     val density = LocalDensity.current
 
     val size = with(density) {
         DpSize(width = overlayIntSize.width.toDp(), height = overlayIntSize.height.toDp())
     }
 
-    if (overlayImageBitmap != null && sharedElementKey != null) {
-        Image(
-            modifier = modifier
-                .offset {
-                    overlayIntOffset
-                }
-                .size(size)
-                .sharedElementWithCallerManagedVisibility(
-                    rememberSharedContentState(key = sharedElementKey),
-                    visible = drag == Drag.Start || drag == Drag.Dragging,
-                ),
-            bitmap = overlayImageBitmap,
-            contentDescription = null,
-        )
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.End || drag == Drag.Cancel) {
+            onResetOverlay()
+        }
     }
+
+    Image(
+        modifier = modifier
+            .offset {
+                overlayIntOffset
+            }
+            .size(size)
+            .sharedElementWithCallerManagedVisibility(
+                rememberSharedContentState(key = sharedElementKey),
+                visible = drag == Drag.Start || drag == Drag.Dragging,
+            ),
+        bitmap = overlayImageBitmap,
+        contentDescription = null,
+    )
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)

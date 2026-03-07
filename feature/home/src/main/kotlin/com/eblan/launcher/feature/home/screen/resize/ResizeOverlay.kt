@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.component.resize
+package com.eblan.launcher.feature.home.screen.resize
 
 import androidx.compose.runtime.Composable
 import com.eblan.launcher.domain.model.GridItem

@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.component.popup
+package com.eblan.launcher.feature.home.screen.pager
 
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect

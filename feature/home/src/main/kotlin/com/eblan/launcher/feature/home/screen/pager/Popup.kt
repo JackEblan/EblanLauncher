@@ -51,7 +51,6 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.feature.home.component.popup.SettingsPopupPositionProvider
 import com.eblan.launcher.feature.home.model.GridItemSource
 
 @Composable

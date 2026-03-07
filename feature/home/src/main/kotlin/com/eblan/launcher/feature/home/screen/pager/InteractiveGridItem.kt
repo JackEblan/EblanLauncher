@@ -17,19 +17,15 @@
  */
 package com.eblan.launcher.feature.home.screen.pager
 
-import android.content.Context
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -51,7 +47,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
@@ -60,7 +55,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -73,12 +67,12 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest.Builder
 import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.domain.model.EblanAction
-import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.component.gesture.onDoubleTap
+import com.eblan.launcher.feature.home.component.gesture.swipeGestures
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
@@ -86,14 +80,11 @@ import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.getVerticalArrangement
-import com.eblan.launcher.feature.home.util.handleEblanAction
-import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalSettings
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -1162,101 +1153,4 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
             }
         }
     }
-}
-
-@Composable
-internal fun Modifier.swipeGestures(
-    swipeUp: EblanAction,
-    swipeDown: EblanAction,
-    onOpenAppDrawer: () -> Unit,
-): Modifier {
-    val context = LocalContext.current
-
-    val density = LocalDensity.current
-
-    val scope = rememberCoroutineScope()
-
-    val launcherApps = LocalLauncherApps.current
-
-    return if (swipeUp.eblanActionType != EblanActionType.None ||
-        swipeDown.eblanActionType != EblanActionType.None
-    ) {
-        val swipeY = remember { Animatable(0f) }
-
-        val maxSwipeY = with(density) {
-            40.dp.roundToPx()
-        }
-
-        pointerInput(key1 = Unit) {
-            detectVerticalDragGestures(
-                onDragStart = {
-                    scope.launch {
-                        swipeY.snapTo(0f)
-                    }
-                },
-                onVerticalDrag = { _, dragAmount ->
-                    scope.launch {
-                        swipeY.snapTo(swipeY.value + dragAmount)
-                    }
-                },
-                onDragCancel = {
-                    scope.launch {
-                        swipeY.animateTo(0f)
-                    }
-                },
-                onDragEnd = {
-                    scope.launch {
-                        when {
-                            swipeY.value <= -maxSwipeY -> {
-                                swipeY.animateTo(0f)
-
-                                handleEblanAction(
-                                    eblanAction = swipeUp,
-                                    launcherApps = launcherApps,
-                                    context = context,
-                                    onOpenAppDrawer = onOpenAppDrawer,
-                                )
-                            }
-
-                            swipeY.value >= maxSwipeY -> {
-                                swipeY.animateTo(0f)
-
-                                handleEblanAction(
-                                    eblanAction = swipeDown,
-                                    launcherApps = launcherApps,
-                                    context = context,
-                                    onOpenAppDrawer = onOpenAppDrawer,
-                                )
-                            }
-                        }
-                    }
-                },
-            )
-        }.offset {
-            IntOffset(
-                x = 0,
-                y = swipeY.value.roundToInt().coerceIn(-maxSwipeY..maxSwipeY),
-            )
-        }
-    } else {
-        this
-    }
-}
-
-internal fun onDoubleTap(
-    doubleTap: EblanAction,
-    launcherApps: AndroidLauncherAppsWrapper,
-    context: Context,
-    onOpenAppDrawer: () -> Unit,
-): ((Offset) -> Unit)? = if (doubleTap.eblanActionType != EblanActionType.None) {
-    {
-        handleEblanAction(
-            eblanAction = doubleTap,
-            launcherApps = launcherApps,
-            context = context,
-            onOpenAppDrawer = onOpenAppDrawer,
-        )
-    }
-} else {
-    null
 }

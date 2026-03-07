@@ -74,49 +74,49 @@ internal fun EditApplicationInfoRoute(
     val eblanApplicationInfoTagsUi by viewModel.eblanApplicationInfoTagsUi.collectAsStateWithLifecycle()
 
     EditApplicationInfoScreen(
-        modifier = modifier,
-        editApplicationInfoUiState = editApplicationInfoUiState,
-        onNavigateUp = onNavigateUp,
-        packageManagerIconPackInfos = packageManagerIconPackInfos,
-        iconPackInfoComponents = iconPackInfoComponents,
         eblanApplicationInfoTagsUi = eblanApplicationInfoTagsUi,
-        onUpdateEblanApplicationInfo = viewModel::updateEblanApplicationInfo,
-        onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
-        onRestoreEblanApplicationInfo = viewModel::restoreEblanApplicationInfo,
-        onResetIconPackInfoPackageName = viewModel::resetIconPackInfoPackageName,
-        onUpdateGridItemCustomIcon = viewModel::updateEblanApplicationInfoCustomIcon,
-        onSearchIconPackInfoComponent = viewModel::searchIconPackInfoComponent,
-        onAddEblanApplicationInfoTag = viewModel::addEblanApplicationInfoTag,
-        onUpdateEblanApplicationInfoTag = viewModel::updateEblanApplicationInfoTag,
-        onDeleteEblanApplicationInfoTag = viewModel::deleteEblanApplicationInfoTag,
+        editApplicationInfoUiState = editApplicationInfoUiState,
+        iconPackInfoComponents = iconPackInfoComponents,
+        modifier = modifier,
+        packageManagerIconPackInfos = packageManagerIconPackInfos,
         onAddEblanApplicationInfoCrossRef = viewModel::addEblanApplicationInfoTagCrossRef,
+        onAddEblanApplicationInfoTag = viewModel::addEblanApplicationInfoTag,
         onDeleteEblanApplicationInfoCrossRef = viewModel::deleteEblanApplicationInfoTagCrossRef,
+        onDeleteEblanApplicationInfoTag = viewModel::deleteEblanApplicationInfoTag,
+        onNavigateUp = onNavigateUp,
+        onResetIconPackInfoPackageName = viewModel::resetIconPackInfoPackageName,
+        onRestoreEblanApplicationInfo = viewModel::restoreEblanApplicationInfo,
+        onSearchIconPackInfoComponent = viewModel::searchIconPackInfoComponent,
+        onUpdateEblanApplicationInfo = viewModel::updateEblanApplicationInfo,
+        onUpdateEblanApplicationInfoTag = viewModel::updateEblanApplicationInfoTag,
+        onUpdateGridItemCustomIcon = viewModel::updateEblanApplicationInfoCustomIcon,
+        onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun EditApplicationInfoScreen(
-    modifier: Modifier = Modifier,
-    editApplicationInfoUiState: EditApplicationInfoUiState,
-    onNavigateUp: () -> Unit,
-    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
-    iconPackInfoComponents: List<IconPackInfoComponent>,
     eblanApplicationInfoTagsUi: List<EblanApplicationInfoTagUi>,
-    onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
-    onRestoreEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
-    onUpdateIconPackInfoPackageName: (String) -> Unit,
+    editApplicationInfoUiState: EditApplicationInfoUiState,
+    iconPackInfoComponents: List<IconPackInfoComponent>,
+    modifier: Modifier = Modifier,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
+    onAddEblanApplicationInfoCrossRef: (Long) -> Unit,
+    onAddEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onDeleteEblanApplicationInfoCrossRef: (Long) -> Unit,
+    onDeleteEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onNavigateUp: () -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
+    onRestoreEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
+    onSearchIconPackInfoComponent: (String) -> Unit,
+    onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
+    onUpdateEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
     onUpdateGridItemCustomIcon: (
         customIcon: String?,
         eblanApplicationInfo: EblanApplicationInfo,
     ) -> Unit,
-    onSearchIconPackInfoComponent: (String) -> Unit,
-    onAddEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
-    onUpdateEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
-    onDeleteEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
-    onAddEblanApplicationInfoCrossRef: (Long) -> Unit,
-    onDeleteEblanApplicationInfoCrossRef: (Long) -> Unit,
+    onUpdateIconPackInfoPackageName: (String) -> Unit,
 ) {
     if (editApplicationInfoUiState is EditApplicationInfoUiState.Success && editApplicationInfoUiState.eblanApplicationInfo != null) {
         Scaffold(
@@ -155,19 +155,19 @@ internal fun EditApplicationInfoScreen(
             ) {
                 Success(
                     eblanApplicationInfo = editApplicationInfoUiState.eblanApplicationInfo,
-                    packageManagerIconPackInfos = packageManagerIconPackInfos,
-                    iconPackInfoComponents = iconPackInfoComponents,
                     eblanApplicationInfoTagsUi = eblanApplicationInfoTagsUi,
-                    onUpdateEblanApplicationInfo = onUpdateEblanApplicationInfo,
-                    onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
-                    onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
-                    onUpdateGridItemCustomIcon = onUpdateGridItemCustomIcon,
-                    onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
-                    onAddEblanApplicationInfoTag = onAddEblanApplicationInfoTag,
-                    onUpdateEblanApplicationInfoTag = onUpdateEblanApplicationInfoTag,
-                    onDeleteEblanApplicationInfoTag = onDeleteEblanApplicationInfoTag,
+                    iconPackInfoComponents = iconPackInfoComponents,
+                    packageManagerIconPackInfos = packageManagerIconPackInfos,
                     onAddEblanApplicationInfoCrossRef = onAddEblanApplicationInfoCrossRef,
+                    onAddEblanApplicationInfoTag = onAddEblanApplicationInfoTag,
                     onDeleteEblanApplicationInfoCrossRef = onDeleteEblanApplicationInfoCrossRef,
+                    onDeleteEblanApplicationInfoTag = onDeleteEblanApplicationInfoTag,
+                    onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
+                    onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
+                    onUpdateEblanApplicationInfo = onUpdateEblanApplicationInfo,
+                    onUpdateEblanApplicationInfoTag = onUpdateEblanApplicationInfoTag,
+                    onUpdateGridItemCustomIcon = onUpdateGridItemCustomIcon,
+                    onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                 )
             }
         }
@@ -176,24 +176,24 @@ internal fun EditApplicationInfoScreen(
 
 @Composable
 private fun Success(
-    modifier: Modifier = Modifier,
     eblanApplicationInfo: EblanApplicationInfo,
-    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
-    iconPackInfoComponents: List<IconPackInfoComponent>,
     eblanApplicationInfoTagsUi: List<EblanApplicationInfoTagUi>,
-    onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
-    onUpdateIconPackInfoPackageName: (String) -> Unit,
+    iconPackInfoComponents: List<IconPackInfoComponent>,
+    modifier: Modifier = Modifier,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
+    onAddEblanApplicationInfoCrossRef: (Long) -> Unit,
+    onAddEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onDeleteEblanApplicationInfoCrossRef: (Long) -> Unit,
+    onDeleteEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
+    onSearchIconPackInfoComponent: (String) -> Unit,
+    onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
+    onUpdateEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
     onUpdateGridItemCustomIcon: (
         customIcon: String?,
         eblanApplicationInfo: EblanApplicationInfo,
     ) -> Unit,
-    onSearchIconPackInfoComponent: (String) -> Unit,
-    onAddEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
-    onUpdateEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
-    onDeleteEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
-    onAddEblanApplicationInfoCrossRef: (Long) -> Unit,
-    onDeleteEblanApplicationInfoCrossRef: (Long) -> Unit,
+    onUpdateIconPackInfoPackageName: (String) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
@@ -210,11 +210,11 @@ private fun Success(
     ) {
         Tags(
             eblanApplicationInfoTagsUi = eblanApplicationInfoTagsUi,
-            onAddEblanApplicationInfoTag = onAddEblanApplicationInfoTag,
-            onUpdateEblanApplicationInfoTag = onUpdateEblanApplicationInfoTag,
-            onDeleteEblanApplicationInfoTag = onDeleteEblanApplicationInfoTag,
             onAddEblanApplicationInfoCrossRef = onAddEblanApplicationInfoCrossRef,
+            onAddEblanApplicationInfoTag = onAddEblanApplicationInfoTag,
             onDeleteEblanApplicationInfoCrossRef = onDeleteEblanApplicationInfoCrossRef,
+            onDeleteEblanApplicationInfoTag = onDeleteEblanApplicationInfoTag,
+            onUpdateEblanApplicationInfoTag = onUpdateEblanApplicationInfoTag,
         )
 
         CustomIcon(
@@ -237,8 +237,8 @@ private fun Success(
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
         SettingsColumn(
-            title = "Custom Label",
             subtitle = eblanApplicationInfo.customLabel ?: "None",
+            title = "Custom Label",
             onClick = {
                 showCustomLabelDialog = true
             },
@@ -248,8 +248,8 @@ private fun Success(
 
         SettingsSwitch(
             checked = eblanApplicationInfo.isHidden,
-            title = "Hide From Drawer",
             subtitle = "Hide from drawer",
+            title = "Hide From Drawer",
             onCheckedChange = { isHidden ->
                 onUpdateEblanApplicationInfo(eblanApplicationInfo.copy(isHidden = isHidden))
             },
@@ -257,22 +257,22 @@ private fun Success(
 
         if (showCustomIconDialog) {
             IconPackInfoFilesDialog(
-                iconPackInfoComponents = iconPackInfoComponents,
-                iconPackInfoPackageName = iconPackInfoPackageName,
-                iconPackInfoLabel = iconPackInfoLabel,
                 iconName = eblanApplicationInfo.packageName,
+                iconPackInfoComponents = iconPackInfoComponents,
+                iconPackInfoLabel = iconPackInfoLabel,
+                iconPackInfoPackageName = iconPackInfoPackageName,
                 onDismissRequest = {
                     onResetIconPackInfoPackageName()
 
                     showCustomIconDialog = false
                 },
+                onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
                 onUpdateIcon = { icon ->
                     onUpdateGridItemCustomIcon(
                         icon,
                         eblanApplicationInfo,
                     )
                 },
-                onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
             )
         }
 
@@ -282,14 +282,11 @@ private fun Success(
             var isError by remember { mutableStateOf(false) }
 
             SingleTextFieldDialog(
-                title = "Custom Label",
-                textFieldTitle = "Custom Label",
-                value = value,
                 isError = isError,
                 keyboardType = KeyboardType.Text,
-                onValueChange = {
-                    value = it
-                },
+                textFieldTitle = "Custom Label",
+                title = "Custom Label",
+                value = value,
                 onDismissRequest = {
                     showCustomLabelDialog = false
                 },
@@ -302,6 +299,9 @@ private fun Success(
                         isError = true
                     }
                 },
+                onValueChange = {
+                    value = it
+                },
             )
         }
     }
@@ -309,13 +309,13 @@ private fun Success(
 
 @Composable
 private fun Tags(
-    modifier: Modifier = Modifier,
     eblanApplicationInfoTagsUi: List<EblanApplicationInfoTagUi>,
-    onAddEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
-    onUpdateEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
-    onDeleteEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    modifier: Modifier = Modifier,
     onAddEblanApplicationInfoCrossRef: (Long) -> Unit,
+    onAddEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
     onDeleteEblanApplicationInfoCrossRef: (Long) -> Unit,
+    onDeleteEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
+    onUpdateEblanApplicationInfoTag: (EblanApplicationInfoTag) -> Unit,
 ) {
     var showAddTagDialog by remember { mutableStateOf(false) }
 
@@ -330,9 +330,9 @@ private fun Tags(
     FlowRow(modifier = modifier.fillMaxWidth()) {
         eblanApplicationInfoTagsUi.forEach { eblanApplicationInfoTagUi ->
             EblanApplicationInfoTagUiFilterChip(
-                modifier = Modifier.padding(5.dp),
                 eblanApplicationInfoTagUi = eblanApplicationInfoTagUi,
                 isManagedTags = isManagedTags,
+                modifier = Modifier.padding(5.dp),
                 onAddEblanApplicationInfoCrossRef = onAddEblanApplicationInfoCrossRef,
                 onDeleteEblanApplicationInfoCrossRef = onDeleteEblanApplicationInfoCrossRef,
                 onShowUpdateTagDialog = { newEblanApplicationInfoTagUi ->
@@ -351,8 +351,8 @@ private fun Tags(
         )
 
         ManageTagsFilterChip(
-            modifier = Modifier.padding(5.dp),
             isManagedTags = isManagedTags,
+            modifier = Modifier.padding(5.dp),
             onClick = {
                 isManagedTags = !isManagedTags
             },
@@ -365,14 +365,11 @@ private fun Tags(
         var isError by remember { mutableStateOf(false) }
 
         SingleTextFieldDialog(
-            title = "Add Tag",
-            textFieldTitle = "Add Tag",
-            value = value,
             isError = isError,
             keyboardType = KeyboardType.Text,
-            onValueChange = {
-                value = it
-            },
+            textFieldTitle = "Add Tag",
+            title = "Add Tag",
+            value = value,
             onDismissRequest = {
                 showAddTagDialog = false
             },
@@ -385,26 +382,29 @@ private fun Tags(
                     isError = true
                 }
             },
+            onValueChange = {
+                value = it
+            },
         )
     }
 
     if (showUpdateTagDialog) {
         UpdateTagDialog(
             eblanApplicationInfoTagUi = selectedEblanApplicationInfoTagUi,
+            onDeleteEblanApplicationInfoTag = onDeleteEblanApplicationInfoTag,
             onDismissRequest = {
                 showUpdateTagDialog = false
             },
             onUpdateEblanApplicationInfoTag = onUpdateEblanApplicationInfoTag,
-            onDeleteEblanApplicationInfoTag = onDeleteEblanApplicationInfoTag,
         )
     }
 }
 
 @Composable
 private fun EblanApplicationInfoTagUiFilterChip(
-    modifier: Modifier = Modifier,
     eblanApplicationInfoTagUi: EblanApplicationInfoTagUi,
     isManagedTags: Boolean,
+    modifier: Modifier = Modifier,
     onAddEblanApplicationInfoCrossRef: (Long) -> Unit,
     onDeleteEblanApplicationInfoCrossRef: (Long) -> Unit,
     onShowUpdateTagDialog: (EblanApplicationInfoTagUi) -> Unit,
@@ -461,8 +461,8 @@ private fun AddTagAssistChip(
 
 @Composable
 private fun ManageTagsFilterChip(
-    modifier: Modifier = Modifier,
     isManagedTags: Boolean,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     FilterChip(

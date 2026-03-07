@@ -60,8 +60,8 @@ internal fun AppDrawerSettingsRoute(
     val appDrawerSettingsUiState by viewModel.appDrawerSettingsUiState.collectAsStateWithLifecycle()
 
     AppDrawerSettingsScreen(
-        modifier = modifier,
         appDrawerSettingsUiState = appDrawerSettingsUiState,
+        modifier = modifier,
         onNavigateUp = onNavigateUp,
         onUpdateAppDrawerSettings = viewModel::updateAppDrawerSettings,
         onUpdateEblanApplicationInfo = viewModel::updateEblanApplicationInfo,
@@ -71,8 +71,8 @@ internal fun AppDrawerSettingsRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AppDrawerSettingsScreen(
-    modifier: Modifier = Modifier,
     appDrawerSettingsUiState: AppDrawerSettingsUiState,
+    modifier: Modifier = Modifier,
     onNavigateUp: () -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
@@ -118,9 +118,9 @@ internal fun AppDrawerSettingsScreen(
 
 @Composable
 private fun Success(
-    modifier: Modifier = Modifier,
     appDrawerSettings: AppDrawerSettings,
     eblanApplicationInfos: List<EblanApplicationInfo>,
+    modifier: Modifier = Modifier,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
 ) {
@@ -139,8 +139,8 @@ private fun Success(
                 .padding(horizontal = 15.dp),
         ) {
             SettingsColumn(
-                title = "App Drawer Grid",
                 subtitle = "${appDrawerSettings.appDrawerColumns}x${appDrawerSettings.appDrawerRowsHeight}",
+                title = "App Drawer Grid",
                 onClick = {
                     showGridDialog = true
                 },
@@ -149,8 +149,8 @@ private fun Success(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             SettingsColumn(
-                title = "Hidden Applications",
                 subtitle = "Hidden Applications",
+                title = "Hidden Applications",
                 onClick = {
                     showHiddenEblanApplicationInfosDialog = true
                 },
@@ -175,22 +175,22 @@ private fun Success(
         var secondTextFieldIsError by remember { mutableStateOf(false) }
 
         TwoTextFieldsDialog(
-            title = "App Drawer Grid",
-            firstTextFieldTitle = "Columns",
-            secondTextFieldTitle = "Rows Height",
-            firstTextFieldValue = appDrawerColumns,
-            secondTextFieldValue = appDrawerRowsHeight,
             firstTextFieldIsError = firstTextFieldIsError,
-            secondTextFieldIsError = secondTextFieldIsError,
+            firstTextFieldTitle = "Columns",
+            firstTextFieldValue = appDrawerColumns,
             keyboardType = KeyboardType.Number,
+            secondTextFieldIsError = secondTextFieldIsError,
+            secondTextFieldTitle = "Rows Height",
+            secondTextFieldValue = appDrawerRowsHeight,
+            title = "App Drawer Grid",
+            onDismissRequest = {
+                showGridDialog = false
+            },
             onFirstValueChange = {
                 appDrawerColumns = it
             },
             onSecondValueChange = {
                 appDrawerRowsHeight = it
-            },
-            onDismissRequest = {
-                showGridDialog = false
             },
             onUpdateClick = {
                 val appDrawerColumns = try {

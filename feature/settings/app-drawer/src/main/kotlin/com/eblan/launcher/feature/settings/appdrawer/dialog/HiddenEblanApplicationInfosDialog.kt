@@ -40,77 +40,82 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 
 @Composable
 internal fun HiddenEblanApplicationInfosDialog(
-    modifier: Modifier = Modifier,
     eblanApplicationInfos: List<EblanApplicationInfo>,
+    modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit,
     onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
 ) {
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier.fillMaxWidth(),
-        ) {
-            Text(
-                modifier = Modifier.padding(10.dp),
-                text = "Hidden Applications",
-                style = MaterialTheme.typography.titleLarge,
-            )
+    EblanDialogContainer(
+        content = {
+            Column(
+                modifier = modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    modifier = Modifier.padding(10.dp),
+                    text = "Hidden Applications",
+                    style = MaterialTheme.typography.titleLarge,
+                )
 
-            when {
-                eblanApplicationInfos.isEmpty() -> {
-                    Text(
-                        modifier = Modifier.padding(horizontal = 10.dp),
-                        text = "No hidden Applications",
-                    )
-                }
+                when {
+                    eblanApplicationInfos.isEmpty() -> {
+                        Text(
+                            modifier = Modifier.padding(horizontal = 10.dp),
+                            text = "No hidden Applications",
+                        )
+                    }
 
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier.weight(
-                            weight = 1f,
-                            fill = false,
-                        ),
-                    ) {
-                        items(eblanApplicationInfos) { eblanApplicationInfo ->
-                            ListItem(
-                                headlineContent = { Text(text = eblanApplicationInfo.label) },
-                                leadingContent = {
-                                    AsyncImage(
-                                        model = eblanApplicationInfo.icon,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(40.dp),
-                                    )
-                                },
-                                trailingContent = {
-                                    IconButton(onClick = {
-                                        onUpdateEblanApplicationInfo(
-                                            eblanApplicationInfo.copy(
-                                                isHidden = false,
-                                            ),
-                                        )
-                                    }) {
-                                        Icon(
-                                            imageVector = EblanLauncherIcons.Delete,
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier.weight(
+                                weight = 1f,
+                                fill = false,
+                            ),
+                        ) {
+                            items(eblanApplicationInfos) { eblanApplicationInfo ->
+                                ListItem(
+                                    headlineContent = { Text(text = eblanApplicationInfo.label) },
+                                    leadingContent = {
+                                        AsyncImage(
+                                            model = eblanApplicationInfo.icon,
                                             contentDescription = null,
+                                            modifier = Modifier.size(40.dp),
                                         )
-                                    }
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp),
-                            )
+                                    },
+                                    trailingContent = {
+                                        IconButton(
+                                            onClick = {
+                                                onUpdateEblanApplicationInfo(
+                                                    eblanApplicationInfo.copy(
+                                                        isHidden = false,
+                                                    ),
+                                                )
+                                            },
+                                        ) {
+                                            Icon(
+                                                imageVector = EblanLauncherIcons.Delete,
+                                                contentDescription = null,
+                                            )
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(10.dp),
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            TextButton(
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(10.dp),
-                onClick = onDismissRequest,
-            ) {
-                Text(text = "Okay")
+                TextButton(
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(10.dp),
+                    onClick = onDismissRequest,
+                ) {
+                    Text(text = "Okay")
+                }
             }
-        }
-    }
+        },
+        onDismissRequest = onDismissRequest,
+    )
 }

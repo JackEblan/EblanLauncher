@@ -64,26 +64,26 @@ import kotlin.uuid.Uuid
 
 @Composable
 internal fun ShortcutInfoMenu(
-    modifier: Modifier = Modifier,
     currentPage: Int,
     drag: Drag,
-    icon: String?,
     eblanShortcutInfosGroup: List<EblanShortcutInfo>,
     gridItemSettings: GridItemSettings,
+    icon: String?,
+    modifier: Modifier = Modifier,
+    onDraggingGridItem: () -> Unit,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     Column(
@@ -97,14 +97,14 @@ internal fun ShortcutInfoMenu(
         eblanShortcutInfosGroup.forEach { eblanShortcutInfo ->
             ShortcutInfoMenuItem(
                 currentPage = currentPage,
-                icon = icon,
                 drag = drag,
-                gridItemSettings = gridItemSettings,
-                onTapShortcutInfo = onTapShortcutInfo,
                 eblanShortcutInfo = eblanShortcutInfo,
-                onLongPressGridItem = onLongPressGridItem,
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                gridItemSettings = gridItemSettings,
+                icon = icon,
                 onDraggingGridItem = onDraggingGridItem,
+                onLongPressGridItem = onLongPressGridItem,
+                onTapShortcutInfo = onTapShortcutInfo,
+                onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         }
@@ -114,22 +114,22 @@ internal fun ShortcutInfoMenu(
 @OptIn(ExperimentalUuidApi::class)
 @Composable
 private fun ShortcutInfoMenuItem(
-    modifier: Modifier = Modifier,
     currentPage: Int,
     drag: Drag,
-    icon: String?,
-    gridItemSettings: GridItemSettings,
-    onTapShortcutInfo: (Long, String, String) -> Unit,
     eblanShortcutInfo: EblanShortcutInfo,
+    gridItemSettings: GridItemSettings,
+    icon: String?,
+    modifier: Modifier = Modifier,
+    onDraggingGridItem: () -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
+    onTapShortcutInfo: (Long, String, String) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }

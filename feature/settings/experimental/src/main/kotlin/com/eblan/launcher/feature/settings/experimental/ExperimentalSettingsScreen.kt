@@ -56,20 +56,20 @@ internal fun ExperimentalSettingsRoute(
     val experimentalSettingsUiState by viewModel.experimentalSettingsUiState.collectAsStateWithLifecycle()
 
     ExperimentalSettingsScreen(
-        modifier = modifier,
         experimentalSettingsUiState = experimentalSettingsUiState,
-        onUpdateExperimentalSettings = viewModel::updateExperimentalSettings,
+        modifier = modifier,
         onNavigateUp = onNavigateUp,
+        onUpdateExperimentalSettings = viewModel::updateExperimentalSettings,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ExperimentalSettingsScreen(
-    modifier: Modifier = Modifier,
     experimentalSettingsUiState: ExperimentalSettingsUiState,
-    onUpdateExperimentalSettings: (ExperimentalSettings) -> Unit,
+    modifier: Modifier = Modifier,
     onNavigateUp: () -> Unit,
+    onUpdateExperimentalSettings: (ExperimentalSettings) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -99,8 +99,8 @@ internal fun ExperimentalSettingsScreen(
 
                 is ExperimentalSettingsUiState.Success -> {
                     Success(
-                        modifier = modifier,
                         experimentalSettings = experimentalSettingsUiState.experimentalSettings,
+                        modifier = modifier,
                         onUpdateExperimentalSettings = onUpdateExperimentalSettings,
                     )
                 }
@@ -111,8 +111,8 @@ internal fun ExperimentalSettingsScreen(
 
 @Composable
 private fun Success(
-    modifier: Modifier = Modifier,
     experimentalSettings: ExperimentalSettings,
+    modifier: Modifier = Modifier,
     onUpdateExperimentalSettings: (ExperimentalSettings) -> Unit,
 ) {
     var showSyncDataDialog by remember { mutableStateOf(false) }
@@ -128,8 +128,8 @@ private fun Success(
                 .padding(horizontal = 15.dp),
         ) {
             SettingsColumn(
-                title = "Sync Data",
                 subtitle = "Enable or disable sync data",
+                title = "Sync Data",
                 onClick = {
                     showSyncDataDialog = true
                 },
@@ -139,8 +139,8 @@ private fun Success(
 
             SettingsSwitch(
                 checked = experimentalSettings.lockMovement,
-                title = "Lock Movement",
                 subtitle = "Prevent other grid items from moving",
+                title = "Lock Movement",
                 onCheckedChange = { lockMovement ->
                     onUpdateExperimentalSettings(experimentalSettings.copy(lockMovement = lockMovement))
                 },
@@ -150,8 +150,8 @@ private fun Success(
 
             SettingsSwitch(
                 checked = experimentalSettings.klwpIntegration,
-                title = "KLWP Integration",
                 subtitle = "Send broadcasts to KLWP Live Wallpaper",
+                title = "KLWP Integration",
                 onCheckedChange = { klwpIntegration ->
                     onUpdateExperimentalSettings(experimentalSettings.copy(klwpIntegration = klwpIntegration))
                 },
@@ -162,11 +162,11 @@ private fun Success(
     if (showSyncDataDialog) {
         SyncDataDialog(
             syncData = experimentalSettings.syncData,
-            onUpdateSyncData = { newSyncData ->
-                onUpdateExperimentalSettings(experimentalSettings.copy(syncData = newSyncData))
-            },
             onDismissRequest = {
                 showSyncDataDialog = false
+            },
+            onUpdateSyncData = { newSyncData ->
+                onUpdateExperimentalSettings(experimentalSettings.copy(syncData = newSyncData))
             },
         )
     }

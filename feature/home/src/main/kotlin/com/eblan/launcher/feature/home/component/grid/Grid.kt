@@ -32,9 +32,9 @@ import com.eblan.launcher.domain.model.GridItem
 
 @Composable
 internal fun GridLayout(
-    modifier: Modifier = Modifier,
-    gridItems: List<GridItem>?,
     columns: Int,
+    gridItems: List<GridItem>?,
+    modifier: Modifier = Modifier,
     rows: Int,
     content: @Composable BoxScope.(GridItem) -> Unit,
 ) {
@@ -85,9 +85,9 @@ internal fun GridLayout(
 
 @Composable
 internal fun FolderGridLayout(
-    modifier: Modifier = Modifier,
-    gridItems: List<ApplicationInfoGridItem>?,
     columns: Int,
+    gridItems: List<ApplicationInfoGridItem>?,
+    modifier: Modifier = Modifier,
     rows: Int,
     content: @Composable BoxScope.(ApplicationInfoGridItem) -> Unit,
 ) {

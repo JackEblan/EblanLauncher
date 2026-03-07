@@ -71,17 +71,17 @@ import com.eblan.launcher.ui.local.LocalSettings
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 internal fun SharedTransitionScope.GridItemContent(
-    modifier: Modifier = Modifier,
-    gridItem: GridItem,
-    textColor: TextColor,
-    gridItemSettings: GridItemSettings,
-    isDragging: Boolean,
-    statusBarNotifications: Map<String, Int>,
-    hasShortcutHostPermission: Boolean,
     drag: Drag,
+    gridItem: GridItem,
+    gridItemSettings: GridItemSettings,
+    hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
-    screen: Screen,
+    isDragging: Boolean,
     isScrollInProgress: Boolean,
+    modifier: Modifier = Modifier,
+    screen: Screen,
+    statusBarNotifications: Map<String, Int>,
+    textColor: TextColor,
 ) {
     key(gridItem.id) {
         val currentGridItemSettings = if (gridItem.override) {
@@ -92,15 +92,15 @@ internal fun SharedTransitionScope.GridItemContent(
 
         val currentTextColor = if (gridItem.override) {
             getGridItemTextColor(
-                systemTextColor = textColor,
-                systemCustomTextColor = gridItemSettings.customTextColor,
-                gridItemTextColor = gridItem.gridItemSettings.textColor,
                 gridItemCustomTextColor = gridItem.gridItemSettings.customTextColor,
+                gridItemTextColor = gridItem.gridItemSettings.textColor,
+                systemCustomTextColor = gridItemSettings.customTextColor,
+                systemTextColor = textColor,
             )
         } else {
             getSystemTextColor(
-                systemTextColor = textColor,
                 systemCustomTextColor = gridItemSettings.customTextColor,
+                systemTextColor = textColor,
             )
         }
 
@@ -113,68 +113,68 @@ internal fun SharedTransitionScope.GridItemContent(
             when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     ApplicationInfoGridItem(
-                        modifier = modifier,
-                        gridItem = gridItem,
                         data = data,
-                        textColor = currentTextColor,
-                        gridItemSettings = currentGridItemSettings,
-                        statusBarNotifications = statusBarNotifications,
                         drag = drag,
+                        gridItem = gridItem,
+                        gridItemSettings = currentGridItemSettings,
                         iconPackFilePaths = iconPackFilePaths,
-                        screen = screen,
                         isScrollInProgress = isScrollInProgress,
+                        modifier = modifier,
+                        screen = screen,
+                        statusBarNotifications = statusBarNotifications,
+                        textColor = currentTextColor,
                     )
                 }
 
                 is GridItemData.Widget -> {
                     WidgetGridItem(
-                        modifier = modifier,
-                        gridItem = gridItem,
                         data = data,
                         drag = drag,
-                        screen = screen,
+                        gridItem = gridItem,
                         isScrollInProgress = isScrollInProgress,
+                        modifier = modifier,
+                        screen = screen,
                     )
                 }
 
                 is GridItemData.ShortcutInfo -> {
                     ShortcutInfoGridItem(
-                        modifier = modifier,
-                        gridItem = gridItem,
                         data = data,
-                        textColor = currentTextColor,
+                        drag = drag,
+                        gridItem = gridItem,
                         gridItemSettings = currentGridItemSettings,
                         hasShortcutHostPermission = hasShortcutHostPermission,
-                        drag = drag,
-                        screen = screen,
                         isScrollInProgress = isScrollInProgress,
+                        modifier = modifier,
+                        screen = screen,
+                        textColor = currentTextColor,
                     )
                 }
 
                 is GridItemData.Folder -> {
                     FolderGridItem(
-                        modifier = modifier,
-                        gridItem = gridItem,
                         data = data,
-                        textColor = currentTextColor,
-                        gridItemSettings = currentGridItemSettings,
                         drag = drag,
+                        gridItem = gridItem,
+                        gridItemSettings = currentGridItemSettings,
                         iconPackFilePaths = iconPackFilePaths,
-                        screen = screen,
                         isScrollInProgress = isScrollInProgress,
+                        modifier = modifier,
+                        screen = screen,
+                        textColor = currentTextColor,
                     )
                 }
 
                 is GridItemData.ShortcutConfig -> {
                     ShortcutConfigGridItem(
-                        modifier = modifier,
-                        gridItem = gridItem,
                         data = data,
-                        textColor = currentTextColor,
-                        gridItemSettings = currentGridItemSettings,
                         drag = drag,
-                        screen = screen,
+                        gridItem = gridItem,
+                        gridItemSettings = currentGridItemSettings,
                         isScrollInProgress = isScrollInProgress,
+                        modifier = modifier,
+                        screen = screen,
+                        textColor = currentTextColor,
                     )
                 }
             }
@@ -226,16 +226,16 @@ internal fun WhiteBox(
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun SharedTransitionScope.ApplicationInfoGridItem(
-    modifier: Modifier = Modifier,
-    gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
-    textColor: Color,
-    gridItemSettings: GridItemSettings,
-    statusBarNotifications: Map<String, Int>,
     drag: Drag,
+    gridItem: GridItem,
+    gridItemSettings: GridItemSettings,
     iconPackFilePaths: Map<String, String>,
-    screen: Screen,
     isScrollInProgress: Boolean,
+    modifier: Modifier = Modifier,
+    screen: Screen,
+    statusBarNotifications: Map<String, Int>,
+    textColor: Color,
 ) {
     val settings = LocalSettings.current
 
@@ -327,15 +327,15 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun SharedTransitionScope.ShortcutInfoGridItem(
-    modifier: Modifier = Modifier,
-    gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
-    textColor: Color,
+    drag: Drag,
+    gridItem: GridItem,
     gridItemSettings: GridItemSettings,
     hasShortcutHostPermission: Boolean,
-    drag: Drag,
-    screen: Screen,
     isScrollInProgress: Boolean,
+    modifier: Modifier = Modifier,
+    screen: Screen,
+    textColor: Color,
 ) {
     val horizontalAlignment =
         getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
@@ -407,15 +407,15 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun SharedTransitionScope.FolderGridItem(
-    modifier: Modifier = Modifier,
-    gridItem: GridItem,
     data: GridItemData.Folder,
-    textColor: Color,
-    gridItemSettings: GridItemSettings,
     drag: Drag,
+    gridItem: GridItem,
+    gridItemSettings: GridItemSettings,
     iconPackFilePaths: Map<String, String>,
-    screen: Screen,
     isScrollInProgress: Boolean,
+    modifier: Modifier = Modifier,
+    screen: Screen,
+    textColor: Color,
 ) {
     val horizontalAlignment =
         getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
@@ -513,12 +513,12 @@ private fun SharedTransitionScope.FolderGridItem(
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun SharedTransitionScope.WidgetGridItem(
-    modifier: Modifier = Modifier,
-    gridItem: GridItem,
     data: GridItemData.Widget,
     drag: Drag,
-    screen: Screen,
+    gridItem: GridItem,
     isScrollInProgress: Boolean,
+    modifier: Modifier = Modifier,
+    screen: Screen,
 ) {
     val appWidgetManager = LocalAppWidgetManager.current
 
@@ -560,14 +560,14 @@ private fun SharedTransitionScope.WidgetGridItem(
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun SharedTransitionScope.ShortcutConfigGridItem(
-    modifier: Modifier = Modifier,
-    gridItem: GridItem,
     data: GridItemData.ShortcutConfig,
-    textColor: Color,
-    gridItemSettings: GridItemSettings,
     drag: Drag,
-    screen: Screen,
+    gridItem: GridItem,
+    gridItemSettings: GridItemSettings,
     isScrollInProgress: Boolean,
+    modifier: Modifier = Modifier,
+    screen: Screen,
+    textColor: Color,
 ) {
     val horizontalAlignment =
         getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)

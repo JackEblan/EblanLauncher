@@ -34,10 +34,10 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SettingsSwitch(
-    modifier: Modifier = Modifier,
     checked: Boolean,
-    title: String,
+    modifier: Modifier = Modifier,
     subtitle: String,
+    title: String,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
@@ -73,8 +73,8 @@ fun SettingsSwitch(
 @Composable
 fun SettingsColumn(
     modifier: Modifier = Modifier,
-    title: String,
     subtitle: String,
+    title: String,
     onClick: () -> Unit,
 ) {
     Column(

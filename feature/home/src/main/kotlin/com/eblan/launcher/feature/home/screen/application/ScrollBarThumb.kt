@@ -49,9 +49,9 @@ import kotlin.math.roundToInt
 
 @Composable
 internal fun ScrollBarThumb(
-    modifier: Modifier = Modifier,
-    lazyGridState: LazyGridState,
     appDrawerSettings: AppDrawerSettings,
+    lazyGridState: LazyGridState,
+    modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
     onScrollToItem: suspend (Int) -> Unit,
 ) {

@@ -56,9 +56,9 @@ import com.eblan.launcher.designsystem.component.EblanDialogContainer
 
 @Composable
 fun ColorPickerDialog(
+    customColor: Int,
     modifier: Modifier = Modifier,
     title: String,
-    customColor: Int,
     onDismissRequest: () -> Unit,
     onSelectColor: (Int) -> Unit,
 ) {
@@ -79,82 +79,85 @@ fun ColorPickerDialog(
 
     var alpha by remember { mutableFloatStateOf(Color(customColor).alpha) }
 
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier
-                .verticalScroll(rememberScrollState())
-                .fillMaxWidth(),
-        ) {
-            Text(
-                modifier = Modifier.padding(10.dp),
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            ColorPicker(
-                modifier = Modifier.padding(10.dp),
-                hue = hue,
-                saturation = saturation,
-                value = value,
-                alpha = alpha,
-                onSaturationSelected = { newSaturation ->
-                    saturation = newSaturation
-                },
-                onValueSelected = { newValue ->
-                    value = newValue
-                },
-                onHueSelected = { newHue ->
-                    hue = newHue
-                },
-                onAlphaSelected = { newAlpha ->
-                    alpha = newAlpha
-                },
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        end = 10.dp,
-                        bottom = 10.dp,
-                    ),
-                horizontalArrangement = Arrangement.End,
+    EblanDialogContainer(
+        content = {
+            Column(
+                modifier = modifier
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth(),
             ) {
-                TextButton(
-                    onClick = onDismissRequest,
-                ) {
-                    Text("Cancel")
-                }
+                Text(
+                    modifier = Modifier.padding(10.dp),
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                )
 
-                Spacer(modifier = Modifier.width(5.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                TextButton(
-                    onClick = {
-                        onSelectColor(
-                            Color.hsv(hue, saturation, value).copy(alpha = alpha).toArgb(),
-                        )
+                ColorPicker(
+                    alpha = alpha,
+                    hue = hue,
+                    modifier = Modifier.padding(10.dp),
+                    saturation = saturation,
+                    value = value,
+                    onAlphaSelected = { newAlpha ->
+                        alpha = newAlpha
                     },
+                    onHueSelected = { newHue ->
+                        hue = newHue
+                    },
+                    onSaturationSelected = { newSaturation ->
+                        saturation = newSaturation
+                    },
+                    onValueSelected = { newValue ->
+                        value = newValue
+                    },
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            end = 10.dp,
+                            bottom = 10.dp,
+                        ),
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    Text("Save")
+                    TextButton(
+                        onClick = onDismissRequest,
+                    ) {
+                        Text("Cancel")
+                    }
+
+                    Spacer(modifier = Modifier.width(5.dp))
+
+                    TextButton(
+                        onClick = {
+                            onSelectColor(
+                                Color.hsv(hue, saturation, value).copy(alpha = alpha).toArgb(),
+                            )
+                        },
+                    ) {
+                        Text("Save")
+                    }
                 }
             }
-        }
-    }
+        },
+        onDismissRequest = onDismissRequest,
+    )
 }
 
 @Composable
 private fun ColorPicker(
-    modifier: Modifier = Modifier,
+    alpha: Float,
     hue: Float,
+    modifier: Modifier = Modifier,
     saturation: Float,
     value: Float,
-    alpha: Float,
+    onAlphaSelected: (Float) -> Unit,
+    onHueSelected: (Float) -> Unit,
     onSaturationSelected: (Float) -> Unit,
     onValueSelected: (Float) -> Unit,
-    onHueSelected: (Float) -> Unit,
-    onAlphaSelected: (Float) -> Unit,
 ) {
     Column(modifier = modifier) {
         SaturationValueCanvas(
@@ -167,24 +170,18 @@ private fun ColorPicker(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        HueCanvas(
-            hue = hue,
-            onHueSelected = onHueSelected,
-        )
+        HueCanvas(hue = hue, onHueSelected = onHueSelected)
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        AlphaCanvas(
-            alpha = alpha,
-            onAlphaSelected = onAlphaSelected,
-        )
+        AlphaCanvas(alpha = alpha, onAlphaSelected = onAlphaSelected)
     }
 }
 
 @Composable
 private fun SaturationValueCanvas(
-    modifier: Modifier = Modifier,
     hue: Float,
+    modifier: Modifier = Modifier,
     saturation: Float,
     value: Float,
     onSaturationSelected: (Float) -> Unit,
@@ -256,11 +253,7 @@ private fun SaturationValueCanvas(
 }
 
 @Composable
-private fun HueCanvas(
-    modifier: Modifier = Modifier,
-    hue: Float,
-    onHueSelected: (Float) -> Unit,
-) {
+private fun HueCanvas(hue: Float, modifier: Modifier = Modifier, onHueSelected: (Float) -> Unit) {
     Canvas(
         modifier = modifier
             .pointerInput(key1 = Unit) {
@@ -317,8 +310,8 @@ private fun HueCanvas(
 
 @Composable
 private fun AlphaCanvas(
-    modifier: Modifier = Modifier,
     alpha: Float,
+    modifier: Modifier = Modifier,
     onAlphaSelected: (Float) -> Unit,
 ) {
     Canvas(

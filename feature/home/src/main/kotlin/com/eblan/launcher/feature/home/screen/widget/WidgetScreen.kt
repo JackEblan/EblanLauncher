@@ -106,18 +106,24 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 internal fun WidgetScreen(
-    modifier: Modifier = Modifier,
+    columns: Int,
     currentPage: Int,
+    drag: Drag,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     gridItemSettings: GridItemSettings,
-    paddingValues: PaddingValues,
-    drag: Drag,
-    isPressHome: Boolean,
     gridItems: List<GridItem>,
-    screenWidth: Int,
-    screenHeight: Int,
-    columns: Int,
+    isPressHome: Boolean,
+    modifier: Modifier = Modifier,
+    paddingValues: PaddingValues,
     rows: Int,
+    screenHeight: Int,
+    screenWidth: Int,
+    onDismiss: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
+    onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -125,12 +131,6 @@ internal fun WidgetScreen(
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
-    ) -> Unit,
-    onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
-    onDismiss: () -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
     ) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -183,36 +183,17 @@ internal fun WidgetScreen(
             .alpha(alpha),
     ) {
         Success(
+            columns = columns,
             currentPage = currentPage,
+            drag = drag,
             eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
             gridItemSettings = gridItemSettings,
-            paddingValues = paddingValues,
-            drag = drag,
             gridItems = gridItems,
             isPressHome = isPressHome,
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
-            columns = columns,
+            paddingValues = paddingValues,
             rows = rows,
-            onLongPressGridItem = onLongPressGridItem,
-            onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-            onDraggingGridItem = onDraggingGridItem,
-            onVerticalDrag = { dragAmount ->
-                scope.launch {
-                    offsetY.snapTo(offsetY.value + dragAmount)
-                }
-            },
-            onDragEnd = { remaining ->
-                scope.launch {
-                    handleApplyFling(
-                        offsetY = offsetY,
-                        remaining = remaining,
-                        screenHeight = screenHeight,
-                        onDismiss = onDismiss,
-                    )
-                }
-            },
+            screenHeight = screenHeight,
+            screenWidth = screenWidth,
             onDismiss = {
                 scope.launch {
                     offsetY.animateTo(
@@ -225,6 +206,25 @@ internal fun WidgetScreen(
                     onDismiss()
                 }
             },
+            onDragEnd = { remaining ->
+                scope.launch {
+                    handleApplyFling(
+                        offsetY = offsetY,
+                        remaining = remaining,
+                        screenHeight = screenHeight,
+                        onDismiss = onDismiss,
+                    )
+                }
+            },
+            onDraggingGridItem = onDraggingGridItem,
+            onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onVerticalDrag = { dragAmount ->
+                scope.launch {
+                    offsetY.snapTo(offsetY.value + dragAmount)
+                }
+            },
         )
     }
 }
@@ -232,18 +232,25 @@ internal fun WidgetScreen(
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 private fun Success(
-    modifier: Modifier = Modifier,
+    columns: Int,
     currentPage: Int,
+    drag: Drag,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     gridItemSettings: GridItemSettings,
-    paddingValues: PaddingValues,
-    drag: Drag,
     gridItems: List<GridItem>,
     isPressHome: Boolean,
-    screenWidth: Int,
-    screenHeight: Int,
-    columns: Int,
+    modifier: Modifier = Modifier,
+    paddingValues: PaddingValues,
     rows: Int,
+    screenHeight: Int,
+    screenWidth: Int,
+    onDismiss: () -> Unit,
+    onDragEnd: (Float) -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
+    onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -252,14 +259,7 @@ private fun Success(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
     onVerticalDrag: (Float) -> Unit,
-    onDragEnd: (Float) -> Unit,
-    onDismiss: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -364,19 +364,19 @@ private fun Success(
             items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfoGroup ->
                 key(eblanApplicationInfoGroup.packageName) {
                     EblanApplicationInfoItem(
-                        eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-                        eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-                        drag = drag,
+                        columns = columns,
                         currentPage = currentPage,
+                        drag = drag,
+                        eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                        eblanApplicationInfoGroup = eblanApplicationInfoGroup,
                         gridItemSettings = gridItemSettings,
                         gridItems = gridItems,
-                        screenWidth = screenWidth,
-                        screenHeight = screenHeight,
-                        columns = columns,
                         rows = rows,
+                        screenHeight = screenHeight,
+                        screenWidth = screenWidth,
                         onDraggingGridItem = onDraggingGridItem,
-                        onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onLongPressGridItem = onLongPressGridItem,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
                     )
                 }
             }
@@ -387,28 +387,28 @@ private fun Success(
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun EblanApplicationInfoItem(
-    modifier: Modifier = Modifier,
-    eblanApplicationInfoGroup: EblanApplicationInfoGroup,
-    eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
-    drag: Drag,
-    screenWidth: Int,
-    screenHeight: Int,
     columns: Int,
-    rows: Int,
     currentPage: Int,
+    drag: Drag,
+    eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
+    eblanApplicationInfoGroup: EblanApplicationInfoGroup,
     gridItemSettings: GridItemSettings,
     gridItems: List<GridItem>,
+    modifier: Modifier = Modifier,
+    rows: Int,
+    screenHeight: Int,
+    screenWidth: Int,
     onDraggingGridItem: (
         screen: Screen,
         gridItems: List<GridItem>,
     ) -> Unit,
-    onUpdateGridItemOffset: (
-        intOffset: IntOffset,
-        intSize: IntSize,
-    ) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
     ) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -456,18 +456,18 @@ private fun EblanApplicationInfoItem(
 
             eblanAppWidgetProviderInfos[eblanApplicationInfoGroup]?.forEach { eblanAppWidgetProviderInfo ->
                 EblanAppWidgetProviderInfoItem(
-                    eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
-                    drag = drag,
+                    columns = columns,
                     currentPage = currentPage,
+                    drag = drag,
+                    eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
                     gridItemSettings = gridItemSettings,
                     gridItems = gridItems,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
-                    columns = columns,
                     rows = rows,
+                    screenHeight = screenHeight,
+                    screenWidth = screenWidth,
                     onDraggingGridItem = onDraggingGridItem,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onLongPressGridItem = onLongPressGridItem,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
                 )
             }
         }
@@ -477,27 +477,27 @@ private fun EblanApplicationInfoItem(
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 private fun EblanAppWidgetProviderInfoItem(
-    modifier: Modifier = Modifier,
-    eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
-    drag: Drag,
-    gridItems: List<GridItem>,
-    screenWidth: Int,
-    screenHeight: Int,
     columns: Int,
+    currentPage: Int,
+    drag: Drag,
+    eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
+    gridItemSettings: GridItemSettings,
+    gridItems: List<GridItem>,
+    modifier: Modifier = Modifier,
     rows: Int,
-    onUpdateGridItemOffset: (
-        intOffset: IntOffset,
-        intSize: IntSize,
+    screenHeight: Int,
+    screenWidth: Int,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
     ) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    currentPage: Int,
-    gridItemSettings: GridItemSettings,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
     ) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -521,25 +521,25 @@ private fun EblanAppWidgetProviderInfoItem(
                             onLongPressGridItem(
                                 GridItemSource.New(
                                     gridItem = getWidgetGridItem(
-                                        id = id,
-                                        page = currentPage,
                                         componentName = eblanAppWidgetProviderInfo.componentName,
                                         configure = eblanAppWidgetProviderInfo.configure,
+                                        gridItemSettings = gridItemSettings,
+                                        icon = eblanAppWidgetProviderInfo.applicationIcon,
+                                        id = id,
+                                        label = eblanAppWidgetProviderInfo.applicationLabel,
+                                        maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
+                                        maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
+                                        minHeight = eblanAppWidgetProviderInfo.minHeight,
+                                        minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
+                                        minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
+                                        minWidth = eblanAppWidgetProviderInfo.minWidth,
                                         packageName = eblanAppWidgetProviderInfo.packageName,
+                                        page = currentPage,
+                                        preview = eblanAppWidgetProviderInfo.preview,
+                                        resizeMode = eblanAppWidgetProviderInfo.resizeMode,
                                         serialNumber = eblanAppWidgetProviderInfo.serialNumber,
                                         targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
                                         targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
-                                        minWidth = eblanAppWidgetProviderInfo.minWidth,
-                                        minHeight = eblanAppWidgetProviderInfo.minHeight,
-                                        resizeMode = eblanAppWidgetProviderInfo.resizeMode,
-                                        minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
-                                        minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
-                                        maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
-                                        maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
-                                        preview = eblanAppWidgetProviderInfo.preview,
-                                        label = eblanAppWidgetProviderInfo.applicationLabel,
-                                        icon = eblanAppWidgetProviderInfo.applicationIcon,
-                                        gridItemSettings = gridItemSettings,
                                     ),
                                 ),
                                 graphicsLayer.toImageBitmap(),

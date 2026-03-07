@@ -36,10 +36,10 @@ internal fun calculatePage(
 
 internal suspend fun handleWallpaperScroll(
     horizontalPagerState: PagerState,
-    wallpaperScroll: Boolean,
-    wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
-    pageCount: Int,
     infiniteScroll: Boolean,
+    pageCount: Int,
+    wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
+    wallpaperScroll: Boolean,
     windowToken: android.os.IBinder,
 ) {
     if (!wallpaperScroll) return

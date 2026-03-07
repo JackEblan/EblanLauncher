@@ -61,8 +61,8 @@ internal fun HomeSettingsRoute(
     val homeSettingsUiState by viewModel.homeSettingsUiState.collectAsStateWithLifecycle()
 
     HomeSettingsScreen(
-        modifier = modifier,
         homeSettingsUiState = homeSettingsUiState,
+        modifier = modifier,
         onNavigateUp = onNavigateUp,
         onUpdateHomeSettings = viewModel::updateHomeSettings,
     )
@@ -71,8 +71,8 @@ internal fun HomeSettingsRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HomeSettingsScreen(
-    modifier: Modifier = Modifier,
     homeSettingsUiState: HomeSettingsUiState,
+    modifier: Modifier = Modifier,
     onNavigateUp: () -> Unit,
     onUpdateHomeSettings: (HomeSettings) -> Unit,
 ) {
@@ -115,8 +115,8 @@ internal fun HomeSettingsScreen(
 
 @Composable
 private fun Success(
-    modifier: Modifier = Modifier,
     homeSettings: HomeSettings,
+    modifier: Modifier = Modifier,
     onUpdateHomeSettings: (HomeSettings) -> Unit,
 ) {
     var showGridDialog by remember { mutableStateOf(false) }
@@ -136,8 +136,8 @@ private fun Success(
                 .padding(horizontal = 15.dp),
         ) {
             SettingsColumn(
-                title = "Grid",
                 subtitle = "${homeSettings.columns}x${homeSettings.rows}",
+                title = "Grid",
                 onClick = {
                     showGridDialog = true
                 },
@@ -147,8 +147,8 @@ private fun Success(
 
             SettingsSwitch(
                 checked = homeSettings.infiniteScroll,
-                title = "Infinite Scrolling",
                 subtitle = "Seamless loop page scroll",
+                title = "Infinite Scrolling",
                 onCheckedChange = { infiniteScroll ->
                     onUpdateHomeSettings(homeSettings.copy(infiniteScroll = infiniteScroll))
                 },
@@ -158,8 +158,8 @@ private fun Success(
 
             SettingsSwitch(
                 checked = homeSettings.wallpaperScroll,
-                title = "Wallpaper Scrolling",
                 subtitle = "Scroll wallpaper across pages",
+                title = "Wallpaper Scrolling",
                 onCheckedChange = { wallpaperScroll ->
                     onUpdateHomeSettings(homeSettings.copy(wallpaperScroll = wallpaperScroll))
                 },
@@ -169,8 +169,8 @@ private fun Success(
 
             SettingsSwitch(
                 checked = homeSettings.lockScreenOrientation,
-                title = "Lock Screen Orientation",
                 subtitle = "Lock screen orientation",
+                title = "Lock Screen Orientation",
                 onCheckedChange = { lockScreenOrientation ->
                     onUpdateHomeSettings(homeSettings.copy(lockScreenOrientation = lockScreenOrientation))
                 },
@@ -189,8 +189,8 @@ private fun Success(
                 .padding(horizontal = 15.dp),
         ) {
             SettingsColumn(
-                title = "Dock Grid",
                 subtitle = "${homeSettings.dockColumns}x${homeSettings.dockRows}",
+                title = "Dock Grid",
                 onClick = {
                     showDockGridDialog = true
                 },
@@ -199,8 +199,8 @@ private fun Success(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             SettingsColumn(
-                title = "Dock Height",
                 subtitle = "${homeSettings.dockHeight}",
+                title = "Dock Height",
                 onClick = {
                     showDockHeightDialog = true
                 },
@@ -210,8 +210,8 @@ private fun Success(
 
             SettingsSwitch(
                 checked = homeSettings.dockInfiniteScroll,
-                title = "Dock Infinite Scroll",
                 subtitle = "Seamless loop page scroll",
+                title = "Dock Infinite Scroll",
                 onCheckedChange = { dockInfiniteScroll ->
                     onUpdateHomeSettings(homeSettings.copy(dockInfiniteScroll = dockInfiniteScroll))
                 },
@@ -236,22 +236,22 @@ private fun Success(
         var secondTextFieldIsError by remember { mutableStateOf(false) }
 
         TwoTextFieldsDialog(
-            title = "Grid",
-            firstTextFieldTitle = "Columns",
-            secondTextFieldTitle = "Rows",
-            firstTextFieldValue = columns,
-            secondTextFieldValue = rows,
             firstTextFieldIsError = firstTextFieldIsError,
-            secondTextFieldIsError = secondTextFieldIsError,
+            firstTextFieldTitle = "Columns",
+            firstTextFieldValue = columns,
             keyboardType = KeyboardType.Number,
+            secondTextFieldIsError = secondTextFieldIsError,
+            secondTextFieldTitle = "Rows",
+            secondTextFieldValue = rows,
+            title = "Grid",
+            onDismissRequest = {
+                showGridDialog = false
+            },
             onFirstValueChange = {
                 columns = it
             },
             onSecondValueChange = {
                 rows = it
-            },
-            onDismissRequest = {
-                showGridDialog = false
             },
             onUpdateClick = {
                 val columns = try {
@@ -292,22 +292,22 @@ private fun Success(
         var secondTextFieldIsError by remember { mutableStateOf(false) }
 
         TwoTextFieldsDialog(
-            title = "Dock Grid",
-            firstTextFieldTitle = "Columns",
-            secondTextFieldTitle = "Rows",
-            firstTextFieldValue = dockColumns,
-            secondTextFieldValue = dockRows,
             firstTextFieldIsError = firstTextFieldIsError,
-            secondTextFieldIsError = secondTextFieldIsError,
+            firstTextFieldTitle = "Columns",
+            firstTextFieldValue = dockColumns,
             keyboardType = KeyboardType.Number,
+            secondTextFieldIsError = secondTextFieldIsError,
+            secondTextFieldTitle = "Rows",
+            secondTextFieldValue = dockRows,
+            title = "Dock Grid",
+            onDismissRequest = {
+                showDockGridDialog = false
+            },
             onFirstValueChange = {
                 dockColumns = it
             },
             onSecondValueChange = {
                 dockRows = it
-            },
-            onDismissRequest = {
-                showDockGridDialog = false
             },
             onUpdateClick = {
                 val dockColumns = try {
@@ -344,14 +344,11 @@ private fun Success(
         var isError by remember { mutableStateOf(false) }
 
         SingleTextFieldDialog(
-            title = "Dock Height",
-            textFieldTitle = "Dock Height",
-            value = value,
             isError = isError,
             keyboardType = KeyboardType.Number,
-            onValueChange = {
-                value = it
-            },
+            textFieldTitle = "Dock Height",
+            title = "Dock Height",
+            value = value,
             onDismissRequest = {
                 showDockHeightDialog = false
             },
@@ -370,6 +367,9 @@ private fun Success(
 
                     showDockHeightDialog = false
                 }
+            },
+            onValueChange = {
+                value = it
             },
         )
     }

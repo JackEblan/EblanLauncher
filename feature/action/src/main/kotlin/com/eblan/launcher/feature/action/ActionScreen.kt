@@ -58,32 +58,32 @@ import kotlinx.coroutines.launch
 fun ActionScreen(
     modifier: Modifier = Modifier,
     viewModel: ActionViewModel = hiltViewModel(),
+    onFinish: () -> Unit,
     onUpdateEblanAction: suspend (
         resId: Int,
         eblanAction: EblanAction,
     ) -> Unit,
-    onFinish: () -> Unit,
 ) {
     val actionUiState by viewModel.actionUiState.collectAsStateWithLifecycle()
 
     ActionScreen(
-        modifier = modifier,
         actionUiState = actionUiState,
-        onUpdateEblanAction = onUpdateEblanAction,
+        modifier = modifier,
         onFinish = onFinish,
+        onUpdateEblanAction = onUpdateEblanAction,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ActionScreen(
-    modifier: Modifier = Modifier,
     actionUiState: ActionUiState,
+    modifier: Modifier = Modifier,
+    onFinish: () -> Unit,
     onUpdateEblanAction: suspend (
         resId: Int,
         eblanAction: EblanAction,
     ) -> Unit,
-    onFinish: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -125,8 +125,8 @@ internal fun ActionScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Success(
-    modifier: Modifier = Modifier,
     eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
+    modifier: Modifier = Modifier,
     onUpdateEblanAction: suspend (
         resId: Int,
         eblanAction: EblanAction,
@@ -178,9 +178,6 @@ private fun Success(
     if (showSelectApplicationDialog) {
         SelectApplicationDialog(
             eblanApplicationInfos = eblanApplicationInfos,
-            onDismissRequest = {
-                showSelectApplicationDialog = false
-            },
             onClick = { eblanApplicationInfo ->
                 showSelectApplicationDialog = false
 
@@ -194,6 +191,9 @@ private fun Success(
                         ),
                     )
                 }
+            },
+            onDismissRequest = {
+                showSelectApplicationDialog = false
             },
         )
     }

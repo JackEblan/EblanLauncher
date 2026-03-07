@@ -56,19 +56,19 @@ import kotlin.math.roundToInt
 
 @Composable
 internal fun WidgetGridItemResizeOverlay(
-    modifier: Modifier = Modifier,
-    gridItem: GridItem,
-    gridWidth: Int,
-    gridHeight: Int,
-    rows: Int,
+    color: Color,
     columns: Int,
     data: GridItemData.Widget,
+    gridHeight: Int,
+    gridItem: GridItem,
+    gridWidth: Int,
+    height: Int,
+    lockMovement: Boolean,
+    modifier: Modifier = Modifier,
+    rows: Int,
+    width: Int,
     x: Int,
     y: Int,
-    width: Int,
-    height: Int,
-    color: Color,
-    lockMovement: Boolean,
     onResizeWidgetGridItem: (
         gridItem: GridItem,
         columns: Int,

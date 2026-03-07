@@ -27,8 +27,8 @@ import androidx.compose.ui.window.Dialog
 @Composable
 fun EblanDialogContainer(
     modifier: Modifier = Modifier,
-    onDismissRequest: () -> Unit,
     content: @Composable () -> Unit,
+    onDismissRequest: () -> Unit,
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(

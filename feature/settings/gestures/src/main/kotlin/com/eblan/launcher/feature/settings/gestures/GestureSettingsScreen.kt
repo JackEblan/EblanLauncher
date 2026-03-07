@@ -45,8 +45,8 @@ internal fun GestureSettingsRoute(
     val gesturesSettingsUiState by viewModel.gesturesSettingsUiState.collectAsStateWithLifecycle()
 
     GestureSettingsScreen(
-        modifier = modifier,
         gesturesSettingsUiState = gesturesSettingsUiState,
+        modifier = modifier,
         onNavigateUp = onNavigateUp,
         onUpdateGestureSettings = viewModel::updateGestureSettings,
     )
@@ -55,8 +55,8 @@ internal fun GestureSettingsRoute(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun GestureSettingsScreen(
-    modifier: Modifier = Modifier,
     gesturesSettingsUiState: GesturesSettingsUiState,
+    modifier: Modifier = Modifier,
     onNavigateUp: () -> Unit,
     onUpdateGestureSettings: (GestureSettings) -> Unit,
 ) {
@@ -88,11 +88,11 @@ private fun GestureSettingsScreen(
 
                 is GesturesSettingsUiState.Success -> {
                     EblanActionSettings(
-                        modifier = modifier,
                         doubleTap = gesturesSettingsUiState.gestureSettings.doubleTap,
-                        swipeUp = gesturesSettingsUiState.gestureSettings.swipeUp,
-                        swipeDown = gesturesSettingsUiState.gestureSettings.swipeDown,
                         eblanApplicationInfos = gesturesSettingsUiState.eblanApplicationInfos,
+                        modifier = modifier,
+                        swipeDown = gesturesSettingsUiState.gestureSettings.swipeDown,
+                        swipeUp = gesturesSettingsUiState.gestureSettings.swipeUp,
                         onUpdateDoubleTap = { doubleTap ->
                             onUpdateGestureSettings(
                                 gesturesSettingsUiState.gestureSettings.copy(
@@ -100,17 +100,17 @@ private fun GestureSettingsScreen(
                                 ),
                             )
                         },
-                        onUpdateSwipeUp = { swipeUp ->
-                            onUpdateGestureSettings(
-                                gesturesSettingsUiState.gestureSettings.copy(
-                                    swipeUp = swipeUp,
-                                ),
-                            )
-                        },
                         onUpdateSwipeDown = { swipeDown ->
                             onUpdateGestureSettings(
                                 gesturesSettingsUiState.gestureSettings.copy(
                                     swipeDown = swipeDown,
+                                ),
+                            )
+                        },
+                        onUpdateSwipeUp = { swipeUp ->
+                            onUpdateGestureSettings(
+                                gesturesSettingsUiState.gestureSettings.copy(
+                                    swipeUp = swipeUp,
                                 ),
                             )
                         },

@@ -38,52 +38,55 @@ import com.eblan.launcher.designsystem.component.EblanDialogContainer
 @Composable
 fun TextDialog(
     modifier: Modifier = Modifier,
-    title: String,
     text: String,
-    onDismissRequest: () -> Unit,
+    title: String,
     onClick: () -> Unit,
+    onDismissRequest: () -> Unit,
 ) {
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier
-                .verticalScroll(rememberScrollState())
-                .fillMaxWidth(),
-        ) {
-            Text(
-                modifier = Modifier.padding(
-                    start = 15.dp,
-                    top = 10.dp,
-                ),
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-            )
-
-            Text(
-                modifier = Modifier.padding(15.dp),
-                text = text,
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        end = 10.dp,
-                        bottom = 10.dp,
-                    ),
-                horizontalArrangement = Arrangement.End,
+    EblanDialogContainer(
+        content = {
+            Column(
+                modifier = modifier
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth(),
             ) {
-                TextButton(onClick = onDismissRequest) {
-                    Text(text = "Later")
-                }
+                Text(
+                    modifier = Modifier.padding(
+                        start = 15.dp,
+                        top = 10.dp,
+                    ),
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    modifier = Modifier.padding(15.dp),
+                    text = text,
+                )
 
-                Button(
-                    onClick = onClick,
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            end = 10.dp,
+                            bottom = 10.dp,
+                        ),
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    Text(text = "Okay")
+                    TextButton(onClick = onDismissRequest) {
+                        Text(text = "Later")
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(
+                        onClick = onClick,
+                    ) {
+                        Text(text = "Okay")
+                    }
                 }
             }
-        }
-    }
+        },
+        onDismissRequest = onDismissRequest,
+    )
 }

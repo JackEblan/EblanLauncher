@@ -71,26 +71,26 @@ internal fun GeneralSettingsRoute(
     val eblanIconPackInfos by viewModel.eblanIconPackInfos.collectAsStateWithLifecycle()
 
     GeneralSettingsScreen(
-        modifier = modifier,
-        generalSettingsUiState = generalSettingsUiState,
-        packageManagerIconPackInfos = packageManagerIconPackInfos,
         eblanIconPackInfos = eblanIconPackInfos,
+        generalSettingsUiState = generalSettingsUiState,
+        modifier = modifier,
+        packageManagerIconPackInfos = packageManagerIconPackInfos,
         onDeleteEblanIconPackInfo = viewModel::deleteIconPackInfo,
-        onUpdateGeneralSettings = viewModel::updateGeneralSettings,
         onNavigateUp = onNavigateUp,
+        onUpdateGeneralSettings = viewModel::updateGeneralSettings,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun GeneralSettingsScreen(
-    modifier: Modifier = Modifier,
-    generalSettingsUiState: GeneralSettingsUiState,
-    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     eblanIconPackInfos: List<EblanIconPackInfo>,
+    generalSettingsUiState: GeneralSettingsUiState,
+    modifier: Modifier = Modifier,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onDeleteEblanIconPackInfo: (String) -> Unit,
-    onUpdateGeneralSettings: (GeneralSettings) -> Unit,
     onNavigateUp: () -> Unit,
+    onUpdateGeneralSettings: (GeneralSettings) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -120,10 +120,10 @@ internal fun GeneralSettingsScreen(
 
                 is GeneralSettingsUiState.Success -> {
                     Success(
-                        modifier = modifier,
-                        generalSettings = generalSettingsUiState.generalSettings,
-                        packageManagerIconPackInfos = packageManagerIconPackInfos,
                         eblanIconPackInfos = eblanIconPackInfos,
+                        generalSettings = generalSettingsUiState.generalSettings,
+                        modifier = modifier,
+                        packageManagerIconPackInfos = packageManagerIconPackInfos,
                         onDeleteEblanIconPackInfo = onDeleteEblanIconPackInfo,
                         onUpdateGeneralSettings = onUpdateGeneralSettings,
                     )
@@ -135,10 +135,10 @@ internal fun GeneralSettingsScreen(
 
 @Composable
 private fun Success(
-    modifier: Modifier = Modifier,
-    generalSettings: GeneralSettings,
-    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     eblanIconPackInfos: List<EblanIconPackInfo>,
+    generalSettings: GeneralSettings,
+    modifier: Modifier = Modifier,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onDeleteEblanIconPackInfo: (String) -> Unit,
     onUpdateGeneralSettings: (GeneralSettings) -> Unit,
 ) {
@@ -163,8 +163,8 @@ private fun Success(
                 .padding(horizontal = 15.dp),
         ) {
             SettingsColumn(
-                title = "Import Icon Pack",
                 subtitle = "Import icon pack",
+                title = "Import Icon Pack",
                 onClick = {
                     showImportIconPackDialog = true
                 },
@@ -173,8 +173,8 @@ private fun Success(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             SettingsColumn(
-                title = "Select Icon Pack",
                 subtitle = generalSettings.iconPackInfoPackageName.ifEmpty { "Default" },
+                title = "Select Icon Pack",
                 onClick = {
                     selectIconPackDialog = true
                 },
@@ -183,8 +183,8 @@ private fun Success(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             SettingsColumn(
-                title = "Theme",
                 subtitle = generalSettings.theme.name,
+                title = "Theme",
                 onClick = {
                     showDarkThemeConfigDialog = true
                 },
@@ -195,8 +195,8 @@ private fun Success(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 SettingsSwitch(
                     checked = generalSettings.dynamicTheme,
-                    title = "Dynamic Theme",
                     subtitle = "Dynamic theme",
+                    title = "Dynamic Theme",
                     onCheckedChange = { dynamicTheme ->
                         onUpdateGeneralSettings(generalSettings.copy(dynamicTheme = dynamicTheme))
                     },
@@ -207,8 +207,8 @@ private fun Success(
 
             if (!settings.isNotificationAccessGranted()) {
                 SettingsColumn(
-                    title = "Notification Dots",
                     subtitle = "Show notification dots",
+                    title = "Notification Dots",
                     onClick = {
                         val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
 
@@ -223,9 +223,9 @@ private fun Success(
 
     if (showDarkThemeConfigDialog) {
         RadioOptionsDialog(
-            title = "Theme",
             options = Theme.entries,
             selected = generalSettings.theme,
+            title = "Theme",
             label = {
                 it.name
             },
@@ -267,17 +267,17 @@ private fun Success(
         SelectIconPackInfoDialog(
             eblanIconPackInfos = eblanIconPackInfos,
             iconPackInfoPackageName = generalSettings.iconPackInfoPackageName,
+            onDeleteEblanIconPackInfo = onDeleteEblanIconPackInfo,
             onDismissRequest = {
+                selectIconPackDialog = false
+            },
+            onReset = {
+                onUpdateGeneralSettings(generalSettings.copy(iconPackInfoPackageName = ""))
+
                 selectIconPackDialog = false
             },
             onUpdateIconPackInfoPackageName = { iconPackInfoPackageName ->
                 onUpdateGeneralSettings(generalSettings.copy(iconPackInfoPackageName = iconPackInfoPackageName))
-
-                selectIconPackDialog = false
-            },
-            onDeleteEblanIconPackInfo = onDeleteEblanIconPackInfo,
-            onReset = {
-                onUpdateGeneralSettings(generalSettings.copy(iconPackInfoPackageName = ""))
 
                 selectIconPackDialog = false
             },

@@ -52,8 +52,8 @@ import com.eblan.launcher.ui.dialog.TextColorDialog
 
 @Composable
 fun GridItemSettings(
-    modifier: Modifier = Modifier,
     gridItemSettings: GridItemSettings,
+    modifier: Modifier = Modifier,
     onUpdateGridItemSettings: (GridItemSettings) -> Unit,
 ) {
     var showIconSizeDialog by remember { mutableStateOf(false) }
@@ -85,8 +85,8 @@ fun GridItemSettings(
                 .padding(horizontal = 15.dp),
         ) {
             SettingsColumn(
-                title = "Icon Size",
                 subtitle = "${gridItemSettings.iconSize}",
+                title = "Icon Size",
                 onClick = {
                     showIconSizeDialog = true
                 },
@@ -104,8 +104,8 @@ fun GridItemSettings(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             SettingsColumn(
-                title = "Text Size",
                 subtitle = "${gridItemSettings.textSize}",
+                title = "Text Size",
                 onClick = {
                     showTextSizeDialog = true
                 },
@@ -114,8 +114,8 @@ fun GridItemSettings(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             CustomColorSettingsRow(
-                title = "Background Color",
                 customColor = gridItemSettings.customBackgroundColor,
+                title = "Background Color",
                 onClick = {
                     showBackgroundColorDialog = true
                 },
@@ -124,8 +124,8 @@ fun GridItemSettings(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             SettingsColumn(
-                title = "Padding",
                 subtitle = "${gridItemSettings.padding}",
+                title = "Padding",
                 onClick = {
                     showPaddingDialog = true
                 },
@@ -134,8 +134,8 @@ fun GridItemSettings(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             SettingsColumn(
-                title = "Corner Radius",
                 subtitle = "${gridItemSettings.cornerRadius}",
+                title = "Corner Radius",
                 onClick = {
                     showCornerRadiusDialog = true
                 },
@@ -145,8 +145,8 @@ fun GridItemSettings(
 
             SettingsSwitch(
                 checked = gridItemSettings.showLabel,
-                title = "Show Label",
                 subtitle = "Show label",
+                title = "Show Label",
                 onCheckedChange = { showLabel ->
                     onUpdateGridItemSettings(gridItemSettings.copy(showLabel = showLabel))
                 },
@@ -156,8 +156,8 @@ fun GridItemSettings(
 
             SettingsSwitch(
                 checked = gridItemSettings.singleLineLabel,
-                title = "Single Line Label",
                 subtitle = "Show single line label",
+                title = "Single Line Label",
                 onCheckedChange = { singleLineLabel ->
                     onUpdateGridItemSettings(gridItemSettings.copy(singleLineLabel = singleLineLabel))
                 },
@@ -166,11 +166,11 @@ fun GridItemSettings(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             SettingsColumn(
-                title = "Horizontal Alignment",
                 subtitle = gridItemSettings.horizontalAlignment.name.replace(
                     regex = Regex(pattern = "([a-z])([A-Z])"),
                     replacement = "$1 $2",
                 ),
+                title = "Horizontal Alignment",
                 onClick = {
                     showHorizontalAlignment = true
                 },
@@ -179,8 +179,8 @@ fun GridItemSettings(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             SettingsColumn(
-                title = "Vertical Arrangement",
                 subtitle = gridItemSettings.verticalArrangement.name,
+                title = "Vertical Arrangement",
                 onClick = {
                     showVerticalArrangement = true
                 },
@@ -194,14 +194,11 @@ fun GridItemSettings(
         var isError by remember { mutableStateOf(false) }
 
         SingleTextFieldDialog(
-            title = "Icon Size",
-            textFieldTitle = "Icon Size",
-            value = value,
             isError = isError,
             keyboardType = KeyboardType.Number,
-            onValueChange = {
-                value = it
-            },
+            textFieldTitle = "Icon Size",
+            title = "Icon Size",
+            value = value,
             onDismissRequest = {
                 showIconSizeDialog = false
             },
@@ -214,14 +211,17 @@ fun GridItemSettings(
                     isError = true
                 }
             },
+            onValueChange = {
+                value = it
+            },
         )
     }
 
     if (showTextColorDialog) {
         TextColorDialog(
-            title = "Text Color",
-            textColor = gridItemSettings.textColor,
             customTextColor = gridItemSettings.customTextColor,
+            textColor = gridItemSettings.textColor,
+            title = "Text Color",
             onDismissRequest = {
                 showTextColorDialog = false
             },
@@ -244,14 +244,11 @@ fun GridItemSettings(
         var isError by remember { mutableStateOf(false) }
 
         SingleTextFieldDialog(
-            title = "Text Size",
-            textFieldTitle = "Text Size",
-            value = value,
             isError = isError,
             keyboardType = KeyboardType.Number,
-            onValueChange = {
-                value = it
-            },
+            textFieldTitle = "Text Size",
+            title = "Text Size",
+            value = value,
             onDismissRequest = {
                 showTextSizeDialog = false
             },
@@ -264,13 +261,16 @@ fun GridItemSettings(
                     isError = true
                 }
             },
+            onValueChange = {
+                value = it
+            },
         )
     }
 
     if (showBackgroundColorDialog) {
         ColorPickerDialog(
-            title = "Background Color",
             customColor = gridItemSettings.customBackgroundColor,
+            title = "Background Color",
             onDismissRequest = {
                 showBackgroundColorDialog = false
             },
@@ -288,14 +288,11 @@ fun GridItemSettings(
         var isError by remember { mutableStateOf(false) }
 
         SingleTextFieldDialog(
-            title = "Padding",
-            textFieldTitle = "Padding",
-            value = value,
             isError = isError,
             keyboardType = KeyboardType.Number,
-            onValueChange = {
-                value = it
-            },
+            textFieldTitle = "Padding",
+            title = "Padding",
+            value = value,
             onDismissRequest = {
                 showPaddingDialog = false
             },
@@ -308,6 +305,9 @@ fun GridItemSettings(
                     isError = true
                 }
             },
+            onValueChange = {
+                value = it
+            },
         )
     }
 
@@ -317,14 +317,11 @@ fun GridItemSettings(
         var isError by remember { mutableStateOf(false) }
 
         SingleTextFieldDialog(
-            title = "Corner Radius",
-            textFieldTitle = "Corner Radius",
-            value = value,
             isError = isError,
             keyboardType = KeyboardType.Number,
-            onValueChange = {
-                value = it
-            },
+            textFieldTitle = "Corner Radius",
+            title = "Corner Radius",
+            value = value,
             onDismissRequest = {
                 showCornerRadiusDialog = false
             },
@@ -337,14 +334,17 @@ fun GridItemSettings(
                     isError = true
                 }
             },
+            onValueChange = {
+                value = it
+            },
         )
     }
 
     if (showHorizontalAlignment) {
         RadioOptionsDialog(
-            title = "Horizontal Alignment",
             options = HorizontalAlignment.entries,
             selected = gridItemSettings.horizontalAlignment,
+            title = "Horizontal Alignment",
             label = {
                 it.name.replace(
                     regex = Regex(pattern = "([a-z])([A-Z])"),
@@ -364,9 +364,9 @@ fun GridItemSettings(
 
     if (showVerticalArrangement) {
         RadioOptionsDialog(
-            title = "Vertical Arrangement",
             options = VerticalArrangement.entries,
             selected = gridItemSettings.verticalArrangement,
+            title = "Vertical Arrangement",
             label = {
                 it.name
             },
@@ -384,8 +384,8 @@ fun GridItemSettings(
 
 @Composable
 private fun TextColorSettingsRow(
-    modifier: Modifier = Modifier,
     gridItemSettings: GridItemSettings,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     when (gridItemSettings.textColor) {
@@ -395,17 +395,17 @@ private fun TextColorSettingsRow(
         -> {
             SettingsColumn(
                 modifier = modifier,
-                title = "Text Color",
                 subtitle = gridItemSettings.textColor.name,
+                title = "Text Color",
                 onClick = onClick,
             )
         }
 
         TextColor.Custom -> {
             CustomColorSettingsRow(
+                customColor = gridItemSettings.customTextColor,
                 modifier = modifier,
                 title = "Text Color",
-                customColor = gridItemSettings.customTextColor,
                 onClick = onClick,
             )
         }
@@ -414,9 +414,9 @@ private fun TextColorSettingsRow(
 
 @Composable
 private fun CustomColorSettingsRow(
+    customColor: Int,
     modifier: Modifier = Modifier,
     title: String,
-    customColor: Int,
     onClick: () -> Unit,
 ) {
     Row(

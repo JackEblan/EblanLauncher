@@ -78,14 +78,14 @@ import kotlin.uuid.ExperimentalUuidApi
 @OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 internal fun DragAndDropEblanApplicationInfos(
-    modifier: Modifier = Modifier,
-    eblanUser: EblanUser,
-    paddingValues: PaddingValues,
     appDrawerSettings: AppDrawerSettings,
+    eblanUser: EblanUser,
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     iconPackFilePaths: Map<String, String>,
-    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
+    modifier: Modifier = Modifier,
+    paddingValues: PaddingValues,
     onDismissDragAndDrop: () -> Unit,
+    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
 ) {
     val lazyGridState = rememberLazyGridState()
 
@@ -137,8 +137,8 @@ internal fun DragAndDropEblanApplicationInfos(
                     index = index,
                 ) {
                     EblanApplicationInfoItem(
-                        eblanApplicationInfo = eblanApplicationInfo,
                         appDrawerSettings = appDrawerSettings,
+                        eblanApplicationInfo = eblanApplicationInfo,
                         iconPackFilePaths = iconPackFilePaths,
                     )
                 }
@@ -147,11 +147,11 @@ internal fun DragAndDropEblanApplicationInfos(
 
         if (!WindowInsets.isImeVisible) {
             ScrollBarThumb(
+                appDrawerSettings = appDrawerSettings,
+                lazyGridState = lazyGridState,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .fillMaxHeight(),
-                lazyGridState = lazyGridState,
-                appDrawerSettings = appDrawerSettings,
                 paddingValues = paddingValues,
                 onScrollToItem = lazyGridState::scrollToItem,
             )
@@ -180,14 +180,14 @@ internal fun DragAndDropEblanApplicationInfos(
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 private fun EblanApplicationInfoItem(
-    modifier: Modifier = Modifier,
-    eblanApplicationInfo: EblanApplicationInfo,
     appDrawerSettings: AppDrawerSettings,
+    eblanApplicationInfo: EblanApplicationInfo,
     iconPackFilePaths: Map<String, String>,
+    modifier: Modifier = Modifier,
 ) {
     val textColor = getSystemTextColor(
-        systemTextColor = appDrawerSettings.gridItemSettings.textColor,
         systemCustomTextColor = appDrawerSettings.gridItemSettings.customTextColor,
+        systemTextColor = appDrawerSettings.gridItemSettings.textColor,
     )
 
     val appDrawerRowsHeight = appDrawerSettings.appDrawerRowsHeight.dp
@@ -255,11 +255,7 @@ private fun EblanApplicationInfoItem(
 }
 
 @Composable
-private fun ActionButtons(
-    modifier: Modifier = Modifier,
-    onCancel: () -> Unit,
-    onSave: () -> Unit,
-) {
+private fun ActionButtons(modifier: Modifier = Modifier, onCancel: () -> Unit, onSave: () -> Unit) {
     Surface(
         modifier = modifier.padding(10.dp),
         shape = RoundedCornerShape(30.dp),

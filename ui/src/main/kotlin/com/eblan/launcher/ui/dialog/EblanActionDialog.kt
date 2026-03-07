@@ -51,12 +51,12 @@ import com.eblan.launcher.ui.settings.getEblanActionTypeSubtitle
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun EblanActionDialog(
-    modifier: Modifier = Modifier,
-    title: String,
     eblanAction: EblanAction,
     eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
-    onSelectEblanAction: (EblanAction) -> Unit,
+    modifier: Modifier = Modifier,
+    title: String,
     onDismissRequest: () -> Unit,
+    onSelectEblanAction: (EblanAction) -> Unit,
 ) {
     val accessibilityManager = LocalAccessibilityManager.current
 
@@ -68,41 +68,42 @@ internal fun EblanActionDialog(
         accessibilityManager.isAccessibilityServiceEnabled()
     }
 
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier
-                .verticalScroll(rememberScrollState())
-                .fillMaxWidth(),
-        ) {
-            Text(
-                modifier = Modifier.padding(10.dp),
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
+    EblanDialogContainer(
+        content = {
             Column(
-                modifier = Modifier
-                    .selectableGroup()
+                modifier = modifier
+                    .verticalScroll(rememberScrollState())
                     .fillMaxWidth(),
             ) {
-                EblanActionType.entries.forEach { eblanActionType ->
-                    val enabled = when (eblanActionType) {
-                        EblanActionType.OpenNotificationPanel,
-                        EblanActionType.LockScreen,
-                        EblanActionType.OpenQuickSettings,
-                        EblanActionType.OpenRecents,
-                        -> isAccessibilityServiceEnabled
+                Text(
+                    modifier = Modifier.padding(10.dp),
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                )
 
-                        else -> true
-                    }
+                Spacer(modifier = Modifier.height(10.dp))
 
-                    EblanRadioButton(
-                        text = eblanActionType.getEblanActionTypeSubtitle(componentName = selectedEblanAction.componentName),
-                        selected = selectedEblanAction.eblanActionType == eblanActionType,
-                        enabled = enabled,
-                        onClick = {
+                Column(
+                    modifier = Modifier
+                        .selectableGroup()
+                        .fillMaxWidth(),
+                ) {
+                    EblanActionType.entries.forEach { eblanActionType ->
+                        val enabled = when (eblanActionType) {
+                            EblanActionType.OpenNotificationPanel,
+                            EblanActionType.LockScreen,
+                            EblanActionType.OpenQuickSettings,
+                            EblanActionType.OpenRecents,
+                            -> isAccessibilityServiceEnabled
+
+                            else -> true
+                        }
+
+                        EblanRadioButton(
+                            enabled = enabled,
+                            selected = selectedEblanAction.eblanActionType == eblanActionType,
+                            text = eblanActionType.getEblanActionTypeSubtitle(componentName = selectedEblanAction.componentName),
+                        ) {
                             if (eblanActionType == EblanActionType.OpenApp) {
                                 showSelectApplicationDialog = true
                             } else {
@@ -112,45 +113,42 @@ internal fun EblanActionDialog(
                                     componentName = "",
                                 )
                             }
+                        }
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            end = 10.dp,
+                            bottom = 10.dp,
+                        ),
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    TextButton(
+                        onClick = onDismissRequest,
+                    ) {
+                        Text("Cancel")
+                    }
+
+                    Spacer(modifier = Modifier.width(5.dp))
+
+                    TextButton(
+                        onClick = {
+                            onSelectEblanAction(selectedEblanAction)
                         },
-                    )
+                    ) {
+                        Text("Save")
+                    }
                 }
             }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        end = 10.dp,
-                        bottom = 10.dp,
-                    ),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                TextButton(
-                    onClick = onDismissRequest,
-                ) {
-                    Text("Cancel")
-                }
-
-                Spacer(modifier = Modifier.width(5.dp))
-
-                TextButton(
-                    onClick = {
-                        onSelectEblanAction(selectedEblanAction)
-                    },
-                ) {
-                    Text("Save")
-                }
-            }
-        }
-    }
-
+        },
+        onDismissRequest = onDismissRequest,
+    )
     if (showSelectApplicationDialog) {
         SelectApplicationDialog(
             eblanApplicationInfos = eblanApplicationInfos,
-            onDismissRequest = {
-                showSelectApplicationDialog = false
-            },
             onClick = { eblanApplicationInfo ->
                 selectedEblanAction = EblanAction(
                     eblanActionType = EblanActionType.OpenApp,
@@ -158,6 +156,9 @@ internal fun EblanActionDialog(
                     componentName = eblanApplicationInfo.componentName,
                 )
 
+                showSelectApplicationDialog = false
+            },
+            onDismissRequest = {
                 showSelectApplicationDialog = false
             },
         )

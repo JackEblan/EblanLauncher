@@ -38,147 +38,153 @@ import com.eblan.launcher.designsystem.component.EblanDialogContainer
 
 @Composable
 fun SingleTextFieldDialog(
-    modifier: Modifier = Modifier,
-    title: String,
-    textFieldTitle: String,
-    value: String,
     isError: Boolean,
     keyboardType: KeyboardType,
+    modifier: Modifier = Modifier,
     singleLine: Boolean = true,
-    onValueChange: (String) -> Unit,
+    textFieldTitle: String,
+    title: String,
+    value: String,
     onDismissRequest: () -> Unit,
     onUpdateClick: () -> Unit,
+    onValueChange: (String) -> Unit,
 ) {
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-        ) {
-            Text(text = title, style = MaterialTheme.typography.titleLarge)
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            TextField(
-                value = value,
-                onValueChange = onValueChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(text = textFieldTitle)
-                },
-                supportingText = {
-                    if (isError) {
-                        Text(text = "$textFieldTitle is not valid")
-                    }
-                },
-                isError = isError,
-                keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-                singleLine = singleLine,
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+    EblanDialogContainer(
+        content = {
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
             ) {
-                TextButton(
-                    onClick = onDismissRequest,
+                Text(text = title, style = MaterialTheme.typography.titleLarge)
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                TextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = textFieldTitle)
+                    },
+                    supportingText = {
+                        if (isError) {
+                            Text(text = "$textFieldTitle is not valid")
+                        }
+                    },
+                    isError = isError,
+                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                    singleLine = singleLine,
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    Text(text = "Cancel")
-                }
-                TextButton(
-                    onClick = onUpdateClick,
-                ) {
-                    Text(text = "Update")
+                    TextButton(
+                        onClick = onDismissRequest,
+                    ) {
+                        Text(text = "Cancel")
+                    }
+                    TextButton(
+                        onClick = onUpdateClick,
+                    ) {
+                        Text(text = "Update")
+                    }
                 }
             }
-        }
-    }
+        },
+        onDismissRequest = onDismissRequest,
+    )
 }
 
 @Composable
 fun TwoTextFieldsDialog(
-    modifier: Modifier = Modifier,
-    title: String,
-    firstTextFieldTitle: String,
-    secondTextFieldTitle: String,
-    firstTextFieldValue: String,
-    secondTextFieldValue: String,
     firstTextFieldIsError: Boolean,
-    secondTextFieldIsError: Boolean,
+    firstTextFieldTitle: String,
+    firstTextFieldValue: String,
     keyboardType: KeyboardType,
+    modifier: Modifier = Modifier,
+    secondTextFieldIsError: Boolean,
+    secondTextFieldTitle: String,
+    secondTextFieldValue: String,
     singleLine: Boolean = true,
+    title: String,
+    onDismissRequest: () -> Unit,
     onFirstValueChange: (String) -> Unit,
     onSecondValueChange: (String) -> Unit,
-    onDismissRequest: () -> Unit,
     onUpdateClick: () -> Unit,
 ) {
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-        ) {
-            Text(text = title, style = MaterialTheme.typography.titleLarge)
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(modifier = Modifier.fillMaxWidth()) {
-                TextField(
-                    value = firstTextFieldValue,
-                    onValueChange = onFirstValueChange,
-                    modifier = Modifier.weight(1f),
-                    label = {
-                        Text(text = firstTextFieldTitle)
-                    },
-                    supportingText = {
-                        if (firstTextFieldIsError) {
-                            Text(text = "$firstTextFieldTitle is not valid")
-                        }
-                    },
-                    isError = firstTextFieldIsError,
-                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-                    singleLine = singleLine,
-                )
-
-                Spacer(modifier = Modifier.width(5.dp))
-
-                TextField(
-                    value = secondTextFieldValue,
-                    onValueChange = onSecondValueChange,
-                    modifier = Modifier.weight(1f),
-                    label = {
-                        Text(text = secondTextFieldTitle)
-                    },
-                    supportingText = {
-                        if (secondTextFieldIsError) {
-                            Text(text = "$secondTextFieldTitle is not valid")
-                        }
-                    },
-                    isError = secondTextFieldIsError,
-                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-                    singleLine = singleLine,
-                )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+    EblanDialogContainer(
+        content = {
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
             ) {
-                TextButton(
-                    onClick = onDismissRequest,
-                ) {
-                    Text(text = "Cancel")
+                Text(text = title, style = MaterialTheme.typography.titleLarge)
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    TextField(
+                        value = firstTextFieldValue,
+                        onValueChange = onFirstValueChange,
+                        modifier = Modifier.weight(1f),
+                        label = {
+                            Text(text = firstTextFieldTitle)
+                        },
+                        supportingText = {
+                            if (firstTextFieldIsError) {
+                                Text(text = "$firstTextFieldTitle is not valid")
+                            }
+                        },
+                        isError = firstTextFieldIsError,
+                        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                        singleLine = singleLine,
+                    )
+
+                    Spacer(modifier = Modifier.width(5.dp))
+
+                    TextField(
+                        value = secondTextFieldValue,
+                        onValueChange = onSecondValueChange,
+                        modifier = Modifier.weight(1f),
+                        label = {
+                            Text(text = secondTextFieldTitle)
+                        },
+                        supportingText = {
+                            if (secondTextFieldIsError) {
+                                Text(text = "$secondTextFieldTitle is not valid")
+                            }
+                        },
+                        isError = secondTextFieldIsError,
+                        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                        singleLine = singleLine,
+                    )
                 }
-                TextButton(
-                    onClick = onUpdateClick,
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    Text(text = "Update")
+                    TextButton(
+                        onClick = onDismissRequest,
+                    ) {
+                        Text(text = "Cancel")
+                    }
+                    TextButton(
+                        onClick = onUpdateClick,
+                    ) {
+                        Text(text = "Update")
+                    }
                 }
             }
-        }
-    }
+        },
+        onDismissRequest = onDismissRequest,
+    )
 }

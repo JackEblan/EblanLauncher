@@ -52,8 +52,8 @@ import kotlin.collections.forEach
 
 @Composable
 fun CustomIcon(
-    modifier: Modifier = Modifier,
     customIcon: String?,
+    modifier: Modifier = Modifier,
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onUpdateIconPackInfoPackageName: (
         packageName: String,
@@ -109,8 +109,8 @@ fun CustomIcon(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             SettingsColumn(
-                title = "Gallery",
                 subtitle = "Pick icons from your gallery",
+                title = "Gallery",
                 onClick = {
                     pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 },
@@ -137,9 +137,9 @@ fun CustomIcon(
 
 @Composable
 private fun IconPackItem(
-    modifier: Modifier = Modifier,
     icon: ByteArray?,
     label: String?,
+    modifier: Modifier = Modifier,
     packageName: String,
     onClick: () -> Unit,
 ) {

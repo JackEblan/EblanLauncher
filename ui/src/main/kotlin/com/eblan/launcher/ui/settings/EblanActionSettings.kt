@@ -39,14 +39,14 @@ import com.eblan.launcher.ui.dialog.EblanActionDialog
 
 @Composable
 fun EblanActionSettings(
-    modifier: Modifier = Modifier,
     doubleTap: EblanAction,
-    swipeUp: EblanAction,
-    swipeDown: EblanAction,
     eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
+    modifier: Modifier = Modifier,
+    swipeDown: EblanAction,
+    swipeUp: EblanAction,
     onUpdateDoubleTap: (EblanAction) -> Unit,
-    onUpdateSwipeUp: (EblanAction) -> Unit,
     onUpdateSwipeDown: (EblanAction) -> Unit,
+    onUpdateSwipeUp: (EblanAction) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -62,8 +62,8 @@ fun EblanActionSettings(
             .padding(horizontal = 15.dp),
     ) {
         SettingsColumn(
-            title = "Accessibility Services",
             subtitle = "Perform global actions",
+            title = "Accessibility Services",
             onClick = {
                 val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                 context.startActivity(intent)
@@ -73,8 +73,8 @@ fun EblanActionSettings(
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
         SettingsColumn(
-            title = "Double Tap",
             subtitle = doubleTap.eblanActionType.getEblanActionTypeSubtitle(componentName = doubleTap.componentName),
+            title = "Double Tap",
             onClick = {
                 showDoubleTapDialog = true
             },
@@ -83,8 +83,8 @@ fun EblanActionSettings(
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
         SettingsColumn(
-            title = "Swipe Up",
             subtitle = swipeUp.eblanActionType.getEblanActionTypeSubtitle(componentName = swipeUp.componentName),
+            title = "Swipe Up",
             onClick = {
                 showSwipeUpDialog = true
             },
@@ -93,8 +93,8 @@ fun EblanActionSettings(
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
         SettingsColumn(
-            title = "Swipe Down",
             subtitle = swipeDown.eblanActionType.getEblanActionTypeSubtitle(componentName = swipeDown.componentName),
+            title = "Swipe Down",
             onClick = {
                 showSwipeDownDialog = true
             },
@@ -103,15 +103,15 @@ fun EblanActionSettings(
 
     if (showDoubleTapDialog) {
         EblanActionDialog(
-            title = "Double Tap",
             eblanAction = doubleTap,
             eblanApplicationInfos = eblanApplicationInfos,
+            title = "Double Tap",
+            onDismissRequest = {
+                showDoubleTapDialog = false
+            },
             onSelectEblanAction = { newEblanAction ->
                 onUpdateDoubleTap(newEblanAction)
 
-                showDoubleTapDialog = false
-            },
-            onDismissRequest = {
                 showDoubleTapDialog = false
             },
         )
@@ -119,15 +119,15 @@ fun EblanActionSettings(
 
     if (showSwipeUpDialog) {
         EblanActionDialog(
-            title = "Swipe Up",
             eblanAction = swipeUp,
             eblanApplicationInfos = eblanApplicationInfos,
+            title = "Swipe Up",
+            onDismissRequest = {
+                showSwipeUpDialog = false
+            },
             onSelectEblanAction = { newEblanAction ->
                 onUpdateSwipeUp(newEblanAction)
 
-                showSwipeUpDialog = false
-            },
-            onDismissRequest = {
                 showSwipeUpDialog = false
             },
         )
@@ -135,15 +135,15 @@ fun EblanActionSettings(
 
     if (showSwipeDownDialog) {
         EblanActionDialog(
-            title = "Swipe Down",
             eblanAction = swipeDown,
             eblanApplicationInfos = eblanApplicationInfos,
+            title = "Swipe Down",
+            onDismissRequest = {
+                showSwipeDownDialog = false
+            },
             onSelectEblanAction = { newEblanAction ->
                 onUpdateSwipeDown(newEblanAction)
 
-                showSwipeDownDialog = false
-            },
-            onDismissRequest = {
                 showSwipeDownDialog = false
             },
         )

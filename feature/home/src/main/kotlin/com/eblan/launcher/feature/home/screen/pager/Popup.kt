@@ -55,18 +55,18 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 
 @Composable
 internal fun SettingsPopup(
-    popupSettingsIntOffset: IntOffset,
     gridItems: List<GridItem>,
     hasSystemFeatureAppWidgets: Boolean,
-    onSettings: () -> Unit,
+    popupSettingsIntOffset: IntOffset,
+    onDismissRequest: () -> Unit,
     onEditPage: (
         gridItems: List<GridItem>,
         associate: Associate,
     ) -> Unit,
-    onWidgets: () -> Unit,
+    onSettings: () -> Unit,
     onShortcutConfigActivities: () -> Unit,
     onWallpaper: () -> Unit,
-    onDismissRequest: () -> Unit,
+    onWidgets: () -> Unit,
 ) {
     Popup(
         popupPositionProvider = SettingsPopupPositionProvider(
@@ -77,8 +77,11 @@ internal fun SettingsPopup(
     ) {
         SettingsMenu(
             hasSystemFeatureAppWidgets = hasSystemFeatureAppWidgets,
-            onSettings = {
-                onSettings()
+            onEditDockPage = {
+                onEditPage(
+                    gridItems,
+                    Associate.Dock,
+                )
 
                 onDismissRequest()
             },
@@ -90,16 +93,8 @@ internal fun SettingsPopup(
 
                 onDismissRequest()
             },
-            onEditDockPage = {
-                onEditPage(
-                    gridItems,
-                    Associate.Dock,
-                )
-
-                onDismissRequest()
-            },
-            onWidgets = {
-                onWidgets()
+            onSettings = {
+                onSettings()
 
                 onDismissRequest()
             },
@@ -113,20 +108,25 @@ internal fun SettingsPopup(
 
                 onDismissRequest()
             },
+            onWidgets = {
+                onWidgets()
+
+                onDismissRequest()
+            },
         )
     }
 }
 
 @Composable
 internal fun FolderGridItemPopup(
-    modifier: Modifier = Modifier,
     gridItemSource: GridItemSource,
+    modifier: Modifier = Modifier,
+    paddingValues: PaddingValues,
     popupIntOffset: IntOffset,
     popupIntSize: IntSize,
-    paddingValues: PaddingValues,
-    onEdit: (String) -> Unit,
     onDeleteApplicationInfoGridItem: (ApplicationInfoGridItem) -> Unit,
     onDismissRequest: () -> Unit,
+    onEdit: (String) -> Unit,
 ) {
     val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder ?: return
 
@@ -158,13 +158,13 @@ internal fun FolderGridItemPopup(
             .padding(paddingValues),
         content = {
             FolderGridItemPopupContent(
-                onEdit = {
-                    onEdit(gridItemSourceFolder.applicationInfoGridItem.id)
+                onDelete = {
+                    onDeleteApplicationInfoGridItem(gridItemSource.applicationInfoGridItem)
 
                     onDismissRequest()
                 },
-                onDelete = {
-                    onDeleteApplicationInfoGridItem(gridItemSource.applicationInfoGridItem)
+                onEdit = {
+                    onEdit(gridItemSourceFolder.applicationInfoGridItem.id)
 
                     onDismissRequest()
                 },
@@ -200,8 +200,8 @@ internal fun FolderGridItemPopup(
 @Composable
 private fun FolderGridItemPopupContent(
     modifier: Modifier = Modifier,
-    onEdit: () -> Unit,
     onDelete: () -> Unit,
+    onEdit: () -> Unit,
 ) {
     Surface(
         modifier = modifier.width(IntrinsicSize.Max),
@@ -227,14 +227,14 @@ private fun FolderGridItemPopupContent(
 
 @Composable
 private fun SettingsMenu(
-    modifier: Modifier = Modifier,
     hasSystemFeatureAppWidgets: Boolean,
-    onSettings: () -> Unit,
-    onEditPage: () -> Unit,
+    modifier: Modifier = Modifier,
     onEditDockPage: () -> Unit,
-    onWidgets: () -> Unit,
+    onEditPage: () -> Unit,
+    onSettings: () -> Unit,
     onShortcutConfigActivities: () -> Unit,
     onWallpaper: () -> Unit,
+    onWidgets: () -> Unit,
 ) {
     Surface(
         modifier = modifier.width(IntrinsicSize.Max),
@@ -296,8 +296,8 @@ private fun SettingsMenu(
 
 @Composable
 private fun PopupMenuRow(
-    modifier: Modifier = Modifier,
     imageVector: ImageVector,
+    modifier: Modifier = Modifier,
     title: String,
     onClick: () -> Unit,
 ) {

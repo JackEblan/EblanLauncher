@@ -40,10 +40,10 @@ import com.eblan.launcher.domain.model.TextColor
 
 @Composable
 fun TextColorDialog(
-    title: String,
+    customTextColor: Int,
     modifier: Modifier = Modifier,
     textColor: TextColor,
-    customTextColor: Int,
+    title: String,
     onDismissRequest: () -> Unit,
     onUpdateClick: (
         textColor: TextColor,
@@ -56,62 +56,63 @@ fun TextColorDialog(
 
     var showColorPickerDialog by remember { mutableStateOf(false) }
 
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier
-                .selectableGroup()
-                .fillMaxWidth(),
-        ) {
-            Text(
-                modifier = Modifier.padding(10.dp),
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-            )
+    EblanDialogContainer(
+        content = {
+            Column(
+                modifier = modifier
+                    .selectableGroup()
+                    .fillMaxWidth(),
+            ) {
+                Text(
+                    modifier = Modifier.padding(10.dp),
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                )
 
-            TextColor.entries.forEach { textColor ->
-                EblanRadioButton(
-                    text = textColor.name,
-                    selected = selectedTextColor == textColor,
-                    onClick = {
+                TextColor.entries.forEach { textColor ->
+                    EblanRadioButton(
+                        selected = selectedTextColor == textColor,
+                        text = textColor.name,
+                    ) {
                         if (textColor == TextColor.Custom) {
                             showColorPickerDialog = true
                         } else {
                             selectedTextColor = textColor
                         }
-                    },
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        end = 10.dp,
-                        bottom = 10.dp,
-                    ),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                TextButton(onClick = onDismissRequest) {
-                    Text(text = "Cancel")
+                    }
                 }
-                TextButton(
-                    onClick = {
-                        onUpdateClick(
-                            selectedTextColor,
-                            selectedCustomTextColor,
-                        )
-                    },
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            end = 10.dp,
+                            bottom = 10.dp,
+                        ),
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    Text(text = "Update")
+                    TextButton(onClick = onDismissRequest) {
+                        Text(text = "Cancel")
+                    }
+                    TextButton(
+                        onClick = {
+                            onUpdateClick(
+                                selectedTextColor,
+                                selectedCustomTextColor,
+                            )
+                        },
+                    ) {
+                        Text(text = "Update")
+                    }
                 }
             }
-        }
-    }
-
+        },
+        onDismissRequest = onDismissRequest,
+    )
     if (showColorPickerDialog) {
         ColorPickerDialog(
-            title = "Text Color",
             customColor = customTextColor,
+            title = "Text Color",
             onDismissRequest = {
                 showColorPickerDialog = false
             },

@@ -50,10 +50,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SelectApplicationDialog(
-    modifier: Modifier = Modifier,
     eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
-    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
     onClick: (EblanApplicationInfo) -> Unit,
+    onDismissRequest: () -> Unit,
 ) {
     val horizontalPagerState = rememberPagerState(
         pageCount = {
@@ -61,68 +61,71 @@ fun SelectApplicationDialog(
         },
     )
 
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier
-                .verticalScroll(rememberScrollState())
-                .fillMaxWidth(),
-        ) {
-            Text(
-                modifier = Modifier.padding(10.dp),
-                text = "Select Application",
-                style = MaterialTheme.typography.titleLarge,
-            )
-
-            if (eblanApplicationInfos.keys.size > 1) {
-                EblanApplicationInfoTabRow(
-                    currentPage = horizontalPagerState.currentPage,
-                    eblanApplicationInfos = eblanApplicationInfos,
-                    onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
+    EblanDialogContainer(
+        content = {
+            Column(
+                modifier = modifier
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth(),
+            ) {
+                Text(
+                    modifier = Modifier.padding(10.dp),
+                    text = "Select Application",
+                    style = MaterialTheme.typography.titleLarge,
                 )
 
-                HorizontalPager(
-                    modifier = Modifier
-                        .heightIn(max = 300.dp)
-                        .fillMaxWidth(),
-                    state = horizontalPagerState,
-                ) { index ->
-                    EblanApplicationInfosPage(
-                        index = index,
+                if (eblanApplicationInfos.keys.size > 1) {
+                    EblanApplicationInfoTabRow(
+                        currentPage = horizontalPagerState.currentPage,
                         eblanApplicationInfos = eblanApplicationInfos,
+                        onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
+                    )
+
+                    HorizontalPager(
+                        modifier = Modifier
+                            .heightIn(max = 300.dp)
+                            .fillMaxWidth(),
+                        state = horizontalPagerState,
+                    ) { index ->
+                        EblanApplicationInfosPage(
+                            eblanApplicationInfos = eblanApplicationInfos,
+                            index = index,
+                            onClick = onClick,
+                        )
+                    }
+                } else {
+                    EblanApplicationInfosPage(
+                        eblanApplicationInfos = eblanApplicationInfos,
+                        index = 0,
+                        modifier = Modifier
+                            .heightIn(max = 300.dp)
+                            .fillMaxWidth(),
                         onClick = onClick,
                     )
                 }
-            } else {
-                EblanApplicationInfosPage(
-                    modifier = Modifier
-                        .heightIn(max = 300.dp)
-                        .fillMaxWidth(),
-                    index = 0,
-                    eblanApplicationInfos = eblanApplicationInfos,
-                    onClick = onClick,
-                )
-            }
 
-            TextButton(
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(
-                        end = 10.dp,
-                        bottom = 10.dp,
-                    ),
-                onClick = onDismissRequest,
-            ) {
-                Text(text = "Cancel")
+                TextButton(
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(
+                            end = 10.dp,
+                            bottom = 10.dp,
+                        ),
+                    onClick = onDismissRequest,
+                ) {
+                    Text(text = "Cancel")
+                }
             }
-        }
-    }
+        },
+        onDismissRequest = onDismissRequest,
+    )
 }
 
 @Composable
 private fun EblanApplicationInfosPage(
-    modifier: Modifier = Modifier,
-    index: Int,
     eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
+    index: Int,
+    modifier: Modifier = Modifier,
     onClick: (EblanApplicationInfo) -> Unit,
 ) {
     val eblanUser = eblanApplicationInfos.keys.toList().getOrElse(

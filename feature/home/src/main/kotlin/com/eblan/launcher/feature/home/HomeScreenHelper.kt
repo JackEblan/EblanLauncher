@@ -35,12 +35,12 @@ import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import java.io.File
 
 internal suspend fun handlePinItemRequest(
-    pinItemRequest: PinItemRequest?,
     context: Context,
-    launcherAppsWrapper: AndroidLauncherAppsWrapper,
-    imageSerializer: AndroidImageSerializer,
-    userManager: AndroidUserManagerWrapper,
     fileManager: FileManager,
+    imageSerializer: AndroidImageSerializer,
+    launcherAppsWrapper: AndroidLauncherAppsWrapper,
+    pinItemRequest: PinItemRequest?,
+    userManager: AndroidUserManagerWrapper,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
@@ -148,11 +148,7 @@ internal suspend fun handlePinItemRequest(
     }
 }
 
-internal fun handleKlwpBroadcasts(
-    klwpIntegration: Boolean,
-    screen: Screen,
-    context: Context,
-) {
+internal fun handleKlwpBroadcasts(context: Context, klwpIntegration: Boolean, screen: Screen) {
     if (!klwpIntegration) return
 
     val intent = Intent(KUSTOM_ACTION).apply {

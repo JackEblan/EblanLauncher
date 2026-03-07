@@ -59,42 +59,42 @@ import com.eblan.launcher.ui.local.LocalLauncherApps
 
 @Composable
 internal fun PopupApplicationInfoMenu(
+    currentPage: Int,
+    drag: Drag,
+    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    gridItem: GridItem?,
+    gridItemSettings: GridItemSettings,
+    gridItems: List<GridItem>,
+    hasShortcutHostPermission: Boolean,
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
     popupIntOffset: IntOffset,
-    gridItem: GridItem?,
     popupIntSize: IntSize,
-    eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    hasShortcutHostPermission: Boolean,
-    currentPage: Int,
-    drag: Drag,
-    gridItemSettings: GridItemSettings,
-    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
-    gridItems: List<GridItem>,
     onDismissRequest: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
         componentName: String,
+    ) -> Unit,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
     ) -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
-    onWidgets: (EblanApplicationInfoGroup) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
 ) {
     val applicationInfo = gridItem?.data as? GridItemData.ApplicationInfo ?: return
 
@@ -129,19 +129,19 @@ internal fun PopupApplicationInfoMenu(
             .padding(paddingValues),
         content = {
             ApplicationInfoMenu(
+                currentPage = currentPage,
+                drag = drag,
+                eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfos[applicationInfo.packageName],
                 eblanShortcutInfosGroup = eblanShortcutInfosGroup[
                     EblanShortcutInfoByGroup(
                         serialNumber = applicationInfo.serialNumber,
                         packageName = applicationInfo.packageName,
                     ),
                 ],
-                hasShortcutHostPermission = hasShortcutHostPermission,
-                currentPage = currentPage,
-                icon = applicationInfo.icon,
-                drag = drag,
                 gridItemSettings = gridItemSettings,
-                eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfos[applicationInfo.packageName],
                 gridItems = gridItems,
+                hasShortcutHostPermission = hasShortcutHostPermission,
+                icon = applicationInfo.icon,
                 onApplicationInfo = {
                     launcherApps.startAppDetailsActivity(
                         serialNumber = applicationInfo.serialNumber,
@@ -156,6 +156,7 @@ internal fun PopupApplicationInfoMenu(
 
                     onDismissRequest()
                 },
+                onDraggingGridItem = onDraggingGridItem,
                 onEdit = {
                     onDismissRequest()
 
@@ -164,6 +165,7 @@ internal fun PopupApplicationInfoMenu(
                         applicationInfo.componentName,
                     )
                 },
+                onLongPressGridItem = onLongPressGridItem,
                 onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
                     onTapShortcutInfo(
                         serialNumber,
@@ -173,9 +175,8 @@ internal fun PopupApplicationInfoMenu(
 
                     onDismissRequest()
                 },
-                onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
-                onDraggingGridItem = onDraggingGridItem,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onWidgets = {
                     onWidgets(
                         EblanApplicationInfoGroup(
@@ -188,7 +189,6 @@ internal fun PopupApplicationInfoMenu(
 
                     onDismissRequest()
                 },
-                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         },
     ) { measurables, constraints ->
@@ -219,36 +219,36 @@ internal fun PopupApplicationInfoMenu(
 
 @Composable
 private fun ApplicationInfoMenu(
-    modifier: Modifier = Modifier,
-    eblanShortcutInfosGroup: List<EblanShortcutInfo>?,
-    hasShortcutHostPermission: Boolean,
     currentPage: Int,
     drag: Drag,
-    icon: String?,
-    gridItemSettings: GridItemSettings,
     eblanAppWidgetProviderInfosByPackageName: List<EblanAppWidgetProviderInfo>?,
+    eblanShortcutInfosGroup: List<EblanShortcutInfo>?,
+    gridItemSettings: GridItemSettings,
     gridItems: List<GridItem>,
+    hasShortcutHostPermission: Boolean,
+    icon: String?,
+    modifier: Modifier = Modifier,
     onApplicationInfo: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onEdit: () -> Unit,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
-    onWidgets: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onWidgets: () -> Unit,
 ) {
     Surface(
         modifier = modifier.padding(5.dp),
@@ -262,21 +262,21 @@ private fun ApplicationInfoMenu(
                     !eblanShortcutInfosGroup.isNullOrEmpty()
                 ) {
                     ShortcutInfoMenu(
-                        modifier = modifier,
                         currentPage = currentPage,
                         drag = drag,
-                        icon = icon,
                         eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                         gridItemSettings = gridItemSettings,
-                        onTapShortcutInfo = onTapShortcutInfo,
-                        onLongPressGridItem = onLongPressGridItem,
-                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        icon = icon,
+                        modifier = modifier,
                         onDraggingGridItem = {
                             onDraggingGridItem(
                                 Screen.Drag,
                                 gridItems,
                             )
                         },
+                        onLongPressGridItem = onLongPressGridItem,
+                        onTapShortcutInfo = onTapShortcutInfo,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
 

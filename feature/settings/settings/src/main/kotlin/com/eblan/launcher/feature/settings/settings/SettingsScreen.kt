@@ -59,21 +59,21 @@ import com.eblan.launcher.ui.local.LocalPackageManager
 @Composable
 internal fun SettingsRoute(
     modifier: Modifier = Modifier,
+    onAppDrawer: () -> Unit,
+    onExperimental: () -> Unit,
     onFinish: () -> Unit,
     onGeneral: () -> Unit,
-    onHome: () -> Unit,
-    onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
-    onExperimental: () -> Unit,
+    onHome: () -> Unit,
 ) {
     SettingsScreen(
         modifier = modifier,
+        onAppDrawer = onAppDrawer,
+        onExperimental = onExperimental,
         onFinish = onFinish,
         onGeneral = onGeneral,
-        onHome = onHome,
-        onAppDrawer = onAppDrawer,
         onGestures = onGestures,
-        onExperimental = onExperimental,
+        onHome = onHome,
     )
 }
 
@@ -81,12 +81,12 @@ internal fun SettingsRoute(
 @Composable
 internal fun SettingsScreen(
     modifier: Modifier = Modifier,
+    onAppDrawer: () -> Unit,
+    onExperimental: () -> Unit,
     onFinish: () -> Unit,
     onGeneral: () -> Unit,
-    onHome: () -> Unit,
-    onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
-    onExperimental: () -> Unit,
+    onHome: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -128,8 +128,8 @@ internal fun SettingsScreen(
             ) {
                 SettingsRow(
                     imageVector = EblanLauncherIcons.Handshake,
-                    title = "Support Development",
                     subtitle = "Developer information",
+                    title = "Support Development",
                     onClick = {
                         showSupportDialog = true
                     },
@@ -140,8 +140,8 @@ internal fun SettingsScreen(
                 if (!packageManager.isDefaultLauncher()) {
                     SettingsRow(
                         imageVector = EblanLauncherIcons.Info,
-                        title = "Default Launcher",
                         subtitle = "Choose Yagni Launcher",
+                        title = "Default Launcher",
                         onClick = {
                             context.startActivity(Intent(ACTION_HOME_SETTINGS))
                         },
@@ -152,8 +152,8 @@ internal fun SettingsScreen(
 
                 SettingsRow(
                     imageVector = EblanLauncherIcons.Settings,
-                    title = "General",
                     subtitle = "Themes, icon packs",
+                    title = "General",
                     onClick = onGeneral,
                 )
 
@@ -161,8 +161,8 @@ internal fun SettingsScreen(
 
                 SettingsRow(
                     imageVector = EblanLauncherIcons.Home,
-                    title = "Home",
                     subtitle = "Grid, icon, dock, and more",
+                    title = "Home",
                     onClick = onHome,
                 )
 
@@ -170,8 +170,8 @@ internal fun SettingsScreen(
 
                 SettingsRow(
                     imageVector = EblanLauncherIcons.Apps,
-                    title = "App Drawer",
                     subtitle = "Columns and rows count",
+                    title = "App Drawer",
                     onClick = onAppDrawer,
                 )
 
@@ -179,8 +179,8 @@ internal fun SettingsScreen(
 
                 SettingsRow(
                     imageVector = EblanLauncherIcons.Gesture,
-                    title = "Gestures",
                     subtitle = "Swipe gesture actions",
+                    title = "Gestures",
                     onClick = onGestures,
                 )
 
@@ -188,8 +188,8 @@ internal fun SettingsScreen(
 
                 SettingsRow(
                     imageVector = EblanLauncherIcons.DeveloperMode,
-                    title = "Experimental",
                     subtitle = "Advanced options for power users",
+                    title = "Experimental",
                     onClick = onExperimental,
                 )
             }
@@ -198,8 +198,8 @@ internal fun SettingsScreen(
 
     if (showSupportDialog) {
         TextDialog(
-            title = "Support Development",
             text = "Thank you for using Yagni Launcher Alpha! I’ve been building this project since January 2025, releasing weekly updates. It’s my most complex project yet, and I pour my heart into it. If you enjoy it, you can support development with a donation or a star on GitHub.",
+            title = "Support Development",
             onClick = {
                 context.startActivity(
                     Intent(
@@ -219,10 +219,10 @@ internal fun SettingsScreen(
 
 @Composable
 private fun SettingsRow(
-    modifier: Modifier = Modifier,
     imageVector: ImageVector,
-    title: String,
+    modifier: Modifier = Modifier,
     subtitle: String,
+    title: String,
     onClick: () -> Unit,
 ) {
     Row(

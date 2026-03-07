@@ -29,10 +29,10 @@ import com.eblan.launcher.feature.home.navigation.homeScreen
 
 @Composable
 fun MainNavHost(
-    navController: NavHostController,
     configureResultCode: Int?,
-    onSettings: () -> Unit,
+    navController: NavHostController,
     onResetConfigureResultCode: () -> Unit,
+    onSettings: () -> Unit,
 ) {
     NavHost(
         navController = navController,
@@ -40,10 +40,10 @@ fun MainNavHost(
     ) {
         homeScreen(
             configureResultCode = configureResultCode,
-            onEditGridItem = navController::navigateToEditGridItemScreen,
-            onSettings = onSettings,
             onEditApplicationInfo = navController::navigateToEditApplicationScreen,
+            onEditGridItem = navController::navigateToEditGridItemScreen,
             onResetConfigureResultCode = onResetConfigureResultCode,
+            onSettings = onSettings,
         )
 
         editGridItemScreen(onNavigateUp = navController::navigateUp)

@@ -21,15 +21,15 @@ import androidx.compose.ui.graphics.Color
 import com.eblan.launcher.domain.model.TextColor
 
 internal fun getGridItemTextColor(
-    systemTextColor: TextColor,
-    systemCustomTextColor: Int,
-    gridItemTextColor: TextColor,
     gridItemCustomTextColor: Int,
+    gridItemTextColor: TextColor,
+    systemCustomTextColor: Int,
+    systemTextColor: TextColor,
 ): Color = when (gridItemTextColor) {
     TextColor.System -> {
         getSystemTextColor(
-            systemTextColor = systemTextColor,
             systemCustomTextColor = systemCustomTextColor,
+            systemTextColor = systemTextColor,
         )
     }
 
@@ -46,10 +46,7 @@ internal fun getGridItemTextColor(
     }
 }
 
-internal fun getSystemTextColor(
-    systemTextColor: TextColor,
-    systemCustomTextColor: Int,
-): Color = when (systemTextColor) {
+internal fun getSystemTextColor(systemCustomTextColor: Int, systemTextColor: TextColor): Color = when (systemTextColor) {
     TextColor.System -> {
         Color.Unspecified
     }

@@ -23,13 +23,13 @@ import com.eblan.launcher.feature.home.HomeRoute
 
 fun NavGraphBuilder.homeScreen(
     configureResultCode: Int?,
-    onEditGridItem: (String) -> Unit,
-    onSettings: () -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
         componentName: String,
     ) -> Unit,
+    onEditGridItem: (String) -> Unit,
     onResetConfigureResultCode: () -> Unit,
+    onSettings: () -> Unit,
 ) {
     composable<HomeRouteData> {
         HomeRoute(

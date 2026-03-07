@@ -40,8 +40,8 @@ import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
 internal fun EblanApplicationInfoOrderDialog(
-    modifier: Modifier = Modifier,
     eblanApplicationInfoOrder: EblanApplicationInfoOrder,
+    modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit,
     onUpdateClick: (
         eblanApplicationInfoOrder: EblanApplicationInfoOrder,
@@ -52,62 +52,64 @@ internal fun EblanApplicationInfoOrderDialog(
 
     var isRearrangeEblanApplicationInfo by remember { mutableStateOf(false) }
 
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier
-                .selectableGroup()
-                .fillMaxWidth(),
-        ) {
-            Text(
-                modifier = Modifier.padding(10.dp),
-                text = "Sort Applications",
-                style = MaterialTheme.typography.titleLarge,
-            )
-
-            EblanApplicationInfoOrder.entries.forEach { eblanApplicationInfoOrder ->
-                EblanRadioButton(
-                    text = eblanApplicationInfoOrder.name,
-                    selected = selectedEblanApplicationInfoOrder == eblanApplicationInfoOrder,
-                    onClick = {
-                        selectedEblanApplicationInfoOrder = eblanApplicationInfoOrder
-                    },
-                )
-            }
-
-            if (selectedEblanApplicationInfoOrder == EblanApplicationInfoOrder.Index) {
-                SettingsSwitch(
-                    checked = isRearrangeEblanApplicationInfo,
-                    title = "Rearrange Applications",
-                    subtitle = "Rearrange applications by index",
-                    onCheckedChange = {
-                        isRearrangeEblanApplicationInfo = it
-                    },
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        end = 10.dp,
-                        bottom = 10.dp,
-                    ),
-                horizontalArrangement = Arrangement.End,
+    EblanDialogContainer(
+        content = {
+            Column(
+                modifier = modifier
+                    .selectableGroup()
+                    .fillMaxWidth(),
             ) {
-                TextButton(onClick = onDismissRequest) {
-                    Text(text = "Cancel")
+                Text(
+                    modifier = Modifier.padding(10.dp),
+                    text = "Sort Applications",
+                    style = MaterialTheme.typography.titleLarge,
+                )
+
+                EblanApplicationInfoOrder.entries.forEach { eblanApplicationInfoOrder ->
+                    EblanRadioButton(
+                        selected = selectedEblanApplicationInfoOrder == eblanApplicationInfoOrder,
+                        text = eblanApplicationInfoOrder.name,
+                    ) {
+                        selectedEblanApplicationInfoOrder = eblanApplicationInfoOrder
+                    }
                 }
-                TextButton(
-                    onClick = {
-                        onUpdateClick(
-                            selectedEblanApplicationInfoOrder,
-                            isRearrangeEblanApplicationInfo,
-                        )
-                    },
+
+                if (selectedEblanApplicationInfoOrder == EblanApplicationInfoOrder.Index) {
+                    SettingsSwitch(
+                        checked = isRearrangeEblanApplicationInfo,
+                        subtitle = "Rearrange applications by index",
+                        title = "Rearrange Applications",
+                        onCheckedChange = {
+                            isRearrangeEblanApplicationInfo = it
+                        },
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            end = 10.dp,
+                            bottom = 10.dp,
+                        ),
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    Text(text = "Update")
+                    TextButton(onClick = onDismissRequest) {
+                        Text(text = "Cancel")
+                    }
+                    TextButton(
+                        onClick = {
+                            onUpdateClick(
+                                selectedEblanApplicationInfoOrder,
+                                isRearrangeEblanApplicationInfo,
+                            )
+                        },
+                    ) {
+                        Text(text = "Update")
+                    }
                 }
             }
-        }
-    }
+        },
+        onDismissRequest = onDismissRequest,
+    )
 }

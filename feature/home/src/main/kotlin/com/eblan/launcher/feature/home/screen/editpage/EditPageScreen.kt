@@ -75,22 +75,22 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun SharedTransitionScope.EditPageScreen(
     modifier: Modifier = Modifier,
-    screenHeight: Int,
-    pageItems: List<PageItem>,
-    textColor: TextColor,
-    paddingValues: PaddingValues,
-    homeSettings: HomeSettings,
-    hasShortcutHostPermission: Boolean,
-    iconPackFilePaths: Map<String, String>,
-    screen: Screen,
     associate: Associate?,
+    hasShortcutHostPermission: Boolean,
+    homeSettings: HomeSettings,
+    iconPackFilePaths: Map<String, String>,
+    paddingValues: PaddingValues,
+    pageItems: List<PageItem>,
+    screen: Screen,
+    screenHeight: Int,
+    textColor: TextColor,
     onSaveEditPage: (
         id: Int,
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
         associate: Associate,
     ) -> Unit,
-    onUpdateScreen: (Screen) -> Unit,
+    onUpdateScreen: (Screen) -> Unit
 ) {
     requireNotNull(associate)
 
@@ -238,8 +238,7 @@ internal fun SharedTransitionScope.EditPageScreen(
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally)
                                 .padding(5.dp),
-                            pageItem = pageItem,
-                            selectedId = selectedId,
+                            pageItem = pageItem, selectedId = selectedId,
                             onDeleteClick = {
                                 currentPageItems = currentPageItems.toMutableList().apply {
                                     removeIf { currentPageItem ->
@@ -251,7 +250,7 @@ internal fun SharedTransitionScope.EditPageScreen(
                             },
                             onHomeClick = {
                                 selectedId = pageItem.id
-                            },
+                            }
                         )
                     }
                 }
@@ -267,13 +266,13 @@ internal fun SharedTransitionScope.EditPageScreen(
             exit = fadeOut(),
         ) {
             ActionButtons(
-                onCancel = {
-                    onUpdateScreen(Screen.Pager)
-                },
                 onAdd = {
                     currentPageItems = currentPageItems.toMutableList().apply {
                         add(PageItem(id = maxOf { it.id } + 1, gridItems = emptyList()))
                     }
+                },
+                onCancel = {
+                    onUpdateScreen(Screen.Pager)
                 },
                 onSave = {
                     onSaveEditPage(
@@ -282,7 +281,7 @@ internal fun SharedTransitionScope.EditPageScreen(
                         pageItemsToDelete,
                         associate,
                     )
-                },
+                }
             )
         }
     }
@@ -294,7 +293,7 @@ private fun PageButtons(
     pageItem: PageItem,
     selectedId: Int,
     onDeleteClick: () -> Unit,
-    onHomeClick: () -> Unit,
+    onHomeClick: () -> Unit
 ) {
     Surface(
         modifier = modifier,
@@ -331,9 +330,9 @@ private fun PageButtons(
 @Composable
 private fun ActionButtons(
     modifier: Modifier = Modifier,
-    onCancel: () -> Unit,
     onAdd: () -> Unit,
-    onSave: () -> Unit,
+    onCancel: () -> Unit,
+    onSave: () -> Unit
 ) {
     Surface(
         modifier = modifier.padding(10.dp),

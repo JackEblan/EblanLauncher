@@ -91,47 +91,47 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 internal fun LazyGridScope.privateSpace(
-    privateEblanUser: EblanUser?,
-    privateEblanApplicationInfos: List<EblanApplicationInfo>,
-    managedProfileResult: ManagedProfileResult?,
-    isQuietModeEnabled: Boolean,
-    drag: Drag,
     appDrawerSettings: AppDrawerSettings,
-    paddingValues: PaddingValues,
+    drag: Drag,
     iconPackFilePaths: Map<String, String>,
-    onUpdateGridItemOffset: (
-        intOffset: IntOffset,
-        intSize: IntSize,
-    ) -> Unit,
+    isQuietModeEnabled: Boolean,
+    managedProfileResult: ManagedProfileResult?,
+    paddingValues: PaddingValues,
+    privateEblanApplicationInfos: List<EblanApplicationInfo>,
+    privateEblanUser: EblanUser?,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onUpdatePopupMenu: (Boolean) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onUpdateIsQuietModeEnabled: (Boolean) -> Unit,
+    onUpdatePopupMenu: (Boolean) -> Unit
 ) {
     if (privateEblanUser == null || privateEblanUser.isPrivateSpaceEntryPointHidden) return
 
     stickyHeader {
         PrivateSpaceStickyHeader(
-            privateEblanUser = privateEblanUser,
-            managedProfileResult = managedProfileResult,
             isQuietModeEnabled = isQuietModeEnabled,
-            onUpdateIsQuietModeEnabled = onUpdateIsQuietModeEnabled,
+            managedProfileResult = managedProfileResult,
+            privateEblanUser = privateEblanUser,
+            onUpdateIsQuietModeEnabled = onUpdateIsQuietModeEnabled
         )
     }
 
     if (!isQuietModeEnabled) {
         items(privateEblanApplicationInfos) { eblanApplicationInfo ->
             PrivateSpaceEblanApplicationInfoItem(
+                appDrawerSettings = appDrawerSettings,
                 drag = drag,
                 eblanApplicationInfo = eblanApplicationInfo,
-                appDrawerSettings = appDrawerSettings,
-                paddingValues = paddingValues,
                 iconPackFilePaths = iconPackFilePaths,
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                paddingValues = paddingValues,
                 onLongPressGridItem = onLongPressGridItem,
-                onUpdatePopupMenu = onUpdatePopupMenu,
+                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdatePopupMenu = onUpdatePopupMenu
             )
         }
     }
@@ -140,10 +140,10 @@ internal fun LazyGridScope.privateSpace(
 @Composable
 internal fun PrivateSpaceStickyHeader(
     modifier: Modifier = Modifier,
-    privateEblanUser: EblanUser?,
-    managedProfileResult: ManagedProfileResult?,
     isQuietModeEnabled: Boolean,
-    onUpdateIsQuietModeEnabled: (Boolean) -> Unit,
+    managedProfileResult: ManagedProfileResult?,
+    privateEblanUser: EblanUser?,
+    onUpdateIsQuietModeEnabled: (Boolean) -> Unit
 ) {
     if (privateEblanUser == null) return
 
@@ -228,20 +228,20 @@ internal fun PrivateSpaceStickyHeader(
 @Composable
 private fun PrivateSpaceEblanApplicationInfoItem(
     modifier: Modifier = Modifier,
+    appDrawerSettings: AppDrawerSettings,
     drag: Drag,
     eblanApplicationInfo: EblanApplicationInfo,
-    appDrawerSettings: AppDrawerSettings,
-    paddingValues: PaddingValues,
     iconPackFilePaths: Map<String, String>,
-    onUpdateGridItemOffset: (
-        intOffset: IntOffset,
-        intSize: IntSize,
-    ) -> Unit,
+    paddingValues: PaddingValues,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onUpdatePopupMenu: (Boolean) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onUpdatePopupMenu: (Boolean) -> Unit
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -252,8 +252,8 @@ private fun PrivateSpaceEblanApplicationInfoItem(
     val launcherApps = LocalLauncherApps.current
 
     val textColor = getSystemTextColor(
-        systemTextColor = appDrawerSettings.gridItemSettings.textColor,
         systemCustomTextColor = appDrawerSettings.gridItemSettings.customTextColor,
+        systemTextColor = appDrawerSettings.gridItemSettings.textColor
     )
 
     val appDrawerRowsHeight = appDrawerSettings.appDrawerRowsHeight.dp

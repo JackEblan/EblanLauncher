@@ -79,13 +79,13 @@ import kotlin.uuid.ExperimentalUuidApi
 @Composable
 internal fun DragAndDropEblanApplicationInfos(
     modifier: Modifier = Modifier,
-    eblanUser: EblanUser,
-    paddingValues: PaddingValues,
     appDrawerSettings: AppDrawerSettings,
+    eblanUser: EblanUser,
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     iconPackFilePaths: Map<String, String>,
-    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
+    paddingValues: PaddingValues,
     onDismissDragAndDrop: () -> Unit,
+    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit
 ) {
     val lazyGridState = rememberLazyGridState()
 
@@ -150,10 +150,10 @@ internal fun DragAndDropEblanApplicationInfos(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .fillMaxHeight(),
-                lazyGridState = lazyGridState,
                 appDrawerSettings = appDrawerSettings,
+                lazyGridState = lazyGridState,
                 paddingValues = paddingValues,
-                onScrollToItem = lazyGridState::scrollToItem,
+                onScrollToItem = lazyGridState::scrollToItem
             )
         }
 
@@ -186,8 +186,8 @@ private fun EblanApplicationInfoItem(
     iconPackFilePaths: Map<String, String>,
 ) {
     val textColor = getSystemTextColor(
-        systemTextColor = appDrawerSettings.gridItemSettings.textColor,
         systemCustomTextColor = appDrawerSettings.gridItemSettings.customTextColor,
+        systemTextColor = appDrawerSettings.gridItemSettings.textColor
     )
 
     val appDrawerRowsHeight = appDrawerSettings.appDrawerRowsHeight.dp

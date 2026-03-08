@@ -120,13 +120,19 @@ import kotlin.uuid.Uuid
 internal fun ShortcutConfigScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
-    paddingValues: PaddingValues,
     drag: Drag,
+    eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     gridItemSettings: GridItemSettings,
-    screenHeight: Int,
-    isPressHome: Boolean,
     gridItems: List<GridItem>,
+    isPressHome: Boolean,
+    paddingValues: PaddingValues,
+    screenHeight: Int,
+    onDismiss: () -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
+    onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -134,13 +140,7 @@ internal fun ShortcutConfigScreen(
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
-    ) -> Unit,
-    onGetEblanShortcutConfigsByLabel: (String) -> Unit,
-    onDismiss: () -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    ) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -194,31 +194,12 @@ internal fun ShortcutConfigScreen(
         Success(
             modifier = modifier,
             currentPage = currentPage,
-            paddingValues = paddingValues,
             drag = drag,
-            gridItemSettings = gridItemSettings,
             eblanShortcutConfigs = eblanShortcutConfigs,
+            gridItemSettings = gridItemSettings,
             gridItems = gridItems,
             isPressHome = isPressHome,
-            onLongPressGridItem = onLongPressGridItem,
-            onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-            onDraggingGridItem = onDraggingGridItem,
-            onVerticalDrag = { dragAmount ->
-                scope.launch {
-                    offsetY.snapTo(offsetY.value + dragAmount)
-                }
-            },
-            onDragEnd = { remaining ->
-                scope.launch {
-                    handleApplyFling(
-                        offsetY = offsetY,
-                        remaining = remaining,
-                        screenHeight = screenHeight,
-                        onDismiss = onDismiss,
-                    )
-                }
-            },
+            paddingValues = paddingValues,
             onDismiss = {
                 scope.launch {
                     offsetY.animateTo(
@@ -231,6 +212,25 @@ internal fun ShortcutConfigScreen(
                     onDismiss()
                 }
             },
+            onDragEnd = { remaining ->
+                scope.launch {
+                    handleApplyFling(
+                        offsetY = offsetY,
+                        remaining = remaining,
+                        screenHeight = screenHeight,
+                        onDismiss = onDismiss
+                    )
+                }
+            },
+            onDraggingGridItem = onDraggingGridItem,
+            onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onVerticalDrag = { dragAmount ->
+                scope.launch {
+                    offsetY.snapTo(offsetY.value + dragAmount)
+                }
+            }
         )
     }
 }
@@ -240,12 +240,19 @@ internal fun ShortcutConfigScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    paddingValues: PaddingValues,
     drag: Drag,
-    gridItemSettings: GridItemSettings,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    gridItemSettings: GridItemSettings,
     gridItems: List<GridItem>,
     isPressHome: Boolean,
+    paddingValues: PaddingValues,
+    onDismiss: () -> Unit,
+    onDragEnd: (Float) -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
+    onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -254,14 +261,7 @@ private fun Success(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onGetEblanShortcutConfigsByLabel: (String) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
-    onVerticalDrag: (Float) -> Unit,
-    onDragEnd: (Float) -> Unit,
-    onDismiss: () -> Unit,
+    onVerticalDrag: (Float) -> Unit
 ) {
     val horizontalPagerState = rememberPagerState(
         pageCount = {
@@ -331,7 +331,7 @@ private fun Success(
             EblanShortcutConfigTabRow(
                 currentPage = horizontalPagerState.currentPage,
                 eblanShortcutConfigs = eblanShortcutConfigs,
-                onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
+                onAnimateScrollToPage = horizontalPagerState::animateScrollToPage
             )
 
             HorizontalPager(
@@ -339,34 +339,34 @@ private fun Success(
                 state = horizontalPagerState,
             ) { index ->
                 EblanShortcutConfigsPage(
-                    index = index,
                     currentPage = currentPage,
-                    paddingValues = paddingValues,
                     drag = drag,
-                    gridItemSettings = gridItemSettings,
                     eblanShortcutConfigs = eblanShortcutConfigs,
+                    gridItemSettings = gridItemSettings,
                     gridItems = gridItems,
+                    index = index,
+                    paddingValues = paddingValues,
+                    onDragEnd = onDragEnd,
+                    onDraggingGridItem = onDraggingGridItem,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onVerticalDrag = onVerticalDrag,
-                    onDragEnd = onDragEnd,
+                    onVerticalDrag = onVerticalDrag
                 )
             }
         } else {
             EblanShortcutConfigsPage(
-                index = 0,
                 currentPage = currentPage,
-                paddingValues = paddingValues,
                 drag = drag,
-                gridItemSettings = gridItemSettings,
                 eblanShortcutConfigs = eblanShortcutConfigs,
+                gridItemSettings = gridItemSettings,
                 gridItems = gridItems,
+                index = 0,
+                paddingValues = paddingValues,
+                onDragEnd = onDragEnd,
+                onDraggingGridItem = onDraggingGridItem,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
-                onDraggingGridItem = onDraggingGridItem,
-                onVerticalDrag = onVerticalDrag,
-                onDragEnd = onDragEnd,
+                onVerticalDrag = onVerticalDrag
             )
         }
     }
@@ -377,7 +377,7 @@ private fun Success(
 private fun EblanShortcutConfigTabRow(
     currentPage: Int,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
-    onAnimateScrollToPage: suspend (Int) -> Unit,
+    onAnimateScrollToPage: suspend (Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -405,24 +405,24 @@ private fun EblanShortcutConfigTabRow(
 @Composable
 private fun EblanShortcutConfigsPage(
     modifier: Modifier = Modifier,
-    index: Int,
     currentPage: Int,
-    paddingValues: PaddingValues,
     drag: Drag,
-    gridItemSettings: GridItemSettings,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    gridItemSettings: GridItemSettings,
     gridItems: List<GridItem>,
+    index: Int,
+    paddingValues: PaddingValues,
+    onDragEnd: (Float) -> Unit,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
+    ) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
     onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
-    onVerticalDrag: (Float) -> Unit,
-    onDragEnd: (Float) -> Unit,
+    onVerticalDrag: (Float) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -489,15 +489,15 @@ private fun EblanShortcutConfigsPage(
                 key(eblanApplicationInfoGroup.serialNumber, eblanApplicationInfoGroup.packageName) {
                     EblanApplicationInfoItem(
                         modifier = modifier,
+                        currentPage = currentPage,
+                        drag = drag,
                         eblanApplicationInfoGroup = eblanApplicationInfoGroup,
                         eblanShortcutConfigs = eblanShortcutConfigs[serialNumber].orEmpty(),
-                        drag = drag,
-                        onUpdateGridItemOffset = onUpdateGridItemOffset,
-                        onLongPressGridItem = onLongPressGridItem,
-                        currentPage = currentPage,
                         gridItemSettings = gridItemSettings,
                         gridItems = gridItems,
                         onDraggingGridItem = onDraggingGridItem,
+                        onLongPressGridItem = onLongPressGridItem,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset
                     )
                 }
             }
@@ -509,24 +509,24 @@ private fun EblanShortcutConfigsPage(
 @Composable
 private fun EblanApplicationInfoItem(
     modifier: Modifier = Modifier,
+    currentPage: Int,
+    drag: Drag,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup,
     eblanShortcutConfigs: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
-    drag: Drag,
-    onUpdateGridItemOffset: (
-        intOffset: IntOffset,
-        intSize: IntSize,
-    ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
-    currentPage: Int,
     gridItemSettings: GridItemSettings,
     gridItems: List<GridItem>,
     onDraggingGridItem: (
         screen: Screen,
         gridItems: List<GridItem>,
     ) -> Unit,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -573,14 +573,14 @@ private fun EblanApplicationInfoItem(
 
             eblanShortcutConfigs[eblanApplicationInfoGroup]?.forEach { eblanShortcutConfig ->
                 EblanShortcutConfigItem(
-                    eblanShortcutConfig = eblanShortcutConfig,
-                    drag = drag,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
+                    drag = drag,
+                    eblanShortcutConfig = eblanShortcutConfig,
                     gridItemSettings = gridItemSettings,
                     gridItems = gridItems,
                     onDraggingGridItem = onDraggingGridItem,
+                    onLongPressGridItem = onLongPressGridItem,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset
                 )
             }
         }
@@ -591,23 +591,23 @@ private fun EblanApplicationInfoItem(
 @Composable
 private fun EblanShortcutConfigItem(
     modifier: Modifier = Modifier,
-    eblanShortcutConfig: EblanShortcutConfig,
+    currentPage: Int,
     drag: Drag,
+    eblanShortcutConfig: EblanShortcutConfig,
+    gridItemSettings: GridItemSettings,
     gridItems: List<GridItem>,
-    onUpdateGridItemOffset: (
-        intOffset: IntOffset,
-        intSize: IntSize,
+    onDraggingGridItem: (
+        screen: Screen,
+        gridItems: List<GridItem>,
     ) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    currentPage: Int,
-    gridItemSettings: GridItemSettings,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 

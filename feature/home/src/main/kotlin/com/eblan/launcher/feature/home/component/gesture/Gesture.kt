@@ -69,10 +69,10 @@ internal fun Modifier.swipeGestures(
                                 swipeY.animateTo(0f)
 
                                 handleEblanAction(
+                                    context = context,
                                     eblanAction = swipeUp,
                                     launcherApps = launcherApps,
-                                    context = context,
-                                    onOpenAppDrawer = onOpenAppDrawer,
+                                    onOpenAppDrawer = onOpenAppDrawer
                                 )
                             }
 
@@ -80,10 +80,10 @@ internal fun Modifier.swipeGestures(
                                 swipeY.animateTo(0f)
 
                                 handleEblanAction(
+                                    context = context,
                                     eblanAction = swipeDown,
                                     launcherApps = launcherApps,
-                                    context = context,
-                                    onOpenAppDrawer = onOpenAppDrawer,
+                                    onOpenAppDrawer = onOpenAppDrawer
                                 )
                             }
                         }
@@ -109,10 +109,10 @@ internal fun onDoubleTap(
 ): ((Offset) -> Unit)? = if (doubleTap.eblanActionType != EblanActionType.None) {
     {
         handleEblanAction(
+            context = context,
             eblanAction = doubleTap,
             launcherApps = launcherApps,
-            context = context,
-            onOpenAppDrawer = onOpenAppDrawer,
+            onOpenAppDrawer = onOpenAppDrawer
         )
     }
 } else {

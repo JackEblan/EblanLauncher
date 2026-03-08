@@ -44,19 +44,19 @@ import kotlinx.coroutines.delay
 import kotlin.error
 
 internal fun handleAnimateScrollToPage(
-    density: Density,
-    paddingValues: PaddingValues,
-    screenWidth: Int,
-    dragIntOffset: IntOffset,
     associate: Associate?,
-    gridItemSource: GridItemSource,
+    columns: Int,
+    density: Density,
+    dragIntOffset: IntOffset,
     folderGridItem: GridItem?,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
-    columns: Int,
-    onUpdateGridPageDirection: (PageDirection?) -> Unit,
+    gridItemSource: GridItemSource,
+    paddingValues: PaddingValues,
+    screenWidth: Int,
     onUpdateDockPageDirection: (PageDirection?) -> Unit,
     onUpdateFolderPageDirection: (PageDirection?) -> Unit,
+    onUpdateGridPageDirection: (PageDirection?) -> Unit
 ) {
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -140,37 +140,26 @@ internal fun handleAnimateScrollToPage(
 }
 
 internal suspend fun handleDragGridItem(
-    density: Density,
+    columns: Int,
     currentPage: Int,
+    density: Density,
+    dockColumns: Int,
+    dockHeight: Dp,
+    dockRows: Int,
     drag: Drag,
     dragIntOffset: IntOffset,
-    screenWidth: Int,
-    screenHeight: Int,
-    dockHeight: Dp,
-    rows: Int,
-    columns: Int,
-    dockRows: Int,
-    dockColumns: Int,
-    isScrollInProgress: Boolean,
-    gridItemSource: GridItemSource,
-    paddingValues: PaddingValues,
-    lockMovement: Boolean,
+    folderCurrentPage: Int,
     folderGridItem: GridItem?,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
-    folderCurrentPage: Int,
     folderTitleHeightPx: Int,
-    onMoveGridItem: (
-        movingGridItem: GridItem,
-        x: Int,
-        y: Int,
-        columns: Int,
-        rows: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-        lockMovement: Boolean,
-    ) -> Unit,
-    onUpdateAssociate: (Associate) -> Unit,
+    gridItemSource: GridItemSource,
+    isScrollInProgress: Boolean,
+    lockMovement: Boolean,
+    paddingValues: PaddingValues,
+    rows: Int,
+    screenHeight: Int,
+    screenWidth: Int,
     onMoveFolderGridItem: (
         folderGridItem: GridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
@@ -188,7 +177,18 @@ internal suspend fun handleDragGridItem(
         movingApplicationInfoGridItem: ApplicationInfoGridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
     ) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onMoveGridItem: (
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        lockMovement: Boolean,
+    ) -> Unit,
+    onUpdateAssociate: (Associate) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit
 ) {
     if (drag == Drag.None ||
         drag == Drag.End ||
@@ -240,77 +240,77 @@ internal suspend fun handleDragGridItem(
         is GridItemSource.Existing, is GridItemSource.New, is GridItemSource.Pin -> {
             if (isOnDock) {
                 handleDragDockGridItem(
-                    safeDrawingWidth = safeDrawingWidth,
+                    currentPage = currentPage,
                     dockColumns = dockColumns,
                     dockHeightPx = dockHeightPx,
                     dockRows = dockRows,
-                    dragY = dragY,
-                    safeDrawingHeight = safeDrawingHeight,
-                    currentPage = currentPage,
                     dragX = dragX,
+                    dragY = dragY,
                     gridItemSource = gridItemSource,
                     lockMovement = lockMovement,
-                    onUpdateAssociate = onUpdateAssociate,
+                    safeDrawingHeight = safeDrawingHeight,
+                    safeDrawingWidth = safeDrawingWidth,
                     onMoveGridItem = onMoveGridItem,
+                    onUpdateAssociate = onUpdateAssociate
                 )
             } else {
                 handleDragGridItem(
-                    safeDrawingHeight = safeDrawingHeight,
-                    dockHeightPx = dockHeightPx,
-                    pageIndicatorHeightPx = pageIndicatorHeightPx,
-                    safeDrawingWidth = safeDrawingWidth,
                     columns = columns,
-                    rows = rows,
                     currentPage = currentPage,
+                    dockHeightPx = dockHeightPx,
                     dragX = dragX,
                     dragY = dragY,
                     gridItemSource = gridItemSource,
                     lockMovement = lockMovement,
-                    onUpdateAssociate = onUpdateAssociate,
+                    pageIndicatorHeightPx = pageIndicatorHeightPx,
+                    rows = rows,
+                    safeDrawingHeight = safeDrawingHeight,
+                    safeDrawingWidth = safeDrawingWidth,
                     onMoveGridItem = onMoveGridItem,
+                    onUpdateAssociate = onUpdateAssociate
                 )
             }
         }
 
         is GridItemSource.Folder -> {
             handleDragFolderGridItem(
-                safeDrawingWidth = safeDrawingWidth,
                 columns = columns,
-                safeDrawingHeight = safeDrawingHeight,
-                rows = rows,
                 density = density,
+                dragX = dragX,
+                dragY = dragY,
+                folderCurrentPage = folderCurrentPage,
                 folderGridItem = folderGridItem,
                 folderPopupIntOffset = folderPopupIntOffset,
                 folderPopupIntSize = folderPopupIntSize,
-                dragX = dragX,
-                dragY = dragY,
-                lockMovement = lockMovement,
-                gridItemSource = gridItemSource,
-                folderCurrentPage = folderCurrentPage,
                 folderTitleHeightPx = folderTitleHeightPx,
+                gridItemSource = gridItemSource,
+                lockMovement = lockMovement,
+                rows = rows,
+                safeDrawingHeight = safeDrawingHeight,
+                safeDrawingWidth = safeDrawingWidth,
                 onMoveFolderGridItem = onMoveFolderGridItem,
                 onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
-                onUpdateGridItemSource = onUpdateGridItemSource,
+                onUpdateGridItemSource = onUpdateGridItemSource
             )
         }
     }
 }
 
 private suspend fun handleDragFolderGridItem(
-    safeDrawingWidth: Int,
     columns: Int,
-    safeDrawingHeight: Int,
-    rows: Int,
     density: Density,
+    dragX: Int,
+    dragY: Int,
+    folderCurrentPage: Int,
     folderGridItem: GridItem?,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
-    dragX: Int,
-    dragY: Int,
-    lockMovement: Boolean,
-    gridItemSource: GridItemSource,
-    folderCurrentPage: Int,
     folderTitleHeightPx: Int,
+    gridItemSource: GridItemSource,
+    lockMovement: Boolean,
+    rows: Int,
+    safeDrawingHeight: Int,
+    safeDrawingWidth: Int,
     onMoveFolderGridItem: (
         folderGridItem: GridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
@@ -328,7 +328,7 @@ private suspend fun handleDragFolderGridItem(
         movingApplicationInfoGridItem: ApplicationInfoGridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
     ) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit
 ) {
     requireNotNull(folderGridItem)
 
@@ -423,18 +423,17 @@ private suspend fun handleDragFolderGridItem(
 }
 
 private suspend fun handleDragGridItem(
-    safeDrawingHeight: Int,
-    dockHeightPx: Int,
-    pageIndicatorHeightPx: Int,
-    safeDrawingWidth: Int,
     columns: Int,
-    rows: Int,
     currentPage: Int,
+    dockHeightPx: Int,
     dragX: Int,
     dragY: Int,
     gridItemSource: GridItemSource,
     lockMovement: Boolean,
-    onUpdateAssociate: (Associate) -> Unit,
+    pageIndicatorHeightPx: Int,
+    rows: Int,
+    safeDrawingHeight: Int,
+    safeDrawingWidth: Int,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -445,6 +444,7 @@ private suspend fun handleDragGridItem(
         gridHeight: Int,
         lockMovement: Boolean,
     ) -> Unit,
+    onUpdateAssociate: (Associate) -> Unit
 ) {
     val gridItem = requireNotNull(gridItemSource.gridItem)
 
@@ -459,18 +459,18 @@ private suspend fun handleDragGridItem(
     val cellHeight = gridHeightWithPadding / rows
 
     val moveGridItem = getMoveGridItem(
-        targetPage = currentPage,
-        gridItem = gridItem,
-        cellWidth = cellWidth,
+        associate = Associate.Grid,
         cellHeight = cellHeight,
+        cellWidth = cellWidth,
         columns = columns,
-        rows = rows,
-        gridWidth = safeDrawingWidth,
         gridHeight = gridHeightWithPadding,
+        gridItem = gridItem,
+        gridItemSource = gridItemSource,
+        gridWidth = safeDrawingWidth,
         gridX = dragX,
         gridY = dragY,
-        associate = Associate.Grid,
-        gridItemSource = gridItemSource,
+        rows = rows,
+        targetPage = currentPage
     )
 
     val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
@@ -494,17 +494,16 @@ private suspend fun handleDragGridItem(
 }
 
 private suspend fun handleDragDockGridItem(
-    safeDrawingWidth: Int,
+    currentPage: Int,
     dockColumns: Int,
     dockHeightPx: Int,
     dockRows: Int,
-    dragY: Int,
-    safeDrawingHeight: Int,
-    currentPage: Int,
-    gridItemSource: GridItemSource,
     dragX: Int,
+    dragY: Int,
+    gridItemSource: GridItemSource,
     lockMovement: Boolean,
-    onUpdateAssociate: (Associate) -> Unit,
+    safeDrawingHeight: Int,
+    safeDrawingWidth: Int,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -515,6 +514,7 @@ private suspend fun handleDragDockGridItem(
         gridHeight: Int,
         lockMovement: Boolean,
     ) -> Unit,
+    onUpdateAssociate: (Associate) -> Unit
 ) {
     val gridItem = requireNotNull(gridItemSource.gridItem)
 
@@ -529,18 +529,18 @@ private suspend fun handleDragDockGridItem(
     val dockY = dragY - (safeDrawingHeight - dockHeightPx)
 
     val moveGridItem = getMoveGridItem(
-        targetPage = currentPage,
-        gridItem = gridItem,
-        cellWidth = cellWidth,
+        associate = Associate.Dock,
         cellHeight = cellHeight,
+        cellWidth = cellWidth,
         columns = dockColumns,
-        rows = dockRows,
-        gridWidth = safeDrawingWidth,
         gridHeight = dockHeightPx,
+        gridItem = gridItem,
+        gridItemSource = gridItemSource,
+        gridWidth = safeDrawingWidth,
         gridX = dragX,
         gridY = dockY,
-        associate = Associate.Dock,
-        gridItemSource = gridItemSource,
+        rows = dockRows,
+        targetPage = currentPage
     )
 
     val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
@@ -564,23 +564,23 @@ private suspend fun handleDragDockGridItem(
 }
 
 internal suspend fun handleConflictingGridItem(
-    gridItemSource: GridItemSource,
-    drag: Drag,
-    moveGridItemResult: MoveGridItemResult?,
-    density: Density,
-    screenWidth: Int,
-    screenHeight: Int,
-    paddingValues: PaddingValues,
     columns: Int,
-    rows: Int,
+    density: Density,
     dockHeight: Dp,
+    drag: Drag,
+    gridItemSource: GridItemSource,
+    moveGridItemResult: MoveGridItemResult?,
+    paddingValues: PaddingValues,
+    rows: Int,
+    screenHeight: Int,
+    screenWidth: Int,
     onShowFolderWhenDragging: (
         id: String,
         movingGridItem: GridItem,
         gridItemSource: GridItemSource,
         intOffset: IntOffset,
         intSize: IntSize,
-    ) -> Unit,
+    ) -> Unit
 ) {
     delay(1000L)
 
@@ -698,10 +698,7 @@ internal suspend fun handleConflictingGridItem(
     )
 }
 
-internal suspend fun handlePageDirection(
-    pageDirection: PageDirection?,
-    pagerState: PagerState,
-) {
+internal suspend fun handlePageDirection(pageDirection: PageDirection?, pagerState: PagerState) {
     if (pageDirection == null) return
 
     delay(500L)
@@ -718,18 +715,18 @@ internal suspend fun handlePageDirection(
 }
 
 private fun getMoveGridItem(
-    targetPage: Int,
-    gridItem: GridItem,
-    cellWidth: Int,
+    associate: Associate,
     cellHeight: Int,
+    cellWidth: Int,
     columns: Int,
-    rows: Int,
-    gridWidth: Int,
     gridHeight: Int,
+    gridItem: GridItem,
+    gridItemSource: GridItemSource,
+    gridWidth: Int,
     gridX: Int,
     gridY: Int,
-    associate: Associate,
-    gridItemSource: GridItemSource,
+    rows: Int,
+    targetPage: Int
 ): GridItem = when (gridItemSource) {
     is GridItemSource.Existing, is GridItemSource.Folder -> {
         gridItem.copy(
@@ -742,33 +739,33 @@ private fun getMoveGridItem(
 
     is GridItemSource.New, is GridItemSource.Pin -> {
         getMoveNewGridItem(
-            targetPage = targetPage,
-            gridItem = gridItem,
+            associate = associate,
             cellHeight = cellHeight,
             cellWidth = cellWidth,
             columns = columns,
-            rows = rows,
-            gridWidth = gridWidth,
             gridHeight = gridHeight,
+            gridItem = gridItem,
+            gridWidth = gridWidth,
             gridX = gridX,
             gridY = gridY,
-            associate = associate,
+            rows = rows,
+            targetPage = targetPage
         )
     }
 }
 
 private fun getMoveNewGridItem(
-    targetPage: Int,
-    gridItem: GridItem,
+    associate: Associate,
     cellHeight: Int,
     cellWidth: Int,
     columns: Int,
-    rows: Int,
-    gridWidth: Int,
     gridHeight: Int,
+    gridItem: GridItem,
+    gridWidth: Int,
     gridX: Int,
     gridY: Int,
-    associate: Associate,
+    rows: Int,
+    targetPage: Int
 ): GridItem = when (val data = gridItem.data) {
     is GridItemData.Widget -> {
         val (checkedColumnSpan, checkedRowSpan) = getWidgetGridItemSpan(

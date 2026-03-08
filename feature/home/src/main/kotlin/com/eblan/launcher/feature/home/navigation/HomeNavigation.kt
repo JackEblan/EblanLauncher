@@ -34,10 +34,10 @@ fun NavGraphBuilder.homeScreen(
     composable<HomeRouteData> {
         HomeRoute(
             configureResultCode = configureResultCode,
-            onEditGridItem = onEditGridItem,
-            onSettings = onSettings,
             onEditApplicationInfo = onEditApplicationInfo,
+            onEditGridItem = onEditGridItem,
             onResetConfigureResultCode = onResetConfigureResultCode,
+            onSettings = onSettings
         )
     }
 }

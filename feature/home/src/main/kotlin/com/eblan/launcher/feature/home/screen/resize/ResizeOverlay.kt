@@ -27,38 +27,38 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 
 @Composable
 internal fun ResizeOverlay(
-    gridItem: GridItem,
-    gridWidth: Int,
-    gridHeight: Int,
-    cellWidth: Int,
     cellHeight: Int,
+    cellWidth: Int,
     columns: Int,
+    gridHeight: Int,
+    gridItem: GridItem,
+    gridItemSettings: GridItemSettings,
+    gridWidth: Int,
+    height: Int,
+    lockMovement: Boolean,
     rows: Int,
+    textColor: TextColor,
+    width: Int,
     x: Int,
     y: Int,
-    width: Int,
-    height: Int,
-    textColor: TextColor,
-    lockMovement: Boolean,
-    gridItemSettings: GridItemSettings,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
         rows: Int,
         lockMovement: Boolean,
-    ) -> Unit,
+    ) -> Unit
 ) {
     val currentTextColor = if (gridItem.override) {
         getGridItemTextColor(
-            systemTextColor = textColor,
-            systemCustomTextColor = gridItemSettings.customTextColor,
-            gridItemTextColor = gridItem.gridItemSettings.textColor,
             gridItemCustomTextColor = gridItem.gridItemSettings.customTextColor,
+            gridItemTextColor = gridItem.gridItemSettings.textColor,
+            systemCustomTextColor = gridItemSettings.customTextColor,
+            systemTextColor = textColor
         )
     } else {
         getSystemTextColor(
-            systemTextColor = textColor,
             systemCustomTextColor = gridItemSettings.customTextColor,
+            systemTextColor = textColor
         )
     }
 
@@ -69,38 +69,38 @@ internal fun ResizeOverlay(
         is GridItemData.ShortcutConfig,
         -> {
             GridItemResizeOverlay(
+                cellHeight = cellHeight,
+                cellWidth = cellWidth,
+                color = currentTextColor,
+                columns = columns,
+                gridHeight = gridHeight,
                 gridItem = gridItem,
                 gridWidth = gridWidth,
-                gridHeight = gridHeight,
-                cellWidth = cellWidth,
-                cellHeight = cellHeight,
-                columns = columns,
+                height = height,
+                lockMovement = lockMovement,
                 rows = rows,
+                width = width,
                 x = x,
                 y = y,
-                width = width,
-                height = height,
-                color = currentTextColor,
-                lockMovement = lockMovement,
-                onResizeGridItem = onResizeGridItem,
+                onResizeGridItem = onResizeGridItem
             )
         }
 
         is GridItemData.Widget -> {
             WidgetGridItemResizeOverlay(
-                gridItem = gridItem,
-                gridWidth = gridWidth,
-                gridHeight = gridHeight,
-                rows = rows,
+                color = currentTextColor,
                 columns = columns,
                 data = data,
+                gridHeight = gridHeight,
+                gridItem = gridItem,
+                gridWidth = gridWidth,
+                height = height,
+                lockMovement = lockMovement,
+                rows = rows,
+                width = width,
                 x = x,
                 y = y,
-                width = width,
-                height = height,
-                color = currentTextColor,
-                lockMovement = lockMovement,
-                onResizeWidgetGridItem = onResizeGridItem,
+                onResizeWidgetGridItem = onResizeGridItem
             )
         }
     }

@@ -61,7 +61,7 @@ fun PageIndicator(
                         val currentPage = calculatePage(
                             index = gridHorizontalPagerState.currentPage,
                             infiniteScroll = infiniteScroll,
-                            pageCount = pageCount,
+                            pageCount = pageCount
                         )
 
                         val relative =

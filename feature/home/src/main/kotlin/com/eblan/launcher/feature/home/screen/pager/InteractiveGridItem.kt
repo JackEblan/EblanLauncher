@@ -90,34 +90,34 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun SharedTransitionScope.InteractiveGridItemContent(
     modifier: Modifier = Modifier,
+    drag: Drag,
     gridItem: GridItem,
     gridItemSettings: GridItemSettings,
-    textColor: TextColor,
     hasShortcutHostPermission: Boolean,
-    drag: Drag,
-    statusBarNotifications: Map<String, Int>,
-    isScrollInProgress: Boolean,
     iconPackFilePaths: Map<String, String>,
+    isScrollInProgress: Boolean,
     screen: Screen,
+    statusBarNotifications: Map<String, Int>,
+    textColor: TextColor,
+    onDraggingGridItem: () -> Unit,
+    onOpenAppDrawer: () -> Unit,
     onTapApplicationInfo: (
         serialNumber: Long,
         componentName: String,
     ) -> Unit,
+    onTapFolderGridItem: () -> Unit,
+    onTapShortcutConfig: (String) -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onTapShortcutConfig: (String) -> Unit,
-    onTapFolderGridItem: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onOpenAppDrawer: () -> Unit,
 ) {
     key(gridItem.id) {
         val currentGridItemSettings = if (gridItem.override) {
@@ -128,15 +128,15 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
 
         val currentTextColor = if (gridItem.override) {
             getGridItemTextColor(
-                systemTextColor = textColor,
-                systemCustomTextColor = gridItemSettings.customTextColor,
-                gridItemTextColor = gridItem.gridItemSettings.textColor,
                 gridItemCustomTextColor = gridItem.gridItemSettings.customTextColor,
+                gridItemTextColor = gridItem.gridItemSettings.textColor,
+                systemCustomTextColor = gridItemSettings.customTextColor,
+                systemTextColor = textColor,
             )
         } else {
             getSystemTextColor(
-                systemTextColor = textColor,
                 systemCustomTextColor = gridItemSettings.customTextColor,
+                systemTextColor = textColor,
             )
         }
 
@@ -144,35 +144,35 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
             is GridItemData.ApplicationInfo -> {
                 InteractiveApplicationInfoGridItem(
                     modifier = modifier,
-                    textColor = currentTextColor,
-                    gridItemSettings = currentGridItemSettings,
-                    gridItem = gridItem,
                     data = data,
                     drag = drag,
-                    isScrollInProgress = isScrollInProgress,
+                    gridItem = gridItem,
+                    gridItemSettings = currentGridItemSettings,
                     iconPackFilePaths = iconPackFilePaths,
+                    isScrollInProgress = isScrollInProgress,
                     screen = screen,
+                    statusBarNotifications = statusBarNotifications,
+                    textColor = currentTextColor,
+                    onDraggingGridItem = onDraggingGridItem,
+                    onOpenAppDrawer = onOpenAppDrawer,
                     onTapApplicationInfo = onTapApplicationInfo,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    statusBarNotifications = statusBarNotifications,
-                    onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
-                    onOpenAppDrawer = onOpenAppDrawer,
                 )
             }
 
             is GridItemData.Widget -> {
                 InteractiveWidgetGridItem(
                     modifier = modifier,
-                    gridItem = gridItem,
                     data = data,
                     drag = drag,
+                    gridItem = gridItem,
                     isScrollInProgress = isScrollInProgress,
                     screen = screen,
+                    onDraggingGridItem = onDraggingGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
@@ -180,59 +180,59 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
             is GridItemData.ShortcutInfo -> {
                 InteractiveShortcutInfoGridItem(
                     modifier = modifier,
-                    gridItemSettings = currentGridItemSettings,
-                    textColor = currentTextColor,
-                    gridItem = gridItem,
                     data = data,
                     drag = drag,
+                    gridItem = gridItem,
+                    gridItemSettings = currentGridItemSettings,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     isScrollInProgress = isScrollInProgress,
                     screen = screen,
+                    textColor = currentTextColor,
+                    onDraggingGridItem = onDraggingGridItem,
+                    onOpenAppDrawer = onOpenAppDrawer,
                     onTapShortcutInfo = onTapShortcutInfo,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
-                    onOpenAppDrawer = onOpenAppDrawer,
                 )
             }
 
             is GridItemData.Folder -> {
                 InteractiveFolderGridItem(
                     modifier = modifier,
-                    gridItemSettings = currentGridItemSettings,
-                    textColor = currentTextColor,
-                    gridItem = gridItem,
                     data = data,
                     drag = drag,
-                    isScrollInProgress = isScrollInProgress,
+                    gridItem = gridItem,
+                    gridItemSettings = currentGridItemSettings,
                     iconPackFilePaths = iconPackFilePaths,
+                    isScrollInProgress = isScrollInProgress,
                     screen = screen,
+                    textColor = currentTextColor,
+                    onDraggingGridItem = onDraggingGridItem,
+                    onOpenAppDrawer = onOpenAppDrawer,
                     onTap = onTapFolderGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
-                    onOpenAppDrawer = onOpenAppDrawer,
                 )
             }
 
             is GridItemData.ShortcutConfig -> {
                 InteractiveShortcutConfigGridItem(
                     modifier = modifier,
-                    textColor = currentTextColor,
-                    gridItemSettings = currentGridItemSettings,
-                    gridItem = gridItem,
                     data = data,
                     drag = drag,
+                    gridItem = gridItem,
+                    gridItemSettings = currentGridItemSettings,
                     isScrollInProgress = isScrollInProgress,
                     screen = screen,
+                    textColor = currentTextColor,
+                    onDraggingGridItem = onDraggingGridItem,
+                    onOpenAppDrawer = onOpenAppDrawer,
                     onTapShortcutConfig = onTapShortcutConfig,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onDraggingGridItem = onDraggingGridItem,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
-                    onOpenAppDrawer = onOpenAppDrawer,
                 )
             }
         }
@@ -243,15 +243,17 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
 @Composable
 private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     modifier: Modifier = Modifier,
-    textColor: Color,
-    gridItemSettings: GridItemSettings,
-    gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
     drag: Drag,
-    statusBarNotifications: Map<String, Int>,
-    isScrollInProgress: Boolean,
+    gridItem: GridItem,
+    gridItemSettings: GridItemSettings,
     iconPackFilePaths: Map<String, String>,
+    isScrollInProgress: Boolean,
     screen: Screen,
+    statusBarNotifications: Map<String, Int>,
+    textColor: Color,
+    onDraggingGridItem: () -> Unit,
+    onOpenAppDrawer: () -> Unit,
     onTapApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -261,9 +263,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onOpenAppDrawer: () -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -446,17 +446,17 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 @Composable
 private fun SharedTransitionScope.InteractiveWidgetGridItem(
     modifier: Modifier = Modifier,
-    gridItem: GridItem,
     data: GridItemData.Widget,
     drag: Drag,
+    gridItem: GridItem,
     isScrollInProgress: Boolean,
     screen: Screen,
+    onDraggingGridItem: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -566,14 +566,16 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
 @Composable
 private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
     modifier: Modifier = Modifier,
-    textColor: Color,
-    gridItemSettings: GridItemSettings,
-    gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
     drag: Drag,
+    gridItem: GridItem,
+    gridItemSettings: GridItemSettings,
     hasShortcutHostPermission: Boolean,
     isScrollInProgress: Boolean,
     screen: Screen,
+    textColor: Color,
+    onDraggingGridItem: () -> Unit,
+    onOpenAppDrawer: () -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
         packageName: String,
@@ -584,9 +586,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onOpenAppDrawer: () -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -752,23 +752,23 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 @Composable
 private fun SharedTransitionScope.InteractiveFolderGridItem(
     modifier: Modifier = Modifier,
-    textColor: Color,
-    gridItemSettings: GridItemSettings,
-    gridItem: GridItem,
     data: GridItemData.Folder,
     drag: Drag,
-    isScrollInProgress: Boolean,
+    gridItem: GridItem,
+    gridItemSettings: GridItemSettings,
     iconPackFilePaths: Map<String, String>,
+    isScrollInProgress: Boolean,
     screen: Screen,
+    textColor: Color,
+    onDraggingGridItem: () -> Unit,
+    onOpenAppDrawer: () -> Unit,
     onTap: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onOpenAppDrawer: () -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -952,22 +952,22 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 @Composable
 private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     modifier: Modifier = Modifier,
-    textColor: Color,
-    gridItemSettings: GridItemSettings,
-    gridItem: GridItem,
     data: GridItemData.ShortcutConfig,
     drag: Drag,
+    gridItem: GridItem,
+    gridItemSettings: GridItemSettings,
     isScrollInProgress: Boolean,
     screen: Screen,
+    textColor: Color,
+    onDraggingGridItem: () -> Unit,
+    onOpenAppDrawer: () -> Unit,
     onTapShortcutConfig: (String) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onOpenAppDrawer: () -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 

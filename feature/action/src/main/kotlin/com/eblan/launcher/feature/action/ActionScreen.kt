@@ -58,19 +58,19 @@ import kotlinx.coroutines.launch
 fun ActionScreen(
     modifier: Modifier = Modifier,
     viewModel: ActionViewModel = hiltViewModel(),
+    onFinish: () -> Unit,
     onUpdateEblanAction: suspend (
         resId: Int,
         eblanAction: EblanAction,
     ) -> Unit,
-    onFinish: () -> Unit,
 ) {
     val actionUiState by viewModel.actionUiState.collectAsStateWithLifecycle()
 
     ActionScreen(
         modifier = modifier,
         actionUiState = actionUiState,
-        onUpdateEblanAction = onUpdateEblanAction,
         onFinish = onFinish,
+        onUpdateEblanAction = onUpdateEblanAction,
     )
 }
 
@@ -79,11 +79,11 @@ fun ActionScreen(
 internal fun ActionScreen(
     modifier: Modifier = Modifier,
     actionUiState: ActionUiState,
+    onFinish: () -> Unit,
     onUpdateEblanAction: suspend (
         resId: Int,
         eblanAction: EblanAction,
     ) -> Unit,
-    onFinish: () -> Unit,
 ) {
     Scaffold(
         topBar = {

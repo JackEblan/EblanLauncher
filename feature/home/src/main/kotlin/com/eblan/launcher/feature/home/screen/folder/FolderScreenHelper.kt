@@ -21,12 +21,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
 internal fun getFolderScreenOffset(
+    folderGridHeightPx: Int,
+    folderGridWidthPx: Int,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
-    folderGridWidthPx: Int,
-    folderGridHeightPx: Int,
-    safeDrawingWidth: Int,
     safeDrawingHeight: Int,
+    safeDrawingWidth: Int,
 ): IntOffset {
     val centeredX =
         folderPopupIntOffset.x + (folderPopupIntSize.width / 2) - (folderGridWidthPx / 2)

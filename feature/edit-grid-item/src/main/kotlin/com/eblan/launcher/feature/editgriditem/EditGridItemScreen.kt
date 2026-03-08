@@ -75,16 +75,16 @@ internal fun EditGridItemRoute(
 
     EditGridItemScreen(
         modifier = modifier,
-        editGridItemUiState = editUiState,
-        packageManagerIconPackInfos = packageManagerIconPackInfos,
-        iconPackInfoComponents = iconPackInfoComponents,
         eblanApplicationInfos = eblanApplicationInfos,
+        editGridItemUiState = editUiState,
+        iconPackInfoComponents = iconPackInfoComponents,
+        packageManagerIconPackInfos = packageManagerIconPackInfos,
         onNavigateUp = onNavigateUp,
-        onUpdateGridItem = viewModel::updateGridItem,
-        onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
         onResetIconPackInfoPackageName = viewModel::resetIconPackInfoPackageName,
         onRestoreGridItem = viewModel::restoreGridItem,
         onSearchIconPackInfoComponent = viewModel::searchIconPackInfoComponent,
+        onUpdateGridItem = viewModel::updateGridItem,
+        onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
     )
 }
 
@@ -92,16 +92,16 @@ internal fun EditGridItemRoute(
 @Composable
 internal fun EditGridItemScreen(
     modifier: Modifier = Modifier,
-    editGridItemUiState: EditGridItemUiState,
-    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
-    iconPackInfoComponents: List<IconPackInfoComponent>,
     eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
+    editGridItemUiState: EditGridItemUiState,
+    iconPackInfoComponents: List<IconPackInfoComponent>,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onNavigateUp: () -> Unit,
-    onUpdateGridItem: (GridItem) -> Unit,
-    onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
     onRestoreGridItem: (GridItem) -> Unit,
     onSearchIconPackInfoComponent: (String) -> Unit,
+    onUpdateGridItem: (GridItem) -> Unit,
+    onUpdateIconPackInfoPackageName: (String) -> Unit,
 ) {
     if (editGridItemUiState is EditGridItemUiState.Success &&
         editGridItemUiState.gridItem != null
@@ -151,14 +151,14 @@ internal fun EditGridItemScreen(
                     .padding(paddingValues),
             ) {
                 Success(
-                    gridItem = editGridItemUiState.gridItem,
-                    packageManagerIconPackInfos = packageManagerIconPackInfos,
-                    iconPackInfoComponents = iconPackInfoComponents,
                     eblanApplicationInfos = eblanApplicationInfos,
-                    onUpdateGridItem = onUpdateGridItem,
-                    onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
+                    gridItem = editGridItemUiState.gridItem,
+                    iconPackInfoComponents = iconPackInfoComponents,
+                    packageManagerIconPackInfos = packageManagerIconPackInfos,
                     onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
                     onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
+                    onUpdateGridItem = onUpdateGridItem,
+                    onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                 )
             }
         }
@@ -168,14 +168,14 @@ internal fun EditGridItemScreen(
 @Composable
 private fun Success(
     modifier: Modifier = Modifier,
-    gridItem: GridItem,
-    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
-    iconPackInfoComponents: List<IconPackInfoComponent>,
     eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
-    onUpdateGridItem: (GridItem) -> Unit,
-    onUpdateIconPackInfoPackageName: (String) -> Unit,
+    gridItem: GridItem,
+    iconPackInfoComponents: List<IconPackInfoComponent>,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onResetIconPackInfoPackageName: () -> Unit,
     onSearchIconPackInfoComponent: (String) -> Unit,
+    onUpdateGridItem: (GridItem) -> Unit,
+    onUpdateIconPackInfoPackageName: (String) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -190,53 +190,53 @@ private fun Success(
             when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     EditApplicationInfo(
-                        gridItem = gridItem,
                         data = data,
-                        packageManagerIconPackInfos = packageManagerIconPackInfos,
+                        gridItem = gridItem,
                         iconPackInfoComponents = iconPackInfoComponents,
-                        onUpdateGridItem = onUpdateGridItem,
-                        onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
+                        packageManagerIconPackInfos = packageManagerIconPackInfos,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
                         onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
+                        onUpdateGridItem = onUpdateGridItem,
+                        onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                     )
                 }
 
                 is GridItemData.Folder -> {
                     EditFolder(
-                        gridItem = gridItem,
                         data = data,
-                        packageManagerIconPackInfos = packageManagerIconPackInfos,
+                        gridItem = gridItem,
                         iconPackInfoComponents = iconPackInfoComponents,
-                        onUpdateGridItem = onUpdateGridItem,
-                        onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
+                        packageManagerIconPackInfos = packageManagerIconPackInfos,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
                         onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
+                        onUpdateGridItem = onUpdateGridItem,
+                        onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                     )
                 }
 
                 is GridItemData.ShortcutInfo -> {
                     EditShortcutInfo(
-                        gridItem = gridItem,
                         data = data,
-                        packageManagerIconPackInfos = packageManagerIconPackInfos,
+                        gridItem = gridItem,
                         iconPackInfoComponents = iconPackInfoComponents,
-                        onUpdateGridItem = onUpdateGridItem,
-                        onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
+                        packageManagerIconPackInfos = packageManagerIconPackInfos,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
                         onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
+                        onUpdateGridItem = onUpdateGridItem,
+                        onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                     )
                 }
 
                 is GridItemData.ShortcutConfig -> {
                     EditShortcutConfig(
-                        gridItem = gridItem,
                         data = data,
-                        packageManagerIconPackInfos = packageManagerIconPackInfos,
+                        gridItem = gridItem,
                         iconPackInfoComponents = iconPackInfoComponents,
-                        onUpdateGridItem = onUpdateGridItem,
-                        onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
+                        packageManagerIconPackInfos = packageManagerIconPackInfos,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
                         onSearchIconPackInfoComponent = onSearchIconPackInfoComponent,
+                        onUpdateGridItem = onUpdateGridItem,
+                        onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                     )
                 }
 
@@ -290,14 +290,14 @@ private fun Success(
 
 @Composable
 private fun EditApplicationInfo(
-    gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
-    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
+    gridItem: GridItem,
     iconPackInfoComponents: List<IconPackInfoComponent>,
-    onUpdateGridItem: (GridItem) -> Unit,
-    onUpdateIconPackInfoPackageName: (String) -> Unit,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onResetIconPackInfoPackageName: () -> Unit,
     onSearchIconPackInfoComponent: (String) -> Unit,
+    onUpdateGridItem: (GridItem) -> Unit,
+    onUpdateIconPackInfoPackageName: (String) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
@@ -393,14 +393,14 @@ private fun EditApplicationInfo(
 
 @Composable
 private fun EditFolder(
-    gridItem: GridItem,
     data: GridItemData.Folder,
-    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
+    gridItem: GridItem,
     iconPackInfoComponents: List<IconPackInfoComponent>,
-    onUpdateGridItem: (GridItem) -> Unit,
-    onUpdateIconPackInfoPackageName: (String) -> Unit,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onResetIconPackInfoPackageName: () -> Unit,
     onSearchIconPackInfoComponent: (String) -> Unit,
+    onUpdateGridItem: (GridItem) -> Unit,
+    onUpdateIconPackInfoPackageName: (String) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
@@ -496,14 +496,14 @@ private fun EditFolder(
 
 @Composable
 private fun EditShortcutInfo(
-    gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
-    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
+    gridItem: GridItem,
     iconPackInfoComponents: List<IconPackInfoComponent>,
-    onUpdateGridItem: (GridItem) -> Unit,
-    onUpdateIconPackInfoPackageName: (String) -> Unit,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onResetIconPackInfoPackageName: () -> Unit,
     onSearchIconPackInfoComponent: (String) -> Unit,
+    onUpdateGridItem: (GridItem) -> Unit,
+    onUpdateIconPackInfoPackageName: (String) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
@@ -599,14 +599,14 @@ private fun EditShortcutInfo(
 
 @Composable
 private fun EditShortcutConfig(
-    gridItem: GridItem,
     data: GridItemData.ShortcutConfig,
-    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
+    gridItem: GridItem,
     iconPackInfoComponents: List<IconPackInfoComponent>,
-    onUpdateGridItem: (GridItem) -> Unit,
-    onUpdateIconPackInfoPackageName: (String) -> Unit,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onResetIconPackInfoPackageName: () -> Unit,
     onSearchIconPackInfoComponent: (String) -> Unit,
+    onUpdateGridItem: (GridItem) -> Unit,
+    onUpdateIconPackInfoPackageName: (String) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 

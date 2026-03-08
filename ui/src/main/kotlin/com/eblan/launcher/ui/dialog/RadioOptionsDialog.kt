@@ -48,46 +48,49 @@ fun <T> RadioOptionsDialog(
 ) {
     var selectedOption by remember { mutableStateOf(selected) }
 
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier
-                .selectableGroup()
-                .fillMaxWidth(),
-        ) {
-            Text(
-                modifier = Modifier.padding(10.dp),
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-            )
-
-            options.forEach { option ->
-                EblanRadioButton(
-                    text = label(option),
-                    selected = selectedOption == option,
-                    onClick = { selectedOption = option },
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        end = 10.dp,
-                        bottom = 10.dp,
-                    ),
-                horizontalArrangement = Arrangement.End,
+    EblanDialogContainer(
+        content = {
+            Column(
+                modifier = modifier
+                    .selectableGroup()
+                    .fillMaxWidth(),
             ) {
-                TextButton(onClick = onDismissRequest) {
-                    Text(text = "Cancel")
+                Text(
+                    modifier = Modifier.padding(10.dp),
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                )
+
+                options.forEach { option ->
+                    EblanRadioButton(
+                        selected = selectedOption == option,
+                        text = label(option),
+                        onClick = { selectedOption = option },
+                    )
                 }
-                TextButton(
-                    onClick = {
-                        onUpdateClick(selectedOption)
-                    },
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            end = 10.dp,
+                            bottom = 10.dp,
+                        ),
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    Text(text = "Update")
+                    TextButton(onClick = onDismissRequest) {
+                        Text(text = "Cancel")
+                    }
+                    TextButton(
+                        onClick = {
+                            onUpdateClick(selectedOption)
+                        },
+                    ) {
+                        Text(text = "Update")
+                    }
                 }
             }
-        }
-    }
+        },
+        onDismissRequest = onDismissRequest,
+    )
 }

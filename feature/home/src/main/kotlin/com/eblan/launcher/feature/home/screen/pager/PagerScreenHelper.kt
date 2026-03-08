@@ -43,29 +43,29 @@ import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrap
 import kotlinx.serialization.json.Json
 
 internal fun swipeEblanAction(
-    gestureSettings: GestureSettings,
-    swipeUpY: Float,
-    swipeDownY: Float,
-    screenHeight: Int,
-    launcherApps: AndroidLauncherAppsWrapper,
     context: Context,
+    gestureSettings: GestureSettings,
+    launcherApps: AndroidLauncherAppsWrapper,
+    screenHeight: Int,
+    swipeDownY: Float,
+    swipeUpY: Float,
 ) {
     val swipeThreshold = 100f
 
     if (swipeUpY < screenHeight - swipeThreshold) {
         handleEblanAction(
+            context = context,
             eblanAction = gestureSettings.swipeUp,
             launcherApps = launcherApps,
-            context = context,
             onOpenAppDrawer = {},
         )
     }
 
     if (swipeDownY < screenHeight - swipeThreshold) {
         handleEblanAction(
+            context = context,
             eblanAction = gestureSettings.swipeDown,
             launcherApps = launcherApps,
-            context = context,
             onOpenAppDrawer = {},
         )
     }
@@ -73,8 +73,8 @@ internal fun swipeEblanAction(
 
 internal suspend fun resetSwipeOffset(
     gestureSettings: GestureSettings,
-    swipeDownY: Animatable<Float, AnimationVector1D>,
     screenHeight: Int,
+    swipeDownY: Animatable<Float, AnimationVector1D>,
     swipeUpY: Animatable<Float, AnimationVector1D>,
 ) {
     suspend fun animateOffset(
@@ -111,19 +111,19 @@ internal suspend fun resetSwipeOffset(
 }
 
 internal suspend fun handleActionMainIntent(
-    gridHorizontalPagerState: PagerState,
-    intent: Intent,
-    initialPage: Int,
-    wallpaperScroll: Boolean,
-    wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
-    pageCount: Int,
-    infiniteScroll: Boolean,
-    windowToken: IBinder,
-    swipeY: Animatable<Float, AnimationVector1D>,
-    screenHeight: Int,
-    showWidgets: Boolean,
-    showShortcutConfigActivities: Boolean,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup?,
+    gridHorizontalPagerState: PagerState,
+    infiniteScroll: Boolean,
+    initialPage: Int,
+    intent: Intent,
+    pageCount: Int,
+    screenHeight: Int,
+    showShortcutConfigActivities: Boolean,
+    showWidgets: Boolean,
+    swipeY: Animatable<Float, AnimationVector1D>,
+    wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
+    wallpaperScroll: Boolean,
+    windowToken: IBinder,
     onHome: () -> Unit,
 ) {
     if (intent.action != Intent.ACTION_MAIN && !intent.hasCategory(Intent.CATEGORY_HOME)) {
@@ -169,9 +169,9 @@ internal suspend fun handleActionMainIntent(
 }
 
 internal fun handleEblanActionIntent(
+    context: Context,
     intent: Intent,
     launcherApps: AndroidLauncherAppsWrapper,
-    context: Context,
     onOpenAppDrawer: () -> Unit,
 ) {
     if (intent.action != EblanAction.ACTION) return
@@ -181,9 +181,9 @@ internal fun handleEblanActionIntent(
     } ?: return
 
     handleEblanAction(
+        context = context,
         eblanAction = eblanAction,
         launcherApps = launcherApps,
-        context = context,
         onOpenAppDrawer = onOpenAppDrawer,
     )
 }
@@ -226,26 +226,26 @@ internal suspend fun handleApplyFling(
 }
 
 internal fun handleHasDoubleTap(
-    hasDoubleTap: Boolean,
-    gestureSettings: GestureSettings,
-    launcherApps: AndroidLauncherAppsWrapper,
     context: Context,
+    gestureSettings: GestureSettings,
+    hasDoubleTap: Boolean,
+    launcherApps: AndroidLauncherAppsWrapper,
     onOpenAppDrawer: () -> Unit,
 ) {
     if (!hasDoubleTap) return
 
     handleEblanAction(
+        context = context,
         eblanAction = gestureSettings.doubleTap,
         launcherApps = launcherApps,
-        context = context,
         onOpenAppDrawer = onOpenAppDrawer,
     )
 }
 
 internal fun handleKlwpBroadcasts(
-    klwpIntegration: Boolean,
-    isApplicationScreenVisible: Boolean,
     context: Context,
+    isApplicationScreenVisible: Boolean,
+    klwpIntegration: Boolean,
 ) {
     if (!klwpIntegration) return
 

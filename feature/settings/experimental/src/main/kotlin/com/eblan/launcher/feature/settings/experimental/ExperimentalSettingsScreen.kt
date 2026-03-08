@@ -58,8 +58,8 @@ internal fun ExperimentalSettingsRoute(
     ExperimentalSettingsScreen(
         modifier = modifier,
         experimentalSettingsUiState = experimentalSettingsUiState,
-        onUpdateExperimentalSettings = viewModel::updateExperimentalSettings,
         onNavigateUp = onNavigateUp,
+        onUpdateExperimentalSettings = viewModel::updateExperimentalSettings,
     )
 }
 
@@ -68,8 +68,8 @@ internal fun ExperimentalSettingsRoute(
 internal fun ExperimentalSettingsScreen(
     modifier: Modifier = Modifier,
     experimentalSettingsUiState: ExperimentalSettingsUiState,
-    onUpdateExperimentalSettings: (ExperimentalSettings) -> Unit,
     onNavigateUp: () -> Unit,
+    onUpdateExperimentalSettings: (ExperimentalSettings) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -160,14 +160,10 @@ private fun Success(
     }
 
     if (showSyncDataDialog) {
-        SyncDataDialog(
-            syncData = experimentalSettings.syncData,
-            onUpdateSyncData = { newSyncData ->
-                onUpdateExperimentalSettings(experimentalSettings.copy(syncData = newSyncData))
-            },
-            onDismissRequest = {
-                showSyncDataDialog = false
-            },
-        )
+        SyncDataDialog(syncData = experimentalSettings.syncData, onDismissRequest = {
+            showSyncDataDialog = false
+        }, onUpdateSyncData = { newSyncData ->
+            onUpdateExperimentalSettings(experimentalSettings.copy(syncData = newSyncData))
+        })
     }
 }

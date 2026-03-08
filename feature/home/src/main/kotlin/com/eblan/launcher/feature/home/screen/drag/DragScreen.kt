@@ -86,61 +86,39 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun SharedTransitionScope.DragScreen(
     modifier: Modifier = Modifier,
-    dragIntOffset: IntOffset,
-    gridItemSource: GridItemSource?,
-    gridItemCache: GridItemCache,
-    drag: Drag,
-    screenWidth: Int,
-    screenHeight: Int,
-    paddingValues: PaddingValues,
-    textColor: TextColor,
-    moveGridItemResult: MoveGridItemResult?,
-    homeSettings: HomeSettings,
-    gridHorizontalPagerState: PagerState,
-    dockGridHorizontalPagerState: PagerState,
-    currentPage: Int,
-    statusBarNotifications: Map<String, Int>,
-    hasShortcutHostPermission: Boolean,
-    iconPackFilePaths: Map<String, String>,
-    lockMovement: Boolean,
-    screen: Screen,
     associate: Associate?,
     configureResultCode: Int?,
+    currentPage: Int,
+    dockGridHorizontalPagerState: PagerState,
+    drag: Drag,
+    dragIntOffset: IntOffset,
+    folderGridHorizontalPagerState: PagerState,
     folderGridItem: GridItem?,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
-    folderGridHorizontalPagerState: PagerState,
-    onMoveGridItem: (
-        movingGridItem: GridItem,
-        x: Int,
-        y: Int,
-        columns: Int,
-        rows: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-        lockMovement: Boolean,
-    ) -> Unit,
-    onDragEndAfterMove: (MoveGridItemResult) -> Unit,
-    onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
-    onDragCancelAfterMove: () -> Unit,
+    gridHorizontalPagerState: PagerState,
+    gridItemCache: GridItemCache,
+    gridItemSource: GridItemSource?,
+    hasShortcutHostPermission: Boolean,
+    homeSettings: HomeSettings,
+    iconPackFilePaths: Map<String, String>,
+    lockMovement: Boolean,
+    moveGridItemResult: MoveGridItemResult?,
+    paddingValues: PaddingValues,
+    screen: Screen,
+    screenHeight: Int,
+    screenWidth: Int,
+    statusBarNotifications: Map<String, Int>,
+    textColor: TextColor,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDeleteWidgetGridItemCache: (
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
-    onUpdateShortcutConfigGridItemDataCache: (
-        byteArray: ByteArray?,
-        moveGridItemResult: MoveGridItemResult,
-        gridItem: GridItem,
-        data: GridItemData.ShortcutConfig,
-    ) -> Unit,
-    onUpdateShortcutConfigIntoShortcutInfoGridItem: (
-        moveGridItemResult: MoveGridItemResult,
-        pinItemRequestType: PinItemRequestType.ShortcutInfo,
-    ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateAssociate: (Associate) -> Unit,
-    onResetConfigureResultCode: () -> Unit,
+    onDragCancelAfterMove: () -> Unit,
+    onDragEndAfterMove: (MoveGridItemResult) -> Unit,
+    onDragEndAfterMoveFolder: () -> Unit,
+    onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onMoveFolderGridItem: (
         folderGridItem: GridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
@@ -153,19 +131,41 @@ internal fun SharedTransitionScope.DragScreen(
         gridHeight: Int,
         currentPage: Int,
     ) -> Unit,
-    onDragEndAfterMoveFolder: () -> Unit,
     onMoveFolderGridItemOutsideFolder: (
         folderGridItem: GridItem,
         movingApplicationInfoGridItem: ApplicationInfoGridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
     ) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onMoveGridItem: (
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        lockMovement: Boolean,
+    ) -> Unit,
+    onResetConfigureResultCode: () -> Unit,
     onShowFolderWhenDragging: (
         id: String,
         movingGridItem: GridItem,
         gridItemSource: GridItemSource,
         intOffset: IntOffset,
         intSize: IntSize,
+    ) -> Unit,
+    onUpdateAssociate: (Associate) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateShortcutConfigGridItemDataCache: (
+        byteArray: ByteArray?,
+        moveGridItemResult: MoveGridItemResult,
+        gridItem: GridItem,
+        data: GridItemData.ShortcutConfig,
+    ) -> Unit,
+    onUpdateShortcutConfigIntoShortcutInfoGridItem: (
+        moveGridItemResult: MoveGridItemResult,
+        pinItemRequestType: PinItemRequestType.ShortcutInfo,
     ) -> Unit,
 ) {
     requireNotNull(gridItemSource)
@@ -212,14 +212,14 @@ internal fun SharedTransitionScope.DragScreen(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         handleAppWidgetLauncherResult(
-            result = result,
-            gridItemSource = gridItemSource,
             appWidgetManager = appWidgetManager,
-            onUpdateWidgetGridItem = { gridItem ->
-                updatedWidgetGridItem = gridItem
-            },
+            gridItemSource = gridItemSource,
+            result = result,
             onDeleteAppWidgetId = {
                 deleteAppWidgetId = true
+            },
+            onUpdateWidgetGridItem = { gridItem ->
+                updatedWidgetGridItem = gridItem
             },
         )
     }
@@ -229,10 +229,10 @@ internal fun SharedTransitionScope.DragScreen(
     ) { result ->
         scope.launch {
             handleShortcutConfigLauncherResult(
+                gridItemSource = gridItemSource,
                 imageSerializer = imageSerializer,
                 moveGridItemResult = moveGridItemResult,
                 result = result,
-                gridItemSource = gridItemSource,
                 onDeleteGridItemCache = onDeleteGridItemCache,
                 onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
             )
@@ -244,13 +244,13 @@ internal fun SharedTransitionScope.DragScreen(
     ) { result ->
         scope.launch {
             handleShortcutConfigIntentSenderLauncherResult(
+                fileManager = fileManager,
+                gridItemSource = gridItemSource,
+                imageSerializer = imageSerializer,
+                launcherAppsWrapper = launcherApps,
                 moveGridItemResult = moveGridItemResult,
                 result = result,
                 userManagerWrapper = userManager,
-                launcherAppsWrapper = launcherApps,
-                imageSerializer = imageSerializer,
-                fileManager = fileManager,
-                gridItemSource = gridItemSource,
                 onDeleteGridItemCache = onDeleteGridItemCache,
                 onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
             )
@@ -261,30 +261,30 @@ internal fun SharedTransitionScope.DragScreen(
 
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleDragGridItem(
-            density = density,
+            columns = homeSettings.columns,
             currentPage = currentPage,
+            density = density,
+            dockColumns = homeSettings.dockColumns,
+            dockHeight = dockHeight,
+            dockRows = homeSettings.dockRows,
             drag = drag,
             dragIntOffset = dragIntOffset,
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
-            dockHeight = dockHeight,
-            rows = homeSettings.rows,
-            columns = homeSettings.columns,
-            dockRows = homeSettings.dockRows,
-            dockColumns = homeSettings.dockColumns,
-            isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
-            gridItemSource = gridItemSource,
-            paddingValues = paddingValues,
-            lockMovement = lockMovement,
+            folderCurrentPage = folderGridHorizontalPagerState.currentPage,
             folderGridItem = folderGridItem,
             folderPopupIntOffset = folderPopupIntOffset,
             folderPopupIntSize = folderPopupIntSize,
-            folderCurrentPage = folderGridHorizontalPagerState.currentPage,
             folderTitleHeightPx = folderTitleHeightPx,
-            onMoveGridItem = onMoveGridItem,
-            onUpdateAssociate = onUpdateAssociate,
+            gridItemSource = gridItemSource,
+            isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+            lockMovement = lockMovement,
+            paddingValues = paddingValues,
+            rows = homeSettings.rows,
+            screenHeight = screenHeight,
+            screenWidth = screenWidth,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
+            onMoveGridItem = onMoveGridItem,
+            onUpdateAssociate = onUpdateAssociate,
             onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
@@ -293,24 +293,19 @@ internal fun SharedTransitionScope.DragScreen(
         when (drag) {
             Drag.End -> {
                 handleDropGridItem(
-                    moveGridItemResult = moveGridItemResult,
                     androidAppWidgetHostWrapper = appWidgetHost,
                     appWidgetManager = appWidgetManager,
                     gridItemSource = gridItemSource,
-                    userManagerWrapper = userManager,
                     launcherAppsWrapper = launcherApps,
-                    onLaunchWidgetIntent = appWidgetLauncher::launch,
+                    moveGridItemResult = moveGridItemResult,
+                    userManagerWrapper = userManager,
+                    onDeleteGridItemCache = onDeleteGridItemCache,
+                    onDragCancelAfterMove = onDragCancelAfterMove,
+                    onDragEndAfterMove = onDragEndAfterMove,
+                    onDragEndAfterMoveFolder = onDragEndAfterMoveFolder,
                     onLaunchShortcutConfigIntent = shortcutConfigLauncher::launch,
                     onLaunchShortcutConfigIntentSenderRequest = shortcutConfigIntentSenderLauncher::launch,
-                    onDragEndAfterMove = onDragEndAfterMove,
-                    onDragCancelAfterMove = onDragCancelAfterMove,
-                    onDeleteGridItemCache = onDeleteGridItemCache,
-                    onUpdateWidgetGridItem = { gridItem ->
-                        updatedWidgetGridItem = gridItem
-                    },
-                    onUpdateAppWidgetId = { appWidgetId ->
-                        lastAppWidgetId = appWidgetId
-                    },
+                    onLaunchWidgetIntent = appWidgetLauncher::launch,
                     onToast = {
                         Toast.makeText(
                             context,
@@ -318,7 +313,12 @@ internal fun SharedTransitionScope.DragScreen(
                             Toast.LENGTH_LONG,
                         ).show()
                     },
-                    onDragEndAfterMoveFolder = onDragEndAfterMoveFolder,
+                    onUpdateAppWidgetId = { appWidgetId ->
+                        lastAppWidgetId = appWidgetId
+                    },
+                    onUpdateWidgetGridItem = { gridItem ->
+                        updatedWidgetGridItem = gridItem
+                    },
                 )
 
                 onResetConfigureResultCode()
@@ -334,73 +334,73 @@ internal fun SharedTransitionScope.DragScreen(
 
     LaunchedEffect(key1 = deleteAppWidgetId) {
         handleDeleteAppWidgetId(
-            gridItemSource = gridItemSource,
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
+            gridItemSource = gridItemSource,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
         )
     }
 
     LaunchedEffect(key1 = updatedWidgetGridItem) {
         handleBoundWidget(
-            gridItemSource = gridItemSource,
-            updatedWidgetGridItem = updatedWidgetGridItem,
-            moveGridItemResult = moveGridItemResult,
-            androidAppWidgetHostWrapper = appWidgetHost,
             activity = activity,
-            onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
+            androidAppWidgetHostWrapper = appWidgetHost,
+            gridItemSource = gridItemSource,
+            moveGridItemResult = moveGridItemResult,
+            updatedWidgetGridItem = updatedWidgetGridItem,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+            onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
         )
     }
 
     LaunchedEffect(key1 = gridHorizontalPagerState) {
         handleWallpaperScroll(
             horizontalPagerState = gridHorizontalPagerState,
-            wallpaperScroll = homeSettings.wallpaperScroll,
-            wallpaperManagerWrapper = wallpaperManagerWrapper,
-            pageCount = homeSettings.pageCount,
             infiniteScroll = homeSettings.infiniteScroll,
+            pageCount = homeSettings.pageCount,
+            wallpaperManagerWrapper = wallpaperManagerWrapper,
+            wallpaperScroll = homeSettings.wallpaperScroll,
             windowToken = view.windowToken,
         )
     }
 
     LaunchedEffect(key1 = moveGridItemResult, key2 = drag) {
         handleConflictingGridItem(
-            gridItemSource = gridItemSource,
-            drag = drag,
-            moveGridItemResult = moveGridItemResult,
-            density = density,
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
-            paddingValues = paddingValues,
             columns = homeSettings.columns,
-            rows = homeSettings.rows,
+            density = density,
             dockHeight = dockHeight,
+            drag = drag,
+            gridItemSource = gridItemSource,
+            moveGridItemResult = moveGridItemResult,
+            paddingValues = paddingValues,
+            rows = homeSettings.rows,
+            screenHeight = screenHeight,
+            screenWidth = screenWidth,
             onShowFolderWhenDragging = onShowFolderWhenDragging,
         )
     }
 
     LaunchedEffect(key1 = dragIntOffset) {
         handleAnimateScrollToPage(
-            density = density,
-            paddingValues = paddingValues,
-            screenWidth = screenWidth,
-            dragIntOffset = dragIntOffset,
             associate = associate,
+            columns = homeSettings.columns,
+            density = density,
+            dragIntOffset = dragIntOffset,
             folderGridItem = folderGridItem,
-            gridItemSource = gridItemSource,
             folderPopupIntOffset = folderPopupIntOffset,
             folderPopupIntSize = folderPopupIntSize,
-            columns = homeSettings.columns,
-            onUpdateGridPageDirection = { pageDirection ->
-                gridPageDirection = pageDirection
-            },
+            gridItemSource = gridItemSource,
+            paddingValues = paddingValues,
+            screenWidth = screenWidth,
             onUpdateDockPageDirection = { pageDirection ->
                 dockPageDirection = pageDirection
             },
             onUpdateFolderPageDirection = { pageDirection ->
                 folderPageDirection = pageDirection
+            },
+            onUpdateGridPageDirection = { pageDirection ->
+                gridPageDirection = pageDirection
             },
         )
     }
@@ -408,8 +408,8 @@ internal fun SharedTransitionScope.DragScreen(
     LaunchedEffect(key1 = configureResultCode) {
         handleConfigureLauncherResult(
             moveGridItemResult = moveGridItemResult,
-            updatedGridItem = updatedWidgetGridItem,
             resultCode = configureResultCode,
+            updatedGridItem = updatedWidgetGridItem,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
             onResetConfigureResultCode = onResetConfigureResultCode,
@@ -515,8 +515,8 @@ internal fun SharedTransitionScope.DragScreen(
             infiniteScroll = homeSettings.infiniteScroll,
             pageCount = homeSettings.pageCount,
             color = getSystemTextColor(
-                systemTextColor = textColor,
                 systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
+                systemTextColor = textColor,
             ),
         )
 
@@ -564,20 +564,20 @@ internal fun SharedTransitionScope.DragScreen(
 
     if (folderGridItem != null) {
         FolderDragScreen(
+            drag = drag,
+            folderGridHorizontalPagerState = folderGridHorizontalPagerState,
             folderGridItem = folderGridItem,
             folderPopupIntOffset = folderPopupIntOffset,
             folderPopupIntSize = folderPopupIntSize,
-            paddingValues = paddingValues,
-            folderGridHorizontalPagerState = folderGridHorizontalPagerState,
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
-            homeSettings = homeSettings,
-            textColor = textColor,
             gridItemSettings = homeSettings.gridItemSettings,
-            statusBarNotifications = statusBarNotifications,
-            iconPackFilePaths = iconPackFilePaths,
-            drag = drag,
             gridItemSource = gridItemSource,
+            homeSettings = homeSettings,
+            iconPackFilePaths = iconPackFilePaths,
+            paddingValues = paddingValues,
+            screenHeight = screenHeight,
+            screenWidth = screenWidth,
+            statusBarNotifications = statusBarNotifications,
+            textColor = textColor,
             onUpdateFolderTitleHeight = { newFolderTitleHeightPx ->
                 folderTitleHeightPx = newFolderTitleHeightPx
             },

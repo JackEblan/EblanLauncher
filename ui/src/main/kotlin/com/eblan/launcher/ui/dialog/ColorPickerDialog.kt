@@ -79,69 +79,72 @@ fun ColorPickerDialog(
 
     var alpha by remember { mutableFloatStateOf(Color(customColor).alpha) }
 
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier
-                .verticalScroll(rememberScrollState())
-                .fillMaxWidth(),
-        ) {
-            Text(
-                modifier = Modifier.padding(10.dp),
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            ColorPicker(
-                modifier = Modifier.padding(10.dp),
-                hue = hue,
-                saturation = saturation,
-                value = value,
-                alpha = alpha,
-                onSaturationSelected = { newSaturation ->
-                    saturation = newSaturation
-                },
-                onValueSelected = { newValue ->
-                    value = newValue
-                },
-                onHueSelected = { newHue ->
-                    hue = newHue
-                },
-                onAlphaSelected = { newAlpha ->
-                    alpha = newAlpha
-                },
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        end = 10.dp,
-                        bottom = 10.dp,
-                    ),
-                horizontalArrangement = Arrangement.End,
+    EblanDialogContainer(
+        content = {
+            Column(
+                modifier = modifier
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth(),
             ) {
-                TextButton(
-                    onClick = onDismissRequest,
-                ) {
-                    Text("Cancel")
-                }
+                Text(
+                    modifier = Modifier.padding(10.dp),
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                )
 
-                Spacer(modifier = Modifier.width(5.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                TextButton(
-                    onClick = {
-                        onSelectColor(
-                            Color.hsv(hue, saturation, value).copy(alpha = alpha).toArgb(),
-                        )
+                ColorPicker(
+                    modifier = Modifier.padding(10.dp),
+                    hue = hue,
+                    saturation = saturation,
+                    value = value,
+                    alpha = alpha,
+                    onSaturationSelected = { newSaturation ->
+                        saturation = newSaturation
                     },
+                    onValueSelected = { newValue ->
+                        value = newValue
+                    },
+                    onHueSelected = { newHue ->
+                        hue = newHue
+                    },
+                    onAlphaSelected = { newAlpha ->
+                        alpha = newAlpha
+                    },
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            end = 10.dp,
+                            bottom = 10.dp,
+                        ),
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    Text("Save")
+                    TextButton(
+                        onClick = onDismissRequest,
+                    ) {
+                        Text("Cancel")
+                    }
+
+                    Spacer(modifier = Modifier.width(5.dp))
+
+                    TextButton(
+                        onClick = {
+                            onSelectColor(
+                                Color.hsv(hue, saturation, value).copy(alpha = alpha).toArgb(),
+                            )
+                        },
+                    ) {
+                        Text("Save")
+                    }
                 }
             }
-        }
-    }
+        },
+        onDismissRequest = onDismissRequest,
+    )
 }
 
 @Composable

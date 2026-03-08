@@ -72,12 +72,12 @@ internal fun GeneralSettingsRoute(
 
     GeneralSettingsScreen(
         modifier = modifier,
+        eblanIconPackInfos = eblanIconPackInfos,
         generalSettingsUiState = generalSettingsUiState,
         packageManagerIconPackInfos = packageManagerIconPackInfos,
-        eblanIconPackInfos = eblanIconPackInfos,
         onDeleteEblanIconPackInfo = viewModel::deleteIconPackInfo,
-        onUpdateGeneralSettings = viewModel::updateGeneralSettings,
         onNavigateUp = onNavigateUp,
+        onUpdateGeneralSettings = viewModel::updateGeneralSettings,
     )
 }
 
@@ -85,12 +85,12 @@ internal fun GeneralSettingsRoute(
 @Composable
 internal fun GeneralSettingsScreen(
     modifier: Modifier = Modifier,
+    eblanIconPackInfos: List<EblanIconPackInfo>,
     generalSettingsUiState: GeneralSettingsUiState,
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
-    eblanIconPackInfos: List<EblanIconPackInfo>,
     onDeleteEblanIconPackInfo: (String) -> Unit,
-    onUpdateGeneralSettings: (GeneralSettings) -> Unit,
     onNavigateUp: () -> Unit,
+    onUpdateGeneralSettings: (GeneralSettings) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -121,9 +121,9 @@ internal fun GeneralSettingsScreen(
                 is GeneralSettingsUiState.Success -> {
                     Success(
                         modifier = modifier,
+                        eblanIconPackInfos = eblanIconPackInfos,
                         generalSettings = generalSettingsUiState.generalSettings,
                         packageManagerIconPackInfos = packageManagerIconPackInfos,
-                        eblanIconPackInfos = eblanIconPackInfos,
                         onDeleteEblanIconPackInfo = onDeleteEblanIconPackInfo,
                         onUpdateGeneralSettings = onUpdateGeneralSettings,
                     )
@@ -136,9 +136,9 @@ internal fun GeneralSettingsScreen(
 @Composable
 private fun Success(
     modifier: Modifier = Modifier,
+    eblanIconPackInfos: List<EblanIconPackInfo>,
     generalSettings: GeneralSettings,
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
-    eblanIconPackInfos: List<EblanIconPackInfo>,
     onDeleteEblanIconPackInfo: (String) -> Unit,
     onUpdateGeneralSettings: (GeneralSettings) -> Unit,
 ) {
@@ -267,17 +267,17 @@ private fun Success(
         SelectIconPackInfoDialog(
             eblanIconPackInfos = eblanIconPackInfos,
             iconPackInfoPackageName = generalSettings.iconPackInfoPackageName,
+            onDeleteEblanIconPackInfo = onDeleteEblanIconPackInfo,
             onDismissRequest = {
+                selectIconPackDialog = false
+            },
+            onReset = {
+                onUpdateGeneralSettings(generalSettings.copy(iconPackInfoPackageName = ""))
+
                 selectIconPackDialog = false
             },
             onUpdateIconPackInfoPackageName = { iconPackInfoPackageName ->
                 onUpdateGeneralSettings(generalSettings.copy(iconPackInfoPackageName = iconPackInfoPackageName))
-
-                selectIconPackDialog = false
-            },
-            onDeleteEblanIconPackInfo = onDeleteEblanIconPackInfo,
-            onReset = {
-                onUpdateGeneralSettings(generalSettings.copy(iconPackInfoPackageName = ""))
 
                 selectIconPackDialog = false
             },

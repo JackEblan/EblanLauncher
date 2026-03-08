@@ -43,12 +43,12 @@ fun SettingsNavHost(
         startDestination = SettingsRouteData::class,
     ) {
         settingsScreen(
+            onAppDrawer = navController::navigateToAppDrawerSettings,
+            onExperimental = navController::navigateToExperimentalSettings,
             onFinish = onFinish,
             onGeneral = navController::navigateToGeneralSettings,
-            onHome = navController::navigateToHomeSettings,
-            onAppDrawer = navController::navigateToAppDrawerSettings,
             onGestures = navController::navigateToGesturesSettings,
-            onExperimental = navController::navigateToExperimentalSettings,
+            onHome = navController::navigateToHomeSettings,
         )
 
         homeSettingsScreen(onNavigateUp = navController::navigateUp)

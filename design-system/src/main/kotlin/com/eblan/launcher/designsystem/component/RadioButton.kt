@@ -35,9 +35,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun EblanRadioButton(
     modifier: Modifier = Modifier,
-    text: String,
-    selected: Boolean,
     enabled: Boolean = true,
+    selected: Boolean,
+    text: String,
     onClick: () -> Unit,
 ) {
     Row(

@@ -70,7 +70,7 @@ internal fun GridItemResizeOverlay(
         columns: Int,
         rows: Int,
         lockMovement: Boolean,
-    ) -> Unit
+    ) -> Unit,
 ) {
     val density = LocalDensity.current
 

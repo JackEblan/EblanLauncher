@@ -140,7 +140,7 @@ internal fun ShortcutConfigScreen(
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
-    ) -> Unit
+    ) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -218,7 +218,7 @@ internal fun ShortcutConfigScreen(
                         offsetY = offsetY,
                         remaining = remaining,
                         screenHeight = screenHeight,
-                        onDismiss = onDismiss
+                        onDismiss = onDismiss,
                     )
                 }
             },
@@ -230,7 +230,7 @@ internal fun ShortcutConfigScreen(
                 scope.launch {
                     offsetY.snapTo(offsetY.value + dragAmount)
                 }
-            }
+            },
         )
     }
 }
@@ -261,7 +261,7 @@ private fun Success(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onVerticalDrag: (Float) -> Unit
+    onVerticalDrag: (Float) -> Unit,
 ) {
     val horizontalPagerState = rememberPagerState(
         pageCount = {
@@ -331,7 +331,7 @@ private fun Success(
             EblanShortcutConfigTabRow(
                 currentPage = horizontalPagerState.currentPage,
                 eblanShortcutConfigs = eblanShortcutConfigs,
-                onAnimateScrollToPage = horizontalPagerState::animateScrollToPage
+                onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
             )
 
             HorizontalPager(
@@ -350,7 +350,7 @@ private fun Success(
                     onDraggingGridItem = onDraggingGridItem,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onVerticalDrag = onVerticalDrag
+                    onVerticalDrag = onVerticalDrag,
                 )
             }
         } else {
@@ -366,7 +366,7 @@ private fun Success(
                 onDraggingGridItem = onDraggingGridItem,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
-                onVerticalDrag = onVerticalDrag
+                onVerticalDrag = onVerticalDrag,
             )
         }
     }
@@ -377,7 +377,7 @@ private fun Success(
 private fun EblanShortcutConfigTabRow(
     currentPage: Int,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
-    onAnimateScrollToPage: suspend (Int) -> Unit
+    onAnimateScrollToPage: suspend (Int) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -422,7 +422,7 @@ private fun EblanShortcutConfigsPage(
         imageBitmap: ImageBitmap?,
     ) -> Unit,
     onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
-    onVerticalDrag: (Float) -> Unit
+    onVerticalDrag: (Float) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -497,7 +497,7 @@ private fun EblanShortcutConfigsPage(
                         gridItems = gridItems,
                         onDraggingGridItem = onDraggingGridItem,
                         onLongPressGridItem = onLongPressGridItem,
-                        onUpdateGridItemOffset = onUpdateGridItemOffset
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
                     )
                 }
             }
@@ -526,7 +526,7 @@ private fun EblanApplicationInfoItem(
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
-    ) -> Unit
+    ) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -580,7 +580,7 @@ private fun EblanApplicationInfoItem(
                     gridItems = gridItems,
                     onDraggingGridItem = onDraggingGridItem,
                     onLongPressGridItem = onLongPressGridItem,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
                 )
             }
         }
@@ -607,7 +607,7 @@ private fun EblanShortcutConfigItem(
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
-    ) -> Unit
+    ) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 

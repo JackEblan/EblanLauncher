@@ -82,7 +82,7 @@ internal fun SharedTransitionScope.ResizeScreen(
         columns: Int,
         rows: Int,
         lockMovement: Boolean,
-    ) -> Unit
+    ) -> Unit,
 ) {
     requireNotNull(gridItem)
 
@@ -178,7 +178,7 @@ internal fun SharedTransitionScope.ResizeScreen(
             pageCount = homeSettings.pageCount,
             color = getSystemTextColor(
                 systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
-                systemTextColor = textColor
+                systemTextColor = textColor,
             ),
         )
 
@@ -241,7 +241,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                 width = width,
                 x = gridX,
                 y = gridY,
-                onResizeGridItem = onResizeGridItem
+                onResizeGridItem = onResizeGridItem,
             )
         }
 
@@ -277,7 +277,7 @@ internal fun SharedTransitionScope.ResizeScreen(
                 width = width,
                 x = dockX,
                 y = dockY,
-                onResizeGridItem = onResizeGridItem
+                onResizeGridItem = onResizeGridItem,
             )
         }
     }

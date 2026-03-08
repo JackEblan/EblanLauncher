@@ -117,7 +117,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     key(gridItem.id) {
         val currentGridItemSettings = if (gridItem.override) {
@@ -131,12 +131,12 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 gridItemCustomTextColor = gridItem.gridItemSettings.customTextColor,
                 gridItemTextColor = gridItem.gridItemSettings.textColor,
                 systemCustomTextColor = gridItemSettings.customTextColor,
-                systemTextColor = textColor
+                systemTextColor = textColor,
             )
         } else {
             getSystemTextColor(
                 systemCustomTextColor = gridItemSettings.customTextColor,
-                systemTextColor = textColor
+                systemTextColor = textColor,
             )
         }
 
@@ -158,7 +158,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onTapApplicationInfo = onTapApplicationInfo,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
 
@@ -173,7 +173,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
 
@@ -193,7 +193,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onTapShortcutInfo = onTapShortcutInfo,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
 
@@ -213,7 +213,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onTap = onTapFolderGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
 
@@ -232,7 +232,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onTapShortcutConfig = onTapShortcutConfig,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
@@ -263,7 +263,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -457,7 +457,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -586,7 +586,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -768,7 +768,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -967,7 +967,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 

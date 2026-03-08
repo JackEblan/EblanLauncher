@@ -45,7 +45,7 @@ internal fun handleEblanAction(
     context: Context,
     eblanAction: EblanAction,
     launcherApps: AndroidLauncherAppsWrapper,
-    onOpenAppDrawer: () -> Unit
+    onOpenAppDrawer: () -> Unit,
 ) {
     when (eblanAction.eblanActionType) {
         EblanActionType.OpenApp -> {

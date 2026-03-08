@@ -95,12 +95,12 @@ internal fun SharedTransitionScope.GridItemContent(
                 gridItemCustomTextColor = gridItem.gridItemSettings.customTextColor,
                 gridItemTextColor = gridItem.gridItemSettings.textColor,
                 systemCustomTextColor = gridItemSettings.customTextColor,
-                systemTextColor = textColor
+                systemTextColor = textColor,
             )
         } else {
             getSystemTextColor(
                 systemCustomTextColor = gridItemSettings.customTextColor,
-                systemTextColor = textColor
+                systemTextColor = textColor,
             )
         }
 

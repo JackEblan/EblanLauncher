@@ -204,7 +204,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onVerticalDrag: (Float) -> Unit
+    onVerticalDrag: (Float) -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -253,7 +253,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
-            onVerticalDrag = onVerticalDrag
+            onVerticalDrag = onVerticalDrag,
         )
     }
 }
@@ -306,7 +306,7 @@ private fun SharedTransitionScope.Success(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onVerticalDrag: (Float) -> Unit
+    onVerticalDrag: (Float) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -445,7 +445,7 @@ private fun SharedTransitionScope.Success(
                         eblanApplicationInfoTag = eblanApplicationInfoTag,
                         selectedTagIds = selectedTagIds,
                         onAddId = selectedTagIds::add,
-                        onRemoveId = selectedTagIds::remove
+                        onRemoveId = selectedTagIds::remove,
                     )
                 }
             }
@@ -456,7 +456,7 @@ private fun SharedTransitionScope.Success(
                 currentPage = horizontalPagerState.currentPage,
                 eblanApplicationInfos = getEblanApplicationInfosByLabel.eblanApplicationInfos,
                 klwpIntegration = klwpIntegration,
-                onAnimateScrollToPage = horizontalPagerState::animateScrollToPage
+                onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
             )
 
             HorizontalPager(
@@ -494,7 +494,7 @@ private fun SharedTransitionScope.Success(
                         showPopupApplicationMenu = newShowPopupApplicationMenu
                     },
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
-                    onVerticalDrag = onVerticalDrag
+                    onVerticalDrag = onVerticalDrag,
                 )
             }
         } else {
@@ -532,7 +532,7 @@ private fun SharedTransitionScope.Success(
                     showPopupApplicationMenu = newShowPopupApplicationMenu
                 },
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                onVerticalDrag = onVerticalDrag
+                onVerticalDrag = onVerticalDrag,
             )
         }
     }
@@ -579,7 +579,7 @@ private fun SharedTransitionScope.Success(
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onWidgets = { newEblanApplicationInfoGroup ->
                 eblanApplicationInfoGroup = newEblanApplicationInfoGroup
-            }
+            },
         )
     }
 
@@ -602,7 +602,7 @@ private fun SharedTransitionScope.Success(
             },
             onDraggingGridItem = onDraggingGridItem,
             onLongPressGridItem = onLongPressGridItem,
-            onUpdateGridItemOffset = onUpdateGridItemOffset
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
         )
     }
 
@@ -648,7 +648,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdatePopupMenu: (Boolean) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -664,7 +664,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     val textColor = getSystemTextColor(
         systemCustomTextColor = appDrawerSettings.gridItemSettings.customTextColor,
-        systemTextColor = appDrawerSettings.gridItemSettings.textColor
+        systemTextColor = appDrawerSettings.gridItemSettings.textColor,
     )
 
     val appDrawerRowsHeight = appDrawerSettings.appDrawerRowsHeight.dp
@@ -907,7 +907,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     ) -> Unit,
     onUpdatePopupMenu: (Boolean) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onVerticalDrag: (Float) -> Unit
+    onVerticalDrag: (Float) -> Unit,
 ) {
     val userManager = LocalUserManager.current
 
@@ -950,7 +950,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 onUpdateRequestQuietModeEnabled = { newIsQuietModeEnabled ->
                     isQuietModeEnabled = newIsQuietModeEnabled
                 },
-                onVerticalDrag = onVerticalDrag
+                onVerticalDrag = onVerticalDrag,
             )
         } else if (isRearrangeEblanApplicationInfo && eblanApplicationInfoOrder == EblanApplicationInfoOrder.Index) {
             DragAndDropEblanApplicationInfos(
@@ -960,7 +960,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 iconPackFilePaths = iconPackFilePaths,
                 paddingValues = paddingValues,
                 onDismissDragAndDrop = onDismissDragAndDrop,
-                onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos
+                onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
             )
         } else {
             EblanApplicationInfos(
@@ -980,7 +980,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onUpdatePopupMenu = onUpdatePopupMenu,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                onVerticalDrag = onVerticalDrag
+                onVerticalDrag = onVerticalDrag,
             )
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && packageManager.isDefaultLauncher() && eblanUser.serialNumber > 0 && userHandle != null) {
@@ -1018,7 +1018,7 @@ private fun QuiteModeScreen(
     userManager: AndroidUserManagerWrapper,
     onDragEnd: (Float) -> Unit,
     onUpdateRequestQuietModeEnabled: (Boolean) -> Unit,
-    onVerticalDrag: (Float) -> Unit
+    onVerticalDrag: (Float) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -1093,7 +1093,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     ) -> Unit,
     onUpdatePopupMenu: (Boolean) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onVerticalDrag: (Float) -> Unit
+    onVerticalDrag: (Float) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -1166,7 +1166,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 onLongPressGridItem = onLongPressGridItem,
                                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                                 onUpdatePopupMenu = onUpdatePopupMenu,
-                                onUpdateSharedElementKey = onUpdateSharedElementKey
+                                onUpdateSharedElementKey = onUpdateSharedElementKey,
                             )
                         }
                     }
@@ -1185,7 +1185,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                         onUpdateIsQuietModeEnabled = { newIsQuiteModeEnabled ->
                             isQuietModeEnabled = newIsQuiteModeEnabled
                         },
-                        onUpdatePopupMenu = onUpdatePopupMenu
+                        onUpdatePopupMenu = onUpdatePopupMenu,
                     )
                 }
 
@@ -1205,7 +1205,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 onLongPressGridItem = onLongPressGridItem,
                                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                                 onUpdatePopupMenu = onUpdatePopupMenu,
-                                onUpdateSharedElementKey = onUpdateSharedElementKey
+                                onUpdateSharedElementKey = onUpdateSharedElementKey,
                             )
                         }
                     }
@@ -1221,7 +1221,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                 appDrawerSettings = appDrawerSettings,
                 lazyGridState = lazyGridState,
                 paddingValues = paddingValues,
-                onScrollToItem = lazyGridState::scrollToItem
+                onScrollToItem = lazyGridState::scrollToItem,
             )
         }
     }
@@ -1233,7 +1233,7 @@ private fun EblanApplicationInfoTabRow(
     currentPage: Int,
     eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
     klwpIntegration: Boolean,
-    onAnimateScrollToPage: suspend (Int) -> Unit
+    onAnimateScrollToPage: suspend (Int) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -1270,7 +1270,7 @@ private fun TagFilterChip(
     eblanApplicationInfoTag: EblanApplicationInfoTag,
     selectedTagIds: Set<Long>,
     onAddId: (Long) -> Unit,
-    onRemoveId: (Long) -> Unit
+    onRemoveId: (Long) -> Unit,
 ) {
     FilterChip(
         modifier = modifier.padding(5.dp),

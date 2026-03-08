@@ -24,12 +24,12 @@ internal fun getGridItemTextColor(
     gridItemCustomTextColor: Int,
     gridItemTextColor: TextColor,
     systemCustomTextColor: Int,
-    systemTextColor: TextColor
+    systemTextColor: TextColor,
 ): Color = when (gridItemTextColor) {
     TextColor.System -> {
         getSystemTextColor(
             systemCustomTextColor = systemCustomTextColor,
-            systemTextColor = systemTextColor
+            systemTextColor = systemTextColor,
         )
     }
 

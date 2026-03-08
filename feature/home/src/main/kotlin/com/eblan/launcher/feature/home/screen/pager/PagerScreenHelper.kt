@@ -48,7 +48,7 @@ internal fun swipeEblanAction(
     launcherApps: AndroidLauncherAppsWrapper,
     screenHeight: Int,
     swipeDownY: Float,
-    swipeUpY: Float
+    swipeUpY: Float,
 ) {
     val swipeThreshold = 100f
 
@@ -57,7 +57,8 @@ internal fun swipeEblanAction(
             context = context,
             eblanAction = gestureSettings.swipeUp,
             launcherApps = launcherApps,
-            onOpenAppDrawer = {})
+            onOpenAppDrawer = {},
+        )
     }
 
     if (swipeDownY < screenHeight - swipeThreshold) {
@@ -65,7 +66,8 @@ internal fun swipeEblanAction(
             context = context,
             eblanAction = gestureSettings.swipeDown,
             launcherApps = launcherApps,
-            onOpenAppDrawer = {})
+            onOpenAppDrawer = {},
+        )
     }
 }
 
@@ -73,7 +75,7 @@ internal suspend fun resetSwipeOffset(
     gestureSettings: GestureSettings,
     screenHeight: Int,
     swipeDownY: Animatable<Float, AnimationVector1D>,
-    swipeUpY: Animatable<Float, AnimationVector1D>
+    swipeUpY: Animatable<Float, AnimationVector1D>,
 ) {
     suspend fun animateOffset(
         eblanAction: EblanAction,
@@ -122,7 +124,7 @@ internal suspend fun handleActionMainIntent(
     wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
     wallpaperScroll: Boolean,
     windowToken: IBinder,
-    onHome: () -> Unit
+    onHome: () -> Unit,
 ) {
     if (intent.action != Intent.ACTION_MAIN && !intent.hasCategory(Intent.CATEGORY_HOME)) {
         return
@@ -150,7 +152,7 @@ internal suspend fun handleActionMainIntent(
         val page = calculatePage(
             index = gridHorizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
-            pageCount = pageCount
+            pageCount = pageCount,
         )
 
         wallpaperManagerWrapper.setWallpaperOffsetSteps(
@@ -170,7 +172,7 @@ internal fun handleEblanActionIntent(
     context: Context,
     intent: Intent,
     launcherApps: AndroidLauncherAppsWrapper,
-    onOpenAppDrawer: () -> Unit
+    onOpenAppDrawer: () -> Unit,
 ) {
     if (intent.action != EblanAction.ACTION) return
 
@@ -182,7 +184,7 @@ internal fun handleEblanActionIntent(
         context = context,
         eblanAction = eblanAction,
         launcherApps = launcherApps,
-        onOpenAppDrawer = onOpenAppDrawer
+        onOpenAppDrawer = onOpenAppDrawer,
     )
 }
 
@@ -190,7 +192,7 @@ internal suspend fun handleApplyFling(
     offsetY: Animatable<Float, AnimationVector1D>,
     remaining: Float,
     screenHeight: Int,
-    onDismiss: () -> Unit = {}
+    onDismiss: () -> Unit = {},
 ) {
     if (offsetY.value <= 0f && remaining > 10000f) {
         offsetY.animateTo(
@@ -228,7 +230,7 @@ internal fun handleHasDoubleTap(
     gestureSettings: GestureSettings,
     hasDoubleTap: Boolean,
     launcherApps: AndroidLauncherAppsWrapper,
-    onOpenAppDrawer: () -> Unit
+    onOpenAppDrawer: () -> Unit,
 ) {
     if (!hasDoubleTap) return
 
@@ -236,14 +238,14 @@ internal fun handleHasDoubleTap(
         context = context,
         eblanAction = gestureSettings.doubleTap,
         launcherApps = launcherApps,
-        onOpenAppDrawer = onOpenAppDrawer
+        onOpenAppDrawer = onOpenAppDrawer,
     )
 }
 
 internal fun handleKlwpBroadcasts(
     context: Context,
     isApplicationScreenVisible: Boolean,
-    klwpIntegration: Boolean
+    klwpIntegration: Boolean,
 ) {
     if (!klwpIntegration) return
 

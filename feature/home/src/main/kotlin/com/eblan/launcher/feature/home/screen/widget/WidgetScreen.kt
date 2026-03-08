@@ -131,7 +131,7 @@ internal fun WidgetScreen(
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
-    ) -> Unit
+    ) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -212,7 +212,7 @@ internal fun WidgetScreen(
                         offsetY = offsetY,
                         remaining = remaining,
                         screenHeight = screenHeight,
-                        onDismiss = onDismiss
+                        onDismiss = onDismiss,
                     )
                 }
             },
@@ -224,7 +224,7 @@ internal fun WidgetScreen(
                 scope.launch {
                     offsetY.snapTo(offsetY.value + dragAmount)
                 }
-            }
+            },
         )
     }
 }
@@ -259,7 +259,7 @@ private fun Success(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onVerticalDrag: (Float) -> Unit
+    onVerticalDrag: (Float) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -376,7 +376,7 @@ private fun Success(
                         screenWidth = screenWidth,
                         onDraggingGridItem = onDraggingGridItem,
                         onLongPressGridItem = onLongPressGridItem,
-                        onUpdateGridItemOffset = onUpdateGridItemOffset
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
                     )
                 }
             }
@@ -409,7 +409,7 @@ private fun EblanApplicationInfoItem(
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
-    ) -> Unit
+    ) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -467,7 +467,7 @@ private fun EblanApplicationInfoItem(
                     screenWidth = screenWidth,
                     onDraggingGridItem = onDraggingGridItem,
                     onLongPressGridItem = onLongPressGridItem,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
                 )
             }
         }
@@ -498,7 +498,7 @@ private fun EblanAppWidgetProviderInfoItem(
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
-    ) -> Unit
+    ) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -539,7 +539,7 @@ private fun EblanAppWidgetProviderInfoItem(
                                         resizeMode = eblanAppWidgetProviderInfo.resizeMode,
                                         serialNumber = eblanAppWidgetProviderInfo.serialNumber,
                                         targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
-                                        targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth
+                                        targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
                                     ),
                                 ),
                                 graphicsLayer.toImageBitmap(),

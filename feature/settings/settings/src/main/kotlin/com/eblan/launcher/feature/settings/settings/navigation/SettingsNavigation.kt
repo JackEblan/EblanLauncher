@@ -22,21 +22,21 @@ import androidx.navigation.compose.composable
 import com.eblan.launcher.feature.settings.settings.SettingsRoute
 
 fun NavGraphBuilder.settingsScreen(
+    onAppDrawer: () -> Unit,
+    onExperimental: () -> Unit,
     onFinish: () -> Unit,
     onGeneral: () -> Unit,
-    onHome: () -> Unit,
-    onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
-    onExperimental: () -> Unit,
+    onHome: () -> Unit,
 ) {
     composable<SettingsRouteData> {
         SettingsRoute(
+            onAppDrawer = onAppDrawer,
+            onExperimental = onExperimental,
             onFinish = onFinish,
             onGeneral = onGeneral,
-            onHome = onHome,
-            onAppDrawer = onAppDrawer,
             onGestures = onGestures,
-            onExperimental = onExperimental,
+            onHome = onHome,
         )
     }
 }

@@ -48,66 +48,69 @@ internal fun ImportIconPackInfoDialog(
         label: String,
     ) -> Unit,
 ) {
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier.fillMaxWidth(),
-        ) {
-            Text(
-                modifier = Modifier.padding(10.dp),
-                text = "Import Icon Pack",
-                style = MaterialTheme.typography.titleLarge,
-            )
+    EblanDialogContainer(
+        content = {
+            Column(
+                modifier = modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    modifier = Modifier.padding(10.dp),
+                    text = "Import Icon Pack",
+                    style = MaterialTheme.typography.titleLarge,
+                )
 
-            when {
-                packageManagerIconPackInfos.isEmpty() -> {
-                    Text(
-                        modifier = Modifier.padding(horizontal = 10.dp),
-                        text = "No icon packs",
-                    )
-                }
+                when {
+                    packageManagerIconPackInfos.isEmpty() -> {
+                        Text(
+                            modifier = Modifier.padding(horizontal = 10.dp),
+                            text = "No icon packs",
+                        )
+                    }
 
-                else -> {
-                    Spacer(modifier = Modifier.height(10.dp))
+                    else -> {
+                        Spacer(modifier = Modifier.height(10.dp))
 
-                    LazyColumn(
-                        modifier = Modifier.weight(
-                            weight = 1f,
-                            fill = false,
-                        ),
-                    ) {
-                        items(packageManagerIconPackInfos) { packageManagerIconPackInfo ->
-                            ListItem(
-                                headlineContent = { Text(text = packageManagerIconPackInfo.label) },
-                                leadingContent = {
-                                    AsyncImage(
-                                        model = packageManagerIconPackInfo.icon,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(40.dp),
-                                    )
-                                },
-                                modifier = Modifier
-                                    .clickable {
-                                        onUpdateIconPackInfo(
-                                            packageManagerIconPackInfo.packageName,
-                                            packageManagerIconPackInfo.label,
+                        LazyColumn(
+                            modifier = Modifier.weight(
+                                weight = 1f,
+                                fill = false,
+                            ),
+                        ) {
+                            items(packageManagerIconPackInfos) { packageManagerIconPackInfo ->
+                                ListItem(
+                                    headlineContent = { Text(text = packageManagerIconPackInfo.label) },
+                                    leadingContent = {
+                                        AsyncImage(
+                                            model = packageManagerIconPackInfo.icon,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(40.dp),
                                         )
-                                    }
-                                    .fillMaxWidth()
-                                    .padding(10.dp),
-                            )
+                                    },
+                                    modifier = Modifier
+                                        .clickable {
+                                            onUpdateIconPackInfo(
+                                                packageManagerIconPackInfo.packageName,
+                                                packageManagerIconPackInfo.label,
+                                            )
+                                        }
+                                        .fillMaxWidth()
+                                        .padding(10.dp),
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            TextButton(
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(10.dp),
-                onClick = onDismissRequest,
-            ) {
-                Text(text = "Cancel")
+                TextButton(
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(10.dp),
+                    onClick = onDismissRequest,
+                ) {
+                    Text(text = "Cancel")
+                }
             }
-        }
-    }
+        },
+        onDismissRequest = onDismissRequest,
+    )
 }

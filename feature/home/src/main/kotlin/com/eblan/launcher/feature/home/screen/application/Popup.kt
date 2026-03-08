@@ -94,7 +94,7 @@ internal fun PopupApplicationInfoMenu(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onWidgets: (EblanApplicationInfoGroup) -> Unit
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
 ) {
     val applicationInfo = gridItem?.data as? GridItemData.ApplicationInfo ?: return
 
@@ -188,7 +188,7 @@ internal fun PopupApplicationInfoMenu(
                     )
 
                     onDismissRequest()
-                }
+                },
             )
         },
     ) { measurables, constraints ->
@@ -248,7 +248,7 @@ private fun ApplicationInfoMenu(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onWidgets: () -> Unit
+    onWidgets: () -> Unit,
 ) {
     Surface(
         modifier = modifier.padding(5.dp),

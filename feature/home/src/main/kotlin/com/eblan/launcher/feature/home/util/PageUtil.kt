@@ -36,7 +36,7 @@ internal suspend fun handleWallpaperScroll(
     pageCount: Int,
     wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
     wallpaperScroll: Boolean,
-    windowToken: android.os.IBinder
+    windowToken: android.os.IBinder,
 ) {
     if (!wallpaperScroll) return
 
@@ -51,7 +51,7 @@ internal suspend fun handleWallpaperScroll(
         val page = calculatePage(
             index = horizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
-            pageCount = pageCount
+            pageCount = pageCount,
         )
 
         val scrollProgress = page + offsetFraction

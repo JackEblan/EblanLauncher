@@ -107,8 +107,8 @@ class ActionActivity : ComponentActivity() {
                         ) {
                             Surface {
                                 ActionScreen(
-                                    onUpdateEblanAction = ::createShortcutResult,
                                     onFinish = ::finish,
+                                    onUpdateEblanAction = ::createShortcutResult,
                                 )
                             }
                         }

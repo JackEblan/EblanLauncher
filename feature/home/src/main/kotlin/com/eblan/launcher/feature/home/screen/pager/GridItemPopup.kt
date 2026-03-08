@@ -84,7 +84,7 @@ internal fun GridItemPopup(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onWidgets: (EblanApplicationInfoGroup) -> Unit
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
 ) {
     requireNotNull(gridItem)
 
@@ -134,7 +134,7 @@ internal fun GridItemPopup(
                 onTapShortcutInfo = onTapShortcutInfo,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                onWidgets = onWidgets
+                onWidgets = onWidgets,
             )
         },
     ) { measurables, constraints ->
@@ -197,7 +197,7 @@ private fun GridItemPopupContent(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onWidgets: (EblanApplicationInfoGroup) -> Unit
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -271,7 +271,7 @@ private fun GridItemPopupContent(
                             )
 
                             onDismissRequest()
-                        }
+                        },
                     )
                 }
 
@@ -292,7 +292,7 @@ private fun GridItemPopupContent(
                             onResize()
 
                             onDismissRequest()
-                        }
+                        },
                     )
                 }
 
@@ -300,7 +300,8 @@ private fun GridItemPopupContent(
                     val showResize = data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
 
                     WidgetGridItemMenu(
-                        modifier = modifier, showResize = showResize,
+                        modifier = modifier,
+                        showResize = showResize,
                         onDelete = {
                             onDeleteGridItem(gridItem)
 
@@ -310,7 +311,7 @@ private fun GridItemPopupContent(
                             onResize()
 
                             onDismissRequest()
-                        }
+                        },
                     )
                 }
             }
@@ -347,7 +348,7 @@ private fun ApplicationInfoGridItemMenu(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onWidgets: () -> Unit
+    onWidgets: () -> Unit,
 ) {
     Column(
         modifier = modifier,
@@ -417,7 +418,7 @@ private fun GridItemMenu(
     modifier: Modifier = Modifier,
     onDelete: () -> Unit,
     onEdit: () -> Unit,
-    onResize: () -> Unit
+    onResize: () -> Unit,
 ) {
     Row(modifier = modifier) {
         IconButton(
@@ -445,7 +446,7 @@ private fun WidgetGridItemMenu(
     modifier: Modifier = Modifier,
     showResize: Boolean,
     onDelete: () -> Unit,
-    onResize: () -> Unit
+    onResize: () -> Unit,
 ) {
     Row(modifier = modifier) {
         if (showResize) {

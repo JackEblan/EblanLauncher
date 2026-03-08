@@ -94,116 +94,119 @@ fun IconPackInfoFilesDialog(
         }.collect()
     }
 
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-        ) {
-            Text(
-                text = iconPackInfoLabel.toString(),
-                style = MaterialTheme.typography.titleLarge,
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            SearchBar(
-                state = searchBarState,
-                modifier = Modifier
+    EblanDialogContainer(
+        content = {
+            Column(
+                modifier = modifier
                     .fillMaxWidth()
                     .padding(10.dp),
-                inputField = {
-                    SearchBarDefaults.InputField(
-                        textFieldState = textFieldState,
-                        searchBarState = searchBarState,
-                        leadingIcon = {
-                            Icon(
-                                imageVector = EblanLauncherIcons.Search,
-                                contentDescription = null,
-                            )
-                        },
-                        onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
-                        placeholder = { Text(text = "Search Applications") },
-                    )
-                },
-            )
+            ) {
+                Text(
+                    text = iconPackInfoLabel.toString(),
+                    style = MaterialTheme.typography.titleLarge,
+                )
 
-            Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-            when {
-                iconPackInfoComponents.isEmpty() -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(10.dp),
-                    )
-                }
+                SearchBar(
+                    state = searchBarState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            textFieldState = textFieldState,
+                            searchBarState = searchBarState,
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = EblanLauncherIcons.Search,
+                                    contentDescription = null,
+                                )
+                            },
+                            onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
+                            placeholder = { Text(text = "Search Applications") },
+                        )
+                    },
+                )
 
-                else -> {
-                    LazyVerticalGrid(
-                        modifier = Modifier.weight(
-                            weight = 1f,
-                            fill = false,
-                        ),
-                        columns = GridCells.Fixed(5),
-                    ) {
-                        items(iconPackInfoComponents) { iconPackInfoComponent ->
-                            var drawable by remember { mutableStateOf<Drawable?>(null) }
+                Spacer(modifier = Modifier.height(10.dp))
 
-                            LaunchedEffect(key1 = iconPackInfoComponent) {
-                                drawable = iconPackManager.loadDrawableFromIconPack(
-                                    packageName = iconPackInfoPackageName.toString(),
-                                    drawableName = iconPackInfoComponent.drawableName,
+                when {
+                    iconPackInfoComponents.isEmpty() -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(10.dp),
+                        )
+                    }
+
+                    else -> {
+                        LazyVerticalGrid(
+                            modifier = Modifier.weight(
+                                weight = 1f,
+                                fill = false,
+                            ),
+                            columns = GridCells.Fixed(5),
+                        ) {
+                            items(iconPackInfoComponents) { iconPackInfoComponent ->
+                                var drawable by remember { mutableStateOf<Drawable?>(null) }
+
+                                LaunchedEffect(key1 = iconPackInfoComponent) {
+                                    drawable = iconPackManager.loadDrawableFromIconPack(
+                                        packageName = iconPackInfoPackageName.toString(),
+                                        drawableName = iconPackInfoComponent.drawableName,
+                                    )
+                                }
+
+                                AsyncImage(
+                                    model = drawable,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .clickable {
+                                            scope.launch {
+                                                val icon = drawable?.let { currentDrawable ->
+                                                    val directory = fileManager.getFilesDirectory(
+                                                        FileManager.CUSTOM_ICONS_DIR,
+                                                    )
+
+                                                    val file = File(
+                                                        directory,
+                                                        fileManager.getHashedFileName(name = iconName),
+                                                    )
+
+                                                    byteArray.createDrawablePath(
+                                                        drawable = currentDrawable,
+                                                        file = file,
+                                                    )
+
+                                                    file.absolutePath
+                                                }
+
+                                                if (icon != null) {
+                                                    onUpdateIcon(icon)
+                                                }
+
+                                                onDismissRequest()
+                                            }
+                                        }
+                                        .size(40.dp)
+                                        .padding(2.dp),
                                 )
                             }
-
-                            AsyncImage(
-                                model = drawable,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .clickable {
-                                        scope.launch {
-                                            val icon = drawable?.let { currentDrawable ->
-                                                val directory = fileManager.getFilesDirectory(
-                                                    FileManager.CUSTOM_ICONS_DIR,
-                                                )
-
-                                                val file = File(
-                                                    directory,
-                                                    fileManager.getHashedFileName(name = iconName),
-                                                )
-
-                                                byteArray.createDrawablePath(
-                                                    drawable = currentDrawable,
-                                                    file = file,
-                                                )
-
-                                                file.absolutePath
-                                            }
-
-                                            if (icon != null) {
-                                                onUpdateIcon(icon)
-                                            }
-
-                                            onDismissRequest()
-                                        }
-                                    }
-                                    .size(40.dp)
-                                    .padding(2.dp),
-                            )
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-            TextButton(
-                modifier = Modifier.align(Alignment.End),
-                onClick = onDismissRequest,
-            ) {
-                Text(text = "Cancel")
+                TextButton(
+                    modifier = Modifier.align(Alignment.End),
+                    onClick = onDismissRequest,
+                ) {
+                    Text(text = "Cancel")
+                }
             }
-        }
-    }
+        },
+        onDismissRequest = onDismissRequest,
+    )
 }

@@ -90,7 +90,7 @@ internal fun SharedTransitionScope.EditPageScreen(
         pageItemsToDelete: List<PageItem>,
         associate: Associate,
     ) -> Unit,
-    onUpdateScreen: (Screen) -> Unit
+    onUpdateScreen: (Screen) -> Unit,
 ) {
     requireNotNull(associate)
 
@@ -238,7 +238,8 @@ internal fun SharedTransitionScope.EditPageScreen(
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally)
                                 .padding(5.dp),
-                            pageItem = pageItem, selectedId = selectedId,
+                            pageItem = pageItem,
+                            selectedId = selectedId,
                             onDeleteClick = {
                                 currentPageItems = currentPageItems.toMutableList().apply {
                                     removeIf { currentPageItem ->
@@ -250,7 +251,7 @@ internal fun SharedTransitionScope.EditPageScreen(
                             },
                             onHomeClick = {
                                 selectedId = pageItem.id
-                            }
+                            },
                         )
                     }
                 }
@@ -281,7 +282,7 @@ internal fun SharedTransitionScope.EditPageScreen(
                         pageItemsToDelete,
                         associate,
                     )
-                }
+                },
             )
         }
     }
@@ -293,7 +294,7 @@ private fun PageButtons(
     pageItem: PageItem,
     selectedId: Int,
     onDeleteClick: () -> Unit,
-    onHomeClick: () -> Unit
+    onHomeClick: () -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -332,7 +333,7 @@ private fun ActionButtons(
     modifier: Modifier = Modifier,
     onAdd: () -> Unit,
     onCancel: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
 ) {
     Surface(
         modifier = modifier.padding(10.dp),

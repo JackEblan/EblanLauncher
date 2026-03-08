@@ -43,7 +43,7 @@ internal fun getWidgetGridItem(
     resizeMode: Int,
     serialNumber: Long,
     targetCellHeight: Int,
-    targetCellWidth: Int
+    targetCellWidth: Int,
 ): GridItem {
     val data = GridItemData.Widget(
         appWidgetId = 0,

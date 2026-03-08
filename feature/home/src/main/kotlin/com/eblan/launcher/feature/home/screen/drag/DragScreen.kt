@@ -166,7 +166,7 @@ internal fun SharedTransitionScope.DragScreen(
     onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
-    ) -> Unit
+    ) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -212,13 +212,15 @@ internal fun SharedTransitionScope.DragScreen(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         handleAppWidgetLauncherResult(
-            appWidgetManager = appWidgetManager, gridItemSource = gridItemSource, result = result,
+            appWidgetManager = appWidgetManager,
+            gridItemSource = gridItemSource,
+            result = result,
             onDeleteAppWidgetId = {
                 deleteAppWidgetId = true
             },
             onUpdateWidgetGridItem = { gridItem ->
                 updatedWidgetGridItem = gridItem
-            }
+            },
         )
     }
 
@@ -232,7 +234,7 @@ internal fun SharedTransitionScope.DragScreen(
                 moveGridItemResult = moveGridItemResult,
                 result = result,
                 onDeleteGridItemCache = onDeleteGridItemCache,
-                onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache
+                onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
             )
         }
     }
@@ -250,7 +252,7 @@ internal fun SharedTransitionScope.DragScreen(
                 result = result,
                 userManagerWrapper = userManager,
                 onDeleteGridItemCache = onDeleteGridItemCache,
-                onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem
+                onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
             )
         }
     }
@@ -283,7 +285,7 @@ internal fun SharedTransitionScope.DragScreen(
             onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
             onMoveGridItem = onMoveGridItem,
             onUpdateAssociate = onUpdateAssociate,
-            onUpdateGridItemSource = onUpdateGridItemSource
+            onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
 
@@ -316,7 +318,7 @@ internal fun SharedTransitionScope.DragScreen(
                     },
                     onUpdateWidgetGridItem = { gridItem ->
                         updatedWidgetGridItem = gridItem
-                    }
+                    },
                 )
 
                 onResetConfigureResultCode()
@@ -335,7 +337,7 @@ internal fun SharedTransitionScope.DragScreen(
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
             gridItemSource = gridItemSource,
-            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache
+            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
         )
     }
 
@@ -348,7 +350,7 @@ internal fun SharedTransitionScope.DragScreen(
             updatedWidgetGridItem = updatedWidgetGridItem,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-            onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem
+            onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
         )
     }
 
@@ -359,7 +361,7 @@ internal fun SharedTransitionScope.DragScreen(
             pageCount = homeSettings.pageCount,
             wallpaperManagerWrapper = wallpaperManagerWrapper,
             wallpaperScroll = homeSettings.wallpaperScroll,
-            windowToken = view.windowToken
+            windowToken = view.windowToken,
         )
     }
 
@@ -375,7 +377,7 @@ internal fun SharedTransitionScope.DragScreen(
             rows = homeSettings.rows,
             screenHeight = screenHeight,
             screenWidth = screenWidth,
-            onShowFolderWhenDragging = onShowFolderWhenDragging
+            onShowFolderWhenDragging = onShowFolderWhenDragging,
         )
     }
 
@@ -399,7 +401,7 @@ internal fun SharedTransitionScope.DragScreen(
             },
             onUpdateGridPageDirection = { pageDirection ->
                 gridPageDirection = pageDirection
-            }
+            },
         )
     }
 
@@ -410,28 +412,28 @@ internal fun SharedTransitionScope.DragScreen(
             updatedGridItem = updatedWidgetGridItem,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
-            onResetConfigureResultCode = onResetConfigureResultCode
+            onResetConfigureResultCode = onResetConfigureResultCode,
         )
     }
 
     LaunchedEffect(key1 = gridPageDirection) {
         handlePageDirection(
             pageDirection = gridPageDirection,
-            pagerState = gridHorizontalPagerState
+            pagerState = gridHorizontalPagerState,
         )
     }
 
     LaunchedEffect(key1 = dockPageDirection) {
         handlePageDirection(
             pageDirection = dockPageDirection,
-            pagerState = dockGridHorizontalPagerState
+            pagerState = dockGridHorizontalPagerState,
         )
     }
 
     LaunchedEffect(key1 = folderPageDirection) {
         handlePageDirection(
             pageDirection = folderPageDirection,
-            pagerState = folderGridHorizontalPagerState
+            pagerState = folderGridHorizontalPagerState,
         )
     }
 
@@ -477,7 +479,7 @@ internal fun SharedTransitionScope.DragScreen(
             val page = calculatePage(
                 index = index,
                 infiniteScroll = homeSettings.infiniteScroll,
-                pageCount = homeSettings.pageCount
+                pageCount = homeSettings.pageCount,
             )
 
             GridLayout(
@@ -514,7 +516,7 @@ internal fun SharedTransitionScope.DragScreen(
             pageCount = homeSettings.pageCount,
             color = getSystemTextColor(
                 systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
-                systemTextColor = textColor
+                systemTextColor = textColor,
             ),
         )
 
@@ -531,7 +533,7 @@ internal fun SharedTransitionScope.DragScreen(
             val page = calculatePage(
                 index = index,
                 infiniteScroll = homeSettings.dockInfiniteScroll,
-                pageCount = homeSettings.dockPageCount
+                pageCount = homeSettings.dockPageCount,
             )
 
             GridLayout(
@@ -578,7 +580,7 @@ internal fun SharedTransitionScope.DragScreen(
             textColor = textColor,
             onUpdateFolderTitleHeight = { newFolderTitleHeightPx ->
                 folderTitleHeightPx = newFolderTitleHeightPx
-            }
+            },
         )
     }
 }

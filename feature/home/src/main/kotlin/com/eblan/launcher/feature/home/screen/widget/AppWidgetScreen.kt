@@ -107,7 +107,7 @@ internal fun AppWidgetScreen(
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
-    ) -> Unit
+    ) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -197,7 +197,7 @@ internal fun AppWidgetScreen(
                                             offsetY = offsetY,
                                             remaining = 0f,
                                             screenHeight = screenHeight,
-                                            onDismiss = onDismiss
+                                            onDismiss = onDismiss,
                                         )
                                     }
                                 },
@@ -207,7 +207,7 @@ internal fun AppWidgetScreen(
                                             offsetY = offsetY,
                                             remaining = 0f,
                                             screenHeight = screenHeight,
-                                            onDismiss = onDismiss
+                                            onDismiss = onDismiss,
                                         )
                                     }
                                 },
@@ -227,7 +227,7 @@ internal fun AppWidgetScreen(
                     screenWidth = screenWidth,
                     onDraggingGridItem = onDraggingGridItem,
                     onLongPressGridItem = onLongPressGridItem,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
                 )
             }
         }
@@ -253,7 +253,7 @@ private fun Success(
         gridItems: List<GridItem>,
     ) -> Unit,
     onLongPressGridItem: (GridItemSource, ImageBitmap?) -> Unit,
-    onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit
+    onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -291,7 +291,7 @@ private fun Success(
                     screenWidth = screenWidth,
                     onDraggingGridItem = onDraggingGridItem,
                     onLongPressGridItem = onLongPressGridItem,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
                 )
             }
         }
@@ -322,7 +322,7 @@ private fun EblanAppWidgetProviderInfoItem(
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
-    ) -> Unit
+    ) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -363,7 +363,7 @@ private fun EblanAppWidgetProviderInfoItem(
                                         resizeMode = eblanAppWidgetProviderInfo.resizeMode,
                                         serialNumber = eblanAppWidgetProviderInfo.serialNumber,
                                         targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
-                                        targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth
+                                        targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
                                     ),
                                 ),
                                 graphicsLayer.toImageBitmap(),

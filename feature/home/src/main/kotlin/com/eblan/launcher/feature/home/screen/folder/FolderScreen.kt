@@ -129,7 +129,7 @@ internal fun SharedTransitionScope.FolderScreen(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val data = folderGridItem.data as? GridItemData.Folder ?: return
 
@@ -217,7 +217,7 @@ internal fun SharedTransitionScope.FolderScreen(
                         folderPopupIntOffset = folderPopupIntOffset,
                         folderPopupIntSize = folderPopupIntSize,
                         safeDrawingHeight = safeDrawingHeight,
-                        safeDrawingWidth = safeDrawingWidth
+                        safeDrawingWidth = safeDrawingWidth,
                     )
                 }
                 .size(
@@ -258,7 +258,7 @@ internal fun SharedTransitionScope.FolderScreen(
                                             imageBitmap,
                                         )
                                     },
-                                    onUpdateSharedElementKey = onUpdateSharedElementKey
+                                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                                 )
                             },
                         )
@@ -268,7 +268,7 @@ internal fun SharedTransitionScope.FolderScreen(
                         data = data,
                         folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                         homeSettings = homeSettings,
-                        textColor = textColor
+                        textColor = textColor,
                     )
                 }
             },
@@ -282,7 +282,7 @@ internal fun FolderTitle(
     data: GridItemData.Folder,
     folderGridHorizontalPagerState: PagerState,
     homeSettings: HomeSettings,
-    textColor: TextColor
+    textColor: TextColor,
 ) {
     if (data.gridItemsByPage.size > 1) {
         Row(
@@ -295,7 +295,7 @@ internal fun FolderTitle(
                 text = data.label,
                 color = getSystemTextColor(
                     systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
-                    systemTextColor = textColor
+                    systemTextColor = textColor,
                 ),
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -307,7 +307,7 @@ internal fun FolderTitle(
                 pageCount = data.gridItemsByPage.size,
                 color = getSystemTextColor(
                     systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
-                    systemTextColor = textColor
+                    systemTextColor = textColor,
                 ),
             )
         }
@@ -322,7 +322,7 @@ internal fun FolderTitle(
                 text = data.label,
                 color = getSystemTextColor(
                     systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
-                    systemTextColor = textColor
+                    systemTextColor = textColor,
                 ),
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -346,7 +346,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -363,12 +363,12 @@ private fun SharedTransitionScope.FolderGridItemContent(
             gridItemCustomTextColor = gridItem.gridItemSettings.customTextColor,
             gridItemTextColor = gridItem.gridItemSettings.textColor,
             systemCustomTextColor = gridItemSettings.customTextColor,
-            systemTextColor = textColor
+            systemTextColor = textColor,
         )
     } else {
         getSystemTextColor(
             systemCustomTextColor = gridItemSettings.customTextColor,
-            systemTextColor = textColor
+            systemTextColor = textColor,
         )
     }
     val horizontalAlignment =

@@ -74,7 +74,7 @@ internal fun WidgetGridItemResizeOverlay(
         columns: Int,
         rows: Int,
         lockMovement: Boolean,
-    ) -> Unit
+    ) -> Unit,
 ) {
     val density = LocalDensity.current
 

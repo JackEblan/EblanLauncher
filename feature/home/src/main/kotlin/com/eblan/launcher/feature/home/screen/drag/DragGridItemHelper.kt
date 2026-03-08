@@ -56,7 +56,7 @@ internal fun handleAnimateScrollToPage(
     screenWidth: Int,
     onUpdateDockPageDirection: (PageDirection?) -> Unit,
     onUpdateFolderPageDirection: (PageDirection?) -> Unit,
-    onUpdateGridPageDirection: (PageDirection?) -> Unit
+    onUpdateGridPageDirection: (PageDirection?) -> Unit,
 ) {
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -188,7 +188,7 @@ internal suspend fun handleDragGridItem(
         lockMovement: Boolean,
     ) -> Unit,
     onUpdateAssociate: (Associate) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     if (drag == Drag.None ||
         drag == Drag.End ||
@@ -251,7 +251,7 @@ internal suspend fun handleDragGridItem(
                     safeDrawingHeight = safeDrawingHeight,
                     safeDrawingWidth = safeDrawingWidth,
                     onMoveGridItem = onMoveGridItem,
-                    onUpdateAssociate = onUpdateAssociate
+                    onUpdateAssociate = onUpdateAssociate,
                 )
             } else {
                 handleDragGridItem(
@@ -267,7 +267,7 @@ internal suspend fun handleDragGridItem(
                     safeDrawingHeight = safeDrawingHeight,
                     safeDrawingWidth = safeDrawingWidth,
                     onMoveGridItem = onMoveGridItem,
-                    onUpdateAssociate = onUpdateAssociate
+                    onUpdateAssociate = onUpdateAssociate,
                 )
             }
         }
@@ -290,7 +290,7 @@ internal suspend fun handleDragGridItem(
                 safeDrawingWidth = safeDrawingWidth,
                 onMoveFolderGridItem = onMoveFolderGridItem,
                 onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
-                onUpdateGridItemSource = onUpdateGridItemSource
+                onUpdateGridItemSource = onUpdateGridItemSource,
             )
         }
     }
@@ -328,7 +328,7 @@ private suspend fun handleDragFolderGridItem(
         movingApplicationInfoGridItem: ApplicationInfoGridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
     ) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     requireNotNull(folderGridItem)
 
@@ -444,7 +444,7 @@ private suspend fun handleDragGridItem(
         gridHeight: Int,
         lockMovement: Boolean,
     ) -> Unit,
-    onUpdateAssociate: (Associate) -> Unit
+    onUpdateAssociate: (Associate) -> Unit,
 ) {
     val gridItem = requireNotNull(gridItemSource.gridItem)
 
@@ -470,7 +470,7 @@ private suspend fun handleDragGridItem(
         gridX = dragX,
         gridY = dragY,
         rows = rows,
-        targetPage = currentPage
+        targetPage = currentPage,
     )
 
     val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
@@ -514,7 +514,7 @@ private suspend fun handleDragDockGridItem(
         gridHeight: Int,
         lockMovement: Boolean,
     ) -> Unit,
-    onUpdateAssociate: (Associate) -> Unit
+    onUpdateAssociate: (Associate) -> Unit,
 ) {
     val gridItem = requireNotNull(gridItemSource.gridItem)
 
@@ -540,7 +540,7 @@ private suspend fun handleDragDockGridItem(
         gridX = dragX,
         gridY = dockY,
         rows = dockRows,
-        targetPage = currentPage
+        targetPage = currentPage,
     )
 
     val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
@@ -580,7 +580,7 @@ internal suspend fun handleConflictingGridItem(
         gridItemSource: GridItemSource,
         intOffset: IntOffset,
         intSize: IntSize,
-    ) -> Unit
+    ) -> Unit,
 ) {
     delay(1000L)
 
@@ -726,7 +726,7 @@ private fun getMoveGridItem(
     gridX: Int,
     gridY: Int,
     rows: Int,
-    targetPage: Int
+    targetPage: Int,
 ): GridItem = when (gridItemSource) {
     is GridItemSource.Existing, is GridItemSource.Folder -> {
         gridItem.copy(
@@ -749,7 +749,7 @@ private fun getMoveGridItem(
             gridX = gridX,
             gridY = gridY,
             rows = rows,
-            targetPage = targetPage
+            targetPage = targetPage,
         )
     }
 }
@@ -765,7 +765,7 @@ private fun getMoveNewGridItem(
     gridX: Int,
     gridY: Int,
     rows: Int,
-    targetPage: Int
+    targetPage: Int,
 ): GridItem = when (val data = gridItem.data) {
     is GridItemData.Widget -> {
         val (checkedColumnSpan, checkedRowSpan) = getWidgetGridItemSpan(

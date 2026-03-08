@@ -93,7 +93,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
     screenWidth: Int,
     statusBarNotifications: Map<String, Int>,
     textColor: TextColor,
-    onUpdateFolderTitleHeight: (Int) -> Unit
+    onUpdateFolderTitleHeight: (Int) -> Unit,
 ) {
     val data = folderGridItem.data as? GridItemData.Folder ?: return
 
@@ -160,7 +160,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
                         folderPopupIntOffset = folderPopupIntOffset,
                         folderPopupIntSize = folderPopupIntSize,
                         safeDrawingHeight = safeDrawingHeight,
-                        safeDrawingWidth = safeDrawingWidth
+                        safeDrawingWidth = safeDrawingWidth,
                     )
                 }
                 .size(
@@ -189,7 +189,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
                                     gridItemSourceFolder = gridItemSourceFolder,
                                     iconPackFilePaths = iconPackFilePaths,
                                     statusBarNotifications = statusBarNotifications,
-                                    textColor = textColor
+                                    textColor = textColor,
                                 )
                             },
                         )
@@ -202,7 +202,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
                         data = data,
                         folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                         homeSettings = homeSettings,
-                        textColor = textColor
+                        textColor = textColor,
                     )
                 }
             },
@@ -219,7 +219,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
     gridItemSourceFolder: GridItemSource.Folder,
     iconPackFilePaths: Map<String, String>,
     statusBarNotifications: Map<String, Int>,
-    textColor: TextColor
+    textColor: TextColor,
 ) {
     val currentGridItemSettings = if (applicationInfoGridItem.override) {
         applicationInfoGridItem.gridItemSettings
@@ -232,12 +232,12 @@ private fun SharedTransitionScope.FolderGridItemContent(
             gridItemCustomTextColor = applicationInfoGridItem.gridItemSettings.customTextColor,
             gridItemTextColor = applicationInfoGridItem.gridItemSettings.textColor,
             systemCustomTextColor = gridItemSettings.customTextColor,
-            systemTextColor = textColor
+            systemTextColor = textColor,
         )
     } else {
         getSystemTextColor(
             systemCustomTextColor = gridItemSettings.customTextColor,
-            systemTextColor = textColor
+            systemTextColor = textColor,
         )
     }
     val horizontalAlignment =

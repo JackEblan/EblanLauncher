@@ -85,7 +85,7 @@ internal fun DragAndDropEblanApplicationInfos(
     iconPackFilePaths: Map<String, String>,
     paddingValues: PaddingValues,
     onDismissDragAndDrop: () -> Unit,
-    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit
+    onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
 ) {
     val lazyGridState = rememberLazyGridState()
 
@@ -153,7 +153,7 @@ internal fun DragAndDropEblanApplicationInfos(
                 appDrawerSettings = appDrawerSettings,
                 lazyGridState = lazyGridState,
                 paddingValues = paddingValues,
-                onScrollToItem = lazyGridState::scrollToItem
+                onScrollToItem = lazyGridState::scrollToItem,
             )
         }
 
@@ -187,7 +187,7 @@ private fun EblanApplicationInfoItem(
 ) {
     val textColor = getSystemTextColor(
         systemCustomTextColor = appDrawerSettings.gridItemSettings.customTextColor,
-        systemTextColor = appDrawerSettings.gridItemSettings.textColor
+        systemTextColor = appDrawerSettings.gridItemSettings.textColor,
     )
 
     val appDrawerRowsHeight = appDrawerSettings.appDrawerRowsHeight.dp

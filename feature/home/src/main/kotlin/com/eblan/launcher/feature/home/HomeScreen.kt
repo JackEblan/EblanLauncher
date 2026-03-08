@@ -138,7 +138,7 @@ internal fun HomeRoute(
     ) -> Unit,
     onEditGridItem: (String) -> Unit,
     onResetConfigureResultCode: () -> Unit,
-    onSettings: () -> Unit
+    onSettings: () -> Unit,
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
@@ -222,7 +222,7 @@ internal fun HomeRoute(
         onUpdateFolderGridItemId = viewModel::updateFolderGridItemId,
         onUpdateScreen = viewModel::updateScreen,
         onUpdateShortcutConfigGridItemDataCache = viewModel::updateShortcutConfigGridItemDataCache,
-        onUpdateShortcutConfigIntoShortcutInfoGridItem = viewModel::updateShortcutConfigIntoShortcutInfoGridItem
+        onUpdateShortcutConfigIntoShortcutInfoGridItem = viewModel::updateShortcutConfigIntoShortcutInfoGridItem,
     )
 }
 
@@ -337,7 +337,7 @@ internal fun HomeScreen(
     onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
-    ) -> Unit
+    ) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -398,7 +398,7 @@ internal fun HomeScreen(
                         launcherAppsWrapper = launcherApps,
                         pinItemRequest = pinItemRequest,
                         userManager = userManager,
-                        onGetPinGridItem = onGetPinGridItem
+                        onGetPinGridItem = onGetPinGridItem,
                     )
                 }
             }
@@ -537,7 +537,7 @@ internal fun HomeScreen(
                         sharedElementKey = newSharedElementKey
                     },
                     onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
-                    onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem
+                    onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                 )
 
                 OverlayImage(
@@ -554,7 +554,7 @@ internal fun HomeScreen(
                         overlayIntOffset = IntOffset.Zero
 
                         overlayIntSize = IntSize.Zero
-                    }
+                    },
                 )
             }
         }
@@ -681,7 +681,7 @@ private fun SharedTransitionScope.Success(
     onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
-    ) -> Unit
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -729,7 +729,7 @@ private fun SharedTransitionScope.Success(
             calculatePage(
                 index = gridHorizontalPagerState.currentPage,
                 infiniteScroll = homeData.userData.homeSettings.infiniteScroll,
-                pageCount = homeData.userData.homeSettings.pageCount
+                pageCount = homeData.userData.homeSettings.pageCount,
             )
         }
     }
@@ -742,7 +742,7 @@ private fun SharedTransitionScope.Success(
             calculatePage(
                 index = dockGridHorizontalPagerState.currentPage,
                 infiniteScroll = homeData.userData.homeSettings.dockInfiniteScroll,
-                pageCount = homeData.userData.homeSettings.dockPageCount
+                pageCount = homeData.userData.homeSettings.dockPageCount,
             )
         }
     }
@@ -841,7 +841,7 @@ private fun SharedTransitionScope.Success(
         onStatusBarNotificationsChange = { newStatusBarNotifications ->
             statusBarNotifications = newStatusBarNotifications
         },
-        onStopSyncData = onStopSyncData
+        onStopSyncData = onStopSyncData,
     )
 
     LaunchedEffect(key1 = Unit) {
@@ -854,7 +854,7 @@ private fun SharedTransitionScope.Success(
         handleKlwpBroadcasts(
             context = context,
             klwpIntegration = homeData.userData.experimentalSettings.klwpIntegration,
-            screen = screen
+            screen = screen,
         )
     }
 
@@ -936,7 +936,7 @@ private fun SharedTransitionScope.Success(
                     onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
                     onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
 
@@ -1002,7 +1002,7 @@ private fun SharedTransitionScope.Success(
                     },
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
-                    onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem
+                    onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                 )
             }
 
@@ -1026,7 +1026,7 @@ private fun SharedTransitionScope.Success(
                     textColor = homeData.textColor,
                     onResizeCancel = onCancelGridCache,
                     onResizeEnd = onResetGridCacheAfterResize,
-                    onResizeGridItem = onResizeGridItem
+                    onResizeGridItem = onResizeGridItem,
                 )
             }
 
@@ -1046,7 +1046,7 @@ private fun SharedTransitionScope.Success(
                     screenHeight = screenHeight,
                     textColor = homeData.textColor,
                     onSaveEditPage = onSaveEditPage,
-                    onUpdateScreen = onUpdateScreen
+                    onUpdateScreen = onUpdateScreen,
                 )
             }
         }
@@ -1066,7 +1066,7 @@ private fun SharedTransitionScope.OverlayImage(
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
     sharedElementKey: SharedElementKey?,
-    onResetOverlay: () -> Unit
+    onResetOverlay: () -> Unit,
 ) {
     if (overlayImageBitmap == null || sharedElementKey == null) return
 
@@ -1138,7 +1138,7 @@ private fun LifecycleEffect(
     onManagedProfileResultChange: (ManagedProfileResult?) -> Unit,
     onStartSyncData: () -> Unit,
     onStatusBarNotificationsChange: (Map<String, Int>) -> Unit,
-    onStopSyncData: () -> Unit
+    onStopSyncData: () -> Unit,
 ) {
     val context = LocalContext.current
 

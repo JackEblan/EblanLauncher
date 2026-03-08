@@ -66,7 +66,7 @@ internal fun SettingsPopup(
     onSettings: () -> Unit,
     onShortcutConfigActivities: () -> Unit,
     onWallpaper: () -> Unit,
-    onWidgets: () -> Unit
+    onWidgets: () -> Unit,
 ) {
     Popup(
         popupPositionProvider = SettingsPopupPositionProvider(
@@ -112,7 +112,7 @@ internal fun SettingsPopup(
                 onWidgets()
 
                 onDismissRequest()
-            }
+            },
         )
     }
 }
@@ -126,7 +126,7 @@ internal fun FolderGridItemPopup(
     popupIntSize: IntSize,
     onDeleteApplicationInfoGridItem: (ApplicationInfoGridItem) -> Unit,
     onDismissRequest: () -> Unit,
-    onEdit: (String) -> Unit
+    onEdit: (String) -> Unit,
 ) {
     val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder ?: return
 
@@ -167,7 +167,7 @@ internal fun FolderGridItemPopup(
                     onEdit(gridItemSourceFolder.applicationInfoGridItem.id)
 
                     onDismissRequest()
-                }
+                },
             )
         },
     ) { measurables, constraints ->
@@ -201,7 +201,7 @@ internal fun FolderGridItemPopup(
 private fun FolderGridItemPopupContent(
     modifier: Modifier = Modifier,
     onDelete: () -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
 ) {
     Surface(
         modifier = modifier.width(IntrinsicSize.Max),
@@ -234,7 +234,7 @@ private fun SettingsMenu(
     onSettings: () -> Unit,
     onShortcutConfigActivities: () -> Unit,
     onWallpaper: () -> Unit,
-    onWidgets: () -> Unit
+    onWidgets: () -> Unit,
 ) {
     Surface(
         modifier = modifier.width(IntrinsicSize.Max),
@@ -245,7 +245,7 @@ private fun SettingsMenu(
                 PopupMenuRow(
                     imageVector = EblanLauncherIcons.Settings,
                     title = "Settings",
-                    onClick = onSettings
+                    onClick = onSettings,
                 )
 
                 Spacer(modifier = Modifier.height(5.dp))
@@ -253,7 +253,7 @@ private fun SettingsMenu(
                 PopupMenuRow(
                     imageVector = EblanLauncherIcons.Pages,
                     title = "Edit Pages",
-                    onClick = onEditPage
+                    onClick = onEditPage,
                 )
 
                 Spacer(modifier = Modifier.height(5.dp))
@@ -261,7 +261,7 @@ private fun SettingsMenu(
                 PopupMenuRow(
                     imageVector = EblanLauncherIcons.Pages,
                     title = "Edit Dock Pages",
-                    onClick = onEditDockPage
+                    onClick = onEditDockPage,
                 )
 
                 if (hasSystemFeatureAppWidgets) {
@@ -270,7 +270,7 @@ private fun SettingsMenu(
                     PopupMenuRow(
                         imageVector = EblanLauncherIcons.Widgets,
                         title = "Widgets",
-                        onClick = onWidgets
+                        onClick = onWidgets,
                     )
                 }
 
@@ -279,7 +279,7 @@ private fun SettingsMenu(
                 PopupMenuRow(
                     imageVector = EblanLauncherIcons.Shortcut,
                     title = "Shortcuts",
-                    onClick = onShortcutConfigActivities
+                    onClick = onShortcutConfigActivities,
                 )
 
                 Spacer(modifier = Modifier.height(5.dp))
@@ -287,7 +287,7 @@ private fun SettingsMenu(
                 PopupMenuRow(
                     imageVector = EblanLauncherIcons.Image,
                     title = "Wallpaper",
-                    onClick = onWallpaper
+                    onClick = onWallpaper,
                 )
             }
         },
@@ -299,7 +299,7 @@ private fun PopupMenuRow(
     modifier: Modifier = Modifier,
     imageVector: ImageVector,
     title: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
         modifier = modifier

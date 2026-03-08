@@ -26,7 +26,7 @@ internal fun getFolderScreenOffset(
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
     safeDrawingHeight: Int,
-    safeDrawingWidth: Int
+    safeDrawingWidth: Int,
 ): IntOffset {
     val centeredX =
         folderPopupIntOffset.x + (folderPopupIntSize.width / 2) - (folderGridWidthPx / 2)

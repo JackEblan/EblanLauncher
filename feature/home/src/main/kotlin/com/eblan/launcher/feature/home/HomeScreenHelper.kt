@@ -41,7 +41,7 @@ internal suspend fun handlePinItemRequest(
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
     pinItemRequest: PinItemRequest?,
     userManager: AndroidUserManagerWrapper,
-    onGetPinGridItem: (PinItemRequestType) -> Unit
+    onGetPinGridItem: (PinItemRequestType) -> Unit,
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
         when (pinItemRequest.requestType) {

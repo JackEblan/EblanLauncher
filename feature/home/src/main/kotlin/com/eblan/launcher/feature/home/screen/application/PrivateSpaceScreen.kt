@@ -108,7 +108,7 @@ internal fun LazyGridScope.privateSpace(
         intSize: IntSize,
     ) -> Unit,
     onUpdateIsQuietModeEnabled: (Boolean) -> Unit,
-    onUpdatePopupMenu: (Boolean) -> Unit
+    onUpdatePopupMenu: (Boolean) -> Unit,
 ) {
     if (privateEblanUser == null || privateEblanUser.isPrivateSpaceEntryPointHidden) return
 
@@ -117,7 +117,7 @@ internal fun LazyGridScope.privateSpace(
             isQuietModeEnabled = isQuietModeEnabled,
             managedProfileResult = managedProfileResult,
             privateEblanUser = privateEblanUser,
-            onUpdateIsQuietModeEnabled = onUpdateIsQuietModeEnabled
+            onUpdateIsQuietModeEnabled = onUpdateIsQuietModeEnabled,
         )
     }
 
@@ -131,7 +131,7 @@ internal fun LazyGridScope.privateSpace(
                 paddingValues = paddingValues,
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
-                onUpdatePopupMenu = onUpdatePopupMenu
+                onUpdatePopupMenu = onUpdatePopupMenu,
             )
         }
     }
@@ -143,7 +143,7 @@ internal fun PrivateSpaceStickyHeader(
     isQuietModeEnabled: Boolean,
     managedProfileResult: ManagedProfileResult?,
     privateEblanUser: EblanUser?,
-    onUpdateIsQuietModeEnabled: (Boolean) -> Unit
+    onUpdateIsQuietModeEnabled: (Boolean) -> Unit,
 ) {
     if (privateEblanUser == null) return
 
@@ -241,7 +241,7 @@ private fun PrivateSpaceEblanApplicationInfoItem(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onUpdatePopupMenu: (Boolean) -> Unit
+    onUpdatePopupMenu: (Boolean) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -253,7 +253,7 @@ private fun PrivateSpaceEblanApplicationInfoItem(
 
     val textColor = getSystemTextColor(
         systemCustomTextColor = appDrawerSettings.gridItemSettings.customTextColor,
-        systemTextColor = appDrawerSettings.gridItemSettings.textColor
+        systemTextColor = appDrawerSettings.gridItemSettings.textColor,
     )
 
     val appDrawerRowsHeight = appDrawerSettings.appDrawerRowsHeight.dp

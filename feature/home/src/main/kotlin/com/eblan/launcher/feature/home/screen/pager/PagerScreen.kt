@@ -187,7 +187,7 @@ internal fun SharedTransitionScope.PagerScreen(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -322,7 +322,7 @@ internal fun SharedTransitionScope.PagerScreen(
             launcherApps = launcherApps,
             onOpenAppDrawer = {
                 showAppDrawer = true
-            }
+            },
         )
 
         hasDoubleTap = false
@@ -347,14 +347,16 @@ internal fun SharedTransitionScope.PagerScreen(
                     windowToken = view.windowToken,
                     onHome = {
                         isPressHome = true
-                    }
+                    },
                 )
 
                 handleEblanActionIntent(
-                    context = context, intent = intent, launcherApps = launcherApps,
+                    context = context,
+                    intent = intent,
+                    launcherApps = launcherApps,
                     onOpenAppDrawer = {
                         showAppDrawer = true
-                    }
+                    },
                 )
             }
         }
@@ -370,7 +372,7 @@ internal fun SharedTransitionScope.PagerScreen(
         handleKlwpBroadcasts(
             context = context,
             isApplicationScreenVisible = isApplicationScreenVisible,
-            klwpIntegration = experimentalSettings.klwpIntegration
+            klwpIntegration = experimentalSettings.klwpIntegration,
         )
     }
 
@@ -393,7 +395,7 @@ internal fun SharedTransitionScope.PagerScreen(
             pageCount = homeSettings.pageCount,
             wallpaperManagerWrapper = wallpaperManagerWrapper,
             wallpaperScroll = homeSettings.wallpaperScroll,
-            windowToken = view.windowToken
+            windowToken = view.windowToken,
         )
     }
 
@@ -423,7 +425,7 @@ internal fun SharedTransitionScope.PagerScreen(
                             launcherApps = launcherApps,
                             screenHeight = screenHeight,
                             swipeDownY = swipeDownY.value,
-                            swipeUpY = swipeUpY.value
+                            swipeUpY = swipeUpY.value,
                         )
 
                         scope.launch {
@@ -431,7 +433,7 @@ internal fun SharedTransitionScope.PagerScreen(
                                 gestureSettings = gestureSettings,
                                 screenHeight = screenHeight,
                                 swipeDownY = swipeDownY,
-                                swipeUpY = swipeUpY
+                                swipeUpY = swipeUpY,
                             )
                         }
                     },
@@ -470,7 +472,7 @@ internal fun SharedTransitionScope.PagerScreen(
             val page = calculatePage(
                 index = index,
                 infiniteScroll = homeSettings.infiniteScroll,
-                pageCount = homeSettings.pageCount
+                pageCount = homeSettings.pageCount,
             )
 
             GridLayout(
@@ -589,7 +591,7 @@ internal fun SharedTransitionScope.PagerScreen(
                                 imageBitmap,
                             )
                         },
-                        onUpdateSharedElementKey = onUpdateSharedElementKey
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
                 },
             )
@@ -604,7 +606,7 @@ internal fun SharedTransitionScope.PagerScreen(
             pageCount = homeSettings.pageCount,
             color = getSystemTextColor(
                 systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
-                systemTextColor = textColor
+                systemTextColor = textColor,
             ),
         )
 
@@ -621,7 +623,7 @@ internal fun SharedTransitionScope.PagerScreen(
             val page = calculatePage(
                 index = index,
                 infiniteScroll = homeSettings.dockInfiniteScroll,
-                pageCount = homeSettings.dockPageCount
+                pageCount = homeSettings.dockPageCount,
             )
 
             GridLayout(
@@ -732,7 +734,7 @@ internal fun SharedTransitionScope.PagerScreen(
                             imageBitmap,
                         )
                     },
-                    onUpdateSharedElementKey = onUpdateSharedElementKey
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
@@ -803,7 +805,7 @@ internal fun SharedTransitionScope.PagerScreen(
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onWidgets = { newEblanApplicationInfoGroup: EblanApplicationInfoGroup ->
                 eblanApplicationInfoGroup = newEblanApplicationInfoGroup
-            }
+            },
         )
     }
 
@@ -829,7 +831,7 @@ internal fun SharedTransitionScope.PagerScreen(
             },
             onWidgets = {
                 showWidgets = true
-            }
+            },
         )
     }
 
@@ -874,7 +876,7 @@ internal fun SharedTransitionScope.PagerScreen(
 
                 showFolderGridItemPopup = true
             },
-            onUpdateSharedElementKey = onUpdateSharedElementKey
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 
@@ -888,7 +890,7 @@ internal fun SharedTransitionScope.PagerScreen(
             onDismissRequest = {
                 showFolderGridItemPopup = false
             },
-            onEdit = onEditGridItem
+            onEdit = onEditGridItem,
         )
     }
 
@@ -934,7 +936,7 @@ internal fun SharedTransitionScope.PagerScreen(
                     handleApplyFling(
                         offsetY = swipeY,
                         remaining = remaining,
-                        screenHeight = screenHeight
+                        screenHeight = screenHeight,
                     )
                 }
             },
@@ -951,7 +953,7 @@ internal fun SharedTransitionScope.PagerScreen(
                 scope.launch {
                     swipeY.snapTo(swipeY.value + dragAmount)
                 }
-            }
+            },
         )
     }
 
@@ -1007,10 +1009,12 @@ internal fun SharedTransitionScope.PagerScreen(
             onDragEnd = { remaining ->
                 scope.launch {
                     handleApplyFling(
-                        offsetY = swipeY, remaining = remaining, screenHeight = screenHeight,
+                        offsetY = swipeY,
+                        remaining = remaining,
+                        screenHeight = screenHeight,
                         onDismiss = {
                             showAppDrawer = false
-                        }
+                        },
                     )
                 }
             },
@@ -1027,7 +1031,7 @@ internal fun SharedTransitionScope.PagerScreen(
                 scope.launch {
                     swipeY.snapTo(swipeY.value + dragAmount)
                 }
-            }
+            },
         )
     }
 
@@ -1052,7 +1056,7 @@ internal fun SharedTransitionScope.PagerScreen(
             onDraggingGridItem = onDraggingGridItem,
             onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
             onLongPressGridItem = onLongPressGridItem,
-            onUpdateGridItemOffset = onUpdateGridItemOffset
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
         )
     }
 
@@ -1074,7 +1078,7 @@ internal fun SharedTransitionScope.PagerScreen(
             onDraggingGridItem = onDraggingGridItem,
             onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
             onLongPressGridItem = onLongPressGridItem,
-            onUpdateGridItemOffset = onUpdateGridItemOffset
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
         )
     }
 
@@ -1099,7 +1103,7 @@ internal fun SharedTransitionScope.PagerScreen(
             },
             onDraggingGridItem = onDraggingGridItem,
             onLongPressGridItem = onLongPressGridItem,
-            onUpdateGridItemOffset = onUpdateGridItemOffset
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
         )
     }
 }

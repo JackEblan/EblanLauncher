@@ -56,57 +56,60 @@ fun TextColorDialog(
 
     var showColorPickerDialog by remember { mutableStateOf(false) }
 
-    EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier
-                .selectableGroup()
-                .fillMaxWidth(),
-        ) {
-            Text(
-                modifier = Modifier.padding(10.dp),
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-            )
-
-            TextColor.entries.forEach { textColor ->
-                EblanRadioButton(
-                    text = textColor.name,
-                    selected = selectedTextColor == textColor,
-                    onClick = {
-                        if (textColor == TextColor.Custom) {
-                            showColorPickerDialog = true
-                        } else {
-                            selectedTextColor = textColor
-                        }
-                    },
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        end = 10.dp,
-                        bottom = 10.dp,
-                    ),
-                horizontalArrangement = Arrangement.End,
+    EblanDialogContainer(
+        content = {
+            Column(
+                modifier = modifier
+                    .selectableGroup()
+                    .fillMaxWidth(),
             ) {
-                TextButton(onClick = onDismissRequest) {
-                    Text(text = "Cancel")
+                Text(
+                    modifier = Modifier.padding(10.dp),
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                )
+
+                TextColor.entries.forEach { textColor ->
+                    EblanRadioButton(
+                        selected = selectedTextColor == textColor,
+                        text = textColor.name,
+                        onClick = {
+                            if (textColor == TextColor.Custom) {
+                                showColorPickerDialog = true
+                            } else {
+                                selectedTextColor = textColor
+                            }
+                        },
+                    )
                 }
-                TextButton(
-                    onClick = {
-                        onUpdateClick(
-                            selectedTextColor,
-                            selectedCustomTextColor,
-                        )
-                    },
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            end = 10.dp,
+                            bottom = 10.dp,
+                        ),
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    Text(text = "Update")
+                    TextButton(onClick = onDismissRequest) {
+                        Text(text = "Cancel")
+                    }
+                    TextButton(
+                        onClick = {
+                            onUpdateClick(
+                                selectedTextColor,
+                                selectedCustomTextColor,
+                            )
+                        },
+                    ) {
+                        Text(text = "Update")
+                    }
                 }
             }
-        }
-    }
+        },
+        onDismissRequest = onDismissRequest,
+    )
 
     if (showColorPickerDialog) {
         ColorPickerDialog(

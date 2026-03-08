@@ -53,7 +53,7 @@ internal fun ScrollBarThumb(
     appDrawerSettings: AppDrawerSettings,
     lazyGridState: LazyGridState,
     paddingValues: PaddingValues,
-    onScrollToItem: suspend (Int) -> Unit
+    onScrollToItem: suspend (Int) -> Unit,
 ) {
     val density = LocalDensity.current
 

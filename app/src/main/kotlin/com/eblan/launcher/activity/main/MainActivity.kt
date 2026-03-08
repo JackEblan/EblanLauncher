@@ -141,15 +141,15 @@ class MainActivity : ComponentActivity() {
                             dynamicTheme = state.applicationTheme.dynamicTheme,
                         ) {
                             MainNavHost(
-                                navController = navController,
                                 configureResultCode = configureResultCode,
+                                navController = navController,
+                                onResetConfigureResultCode = {
+                                    configureResultCode = null
+                                },
                                 onSettings = {
                                     startActivity(Intent(this, SettingsActivity::class.java))
 
                                     finish()
-                                },
-                                onResetConfigureResultCode = {
-                                    configureResultCode = null
                                 },
                             )
                         }

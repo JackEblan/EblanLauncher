@@ -102,7 +102,8 @@ internal fun EblanApplicationInfoOrderDialog(
                         onClick = {
                             onUpdateClick(
                                 selectedEblanApplicationInfoOrder,
-                                isRearrangeEblanApplicationInfo,
+                                selectedEblanApplicationInfoOrder == EblanApplicationInfoOrder.Index &&
+                                    isRearrangeEblanApplicationInfo,
                             )
                         },
                     ) {

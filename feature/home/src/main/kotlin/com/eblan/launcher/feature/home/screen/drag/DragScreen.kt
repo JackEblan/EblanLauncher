@@ -488,20 +488,17 @@ internal fun SharedTransitionScope.DragScreen(
                 columns = homeSettings.columns,
                 rows = homeSettings.rows,
                 content = { gridItem ->
-                    val isDragging =
-                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
-
                     GridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,
                         gridItemSettings = homeSettings.gridItemSettings,
-                        isDragging = isDragging,
                         statusBarNotifications = statusBarNotifications,
                         hasShortcutHostPermission = hasShortcutHostPermission,
                         drag = drag,
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
                         isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+                        gridItemSource = gridItemSource,
                     )
                 },
             )
@@ -542,20 +539,17 @@ internal fun SharedTransitionScope.DragScreen(
                 columns = homeSettings.dockColumns,
                 rows = homeSettings.dockRows,
                 { gridItem ->
-                    val isDragging =
-                        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
-
                     GridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,
                         gridItemSettings = homeSettings.gridItemSettings,
-                        isDragging = isDragging,
                         statusBarNotifications = statusBarNotifications,
                         hasShortcutHostPermission = hasShortcutHostPermission,
                         drag = drag,
                         iconPackFilePaths = iconPackFilePaths,
                         screen = screen,
                         isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
+                        gridItemSource = gridItemSource,
                     )
                 },
             )

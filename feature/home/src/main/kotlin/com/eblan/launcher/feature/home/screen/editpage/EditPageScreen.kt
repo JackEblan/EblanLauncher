@@ -67,6 +67,7 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.handleActionMainIntent
 import kotlinx.coroutines.launch
@@ -223,13 +224,13 @@ internal fun SharedTransitionScope.EditPageScreen(
                                     gridItem = gridItem,
                                     textColor = textColor,
                                     gridItemSettings = homeSettings.gridItemSettings,
-                                    isDragging = false,
                                     statusBarNotifications = emptyMap(),
                                     hasShortcutHostPermission = hasShortcutHostPermission,
                                     iconPackFilePaths = iconPackFilePaths,
                                     drag = Drag.None,
                                     screen = screen,
                                     isScrollInProgress = false,
+                                    gridItemSource = GridItemSource.Existing(gridItem = gridItem),
                                 )
                             },
                         )

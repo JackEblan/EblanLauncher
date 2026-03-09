@@ -51,6 +51,7 @@ import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -158,13 +159,13 @@ internal fun SharedTransitionScope.ResizeScreen(
                     gridItem = gridItem,
                     textColor = textColor,
                     gridItemSettings = homeSettings.gridItemSettings,
-                    isDragging = false,
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     drag = Drag.End,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
                     isScrollInProgress = false,
+                    gridItemSource = GridItemSource.Existing(gridItem = gridItem),
                 )
             },
         )
@@ -194,13 +195,13 @@ internal fun SharedTransitionScope.ResizeScreen(
                     gridItem = gridItem,
                     textColor = textColor,
                     gridItemSettings = homeSettings.gridItemSettings,
-                    isDragging = false,
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     drag = Drag.End,
                     iconPackFilePaths = iconPackFilePaths,
                     screen = screen,
                     isScrollInProgress = false,
+                    gridItemSource = GridItemSource.Existing(gridItem = gridItem),
                 )
             },
         )

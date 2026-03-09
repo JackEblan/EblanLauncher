@@ -58,6 +58,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
@@ -75,108 +76,109 @@ internal fun SharedTransitionScope.GridItemContent(
     gridItem: GridItem,
     textColor: TextColor,
     gridItemSettings: GridItemSettings,
-    isDragging: Boolean,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
     drag: Drag,
     iconPackFilePaths: Map<String, String>,
     screen: Screen,
     isScrollInProgress: Boolean,
+    gridItemSource: GridItemSource,
 ) {
-    key(gridItem.id) {
-        val currentGridItemSettings = if (gridItem.override) {
-            gridItem.gridItemSettings
-        } else {
-            gridItemSettings
-        }
+    val isDragging =
+        (drag == Drag.Start || drag == Drag.Dragging) && gridItem.id == gridItemSource.gridItem.id
 
-        val currentTextColor = if (gridItem.override) {
-            getGridItemTextColor(
-                gridItemCustomTextColor = gridItem.gridItemSettings.customTextColor,
-                gridItemTextColor = gridItem.gridItemSettings.textColor,
-                systemCustomTextColor = gridItemSettings.customTextColor,
-                systemTextColor = textColor,
-            )
-        } else {
-            getSystemTextColor(
-                systemCustomTextColor = gridItemSettings.customTextColor,
-                systemTextColor = textColor,
-            )
-        }
+    val currentGridItemSettings = if (gridItem.override) {
+        gridItem.gridItemSettings
+    } else {
+        gridItemSettings
+    }
 
-        if (isDragging) {
-            WhiteBox(
-                modifier = modifier,
-                textColor = currentTextColor,
-            )
-        } else {
-            when (val data = gridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    ApplicationInfoGridItem(
-                        modifier = modifier,
-                        gridItem = gridItem,
-                        data = data,
-                        textColor = currentTextColor,
-                        gridItemSettings = currentGridItemSettings,
-                        statusBarNotifications = statusBarNotifications,
-                        drag = drag,
-                        iconPackFilePaths = iconPackFilePaths,
-                        screen = screen,
-                        isScrollInProgress = isScrollInProgress,
-                    )
-                }
+    val currentTextColor = if (gridItem.override) {
+        getGridItemTextColor(
+            gridItemCustomTextColor = gridItem.gridItemSettings.customTextColor,
+            gridItemTextColor = gridItem.gridItemSettings.textColor,
+            systemCustomTextColor = gridItemSettings.customTextColor,
+            systemTextColor = textColor,
+        )
+    } else {
+        getSystemTextColor(
+            systemCustomTextColor = gridItemSettings.customTextColor,
+            systemTextColor = textColor,
+        )
+    }
 
-                is GridItemData.Widget -> {
-                    WidgetGridItem(
-                        modifier = modifier,
-                        gridItem = gridItem,
-                        data = data,
-                        drag = drag,
-                        screen = screen,
-                        isScrollInProgress = isScrollInProgress,
-                    )
-                }
+    if (isDragging) {
+        WhiteBox(
+            modifier = modifier,
+            textColor = currentTextColor,
+        )
+    } else {
+        when (val data = gridItem.data) {
+            is GridItemData.ApplicationInfo -> {
+                ApplicationInfoGridItem(
+                    modifier = modifier,
+                    gridItem = gridItem,
+                    data = data,
+                    textColor = currentTextColor,
+                    gridItemSettings = currentGridItemSettings,
+                    statusBarNotifications = statusBarNotifications,
+                    drag = drag,
+                    iconPackFilePaths = iconPackFilePaths,
+                    screen = screen,
+                    isScrollInProgress = isScrollInProgress,
+                )
+            }
 
-                is GridItemData.ShortcutInfo -> {
-                    ShortcutInfoGridItem(
-                        modifier = modifier,
-                        gridItem = gridItem,
-                        data = data,
-                        textColor = currentTextColor,
-                        gridItemSettings = currentGridItemSettings,
-                        hasShortcutHostPermission = hasShortcutHostPermission,
-                        drag = drag,
-                        screen = screen,
-                        isScrollInProgress = isScrollInProgress,
-                    )
-                }
+            is GridItemData.Widget -> {
+                WidgetGridItem(
+                    modifier = modifier,
+                    gridItem = gridItem,
+                    data = data,
+                    drag = drag,
+                    screen = screen,
+                    isScrollInProgress = isScrollInProgress,
+                )
+            }
 
-                is GridItemData.Folder -> {
-                    FolderGridItem(
-                        modifier = modifier,
-                        gridItem = gridItem,
-                        data = data,
-                        textColor = currentTextColor,
-                        gridItemSettings = currentGridItemSettings,
-                        drag = drag,
-                        iconPackFilePaths = iconPackFilePaths,
-                        screen = screen,
-                        isScrollInProgress = isScrollInProgress,
-                    )
-                }
+            is GridItemData.ShortcutInfo -> {
+                ShortcutInfoGridItem(
+                    modifier = modifier,
+                    gridItem = gridItem,
+                    data = data,
+                    textColor = currentTextColor,
+                    gridItemSettings = currentGridItemSettings,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
+                    drag = drag,
+                    screen = screen,
+                    isScrollInProgress = isScrollInProgress,
+                )
+            }
 
-                is GridItemData.ShortcutConfig -> {
-                    ShortcutConfigGridItem(
-                        modifier = modifier,
-                        gridItem = gridItem,
-                        data = data,
-                        textColor = currentTextColor,
-                        gridItemSettings = currentGridItemSettings,
-                        drag = drag,
-                        screen = screen,
-                        isScrollInProgress = isScrollInProgress,
-                    )
-                }
+            is GridItemData.Folder -> {
+                FolderGridItem(
+                    modifier = modifier,
+                    gridItem = gridItem,
+                    data = data,
+                    textColor = currentTextColor,
+                    gridItemSettings = currentGridItemSettings,
+                    drag = drag,
+                    iconPackFilePaths = iconPackFilePaths,
+                    screen = screen,
+                    isScrollInProgress = isScrollInProgress,
+                )
+            }
+
+            is GridItemData.ShortcutConfig -> {
+                ShortcutConfigGridItem(
+                    modifier = modifier,
+                    gridItem = gridItem,
+                    data = data,
+                    textColor = currentTextColor,
+                    gridItemSettings = currentGridItemSettings,
+                    drag = drag,
+                    screen = screen,
+                    isScrollInProgress = isScrollInProgress,
+                )
             }
         }
     }

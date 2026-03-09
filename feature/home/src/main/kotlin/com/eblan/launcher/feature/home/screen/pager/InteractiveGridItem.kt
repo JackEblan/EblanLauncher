@@ -119,122 +119,120 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
-    key(gridItem.id) {
-        val currentGridItemSettings = if (gridItem.override) {
-            gridItem.gridItemSettings
-        } else {
-            gridItemSettings
+    val currentGridItemSettings = if (gridItem.override) {
+        gridItem.gridItemSettings
+    } else {
+        gridItemSettings
+    }
+
+    val currentTextColor = if (gridItem.override) {
+        getGridItemTextColor(
+            gridItemCustomTextColor = gridItem.gridItemSettings.customTextColor,
+            gridItemTextColor = gridItem.gridItemSettings.textColor,
+            systemCustomTextColor = gridItemSettings.customTextColor,
+            systemTextColor = textColor,
+        )
+    } else {
+        getSystemTextColor(
+            systemCustomTextColor = gridItemSettings.customTextColor,
+            systemTextColor = textColor,
+        )
+    }
+
+    when (val data = gridItem.data) {
+        is GridItemData.ApplicationInfo -> {
+            InteractiveApplicationInfoGridItem(
+                modifier = modifier,
+                data = data,
+                drag = drag,
+                gridItem = gridItem,
+                gridItemSettings = currentGridItemSettings,
+                iconPackFilePaths = iconPackFilePaths,
+                isScrollInProgress = isScrollInProgress,
+                screen = screen,
+                statusBarNotifications = statusBarNotifications,
+                textColor = currentTextColor,
+                onDraggingGridItem = onDraggingGridItem,
+                onOpenAppDrawer = onOpenAppDrawer,
+                onTapApplicationInfo = onTapApplicationInfo,
+                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
+            )
         }
 
-        val currentTextColor = if (gridItem.override) {
-            getGridItemTextColor(
-                gridItemCustomTextColor = gridItem.gridItemSettings.customTextColor,
-                gridItemTextColor = gridItem.gridItemSettings.textColor,
-                systemCustomTextColor = gridItemSettings.customTextColor,
-                systemTextColor = textColor,
-            )
-        } else {
-            getSystemTextColor(
-                systemCustomTextColor = gridItemSettings.customTextColor,
-                systemTextColor = textColor,
+        is GridItemData.Widget -> {
+            InteractiveWidgetGridItem(
+                modifier = modifier,
+                data = data,
+                drag = drag,
+                gridItem = gridItem,
+                isScrollInProgress = isScrollInProgress,
+                screen = screen,
+                onDraggingGridItem = onDraggingGridItem,
+                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         }
 
-        when (val data = gridItem.data) {
-            is GridItemData.ApplicationInfo -> {
-                InteractiveApplicationInfoGridItem(
-                    modifier = modifier,
-                    data = data,
-                    drag = drag,
-                    gridItem = gridItem,
-                    gridItemSettings = currentGridItemSettings,
-                    iconPackFilePaths = iconPackFilePaths,
-                    isScrollInProgress = isScrollInProgress,
-                    screen = screen,
-                    statusBarNotifications = statusBarNotifications,
-                    textColor = currentTextColor,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onOpenAppDrawer = onOpenAppDrawer,
-                    onTapApplicationInfo = onTapApplicationInfo,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onUpdateImageBitmap = onUpdateImageBitmap,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
-            }
+        is GridItemData.ShortcutInfo -> {
+            InteractiveShortcutInfoGridItem(
+                modifier = modifier,
+                data = data,
+                drag = drag,
+                gridItem = gridItem,
+                gridItemSettings = currentGridItemSettings,
+                hasShortcutHostPermission = hasShortcutHostPermission,
+                isScrollInProgress = isScrollInProgress,
+                screen = screen,
+                textColor = currentTextColor,
+                onDraggingGridItem = onDraggingGridItem,
+                onOpenAppDrawer = onOpenAppDrawer,
+                onTapShortcutInfo = onTapShortcutInfo,
+                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
+            )
+        }
 
-            is GridItemData.Widget -> {
-                InteractiveWidgetGridItem(
-                    modifier = modifier,
-                    data = data,
-                    drag = drag,
-                    gridItem = gridItem,
-                    isScrollInProgress = isScrollInProgress,
-                    screen = screen,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onUpdateImageBitmap = onUpdateImageBitmap,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
-            }
+        is GridItemData.Folder -> {
+            InteractiveFolderGridItem(
+                modifier = modifier,
+                data = data,
+                drag = drag,
+                gridItem = gridItem,
+                gridItemSettings = currentGridItemSettings,
+                iconPackFilePaths = iconPackFilePaths,
+                isScrollInProgress = isScrollInProgress,
+                screen = screen,
+                textColor = currentTextColor,
+                onDraggingGridItem = onDraggingGridItem,
+                onOpenAppDrawer = onOpenAppDrawer,
+                onTap = onTapFolderGridItem,
+                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
+            )
+        }
 
-            is GridItemData.ShortcutInfo -> {
-                InteractiveShortcutInfoGridItem(
-                    modifier = modifier,
-                    data = data,
-                    drag = drag,
-                    gridItem = gridItem,
-                    gridItemSettings = currentGridItemSettings,
-                    hasShortcutHostPermission = hasShortcutHostPermission,
-                    isScrollInProgress = isScrollInProgress,
-                    screen = screen,
-                    textColor = currentTextColor,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onOpenAppDrawer = onOpenAppDrawer,
-                    onTapShortcutInfo = onTapShortcutInfo,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onUpdateImageBitmap = onUpdateImageBitmap,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
-            }
-
-            is GridItemData.Folder -> {
-                InteractiveFolderGridItem(
-                    modifier = modifier,
-                    data = data,
-                    drag = drag,
-                    gridItem = gridItem,
-                    gridItemSettings = currentGridItemSettings,
-                    iconPackFilePaths = iconPackFilePaths,
-                    isScrollInProgress = isScrollInProgress,
-                    screen = screen,
-                    textColor = currentTextColor,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onOpenAppDrawer = onOpenAppDrawer,
-                    onTap = onTapFolderGridItem,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onUpdateImageBitmap = onUpdateImageBitmap,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
-            }
-
-            is GridItemData.ShortcutConfig -> {
-                InteractiveShortcutConfigGridItem(
-                    modifier = modifier,
-                    data = data,
-                    drag = drag,
-                    gridItem = gridItem,
-                    gridItemSettings = currentGridItemSettings,
-                    isScrollInProgress = isScrollInProgress,
-                    screen = screen,
-                    textColor = currentTextColor,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onOpenAppDrawer = onOpenAppDrawer,
-                    onTapShortcutConfig = onTapShortcutConfig,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onUpdateImageBitmap = onUpdateImageBitmap,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
-            }
+        is GridItemData.ShortcutConfig -> {
+            InteractiveShortcutConfigGridItem(
+                modifier = modifier,
+                data = data,
+                drag = drag,
+                gridItem = gridItem,
+                gridItemSettings = currentGridItemSettings,
+                isScrollInProgress = isScrollInProgress,
+                screen = screen,
+                textColor = currentTextColor,
+                onDraggingGridItem = onDraggingGridItem,
+                onOpenAppDrawer = onOpenAppDrawer,
+                onTapShortcutConfig = onTapShortcutConfig,
+                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
+            )
         }
     }
 }

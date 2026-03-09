@@ -100,7 +100,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
     statusBarNotifications: Map<String, Int>,
     textColor: TextColor,
     gridItemSource: GridItemSource?,
-    isDragging: Boolean,
+    isLongPress: Boolean,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
     onTapApplicationInfo: (
@@ -122,6 +122,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     val isSelected = gridItemSource != null && gridItem.id == gridItemSource.gridItem.id
 
@@ -158,7 +159,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 statusBarNotifications = statusBarNotifications,
                 textColor = currentTextColor,
                 isSelected = isSelected,
-                isDragging = isDragging,
+                isLongPress = isLongPress,
                 onDraggingGridItem = onDraggingGridItem,
                 onOpenAppDrawer = onOpenAppDrawer,
                 onTapApplicationInfo = onTapApplicationInfo,
@@ -167,6 +168,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateIsDragging = onUpdateIsDragging,
+                onUpdateIsLongPress = onUpdateIsLongPress,
             )
         }
 
@@ -178,7 +180,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 gridItem = gridItem,
                 isScrollInProgress = isScrollInProgress,
                 isSelected = isSelected,
-                isDragging = isDragging,
+                isLongPress = isLongPress,
                 textColor = currentTextColor,
                 onDraggingGridItem = onDraggingGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
@@ -186,6 +188,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateGridItemSource = onUpdateGridItemSource,
                 onUpdateIsDragging = onUpdateIsDragging,
+                onUpdateIsLongPress = onUpdateIsLongPress,
             )
         }
 
@@ -200,7 +203,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 isScrollInProgress = isScrollInProgress,
                 textColor = currentTextColor,
                 isSelected = isSelected,
-                isDragging = isDragging,
+                isLongPress = isLongPress,
                 onDraggingGridItem = onDraggingGridItem,
                 onOpenAppDrawer = onOpenAppDrawer,
                 onTapShortcutInfo = onTapShortcutInfo,
@@ -209,6 +212,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateGridItemSource = onUpdateGridItemSource,
                 onUpdateIsDragging = onUpdateIsDragging,
+                onUpdateIsLongPress = onUpdateIsLongPress,
             )
         }
 
@@ -223,7 +227,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 isScrollInProgress = isScrollInProgress,
                 textColor = currentTextColor,
                 isSelected = isSelected,
-                isDragging = isDragging,
+                isLongPress = isLongPress,
                 onDraggingGridItem = onDraggingGridItem,
                 onOpenAppDrawer = onOpenAppDrawer,
                 onTap = onTapFolderGridItem,
@@ -232,6 +236,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateGridItemSource = onUpdateGridItemSource,
                 onUpdateIsDragging = onUpdateIsDragging,
+                onUpdateIsLongPress = onUpdateIsLongPress,
             )
         }
 
@@ -245,7 +250,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 isScrollInProgress = isScrollInProgress,
                 textColor = currentTextColor,
                 isSelected = isSelected,
-                isDragging = isDragging,
+                isLongPress = isLongPress,
                 onDraggingGridItem = onDraggingGridItem,
                 onOpenAppDrawer = onOpenAppDrawer,
                 onTapShortcutConfig = onTapShortcutConfig,
@@ -254,6 +259,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateGridItemSource = onUpdateGridItemSource,
                 onUpdateIsDragging = onUpdateIsDragging,
+                onUpdateIsLongPress = onUpdateIsLongPress,
             )
         }
     }
@@ -272,7 +278,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     statusBarNotifications: Map<String, Int>,
     textColor: Color,
     isSelected: Boolean,
-    isDragging: Boolean,
+    isLongPress: Boolean,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
     onTapApplicationInfo: (
@@ -287,6 +293,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -318,13 +325,13 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                     ?: 0
                 ) > 0
 
-    val isVisibleWhiteBox = isSelected && drag == Drag.Dragging
-
-    val isInvisible = isDragging && isSelected && (drag == Drag.Start || drag == Drag.Dragging)
-
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isSelected) {
+            onUpdateIsDragging(true)
+
             onDraggingGridItem()
+        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected) {
+            onUpdateIsLongPress(false)
         }
     }
 
@@ -356,7 +363,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                                 ),
                             )
 
-                            onUpdateIsDragging(true)
+                            onUpdateIsLongPress(true)
                         }
                     },
                     onTap = {
@@ -381,13 +388,13 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                 shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
             )
             .whiteBox(
-                visible = isVisibleWhiteBox,
+                visible = isLongPress && isSelected && drag == Drag.Dragging,
                 textColor = textColor,
             ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isInvisible) {
+        if (!(isLongPress && isSelected && (drag == Drag.Start || drag == Drag.Dragging))) {
             Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = Builder(LocalContext.current).data(data.customIcon ?: icon)
@@ -468,7 +475,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
     gridItem: GridItem,
     isScrollInProgress: Boolean,
     isSelected: Boolean,
-    isDragging: Boolean,
+    isLongPress: Boolean,
     textColor: Color,
     onDraggingGridItem: () -> Unit,
     onUpdateGridItemOffset: (
@@ -479,6 +486,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -496,25 +504,25 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isSelected) {
+            onUpdateIsDragging(true)
+
             onDraggingGridItem()
+        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected) {
+            onUpdateIsLongPress(false)
         }
     }
-
-    val isVisibleWhiteBox = isSelected && drag == Drag.Dragging
-
-    val isInvisible = isDragging && isSelected && (drag == Drag.Start || drag == Drag.Dragging)
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .whiteBox(
-                visible = isVisibleWhiteBox,
+                visible = isLongPress && isSelected && drag == Drag.Dragging,
                 textColor = textColor,
             ),
     ) {
-        if (!isInvisible) {
+        if (!(isLongPress && isSelected && (drag == Drag.Start || drag == Drag.Dragging))) {
             val commonModifier = Modifier
-                .fillMaxSize()
+                .matchParentSize()
                 .drawWithContent {
                     graphicsLayer.record {
                         this@drawWithContent.drawContent()
@@ -535,10 +543,6 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                         ),
                     ),
                     visible = !isScrollInProgress,
-                )
-                .whiteBox(
-                    visible = isVisibleWhiteBox,
-                    textColor = textColor,
                 )
 
             if (appWidgetInfo != null) {
@@ -566,7 +570,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                                         ),
                                     )
 
-                                    onUpdateIsDragging(true)
+                                    onUpdateIsLongPress(true)
                                 }
 
                                 true
@@ -598,7 +602,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
     isScrollInProgress: Boolean,
     textColor: Color,
     isSelected: Boolean,
-    isDragging: Boolean,
+    isLongPress: Boolean,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
     onTapShortcutInfo: (
@@ -614,6 +618,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -641,13 +646,13 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 
     val alpha = if (hasShortcutHostPermission && data.isEnabled) 1f else 0.3f
 
-    val isVisibleWhiteBox = isSelected && drag == Drag.Dragging
-
-    val isInvisible = isDragging && isSelected && (drag == Drag.Start || drag == Drag.Dragging)
-
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isSelected) {
+            onUpdateIsDragging(true)
+
             onDraggingGridItem()
+        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected) {
+            onUpdateIsLongPress(false)
         }
     }
 
@@ -679,7 +684,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                                 ),
                             )
 
-                            onUpdateIsDragging(true)
+                            onUpdateIsLongPress(true)
                         }
                     },
                     onTap = {
@@ -707,13 +712,13 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                 shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
             )
             .whiteBox(
-                visible = isVisibleWhiteBox,
+                visible = isLongPress && isSelected && drag == Drag.Dragging,
                 textColor = textColor,
             ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isInvisible) {
+        if (!(isLongPress && isSelected && (drag == Drag.Start || drag == Drag.Dragging))) {
             Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = customIcon,
@@ -780,7 +785,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     iconPackFilePaths: Map<String, String>,
     isScrollInProgress: Boolean,
     textColor: Color,
-    isDragging: Boolean,
+    isLongPress: Boolean,
     isSelected: Boolean,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
@@ -793,6 +798,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -814,13 +820,13 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
-    val isVisibleWhiteBox = isSelected && drag == Drag.Dragging
-
-    val isInvisible = isDragging && isSelected && (drag == Drag.Start || drag == Drag.Dragging)
-
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isSelected) {
+            onUpdateIsDragging(true)
+
             onDraggingGridItem()
+        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected) {
+            onUpdateIsLongPress(false)
         }
     }
 
@@ -852,7 +858,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                                 ),
                             )
 
-                            onUpdateIsDragging(true)
+                            onUpdateIsLongPress(true)
                         }
                     },
                     onTap = {
@@ -872,13 +878,13 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                 shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
             )
             .whiteBox(
-                visible = isVisibleWhiteBox,
+                visible = isLongPress && isSelected && drag == Drag.Dragging,
                 textColor = textColor,
             ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isInvisible) {
+        if (!(isLongPress && isSelected && (drag == Drag.Start || drag == Drag.Dragging))) {
             val commonModifier = Modifier
                 .size(gridItemSettings.iconSize.dp)
                 .drawWithContent {
@@ -976,7 +982,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     gridItemSettings: GridItemSettings,
     isScrollInProgress: Boolean,
     textColor: Color,
-    isDragging: Boolean,
+    isLongPress: Boolean,
     isSelected: Boolean,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
@@ -989,6 +995,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -1046,13 +1053,13 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
         }
     }
 
-    val isVisibleWhiteBox = isSelected && drag == Drag.Dragging
-
-    val isInvisible = isDragging && isSelected && (drag == Drag.Start || drag == Drag.Dragging)
-
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isSelected) {
+            onUpdateIsDragging(true)
+
             onDraggingGridItem()
+        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected) {
+            onUpdateIsLongPress(false)
         }
     }
 
@@ -1084,7 +1091,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                                 ),
                             )
 
-                            onUpdateIsDragging(true)
+                            onUpdateIsLongPress(true)
                         }
                     },
                     onTap = {
@@ -1104,13 +1111,13 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                 shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
             )
             .whiteBox(
-                visible = isVisibleWhiteBox,
+                visible = isLongPress && isSelected && drag == Drag.Dragging,
                 textColor = textColor,
             ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isInvisible) {
+        if (!(isLongPress && isSelected && (drag == Drag.Start || drag == Drag.Dragging))) {
             Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = Builder(LocalContext.current).data(icon)

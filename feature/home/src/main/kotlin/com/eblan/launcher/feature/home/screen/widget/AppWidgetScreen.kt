@@ -375,7 +375,7 @@ private fun EblanAppWidgetProviderInfoItem(
                             )
 
                             onDraggingGridItem(
-                                Screen.Drag,
+                                Screen.Pager,
                                 gridItems,
                             )
                         }

@@ -164,7 +164,7 @@ internal suspend fun handleDragGridItem(
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
-    isLongPress: Boolean,
+    isDragging: Boolean,
     isApplicationScreenVisible: Boolean,
     onMoveFolderGridItem: (
         folderGridItem: GridItem,
@@ -201,7 +201,7 @@ internal suspend fun handleDragGridItem(
         drag == Drag.Cancel ||
         isScrollInProgress ||
         gridItemSource == null ||
-        !isLongPress ||
+        !isDragging ||
         isApplicationScreenVisible
     ) {
         return

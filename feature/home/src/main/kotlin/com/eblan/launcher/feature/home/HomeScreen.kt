@@ -820,7 +820,7 @@ private fun SharedTransitionScope.Success(
             )
 
             onShowGridCache(
-                Screen.Drag,
+                Screen.Pager,
                 homeData.gridItems,
             )
         }
@@ -969,72 +969,6 @@ private fun SharedTransitionScope.Success(
                     onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
                     onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                 )
-            }
-
-            Screen.Drag -> {
-//                DragScreen(
-//                    associate = associate,
-//                    configureResultCode = configureResultCode,
-//                    currentPage = currentPage,
-//                    dockGridHorizontalPagerState = dockGridHorizontalPagerState,
-//                    drag = drag,
-//                    dragIntOffset = dragIntOffset,
-//                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
-//                    folderGridItem = folderGridItemCache,
-//                    folderPopupIntOffset = folderPopupIntOffset,
-//                    folderPopupIntSize = folderPopupIntSize,
-//                    gridHorizontalPagerState = gridHorizontalPagerState,
-//                    gridItemCache = gridItemCache,
-//                    gridItemSource = gridItemSource,
-//                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
-//                    homeSettings = homeData.userData.homeSettings,
-//                    iconPackFilePaths = iconPackFilePaths,
-//                    lockMovement = homeData.userData.experimentalSettings.lockMovement,
-//                    moveGridItemResult = movedGridItemResult,
-//                    paddingValues = paddingValues,
-//                    screen = targetState,
-//                    screenHeight = screenHeight,
-//                    screenWidth = screenWidth,
-//                    statusBarNotifications = statusBarNotifications,
-//                    textColor = homeData.textColor,
-//                    onDeleteGridItemCache = onDeleteGridItemCache,
-//                    onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-//                    onDragCancelAfterMove = onCancelGridCache,
-//                    onDragEndAfterMove = onResetGridCacheAfterMove,
-//                    onDragEndAfterMoveFolder = onResetGridCacheAfterMoveFolder,
-//                    onDragEndAfterMoveWidgetGridItem = onResetGridCacheAfterMoveWidgetGridItem,
-//                    onMoveFolderGridItem = onMoveFolderGridItem,
-//                    onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
-//                    onMoveGridItem = onMoveGridItem,
-//                    onResetConfigureResultCode = onResetConfigureResultCode,
-//                    onShowFolderWhenDragging = { id, movingGridItem, newGridItemSource, intOffset, intSize ->
-//                        onShowFolderWhenDragging(
-//                            id,
-//                            movingGridItem,
-//                        )
-//
-//                        gridItemSource = newGridItemSource
-//
-//                        lastFolderPopupX = intOffset.x
-//                        lastFolderPopupY = intOffset.y
-//
-//                        lastFolderPopupWidth = intSize.width
-//                        lastFolderPopupHeight = intSize.height
-//
-//                        folderPopupIntOffset = intOffset
-//
-//                        folderPopupIntSize = intSize
-//                    },
-//                    onUpdateAssociate = { newAssociate ->
-//                        associate = newAssociate
-//                    },
-//                    onUpdateGridItemSource = { newGridItemSource ->
-//                        gridItemSource = newGridItemSource
-//                    },
-//                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-//                    onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
-//                    onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
-//                )
             }
 
             Screen.Resize -> {

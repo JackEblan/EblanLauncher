@@ -269,7 +269,7 @@ private fun ApplicationInfoMenu(
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onDraggingGridItem = {
                             onDraggingGridItem(
-                                Screen.Drag,
+                                Screen.Pager,
                                 gridItems,
                             )
                         },

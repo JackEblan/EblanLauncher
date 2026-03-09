@@ -50,7 +50,7 @@ internal suspend fun handleDropGridItem(
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
     moveGridItemResult: MoveGridItemResult?,
     userManagerWrapper: AndroidUserManagerWrapper,
-    isLongPress: Boolean,
+    isDragging: Boolean,
     isApplicationScreenVisible: Boolean,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragCancelAfterMove: () -> Unit,
@@ -64,11 +64,9 @@ internal suspend fun handleDropGridItem(
     onUpdateWidgetGridItem: (GridItem) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
 ) {
-    if (!isLongPress || isApplicationScreenVisible) {
+    if (!isDragging || isApplicationScreenVisible) {
         return
     }
-
-    onUpdateIsDragging(false)
 
     when (gridItemSource) {
         is GridItemSource.Existing -> {
@@ -79,6 +77,8 @@ internal suspend fun handleDropGridItem(
 
                 return
             }
+
+            onUpdateIsDragging(false)
 
             onDragEndAfterMove(moveGridItemResult)
         }
@@ -173,11 +173,15 @@ internal fun handleAppWidgetLauncherResult(
     appWidgetManager: AndroidAppWidgetManagerWrapper,
     gridItemSource: GridItemSource?,
     result: ActivityResult,
-    isLongPress: Boolean,
+    isDragging: Boolean,
+    isApplicationScreenVisible: Boolean,
     onDeleteAppWidgetId: () -> Unit,
     onUpdateWidgetGridItem: (GridItem) -> Unit,
+    onUpdateIsDragging: (Boolean) -> Unit,
 ) {
-    if (gridItemSource == null || !isLongPress) return
+    onUpdateIsDragging(false)
+
+    if (gridItemSource == null || !isDragging || isApplicationScreenVisible) return
 
     val data = (gridItemSource.gridItem.data as? GridItemData.Widget)
         ?: error("Expected GridItemData.Widget")
@@ -219,6 +223,8 @@ internal fun handleConfigureLauncherResult(
     onResetConfigureResultCode: () -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
 ) {
+    onUpdateIsDragging(false)
+
     if (resultCode == null ||
         moveGridItemResult == null ||
         updatedGridItem == null ||
@@ -246,7 +252,7 @@ internal fun handleDeleteAppWidgetId(
     appWidgetId: Int,
     deleteAppWidgetId: Boolean,
     gridItemSource: GridItemSource?,
-    isLongPress: Boolean,
+    isDragging: Boolean,
     isApplicationScreenVisible: Boolean,
     onDeleteWidgetGridItemCache: (
         gridItem: GridItem,
@@ -254,7 +260,9 @@ internal fun handleDeleteAppWidgetId(
     ) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
 ) {
-    if (gridItemSource == null || !isLongPress || isApplicationScreenVisible) return
+    onUpdateIsDragging(false)
+
+    if (gridItemSource == null || !isDragging || isApplicationScreenVisible) return
 
     if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID && deleteAppWidgetId) {
         check(gridItemSource.gridItem.data is GridItemData.Widget)
@@ -271,7 +279,7 @@ internal fun handleBoundWidget(
     gridItemSource: GridItemSource?,
     moveGridItemResult: MoveGridItemResult?,
     updatedWidgetGridItem: GridItem?,
-    isLongPress: Boolean,
+    isDragging: Boolean,
     isApplicationScreenVisible: Boolean,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDeleteWidgetGridItemCache: (
@@ -281,7 +289,9 @@ internal fun handleBoundWidget(
     onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
 ) {
-    if (gridItemSource == null || moveGridItemResult == null || !isLongPress || isApplicationScreenVisible) return
+    onUpdateIsDragging(false)
+
+    if (gridItemSource == null || moveGridItemResult == null || !isDragging || isApplicationScreenVisible) return
 
     val data = (updatedWidgetGridItem?.data as? GridItemData.Widget) ?: return
 
@@ -322,7 +332,7 @@ internal suspend fun handleShortcutConfigLauncherResult(
     imageSerializer: AndroidImageSerializer,
     moveGridItemResult: MoveGridItemResult?,
     result: ActivityResult,
-    isLongPress: Boolean,
+    isDragging: Boolean,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateShortcutConfigGridItemDataCache: (
         byteArray: ByteArray?,
@@ -331,7 +341,7 @@ internal suspend fun handleShortcutConfigLauncherResult(
         data: GridItemData.ShortcutConfig,
     ) -> Unit,
 ) {
-    if (gridItemSource == null || moveGridItemResult == null || !isLongPress) return
+    if (gridItemSource == null || moveGridItemResult == null || !isDragging) return
 
     if (result.resultCode == Activity.RESULT_CANCELED) {
         onDeleteGridItemCache(gridItemSource.gridItem)
@@ -388,14 +398,14 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
     moveGridItemResult: MoveGridItemResult?,
     result: ActivityResult,
     userManagerWrapper: AndroidUserManagerWrapper,
-    isLongPress: Boolean,
+    isDragging: Boolean,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
     ) -> Unit,
 ) {
-    if (gridItemSource == null || moveGridItemResult == null || !isLongPress) return
+    if (gridItemSource == null || moveGridItemResult == null || !isDragging) return
 
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || result.resultCode == Activity.RESULT_CANCELED) {
         onDeleteGridItemCache(gridItemSource.gridItem)

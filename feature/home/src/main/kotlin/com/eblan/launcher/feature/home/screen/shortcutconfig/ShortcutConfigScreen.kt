@@ -675,7 +675,7 @@ private fun EblanShortcutConfigItem(
                             )
 
                             onDraggingGridItem(
-                                Screen.Drag,
+                                Screen.Pager,
                                 gridItems,
                             )
                         }

@@ -420,6 +420,8 @@ internal fun SharedTransitionScope.PagerScreen(
 
     var isDragging by remember { mutableStateOf(false) }
 
+    var isLongPress by remember { mutableStateOf(false) }
+
     val appWidgetLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
@@ -427,12 +429,16 @@ internal fun SharedTransitionScope.PagerScreen(
             appWidgetManager = appWidgetManager,
             gridItemSource = gridItemSource,
             result = result,
-            isLongPress = isDragging,
+            isDragging = isDragging,
+            isApplicationScreenVisible = isApplicationScreenVisible,
             onDeleteAppWidgetId = {
                 deleteAppWidgetId = true
             },
             onUpdateWidgetGridItem = { gridItem ->
                 updatedWidgetGridItem = gridItem
+            },
+            onUpdateIsDragging = { newIsDragging ->
+                isDragging = newIsDragging
             },
         )
     }
@@ -446,7 +452,7 @@ internal fun SharedTransitionScope.PagerScreen(
                 imageSerializer = imageSerializer,
                 moveGridItemResult = moveGridItemResult,
                 result = result,
-                isLongPress = isDragging,
+                isDragging = isDragging,
                 onDeleteGridItemCache = onDeleteGridItemCache,
                 onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
             )
@@ -465,7 +471,7 @@ internal fun SharedTransitionScope.PagerScreen(
                 moveGridItemResult = moveGridItemResult,
                 result = result,
                 userManagerWrapper = userManager,
-                isLongPress = isDragging,
+                isDragging = isDragging,
                 onDeleteGridItemCache = onDeleteGridItemCache,
                 onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
             )
@@ -496,7 +502,7 @@ internal fun SharedTransitionScope.PagerScreen(
             rows = homeSettings.rows,
             screenHeight = screenHeight,
             screenWidth = screenWidth,
-            isLongPress = isDragging,
+            isDragging = isDragging,
             isApplicationScreenVisible = isApplicationScreenVisible,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
@@ -516,7 +522,7 @@ internal fun SharedTransitionScope.PagerScreen(
                     launcherAppsWrapper = launcherApps,
                     moveGridItemResult = moveGridItemResult,
                     userManagerWrapper = userManager,
-                    isLongPress = isDragging,
+                    isDragging = isDragging,
                     isApplicationScreenVisible = isApplicationScreenVisible,
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onDragCancelAfterMove = onDragCancelAfterMove,
@@ -561,7 +567,7 @@ internal fun SharedTransitionScope.PagerScreen(
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
             gridItemSource = gridItemSource,
-            isLongPress = isDragging,
+            isDragging = isDragging,
             isApplicationScreenVisible = isApplicationScreenVisible,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onUpdateIsDragging = { newIsDragging ->
@@ -577,7 +583,7 @@ internal fun SharedTransitionScope.PagerScreen(
             gridItemSource = gridItemSource,
             moveGridItemResult = moveGridItemResult,
             updatedWidgetGridItem = updatedWidgetGridItem,
-            isLongPress = isDragging,
+            isDragging = isDragging,
             isApplicationScreenVisible = isApplicationScreenVisible,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
@@ -878,12 +884,12 @@ internal fun SharedTransitionScope.PagerScreen(
                         statusBarNotifications = statusBarNotifications,
                         textColor = textColor,
                         gridItemSource = gridItemSource,
-                        isDragging = isDragging,
+                        isLongPress = isLongPress,
                         onDraggingGridItem = {
                             showGridItemPopup = false
 
                             onDraggingGridItem(
-                                Screen.Drag,
+                                Screen.Pager,
                                 gridItems,
                             )
                         },
@@ -959,6 +965,9 @@ internal fun SharedTransitionScope.PagerScreen(
                         onUpdateIsDragging = { newIsDragging ->
                             isDragging = newIsDragging
                         },
+                        onUpdateIsLongPress = { newIsLongPress ->
+                            isLongPress = newIsLongPress
+                        },
                     )
                 },
             )
@@ -1021,12 +1030,12 @@ internal fun SharedTransitionScope.PagerScreen(
                     statusBarNotifications = statusBarNotifications,
                     textColor = textColor,
                     gridItemSource = gridItemSource,
-                    isDragging = isDragging,
+                    isLongPress = isLongPress,
                     onDraggingGridItem = {
                         showGridItemPopup = false
 
                         onDraggingGridItem(
-                            Screen.Drag,
+                            Screen.Pager,
                             gridItems,
                         )
                     },
@@ -1102,6 +1111,9 @@ internal fun SharedTransitionScope.PagerScreen(
                     onUpdateIsDragging = { newIsDragging ->
                         isDragging = newIsDragging
                     },
+                    onUpdateIsLongPress = { newIsLongPress ->
+                        isLongPress = newIsLongPress
+                    },
                 )
             }
         }
@@ -1125,7 +1137,7 @@ internal fun SharedTransitionScope.PagerScreen(
             },
             onDraggingGridItem = {
                 onDraggingGridItem(
-                    Screen.Drag,
+                    Screen.Pager,
                     gridItems,
                 )
             },
@@ -1219,7 +1231,7 @@ internal fun SharedTransitionScope.PagerScreen(
             statusBarNotifications = statusBarNotifications,
             textColor = textColor,
             gridItemSource = gridItemSource,
-            isDragging = isDragging,
+            isLongPress = isLongPress,
             onDismissRequest = {
                 onTapFolderGridItem(
                     null,
@@ -1231,7 +1243,7 @@ internal fun SharedTransitionScope.PagerScreen(
                 showFolderGridItemPopup = false
 
                 onDraggingGridItem(
-                    Screen.Drag,
+                    Screen.Pager,
                     gridItems,
                 )
             },
@@ -1252,6 +1264,9 @@ internal fun SharedTransitionScope.PagerScreen(
             onUpdateGridItemSource = onUpdateGridItemSource,
             onUpdateIsDragging = { newIsDragging ->
                 isDragging = newIsDragging
+            },
+            onUpdateIsLongPress = { newIsLongPress ->
+                isLongPress = newIsLongPress
             },
         )
     }

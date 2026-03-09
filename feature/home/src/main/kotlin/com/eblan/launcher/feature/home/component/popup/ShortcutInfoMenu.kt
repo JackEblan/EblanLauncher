@@ -228,7 +228,7 @@ private fun ShortcutInfoMenuItem(
                                     onUpdateSharedElementKey(
                                         SharedElementKey(
                                             id = id,
-                                            screen = Screen.Drag,
+                                            screen = Screen.Pager,
                                         ),
                                     )
 

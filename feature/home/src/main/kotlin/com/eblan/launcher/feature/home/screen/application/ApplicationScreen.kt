@@ -132,7 +132,6 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnec
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.dialog.EblanApplicationInfoOrderDialog
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.FolderScreen
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
@@ -1118,7 +1117,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                 )
 
                 onDraggingGridItem(
-                    Screen.Drag,
+                    Screen.Pager,
                     gridItems,
                 )
 
@@ -1213,7 +1212,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                                     screen = Screen.Pager,
                                 ),
                             ),
-                            visible = drag == Drag.Cancel || drag == Drag.End,
+                            visible = drag == Drag.None,
                         ),
                 )
 

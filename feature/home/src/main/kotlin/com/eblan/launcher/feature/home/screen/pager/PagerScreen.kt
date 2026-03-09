@@ -94,7 +94,6 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.GridItemSource.Existing
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
@@ -167,10 +166,8 @@ internal fun SharedTransitionScope.PagerScreen(
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResize: (
         screen: Screen,
         gridItems: List<GridItem>,
@@ -585,13 +582,9 @@ internal fun SharedTransitionScope.PagerScreen(
 
                             showGridItemPopup = true
                         },
-                        onUpdateImageBitmap = { imageBitmap ->
-                            onLongPressGridItem(
-                                Existing(gridItem = gridItem),
-                                imageBitmap,
-                            )
-                        },
+                        onUpdateImageBitmap = onUpdateImageBitmap,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
+                        onUpdateGridItemSource = onUpdateGridItemSource,
                     )
                 },
             )
@@ -728,13 +721,9 @@ internal fun SharedTransitionScope.PagerScreen(
 
                         showGridItemPopup = true
                     },
-                    onUpdateImageBitmap = { imageBitmap ->
-                        onLongPressGridItem(
-                            Existing(gridItem = gridItem),
-                            imageBitmap,
-                        )
-                    },
+                    onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onUpdateGridItemSource = onUpdateGridItemSource,
                 )
             }
         }
@@ -775,7 +764,6 @@ internal fun SharedTransitionScope.PagerScreen(
                     ),
                 )
             },
-            onLongPressGridItem = onLongPressGridItem,
             onResize = {
                 onResize(
                     Screen.Resize,
@@ -806,6 +794,8 @@ internal fun SharedTransitionScope.PagerScreen(
             onWidgets = { newEblanApplicationInfoGroup: EblanApplicationInfoGroup ->
                 eblanApplicationInfoGroup = newEblanApplicationInfoGroup
             },
+            onUpdateImageBitmap = onUpdateImageBitmap,
+            onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
 
@@ -863,7 +853,6 @@ internal fun SharedTransitionScope.PagerScreen(
                     gridItems,
                 )
             },
-            onLongPressGridItem = onLongPressGridItem,
             onOpenAppDrawer = {
                 showAppDrawer = true
             },
@@ -877,6 +866,8 @@ internal fun SharedTransitionScope.PagerScreen(
                 showFolderGridItemPopup = true
             },
             onUpdateSharedElementKey = onUpdateSharedElementKey,
+            onUpdateImageBitmap = onUpdateImageBitmap,
+            onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
 
@@ -944,7 +935,6 @@ internal fun SharedTransitionScope.PagerScreen(
             onEditApplicationInfo = onEditApplicationInfo,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
             onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
-            onLongPressGridItem = onLongPressGridItem,
             onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
             onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
@@ -954,6 +944,8 @@ internal fun SharedTransitionScope.PagerScreen(
                     swipeY.snapTo(swipeY.value + dragAmount)
                 }
             },
+            onUpdateImageBitmap = onUpdateImageBitmap,
+            onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
 
@@ -1022,7 +1014,6 @@ internal fun SharedTransitionScope.PagerScreen(
             onEditApplicationInfo = onEditApplicationInfo,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
             onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
-            onLongPressGridItem = onLongPressGridItem,
             onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
             onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
@@ -1032,6 +1023,8 @@ internal fun SharedTransitionScope.PagerScreen(
                     swipeY.snapTo(swipeY.value + dragAmount)
                 }
             },
+            onUpdateImageBitmap = onUpdateImageBitmap,
+            onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
 
@@ -1055,8 +1048,9 @@ internal fun SharedTransitionScope.PagerScreen(
             },
             onDraggingGridItem = onDraggingGridItem,
             onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-            onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onUpdateImageBitmap = onUpdateImageBitmap,
+            onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
 
@@ -1077,8 +1071,9 @@ internal fun SharedTransitionScope.PagerScreen(
             },
             onDraggingGridItem = onDraggingGridItem,
             onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-            onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onUpdateImageBitmap = onUpdateImageBitmap,
+            onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
 
@@ -1102,8 +1097,9 @@ internal fun SharedTransitionScope.PagerScreen(
                 isPressHome = false
             },
             onDraggingGridItem = onDraggingGridItem,
-            onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onUpdateImageBitmap = onUpdateImageBitmap,
+            onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
 }

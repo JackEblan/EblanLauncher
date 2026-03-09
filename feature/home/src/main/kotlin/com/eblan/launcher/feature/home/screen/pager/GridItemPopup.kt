@@ -73,10 +73,8 @@ internal fun GridItemPopup(
     onDraggingGridItem: () -> Unit,
     onEdit: (String) -> Unit,
     onInfo: (Long, String) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
     onResize: () -> Unit,
     onTapShortcutInfo: (Long, String, String) -> Unit,
     onUpdateGridItemOffset: (
@@ -129,12 +127,13 @@ internal fun GridItemPopup(
                 onDraggingGridItem = onDraggingGridItem,
                 onEdit = onEdit,
                 onInfo = onInfo,
-                onLongPressGridItem = onLongPressGridItem,
                 onResize = onResize,
                 onTapShortcutInfo = onTapShortcutInfo,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onWidgets = onWidgets,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateGridItemSource = onUpdateGridItemSource,
             )
         },
     ) { measurables, constraints ->
@@ -182,10 +181,6 @@ private fun GridItemPopupContent(
         serialNumber: Long,
         componentName: String,
     ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onResize: () -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
@@ -198,6 +193,8 @@ private fun GridItemPopupContent(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onWidgets: (EblanApplicationInfoGroup) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -243,7 +240,6 @@ private fun GridItemPopupContent(
 
                             onDismissRequest()
                         },
-                        onLongPressGridItem = onLongPressGridItem,
                         onResize = {
                             onResize()
 
@@ -272,6 +268,8 @@ private fun GridItemPopupContent(
 
                             onDismissRequest()
                         },
+                        onUpdateImageBitmap = onUpdateImageBitmap,
+                        onUpdateGridItemSource = onUpdateGridItemSource,
                     )
                 }
 
@@ -333,10 +331,6 @@ private fun ApplicationInfoGridItemMenu(
     onDraggingGridItem: () -> Unit,
     onEdit: () -> Unit,
     onInfo: () -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onResize: () -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
@@ -349,6 +343,8 @@ private fun ApplicationInfoGridItemMenu(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onWidgets: () -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     Column(
         modifier = modifier,
@@ -365,10 +361,11 @@ private fun ApplicationInfoGridItemMenu(
                 eblanShortcutInfosGroup = eblanShortcutInfosByPackageName,
                 gridItemSettings = gridItemSettings,
                 onTapShortcutInfo = onTapShortcutInfo,
-                onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onDraggingGridItem = onDraggingGridItem,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateGridItemSource = onUpdateGridItemSource,
             )
 
             Spacer(modifier = Modifier.height(5.dp))

@@ -120,16 +120,14 @@ internal fun SharedTransitionScope.FolderScreen(
     textColor: TextColor,
     onDismissRequest: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onOpenAppDrawer: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val data = folderGridItem.data as? GridItemData.Folder ?: return
 
@@ -246,18 +244,12 @@ internal fun SharedTransitionScope.FolderScreen(
                                     iconPackFilePaths = iconPackFilePaths,
                                     statusBarNotifications = statusBarNotifications,
                                     textColor = textColor,
+                                    folderGridItem = folderGridItem,
                                     onDraggingGridItem = onDraggingGridItem,
                                     onOpenAppDrawer = onOpenAppDrawer,
                                     onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                    onUpdateImageBitmap = { imageBitmap ->
-                                        onLongPressGridItem(
-                                            GridItemSource.Folder(
-                                                gridItem = folderGridItem,
-                                                applicationInfoGridItem = applicationInfoGridItem,
-                                            ),
-                                            imageBitmap,
-                                        )
-                                    },
+                                    onUpdateImageBitmap = onUpdateImageBitmap,
+                                    onUpdateGridItemSource = onUpdateGridItemSource,
                                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                                 )
                             },
@@ -339,6 +331,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
     iconPackFilePaths: Map<String, String>,
     statusBarNotifications: Map<String, Int>,
     textColor: TextColor,
+    folderGridItem: GridItem,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
     onUpdateGridItemOffset: (
@@ -346,6 +339,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
@@ -419,6 +413,13 @@ private fun SharedTransitionScope.FolderGridItemContent(
                     ),
                     onLongPress = {
                         scope.launch {
+                            onUpdateGridItemSource(
+                                GridItemSource.Folder(
+                                    gridItem = folderGridItem,
+                                    applicationInfoGridItem = gridItem,
+                                ),
+                            )
+
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onUpdateGridItemOffset(
@@ -499,7 +500,8 @@ private fun SharedTransitionScope.FolderGridItemContent(
                             intOffset = layoutCoordinates.positionInRoot().round()
 
                             intSize = layoutCoordinates.size
-                        }.matchParentSize(),
+                        }
+                        .matchParentSize(),
                 )
 
                 if (settings.isNotificationAccessGranted() && hasNotifications) {

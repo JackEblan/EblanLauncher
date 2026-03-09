@@ -52,7 +52,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -99,16 +98,13 @@ internal fun LazyGridScope.privateSpace(
     paddingValues: PaddingValues,
     privateEblanApplicationInfos: List<EblanApplicationInfo>,
     privateEblanUser: EblanUser?,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateIsQuietModeEnabled: (Boolean) -> Unit,
     onUpdatePopupMenu: (Boolean) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     if (privateEblanUser == null || privateEblanUser.isPrivateSpaceEntryPointHidden) return
 
@@ -129,9 +125,9 @@ internal fun LazyGridScope.privateSpace(
                 eblanApplicationInfo = eblanApplicationInfo,
                 iconPackFilePaths = iconPackFilePaths,
                 paddingValues = paddingValues,
-                onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onUpdatePopupMenu = onUpdatePopupMenu,
+                onUpdateGridItemSource = onUpdateGridItemSource,
             )
         }
     }
@@ -233,15 +229,12 @@ private fun PrivateSpaceEblanApplicationInfoItem(
     eblanApplicationInfo: EblanApplicationInfo,
     iconPackFilePaths: Map<String, String>,
     paddingValues: PaddingValues,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdatePopupMenu: (Boolean) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -311,7 +304,7 @@ private fun PrivateSpaceEblanApplicationInfoItem(
                             folderId = null,
                         )
 
-                        onLongPressGridItem(
+                        onUpdateGridItemSource(
                             GridItemSource.New(
                                 gridItem = GridItem(
                                     id = id,
@@ -341,7 +334,6 @@ private fun PrivateSpaceEblanApplicationInfoItem(
                                     ),
                                 ),
                             ),
-                            null,
                         )
 
                         onUpdateGridItemOffset(

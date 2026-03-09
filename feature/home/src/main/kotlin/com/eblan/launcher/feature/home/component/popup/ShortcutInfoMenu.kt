@@ -75,16 +75,14 @@ internal fun ShortcutInfoMenu(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -102,10 +100,11 @@ internal fun ShortcutInfoMenu(
                 gridItemSettings = gridItemSettings,
                 onTapShortcutInfo = onTapShortcutInfo,
                 eblanShortcutInfo = eblanShortcutInfo,
-                onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onDraggingGridItem = onDraggingGridItem,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateGridItemSource = onUpdateGridItemSource,
             )
         }
     }
@@ -121,16 +120,14 @@ private fun ShortcutInfoMenuItem(
     gridItemSettings: GridItemSettings,
     onTapShortcutInfo: (Long, String, String) -> Unit,
     eblanShortcutInfo: EblanShortcutInfo,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -189,7 +186,7 @@ private fun ShortcutInfoMenuItem(
                                         customShortLabel = null,
                                     )
 
-                                    onLongPressGridItem(
+                                    onUpdateGridItemSource(
                                         GridItemSource.New(
                                             gridItem = GridItem(
                                                 id = id,
@@ -219,8 +216,9 @@ private fun ShortcutInfoMenuItem(
                                                 ),
                                             ),
                                         ),
-                                        graphicsLayer.toImageBitmap(),
                                     )
+
+                                    onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                                     onUpdateGridItemOffset(
                                         intOffset,

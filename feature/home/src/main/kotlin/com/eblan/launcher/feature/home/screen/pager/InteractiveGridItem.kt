@@ -74,6 +74,7 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.gesture.onDoubleTap
 import com.eblan.launcher.feature.home.component.gesture.swipeGestures
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
@@ -116,8 +117,9 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onUpdateImageBitmap: (ImageBitmap?) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val currentGridItemSettings = if (gridItem.override) {
         gridItem.gridItemSettings
@@ -156,6 +158,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onOpenAppDrawer = onOpenAppDrawer,
                 onTapApplicationInfo = onTapApplicationInfo,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateGridItemSource = onUpdateGridItemSource,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
@@ -173,6 +176,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
+                onUpdateGridItemSource = onUpdateGridItemSource,
             )
         }
 
@@ -193,6 +197,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
+                onUpdateGridItemSource = onUpdateGridItemSource,
             )
         }
 
@@ -213,6 +218,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
+                onUpdateGridItemSource = onUpdateGridItemSource,
             )
         }
 
@@ -232,6 +238,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
+                onUpdateGridItemSource = onUpdateGridItemSource,
             )
         }
     }
@@ -260,6 +267,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
@@ -327,6 +335,8 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                     ),
                     onLongPress = {
                         scope.launch {
+                            onUpdateGridItemSource(GridItemSource.Existing(gridItem = gridItem))
+
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onUpdateGridItemOffset(
@@ -456,6 +466,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -527,6 +538,8 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                     ).apply {
                         setOnLongClickListener {
                             scope.launch {
+                                onUpdateGridItemSource(GridItemSource.Existing(gridItem = gridItem))
+
                                 onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                                 onUpdateGridItemOffset(
@@ -585,6 +598,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -646,6 +660,8 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                     ),
                     onLongPress = {
                         scope.launch {
+                            onUpdateGridItemSource(GridItemSource.Existing(gridItem = gridItem))
+
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onUpdateGridItemOffset(
@@ -767,6 +783,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -822,6 +839,8 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                     ),
                     onLongPress = {
                         scope.launch {
+                            onUpdateGridItemSource(GridItemSource.Existing(gridItem = gridItem))
+
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onUpdateGridItemOffset(
@@ -966,6 +985,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -1057,6 +1077,8 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                     ),
                     onLongPress = {
                         scope.launch {
+                            onUpdateGridItemSource(GridItemSource.Existing(gridItem = gridItem))
+
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onUpdateGridItemOffset(

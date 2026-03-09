@@ -124,14 +124,12 @@ internal fun WidgetScreen(
         gridItems: List<GridItem>,
     ) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -218,13 +216,14 @@ internal fun WidgetScreen(
             },
             onDraggingGridItem = onDraggingGridItem,
             onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-            onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onVerticalDrag = { dragAmount ->
                 scope.launch {
                     offsetY.snapTo(offsetY.value + dragAmount)
                 }
             },
+            onUpdateImageBitmap = onUpdateImageBitmap,
+            onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
 }
@@ -251,15 +250,13 @@ private fun Success(
         gridItems: List<GridItem>,
     ) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onVerticalDrag: (Float) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -375,8 +372,9 @@ private fun Success(
                         screenHeight = screenHeight,
                         screenWidth = screenWidth,
                         onDraggingGridItem = onDraggingGridItem,
-                        onLongPressGridItem = onLongPressGridItem,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onUpdateImageBitmap = onUpdateImageBitmap,
+                        onUpdateGridItemSource = onUpdateGridItemSource,
                     )
                 }
             }
@@ -402,14 +400,12 @@ private fun EblanApplicationInfoItem(
         screen: Screen,
         gridItems: List<GridItem>,
     ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -466,8 +462,9 @@ private fun EblanApplicationInfoItem(
                     screenHeight = screenHeight,
                     screenWidth = screenWidth,
                     onDraggingGridItem = onDraggingGridItem,
-                    onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onUpdateImageBitmap = onUpdateImageBitmap,
+                    onUpdateGridItemSource = onUpdateGridItemSource,
                 )
             }
         }
@@ -491,14 +488,12 @@ private fun EblanAppWidgetProviderInfoItem(
         screen: Screen,
         gridItems: List<GridItem>,
     ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -518,7 +513,9 @@ private fun EblanAppWidgetProviderInfoItem(
                 detectTapGestures(
                     onLongPress = {
                         scope.launch {
-                            onLongPressGridItem(
+                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+
+                            onUpdateGridItemSource(
                                 GridItemSource.New(
                                     gridItem = getWidgetGridItem(
                                         componentName = eblanAppWidgetProviderInfo.componentName,
@@ -542,7 +539,6 @@ private fun EblanAppWidgetProviderInfoItem(
                                         targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
                                     ),
                                 ),
-                                graphicsLayer.toImageBitmap(),
                             )
 
                             onUpdateGridItemOffset(

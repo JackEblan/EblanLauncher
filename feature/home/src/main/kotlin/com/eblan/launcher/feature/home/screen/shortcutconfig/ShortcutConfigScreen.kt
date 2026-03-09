@@ -133,14 +133,12 @@ internal fun ShortcutConfigScreen(
         gridItems: List<GridItem>,
     ) -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -224,13 +222,14 @@ internal fun ShortcutConfigScreen(
             },
             onDraggingGridItem = onDraggingGridItem,
             onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-            onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onVerticalDrag = { dragAmount ->
                 scope.launch {
                     offsetY.snapTo(offsetY.value + dragAmount)
                 }
             },
+            onUpdateImageBitmap = onUpdateImageBitmap,
+            onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
 }
@@ -253,15 +252,13 @@ private fun Success(
         gridItems: List<GridItem>,
     ) -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onVerticalDrag: (Float) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val horizontalPagerState = rememberPagerState(
         pageCount = {
@@ -348,9 +345,10 @@ private fun Success(
                     paddingValues = paddingValues,
                     onDragEnd = onDragEnd,
                     onDraggingGridItem = onDraggingGridItem,
-                    onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onVerticalDrag = onVerticalDrag,
+                    onUpdateImageBitmap = onUpdateImageBitmap,
+                    onUpdateGridItemSource = onUpdateGridItemSource,
                 )
             }
         } else {
@@ -364,9 +362,10 @@ private fun Success(
                 paddingValues = paddingValues,
                 onDragEnd = onDragEnd,
                 onDraggingGridItem = onDraggingGridItem,
-                onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onVerticalDrag = onVerticalDrag,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateGridItemSource = onUpdateGridItemSource,
             )
         }
     }
@@ -417,12 +416,10 @@ private fun EblanShortcutConfigsPage(
         screen: Screen,
         gridItems: List<GridItem>,
     ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
     onVerticalDrag: (Float) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -496,8 +493,9 @@ private fun EblanShortcutConfigsPage(
                         gridItemSettings = gridItemSettings,
                         gridItems = gridItems,
                         onDraggingGridItem = onDraggingGridItem,
-                        onLongPressGridItem = onLongPressGridItem,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onUpdateImageBitmap = onUpdateImageBitmap,
+                        onUpdateGridItemSource = onUpdateGridItemSource,
                     )
                 }
             }
@@ -519,14 +517,12 @@ private fun EblanApplicationInfoItem(
         screen: Screen,
         gridItems: List<GridItem>,
     ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -579,8 +575,9 @@ private fun EblanApplicationInfoItem(
                     gridItemSettings = gridItemSettings,
                     gridItems = gridItems,
                     onDraggingGridItem = onDraggingGridItem,
-                    onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onUpdateImageBitmap = onUpdateImageBitmap,
+                    onUpdateGridItemSource = onUpdateGridItemSource,
                 )
             }
         }
@@ -600,14 +597,12 @@ private fun EblanShortcutConfigItem(
         screen: Screen,
         gridItems: List<GridItem>,
     ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -640,7 +635,7 @@ private fun EblanShortcutConfigItem(
                                 customLabel = null,
                             )
 
-                            onLongPressGridItem(
+                            onUpdateGridItemSource(
                                 GridItemSource.New(
                                     gridItem = GridItem(
                                         id = id,
@@ -670,8 +665,9 @@ private fun EblanShortcutConfigItem(
                                         ),
                                     ),
                                 ),
-                                graphicsLayer.toImageBitmap(),
                             )
+
+                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onUpdateGridItemOffset(
                                 intOffset,

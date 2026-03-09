@@ -524,7 +524,7 @@ internal fun HomeScreen(
                     onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
                     onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
                     onUpdateFolderGridItemId = onUpdateFolderGridItemId,
-                    onUpdateGridItemImageBitmap = { imageBitmap ->
+                    onUpdateImageBitmap = { imageBitmap ->
                         overlayImageBitmap = imageBitmap
                     },
                     onUpdateGridItemOffset = { intOffset, intSize ->
@@ -665,7 +665,7 @@ private fun SharedTransitionScope.Success(
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
     onUpdateFolderGridItemId: (String?) -> Unit,
-    onUpdateGridItemImageBitmap: (ImageBitmap?) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap?) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -911,13 +911,6 @@ private fun SharedTransitionScope.Success(
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
                     onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-                    onLongPressGridItem = { newGridItemSource, imageBitmap ->
-                        gridItemSource = newGridItemSource
-
-                        associate = newGridItemSource.gridItem.associate
-
-                        onUpdateGridItemImageBitmap(imageBitmap)
-                    },
                     onResize = onShowGridCache,
                     onSettings = onSettings,
                     onTapFolderGridItem = { id, intOffset, intSize ->
@@ -937,6 +930,12 @@ private fun SharedTransitionScope.Success(
                     onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onUpdateImageBitmap = onUpdateImageBitmap,
+                    onUpdateGridItemSource = { newGridItemSource ->
+                        gridItemSource = newGridItemSource
+
+                        associate = newGridItemSource.gridItem.associate
+                    },
                 )
             }
 

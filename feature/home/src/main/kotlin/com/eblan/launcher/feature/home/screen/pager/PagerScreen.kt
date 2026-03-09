@@ -497,6 +497,7 @@ internal fun SharedTransitionScope.PagerScreen(
             screenHeight = screenHeight,
             screenWidth = screenWidth,
             isLongPress = isDragging,
+            isApplicationScreenVisible = isApplicationScreenVisible,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
             onMoveGridItem = onMoveGridItem,
@@ -516,6 +517,7 @@ internal fun SharedTransitionScope.PagerScreen(
                     moveGridItemResult = moveGridItemResult,
                     userManagerWrapper = userManager,
                     isLongPress = isDragging,
+                    isApplicationScreenVisible = isApplicationScreenVisible,
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onDragCancelAfterMove = onDragCancelAfterMove,
                     onDragEndAfterMove = onDragEndAfterMove,
@@ -560,6 +562,7 @@ internal fun SharedTransitionScope.PagerScreen(
             deleteAppWidgetId = deleteAppWidgetId,
             gridItemSource = gridItemSource,
             isLongPress = isDragging,
+            isApplicationScreenVisible = isApplicationScreenVisible,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onUpdateIsDragging = { newIsDragging ->
                 isDragging = newIsDragging
@@ -575,6 +578,7 @@ internal fun SharedTransitionScope.PagerScreen(
             moveGridItemResult = moveGridItemResult,
             updatedWidgetGridItem = updatedWidgetGridItem,
             isLongPress = isDragging,
+            isApplicationScreenVisible = isApplicationScreenVisible,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
@@ -607,6 +611,8 @@ internal fun SharedTransitionScope.PagerScreen(
             rows = homeSettings.rows,
             screenHeight = screenHeight,
             screenWidth = screenWidth,
+            isDragging = isDragging,
+            isApplicationScreenVisible = isApplicationScreenVisible,
             onShowFolderWhenDragging = onShowFolderWhenDragging,
         )
     }
@@ -623,6 +629,8 @@ internal fun SharedTransitionScope.PagerScreen(
             gridItemSource = gridItemSource,
             paddingValues = paddingValues,
             screenWidth = screenWidth,
+            isDragging = isDragging,
+            isApplicationScreenVisible = isApplicationScreenVisible,
             onUpdateDockPageDirection = { pageDirection ->
                 dockPageDirection = pageDirection
             },
@@ -640,7 +648,8 @@ internal fun SharedTransitionScope.PagerScreen(
             moveGridItemResult = moveGridItemResult,
             resultCode = configureResultCode,
             updatedGridItem = updatedWidgetGridItem,
-            isLongPress = isDragging,
+            isDragging = isDragging,
+            isApplicationScreenVisible = isApplicationScreenVisible,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
             onResetConfigureResultCode = onResetConfigureResultCode,

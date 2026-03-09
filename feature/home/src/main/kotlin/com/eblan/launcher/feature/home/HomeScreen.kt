@@ -548,6 +548,8 @@ internal fun HomeScreen(
                         overlayIntOffset = IntOffset.Zero
 
                         overlayIntSize = IntSize.Zero
+
+                        drag = Drag.None
                     },
                 )
             }

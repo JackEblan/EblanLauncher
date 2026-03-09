@@ -132,6 +132,7 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnec
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.dialog.EblanApplicationInfoOrderDialog
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.FolderScreen
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
@@ -1054,7 +1055,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         }
     }
 
-    val id = remember { Uuid.random().toHexString() }
+    val applicationScreenId = remember { Uuid.random().toHexString() }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
@@ -1062,6 +1063,8 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                 onUpdatePopupMenu(false)
 
                 onDismiss()
+
+                val pagerScreenId = Uuid.random().toHexString()
 
                 val data = GridItemData.ApplicationInfo(
                     serialNumber = eblanApplicationInfo.serialNumber,
@@ -1078,7 +1081,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                 onUpdateGridItemSource(
                     GridItemSource.New(
                         gridItem = GridItem(
-                            id = id,
+                            id = pagerScreenId,
                             page = currentPage,
                             startColumn = -1,
                             startRow = -1,
@@ -1104,6 +1107,13 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                                 componentName = "",
                             ),
                         ),
+                    ),
+                )
+
+                onUpdateSharedElementKey(
+                    SharedElementKey(
+                        id = pagerScreenId,
+                        screen = Screen.Pager,
                     ),
                 )
 
@@ -1154,7 +1164,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
                             onUpdateSharedElementKey(
                                 SharedElementKey(
-                                    id = id,
+                                    id = applicationScreenId,
                                     screen = Screen.Pager,
                                 ),
                             )
@@ -1199,7 +1209,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                         .sharedElementWithCallerManagedVisibility(
                             rememberSharedContentState(
                                 key = SharedElementKey(
-                                    id = id,
+                                    id = applicationScreenId,
                                     screen = Screen.Pager,
                                 ),
                             ),

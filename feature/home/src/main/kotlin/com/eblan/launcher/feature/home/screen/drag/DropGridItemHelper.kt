@@ -51,6 +51,7 @@ internal suspend fun handleDropGridItem(
     moveGridItemResult: MoveGridItemResult?,
     userManagerWrapper: AndroidUserManagerWrapper,
     isLongPress: Boolean,
+    isApplicationScreenVisible: Boolean,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragCancelAfterMove: () -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
@@ -63,31 +64,33 @@ internal suspend fun handleDropGridItem(
     onUpdateWidgetGridItem: (GridItem) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
 ) {
+    if (!isLongPress || isApplicationScreenVisible) {
+        return
+    }
+
+    onUpdateIsDragging(false)
+
     when (gridItemSource) {
         is GridItemSource.Existing -> {
-            if (moveGridItemResult == null || !moveGridItemResult.isSuccess || !isLongPress) {
+            if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
                 onToast()
 
                 return
             }
-
-            onUpdateIsDragging(false)
 
             onDragEndAfterMove(moveGridItemResult)
         }
 
         is GridItemSource.New -> {
-            if (moveGridItemResult == null || !moveGridItemResult.isSuccess || !isLongPress) {
+            if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
                 onToast()
 
                 return
             }
-
-            onUpdateIsDragging(false)
 
             when (val data = gridItemSource.gridItem.data) {
                 is GridItemData.Widget -> {
@@ -121,15 +124,13 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.Pin -> {
-            if (moveGridItemResult == null || !moveGridItemResult.isSuccess || !isLongPress) {
+            if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
                 onToast()
 
                 return
             }
-
-            onUpdateIsDragging(false)
 
             when (val data = gridItemSource.gridItem.data) {
                 is GridItemData.ShortcutInfo -> {
@@ -161,8 +162,6 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.Folder -> {
-            onUpdateIsDragging(false)
-
             onDragEndAfterMoveFolder()
         }
 
@@ -210,7 +209,8 @@ internal fun handleConfigureLauncherResult(
     moveGridItemResult: MoveGridItemResult?,
     resultCode: Int?,
     updatedGridItem: GridItem?,
-    isLongPress: Boolean,
+    isDragging: Boolean,
+    isApplicationScreenVisible: Boolean,
     onDeleteWidgetGridItemCache: (
         gridItem: GridItem,
         appWidgetId: Int,
@@ -222,7 +222,8 @@ internal fun handleConfigureLauncherResult(
     if (resultCode == null ||
         moveGridItemResult == null ||
         updatedGridItem == null ||
-        !isLongPress
+        !isDragging ||
+        isApplicationScreenVisible
     ) {
         return
     }
@@ -246,13 +247,14 @@ internal fun handleDeleteAppWidgetId(
     deleteAppWidgetId: Boolean,
     gridItemSource: GridItemSource?,
     isLongPress: Boolean,
+    isApplicationScreenVisible: Boolean,
     onDeleteWidgetGridItemCache: (
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
 ) {
-    if (gridItemSource == null || !isLongPress) return
+    if (gridItemSource == null || !isLongPress || isApplicationScreenVisible) return
 
     if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID && deleteAppWidgetId) {
         check(gridItemSource.gridItem.data is GridItemData.Widget)
@@ -270,6 +272,7 @@ internal fun handleBoundWidget(
     moveGridItemResult: MoveGridItemResult?,
     updatedWidgetGridItem: GridItem?,
     isLongPress: Boolean,
+    isApplicationScreenVisible: Boolean,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDeleteWidgetGridItemCache: (
         gridItem: GridItem,
@@ -278,7 +281,7 @@ internal fun handleBoundWidget(
     onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
 ) {
-    if (gridItemSource == null || moveGridItemResult == null || !isLongPress) return
+    if (gridItemSource == null || moveGridItemResult == null || !isLongPress || isApplicationScreenVisible) return
 
     val data = (updatedWidgetGridItem?.data as? GridItemData.Widget) ?: return
 

@@ -230,18 +230,14 @@ internal class HomeViewModel @Inject constructor(
 
     private val _folderGridItemId = MutableStateFlow<String?>(null)
 
-    val folderGridItem = getFolderGridItemsByIdUseCase(idFlow = _folderGridItemId).stateIn(
+    val folderGridItem = getFolderGridItemsByIdUseCase(
+        isCacheFlow = _isCache,
+        idFlow = _folderGridItemId,
+    ).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = null,
     )
-
-    val folderGridItemCache =
-        getFolderGridItemsCacheByIdUseCase(idFlow = _folderGridItemId).stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = null,
-        )
 
     fun moveGridItem(
         movingGridItem: GridItem,

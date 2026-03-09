@@ -167,7 +167,6 @@ internal fun SharedTransitionScope.PagerScreen(
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
     paddingValues: PaddingValues,
-    screen: Screen,
     screenHeight: Int,
     screenWidth: Int,
     statusBarNotifications: Map<String, Int>,
@@ -419,7 +418,7 @@ internal fun SharedTransitionScope.PagerScreen(
 
     var folderPageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
-    var isLongPress by remember { mutableStateOf(false) }
+    var isDragging by remember { mutableStateOf(false) }
 
     val appWidgetLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
@@ -428,7 +427,7 @@ internal fun SharedTransitionScope.PagerScreen(
             appWidgetManager = appWidgetManager,
             gridItemSource = gridItemSource,
             result = result,
-            isLongPress = isLongPress,
+            isLongPress = isDragging,
             onDeleteAppWidgetId = {
                 deleteAppWidgetId = true
             },
@@ -447,7 +446,7 @@ internal fun SharedTransitionScope.PagerScreen(
                 imageSerializer = imageSerializer,
                 moveGridItemResult = moveGridItemResult,
                 result = result,
-                isLongPress = isLongPress,
+                isLongPress = isDragging,
                 onDeleteGridItemCache = onDeleteGridItemCache,
                 onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
             )
@@ -466,7 +465,7 @@ internal fun SharedTransitionScope.PagerScreen(
                 moveGridItemResult = moveGridItemResult,
                 result = result,
                 userManagerWrapper = userManager,
-                isLongPress = isLongPress,
+                isLongPress = isDragging,
                 onDeleteGridItemCache = onDeleteGridItemCache,
                 onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
             )
@@ -497,7 +496,7 @@ internal fun SharedTransitionScope.PagerScreen(
             rows = homeSettings.rows,
             screenHeight = screenHeight,
             screenWidth = screenWidth,
-            isLongPress = isLongPress,
+            isLongPress = isDragging,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
             onMoveGridItem = onMoveGridItem,
@@ -516,7 +515,7 @@ internal fun SharedTransitionScope.PagerScreen(
                     launcherAppsWrapper = launcherApps,
                     moveGridItemResult = moveGridItemResult,
                     userManagerWrapper = userManager,
-                    isLongPress = isLongPress,
+                    isLongPress = isDragging,
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onDragCancelAfterMove = onDragCancelAfterMove,
                     onDragEndAfterMove = onDragEndAfterMove,
@@ -537,8 +536,8 @@ internal fun SharedTransitionScope.PagerScreen(
                     onUpdateWidgetGridItem = { gridItem ->
                         updatedWidgetGridItem = gridItem
                     },
-                    onUpdateIsLongPress = { newIsLongPress ->
-                        isLongPress = newIsLongPress
+                    onUpdateIsDragging = { newIsDragging ->
+                        isDragging = newIsDragging
                     },
                 )
 
@@ -546,7 +545,7 @@ internal fun SharedTransitionScope.PagerScreen(
             }
 
             Drag.Cancel -> {
-                isLongPress = false
+                isDragging = false
 
                 onDragCancelAfterMove()
             }
@@ -560,10 +559,10 @@ internal fun SharedTransitionScope.PagerScreen(
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
             gridItemSource = gridItemSource,
-            isLongPress = isLongPress,
+            isLongPress = isDragging,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-            onUpdateIsLongPress = { newIsLongPress ->
-                isLongPress = newIsLongPress
+            onUpdateIsDragging = { newIsDragging ->
+                isDragging = newIsDragging
             },
         )
     }
@@ -575,12 +574,12 @@ internal fun SharedTransitionScope.PagerScreen(
             gridItemSource = gridItemSource,
             moveGridItemResult = moveGridItemResult,
             updatedWidgetGridItem = updatedWidgetGridItem,
-            isLongPress = isLongPress,
+            isLongPress = isDragging,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
-            onUpdateIsLongPress = { newIsLongPress ->
-                isLongPress = newIsLongPress
+            onUpdateIsDragging = { newIsDragging ->
+                isDragging = newIsDragging
             },
         )
     }
@@ -641,12 +640,12 @@ internal fun SharedTransitionScope.PagerScreen(
             moveGridItemResult = moveGridItemResult,
             resultCode = configureResultCode,
             updatedGridItem = updatedWidgetGridItem,
-            isLongPress = isLongPress,
+            isLongPress = isDragging,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
             onResetConfigureResultCode = onResetConfigureResultCode,
-            onUpdateIsLongPress = { newIsLongPress ->
-                isLongPress = newIsLongPress
+            onUpdateIsDragging = { newIsDragging ->
+                isDragging = newIsDragging
             },
         )
     }
@@ -867,18 +866,17 @@ internal fun SharedTransitionScope.PagerScreen(
                         hasShortcutHostPermission = hasShortcutHostPermission,
                         iconPackFilePaths = iconPackFilePaths,
                         isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
-                        screen = screen,
                         statusBarNotifications = statusBarNotifications,
                         textColor = textColor,
                         gridItemSource = gridItemSource,
-                        isLongPress = isLongPress,
+                        isDragging = isDragging,
                         onDraggingGridItem = {
-                            showGridItemPopup = false
-
-                            onDraggingGridItem(
-                                Screen.Drag,
-                                gridItems,
-                            )
+//                            showGridItemPopup = false
+//
+//                            onDraggingGridItem(
+//                                Screen.Drag,
+//                                gridItems,
+//                            )
                         },
                         onOpenAppDrawer = {
                             showAppDrawer = true
@@ -949,8 +947,8 @@ internal fun SharedTransitionScope.PagerScreen(
                         onUpdateImageBitmap = onUpdateImageBitmap,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                         onUpdateGridItemSource = onUpdateGridItemSource,
-                        onUpdateIsLongPress = { newIsLongPress ->
-                            isLongPress = newIsLongPress
+                        onUpdateIsDragging = { newIsDragging ->
+                            isDragging = newIsDragging
                         },
                     )
                 },
@@ -1011,18 +1009,17 @@ internal fun SharedTransitionScope.PagerScreen(
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     iconPackFilePaths = iconPackFilePaths,
                     isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
-                    screen = screen,
                     statusBarNotifications = statusBarNotifications,
                     textColor = textColor,
                     gridItemSource = gridItemSource,
-                    isLongPress = isLongPress,
+                    isDragging = isDragging,
                     onDraggingGridItem = {
-                        showGridItemPopup = false
-
-                        onDraggingGridItem(
-                            Screen.Drag,
-                            gridItems,
-                        )
+//                        showGridItemPopup = false
+//
+//                        onDraggingGridItem(
+//                            Screen.Drag,
+//                            gridItems,
+//                        )
                     },
                     onOpenAppDrawer = {
                         showAppDrawer = true
@@ -1093,8 +1090,8 @@ internal fun SharedTransitionScope.PagerScreen(
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onUpdateGridItemSource = onUpdateGridItemSource,
-                    onUpdateIsLongPress = { newIsLongPress ->
-                        isLongPress = newIsLongPress
+                    onUpdateIsDragging = { newIsDragging ->
+                        isDragging = newIsDragging
                     },
                 )
             }
@@ -1212,6 +1209,8 @@ internal fun SharedTransitionScope.PagerScreen(
             screenWidth = screenWidth,
             statusBarNotifications = statusBarNotifications,
             textColor = textColor,
+            gridItemSource = gridItemSource,
+            isDragging = isDragging,
             onDismissRequest = {
                 onTapFolderGridItem(
                     null,
@@ -1220,6 +1219,8 @@ internal fun SharedTransitionScope.PagerScreen(
                 )
             },
             onDraggingGridItem = {
+                showFolderGridItemPopup = false
+
                 onDraggingGridItem(
                     Screen.Drag,
                     gridItems,
@@ -1240,10 +1241,13 @@ internal fun SharedTransitionScope.PagerScreen(
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onUpdateImageBitmap = onUpdateImageBitmap,
             onUpdateGridItemSource = onUpdateGridItemSource,
+            onUpdateIsDragging = { newIsDragging ->
+                isDragging = newIsDragging
+            },
         )
     }
 
-    if (showFolderGridItemPopup && gridItemSource != null) {
+    if (showFolderGridItemPopup) {
         FolderGridItemPopup(
             gridItemSource = gridItemSource,
             paddingValues = paddingValues,
@@ -1257,227 +1261,225 @@ internal fun SharedTransitionScope.PagerScreen(
         )
     }
 
-    if (gestureSettings.swipeUp.eblanActionType == EblanActionType.OpenAppDrawer || gestureSettings.swipeDown.eblanActionType == EblanActionType.OpenAppDrawer) {
-        ApplicationScreen(
-            alpha = applicationScreenAlpha,
-            appDrawerSettings = appDrawerSettings,
-            columns = homeSettings.columns,
-            cornerSize = cornerSize,
-            currentPage = currentPage,
-            drag = drag,
-            eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
-            eblanApplicationInfoTags = eblanApplicationInfoTags,
-            eblanShortcutInfosGroup = eblanShortcutInfosGroup,
-            getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
-            gridItemSource = gridItemSource,
-            gridItems = gridItems,
-            hasShortcutHostPermission = hasShortcutHostPermission,
-            iconPackFilePaths = iconPackFilePaths,
-            isPressHome = isPressHome,
-            klwpIntegration = experimentalSettings.klwpIntegration,
-            managedProfileResult = managedProfileResult,
-            paddingValues = paddingValues,
-            rows = homeSettings.rows,
-            screen = screen,
-            screenHeight = screenHeight,
-            screenWidth = screenWidth,
-            swipeY = swipeY.value,
-            onDismiss = {
-                scope.launch {
-                    swipeY.animateTo(
-                        targetValue = screenHeight.toFloat(),
-                        animationSpec = tween(
-                            easing = FastOutSlowInEasing,
-                        ),
-                    )
+//    if (gestureSettings.swipeUp.eblanActionType == EblanActionType.OpenAppDrawer || gestureSettings.swipeDown.eblanActionType == EblanActionType.OpenAppDrawer) {
+//        ApplicationScreen(
+//            alpha = applicationScreenAlpha,
+//            appDrawerSettings = appDrawerSettings,
+//            columns = homeSettings.columns,
+//            cornerSize = cornerSize,
+//            currentPage = currentPage,
+//            drag = drag,
+//            eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
+//            eblanApplicationInfoTags = eblanApplicationInfoTags,
+//            eblanShortcutInfosGroup = eblanShortcutInfosGroup,
+//            getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
+//            gridItemSource = gridItemSource,
+//            gridItems = gridItems,
+//            hasShortcutHostPermission = hasShortcutHostPermission,
+//            iconPackFilePaths = iconPackFilePaths,
+//            isPressHome = isPressHome,
+//            klwpIntegration = experimentalSettings.klwpIntegration,
+//            managedProfileResult = managedProfileResult,
+//            paddingValues = paddingValues,
+//            rows = homeSettings.rows,
+//            screenHeight = screenHeight,
+//            screenWidth = screenWidth,
+//            swipeY = swipeY.value,
+//            onDismiss = {
+//                scope.launch {
+//                    swipeY.animateTo(
+//                        targetValue = screenHeight.toFloat(),
+//                        animationSpec = tween(
+//                            easing = FastOutSlowInEasing,
+//                        ),
+//                    )
+//
+//                    isPressHome = false
+//                }
+//            },
+//            onDragEnd = { remaining ->
+//                scope.launch {
+//                    handleApplyFling(
+//                        offsetY = swipeY,
+//                        remaining = remaining,
+//                        screenHeight = screenHeight,
+//                    )
+//                }
+//            },
+//            onDraggingGridItem = onDraggingGridItem,
+//            onEditApplicationInfo = onEditApplicationInfo,
+//            onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+//            onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
+//            onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
+//            onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
+//            onUpdateGridItemOffset = onUpdateGridItemOffset,
+//            onUpdateSharedElementKey = onUpdateSharedElementKey,
+//            onVerticalDrag = { dragAmount ->
+//                scope.launch {
+//                    swipeY.snapTo(swipeY.value + dragAmount)
+//                }
+//            },
+//            onUpdateImageBitmap = onUpdateImageBitmap,
+//            onUpdateGridItemSource = onUpdateGridItemSource,
+//            onUpdateIsDragging = { newIsDragging ->
+//                isDragging = newIsDragging
+//            },
+//        )
+//    }
 
-                    isPressHome = false
-                }
-            },
-            onDragEnd = { remaining ->
-                scope.launch {
-                    handleApplyFling(
-                        offsetY = swipeY,
-                        remaining = remaining,
-                        screenHeight = screenHeight,
-                    )
-                }
-            },
-            onDraggingGridItem = onDraggingGridItem,
-            onEditApplicationInfo = onEditApplicationInfo,
-            onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-            onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
-            onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
-            onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
-            onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
-            onVerticalDrag = { dragAmount ->
-                scope.launch {
-                    swipeY.snapTo(swipeY.value + dragAmount)
-                }
-            },
-            onUpdateImageBitmap = onUpdateImageBitmap,
-            onUpdateGridItemSource = onUpdateGridItemSource,
-            onUpdateIsLongPress = { newIsLongPress ->
-                isLongPress = newIsLongPress
-            },
-        )
-    }
+//    if (showAppDrawer) {
+//        LaunchedEffect(key1 = Unit) {
+//            swipeY.animateTo(
+//                targetValue = 0f,
+//                animationSpec = spring(
+//                    dampingRatio = Spring.DampingRatioNoBouncy,
+//                    stiffness = Spring.StiffnessLow,
+//                ),
+//            )
+//        }
+//
+//        ApplicationScreen(
+//            alpha = applicationScreenAlpha,
+//            appDrawerSettings = appDrawerSettings,
+//            columns = homeSettings.columns,
+//            cornerSize = cornerSize,
+//            currentPage = currentPage,
+//            drag = drag,
+//            eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
+//            eblanApplicationInfoTags = eblanApplicationInfoTags,
+//            eblanShortcutInfosGroup = eblanShortcutInfosGroup,
+//            getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
+//            gridItemSource = gridItemSource,
+//            gridItems = gridItems,
+//            hasShortcutHostPermission = hasShortcutHostPermission,
+//            iconPackFilePaths = iconPackFilePaths,
+//            isPressHome = isPressHome,
+//            klwpIntegration = experimentalSettings.klwpIntegration,
+//            managedProfileResult = managedProfileResult,
+//            paddingValues = paddingValues,
+//            rows = homeSettings.rows,
+//            screenHeight = screenHeight,
+//            screenWidth = screenWidth,
+//            swipeY = swipeY.value,
+//            onDismiss = {
+//                scope.launch {
+//                    swipeY.animateTo(
+//                        targetValue = screenHeight.toFloat(),
+//                        animationSpec = tween(
+//                            easing = FastOutSlowInEasing,
+//                        ),
+//                    )
+//
+//                    showAppDrawer = false
+//
+//                    isPressHome = false
+//                }
+//            },
+//            onDragEnd = { remaining ->
+//                scope.launch {
+//                    handleApplyFling(
+//                        offsetY = swipeY,
+//                        remaining = remaining,
+//                        screenHeight = screenHeight,
+//                        onDismiss = {
+//                            showAppDrawer = false
+//                        },
+//                    )
+//                }
+//            },
+//            onDraggingGridItem = onDraggingGridItem,
+//            onEditApplicationInfo = onEditApplicationInfo,
+//            onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+//            onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
+//            onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
+//            onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
+//            onUpdateGridItemOffset = onUpdateGridItemOffset,
+//            onUpdateSharedElementKey = onUpdateSharedElementKey,
+//            onVerticalDrag = { dragAmount ->
+//                scope.launch {
+//                    swipeY.snapTo(swipeY.value + dragAmount)
+//                }
+//            },
+//            onUpdateImageBitmap = onUpdateImageBitmap,
+//            onUpdateGridItemSource = onUpdateGridItemSource,
+//            onUpdateIsDragging = { newIsDragging ->
+//                isDragging = newIsDragging
+//            },
+//        )
+//    }
 
-    if (showAppDrawer) {
-        LaunchedEffect(key1 = Unit) {
-            swipeY.animateTo(
-                targetValue = 0f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessLow,
-                ),
-            )
-        }
+//    if (showWidgets) {
+//        WidgetScreen(
+//            columns = homeSettings.columns,
+//            currentPage = currentPage,
+//            drag = drag,
+//            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+//            gridItemSettings = homeSettings.gridItemSettings,
+//            gridItems = gridItems,
+//            isPressHome = isPressHome,
+//            paddingValues = paddingValues,
+//            rows = homeSettings.rows,
+//            screenHeight = screenHeight,
+//            screenWidth = screenWidth,
+//            onDismiss = {
+//                showWidgets = false
+//
+//                isPressHome = false
+//            },
+//            onDraggingGridItem = onDraggingGridItem,
+//            onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+//            onUpdateGridItemOffset = onUpdateGridItemOffset,
+//            onUpdateImageBitmap = onUpdateImageBitmap,
+//            onUpdateGridItemSource = onUpdateGridItemSource,
+//        )
+//    }
 
-        ApplicationScreen(
-            alpha = applicationScreenAlpha,
-            appDrawerSettings = appDrawerSettings,
-            columns = homeSettings.columns,
-            cornerSize = cornerSize,
-            currentPage = currentPage,
-            drag = drag,
-            eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
-            eblanApplicationInfoTags = eblanApplicationInfoTags,
-            eblanShortcutInfosGroup = eblanShortcutInfosGroup,
-            getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
-            gridItemSource = gridItemSource,
-            gridItems = gridItems,
-            hasShortcutHostPermission = hasShortcutHostPermission,
-            iconPackFilePaths = iconPackFilePaths,
-            isPressHome = isPressHome,
-            klwpIntegration = experimentalSettings.klwpIntegration,
-            managedProfileResult = managedProfileResult,
-            paddingValues = paddingValues,
-            rows = homeSettings.rows,
-            screen = screen,
-            screenHeight = screenHeight,
-            screenWidth = screenWidth,
-            swipeY = swipeY.value,
-            onDismiss = {
-                scope.launch {
-                    swipeY.animateTo(
-                        targetValue = screenHeight.toFloat(),
-                        animationSpec = tween(
-                            easing = FastOutSlowInEasing,
-                        ),
-                    )
+//    if (showShortcutConfigActivities) {
+//        ShortcutConfigScreen(
+//            currentPage = currentPage,
+//            drag = drag,
+//            eblanShortcutConfigs = eblanShortcutConfigs,
+//            gridItemSettings = homeSettings.gridItemSettings,
+//            gridItems = gridItems,
+//            isPressHome = isPressHome,
+//            paddingValues = paddingValues,
+//            screenHeight = screenHeight,
+//            onDismiss = {
+//                showShortcutConfigActivities = false
+//
+//                isPressHome = false
+//            },
+//            onDraggingGridItem = onDraggingGridItem,
+//            onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
+//            onUpdateGridItemOffset = onUpdateGridItemOffset,
+//            onUpdateImageBitmap = onUpdateImageBitmap,
+//            onUpdateGridItemSource = onUpdateGridItemSource,
+//        )
+//    }
 
-                    showAppDrawer = false
-
-                    isPressHome = false
-                }
-            },
-            onDragEnd = { remaining ->
-                scope.launch {
-                    handleApplyFling(
-                        offsetY = swipeY,
-                        remaining = remaining,
-                        screenHeight = screenHeight,
-                        onDismiss = {
-                            showAppDrawer = false
-                        },
-                    )
-                }
-            },
-            onDraggingGridItem = onDraggingGridItem,
-            onEditApplicationInfo = onEditApplicationInfo,
-            onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-            onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
-            onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
-            onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
-            onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onUpdateSharedElementKey = onUpdateSharedElementKey,
-            onVerticalDrag = { dragAmount ->
-                scope.launch {
-                    swipeY.snapTo(swipeY.value + dragAmount)
-                }
-            },
-            onUpdateImageBitmap = onUpdateImageBitmap,
-            onUpdateGridItemSource = onUpdateGridItemSource,
-            onUpdateIsLongPress = { newIsLongPress ->
-                isLongPress = newIsLongPress
-            },
-        )
-    }
-
-    if (showWidgets) {
-        WidgetScreen(
-            columns = homeSettings.columns,
-            currentPage = currentPage,
-            drag = drag,
-            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-            gridItemSettings = homeSettings.gridItemSettings,
-            gridItems = gridItems,
-            isPressHome = isPressHome,
-            paddingValues = paddingValues,
-            rows = homeSettings.rows,
-            screenHeight = screenHeight,
-            screenWidth = screenWidth,
-            onDismiss = {
-                showWidgets = false
-
-                isPressHome = false
-            },
-            onDraggingGridItem = onDraggingGridItem,
-            onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-            onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onUpdateImageBitmap = onUpdateImageBitmap,
-            onUpdateGridItemSource = onUpdateGridItemSource,
-        )
-    }
-
-    if (showShortcutConfigActivities) {
-        ShortcutConfigScreen(
-            currentPage = currentPage,
-            drag = drag,
-            eblanShortcutConfigs = eblanShortcutConfigs,
-            gridItemSettings = homeSettings.gridItemSettings,
-            gridItems = gridItems,
-            isPressHome = isPressHome,
-            paddingValues = paddingValues,
-            screenHeight = screenHeight,
-            onDismiss = {
-                showShortcutConfigActivities = false
-
-                isPressHome = false
-            },
-            onDraggingGridItem = onDraggingGridItem,
-            onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-            onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onUpdateImageBitmap = onUpdateImageBitmap,
-            onUpdateGridItemSource = onUpdateGridItemSource,
-        )
-    }
-
-    if (eblanApplicationInfoGroup != null) {
-        AppWidgetScreen(
-            columns = homeSettings.columns,
-            currentPage = currentPage,
-            drag = drag,
-            eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
-            eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-            gridItemSettings = homeSettings.gridItemSettings,
-            gridItems = gridItems,
-            isPressHome = isPressHome,
-            paddingValues = paddingValues,
-            rows = homeSettings.rows,
-            screenHeight = screenHeight,
-            screenWidth = screenWidth,
-            onDismiss = {
-                eblanApplicationInfoGroup = null
-
-                isPressHome = false
-            },
-            onDraggingGridItem = onDraggingGridItem,
-            onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onUpdateImageBitmap = onUpdateImageBitmap,
-            onUpdateGridItemSource = onUpdateGridItemSource,
-        )
-    }
+//    if (eblanApplicationInfoGroup != null) {
+//        AppWidgetScreen(
+//            columns = homeSettings.columns,
+//            currentPage = currentPage,
+//            drag = drag,
+//            eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
+//            eblanApplicationInfoGroup = eblanApplicationInfoGroup,
+//            gridItemSettings = homeSettings.gridItemSettings,
+//            gridItems = gridItems,
+//            isPressHome = isPressHome,
+//            paddingValues = paddingValues,
+//            rows = homeSettings.rows,
+//            screenHeight = screenHeight,
+//            screenWidth = screenWidth,
+//            onDismiss = {
+//                eblanApplicationInfoGroup = null
+//
+//                isPressHome = false
+//            },
+//            onDraggingGridItem = onDraggingGridItem,
+//            onUpdateGridItemOffset = onUpdateGridItemOffset,
+//            onUpdateImageBitmap = onUpdateImageBitmap,
+//            onUpdateGridItemSource = onUpdateGridItemSource,
+//        )
+//    }
 }

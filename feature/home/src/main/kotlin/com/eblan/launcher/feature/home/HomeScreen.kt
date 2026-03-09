@@ -167,8 +167,6 @@ internal fun HomeRoute(
 
     val folderGridItem by viewModel.folderGridItem.collectAsStateWithLifecycle()
 
-    val folderGridItemCache by viewModel.folderGridItemCache.collectAsStateWithLifecycle()
-
     HomeScreen(
         modifier = modifier,
         configureResultCode = configureResultCode,
@@ -178,7 +176,6 @@ internal fun HomeRoute(
         eblanShortcutConfigs = eblanShortcutConfigs,
         eblanShortcutInfosGroup = eblanShortcutInfosGroup,
         folderGridItem = folderGridItem,
-        folderGridItemCache = folderGridItemCache,
         getEblanApplicationInfosByLabel = getEblanApplicationInfos,
         gridItemsCache = gridItemsCache,
         homeUiState = homeUiState,
@@ -236,7 +233,6 @@ internal fun HomeScreen(
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     folderGridItem: GridItem?,
-    folderGridItemCache: GridItem?,
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     gridItemsCache: GridItemCache,
     homeUiState: HomeUiState,
@@ -481,7 +477,6 @@ internal fun HomeScreen(
                     eblanShortcutConfigs = eblanShortcutConfigs,
                     eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                     folderGridItem = folderGridItem,
-                    folderGridItemCache = folderGridItemCache,
                     getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
                     gridItemCache = gridItemsCache,
                     homeData = homeUiState.homeData,
@@ -573,7 +568,6 @@ private fun SharedTransitionScope.Success(
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     folderGridItem: GridItem?,
-    folderGridItemCache: GridItem?,
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
     gridItemCache: GridItemCache,
     homeData: HomeData,
@@ -891,7 +885,6 @@ private fun SharedTransitionScope.Success(
                     iconPackFilePaths = iconPackFilePaths,
                     managedProfileResult = managedProfileResult,
                     paddingValues = paddingValues,
-                    screen = targetState,
                     screenHeight = screenHeight,
                     screenWidth = screenWidth,
                     statusBarNotifications = statusBarNotifications,

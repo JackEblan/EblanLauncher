@@ -47,7 +47,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -84,13 +83,15 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.modifier.onDoubleTap
-import com.eblan.launcher.feature.home.component.modifier.swipeGestures
 import com.eblan.launcher.feature.home.component.grid.FolderGridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
+import com.eblan.launcher.feature.home.component.modifier.onDoubleTap
+import com.eblan.launcher.feature.home.component.modifier.swipeGestures
+import com.eblan.launcher.feature.home.component.modifier.whiteBox
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.FolderScreen
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.FOLDER_GRID_PADDING
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
@@ -118,6 +119,8 @@ internal fun SharedTransitionScope.FolderScreen(
     screenWidth: Int,
     statusBarNotifications: Map<String, Int>,
     textColor: TextColor,
+    gridItemSource: GridItemSource?,
+    isDragging: Boolean,
     onDismissRequest: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
@@ -128,6 +131,7 @@ internal fun SharedTransitionScope.FolderScreen(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateIsDragging: (Boolean) -> Unit,
 ) {
     val data = folderGridItem.data as? GridItemData.Folder ?: return
 
@@ -245,12 +249,15 @@ internal fun SharedTransitionScope.FolderScreen(
                                     statusBarNotifications = statusBarNotifications,
                                     textColor = textColor,
                                     folderGridItem = folderGridItem,
+                                    gridItemSource = gridItemSource,
+                                    isDragging = isDragging,
                                     onDraggingGridItem = onDraggingGridItem,
                                     onOpenAppDrawer = onOpenAppDrawer,
                                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                                     onUpdateImageBitmap = onUpdateImageBitmap,
                                     onUpdateGridItemSource = onUpdateGridItemSource,
                                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                    onUpdateIsDragging = onUpdateIsDragging,
                                 )
                             },
                         )
@@ -332,6 +339,8 @@ private fun SharedTransitionScope.FolderGridItemContent(
     statusBarNotifications: Map<String, Int>,
     textColor: TextColor,
     folderGridItem: GridItem,
+    gridItemSource: GridItemSource?,
+    isDragging: Boolean,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
     onUpdateGridItemOffset: (
@@ -341,10 +350,18 @@ private fun SharedTransitionScope.FolderGridItemContent(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateIsDragging: (Boolean) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
     val context = LocalContext.current
+
+    val settings = LocalSettings.current
+
+    val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder
+
+    val isSelected = gridItemSourceFolder != null &&
+            gridItem.id == gridItemSourceFolder.applicationInfoGridItem.id
 
     val currentGridItemSettings = if (gridItem.override) {
         gridItem.gridItemSettings
@@ -379,25 +396,23 @@ private fun SharedTransitionScope.FolderGridItemContent(
 
     val scope = rememberCoroutineScope()
 
-    var isLongPress by remember { mutableStateOf(false) }
+    val isVisibleWhiteBox = isSelected && drag == Drag.Dragging
 
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
+    val isInvisible = isDragging && isSelected && (drag == Drag.Start || drag == Drag.Dragging)
+
+    val maxLines = if (currentGridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
+    val icon = iconPackFilePaths[gridItem.componentName] ?: gridItem.icon
+
+    val hasNotifications =
+        statusBarNotifications[gridItem.packageName] != null && (
+                statusBarNotifications[gridItem.packageName]
+                    ?: 0
+                ) > 0
 
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Dragging if isLongPress -> {
-                onDraggingGridItem()
-            }
-
-            Drag.End, Drag.Cancel -> {
-                isLongPress = false
-            }
-
-            else -> Unit
+        if (drag == Drag.Dragging && isSelected) {
+            onDraggingGridItem()
         }
     }
 
@@ -434,7 +449,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
                                 ),
                             )
 
-                            isLongPress = true
+                            onUpdateIsDragging(true)
                         }
                     },
                     onTap = {
@@ -461,19 +476,15 @@ private fun SharedTransitionScope.FolderGridItemContent(
             .background(
                 color = Color(currentGridItemSettings.customBackgroundColor),
                 shape = RoundedCornerShape(size = currentGridItemSettings.cornerRadius.dp),
+            )
+            .whiteBox(
+                visible = isVisibleWhiteBox,
+                textColor = currentTextColor,
             ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isDragging) {
-            val settings = LocalSettings.current
-            val maxLines = if (currentGridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
-            val icon = iconPackFilePaths[gridItem.componentName] ?: gridItem.icon
-            val hasNotifications =
-                statusBarNotifications[gridItem.packageName] != null && (
-                    statusBarNotifications[gridItem.packageName]
-                        ?: 0
-                    ) > 0
+        if (!isInvisible) {
             Box(modifier = Modifier.size(currentGridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = Builder(LocalContext.current).data(gridItem.customIcon ?: icon)
@@ -487,7 +498,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
                                     screen = FolderScreen.Folder,
                                 ),
                             ),
-                            visible = drag == Drag.Cancel || drag == Drag.End,
+                            visible = drag == Drag.None || drag == Drag.Cancel || drag == Drag.End,
                         )
                         .drawWithContent {
                             graphicsLayer.record {

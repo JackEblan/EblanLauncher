@@ -21,6 +21,7 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
+import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -29,14 +30,26 @@ import javax.inject.Inject
 
 class GetFolderGridItemsByIdUseCase @Inject constructor(
     private val folderGridItemRepository: FolderGridItemRepository,
+    private val gridCacheRepository: GridCacheRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(idFlow: Flow<String?>): Flow<GridItem?> = combine(
+    operator fun invoke(
+        isCacheFlow: Flow<Boolean>,
+        idFlow: Flow<String?>,
+    ): Flow<GridItem?> = combine(
+        isCacheFlow,
         idFlow,
         folderGridItemRepository.folderGridItemWrappers,
-    ) { id, folderGridItemWrappers ->
-        folderGridItemWrappers.firstOrNull { folderGridItemWrapper ->
-            folderGridItemWrapper.folderGridItem.id == id
-        }?.asGridItem()
+        gridCacheRepository.gridItemsCache,
+    ) { isCache, id, folderGridItemWrappers, gridItemsCache ->
+        if (isCache) {
+            gridItemsCache.firstOrNull { gridItem ->
+                gridItem.id == id
+            }
+        } else {
+            folderGridItemWrappers.firstOrNull { folderGridItemWrapper ->
+                folderGridItemWrapper.folderGridItem.id == id
+            }?.asGridItem()
+        }
     }.flowOn(defaultDispatcher)
 }

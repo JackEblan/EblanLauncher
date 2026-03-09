@@ -120,7 +120,7 @@ internal fun SettingsPopup(
 @Composable
 internal fun FolderGridItemPopup(
     modifier: Modifier = Modifier,
-    gridItemSource: GridItemSource,
+    gridItemSource: GridItemSource?,
     paddingValues: PaddingValues,
     popupIntOffset: IntOffset,
     popupIntSize: IntSize,

@@ -122,7 +122,9 @@ internal class HomeViewModel @Inject constructor(
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val showFolderWhenDraggingUseCase: ShowFolderWhenDraggingUseCase,
 ) : ViewModel() {
-    val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
+    private val _isCache = MutableStateFlow(false)
+
+    val homeUiState = getHomeDataUseCase(isCacheFlow = _isCache).map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = HomeUiState.Loading,
@@ -298,8 +300,8 @@ internal class HomeViewModel @Inject constructor(
 
             delay(defaultDelay)
 
-            _screen.update {
-                screen
+            _isCache.update {
+                true
             }
         }
     }
@@ -386,8 +388,8 @@ internal class HomeViewModel @Inject constructor(
 
             delay(defaultDelay)
 
-            _screen.update {
-                Screen.Pager
+            _isCache.update {
+                true
             }
 
             _moveGridItemResult.update {

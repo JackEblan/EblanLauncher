@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.feature.home.screen.pager
 
+import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.content.Intent.ACTION_SET_WALLPAPER
 import android.content.Intent.createChooser
@@ -24,8 +25,11 @@ import android.content.Intent.parseUri
 import android.graphics.Rect
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.N_MR1
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
@@ -52,6 +56,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -87,16 +92,31 @@ import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.ManagedProfileResult
+import com.eblan.launcher.domain.model.MoveGridItemResult
+import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
+import com.eblan.launcher.feature.home.screen.drag.handleAnimateScrollToPage
+import com.eblan.launcher.feature.home.screen.drag.handleAppWidgetLauncherResult
+import com.eblan.launcher.feature.home.screen.drag.handleBoundWidget
+import com.eblan.launcher.feature.home.screen.drag.handleConfigureLauncherResult
+import com.eblan.launcher.feature.home.screen.drag.handleConflictingGridItem
+import com.eblan.launcher.feature.home.screen.drag.handleDeleteAppWidgetId
+import com.eblan.launcher.feature.home.screen.drag.handleDragGridItem
+import com.eblan.launcher.feature.home.screen.drag.handleDropGridItem
+import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
+import com.eblan.launcher.feature.home.screen.drag.handleShortcutConfigIntentSenderLauncherResult
+import com.eblan.launcher.feature.home.screen.drag.handleShortcutConfigLauncherResult
 import com.eblan.launcher.feature.home.screen.folder.FolderScreen
 import com.eblan.launcher.feature.home.screen.shortcutconfig.ShortcutConfigScreen
 import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
@@ -105,7 +125,12 @@ import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
+import com.eblan.launcher.ui.local.LocalAppWidgetHost
+import com.eblan.launcher.ui.local.LocalAppWidgetManager
+import com.eblan.launcher.ui.local.LocalFileManager
+import com.eblan.launcher.ui.local.LocalImageSerializer
 import com.eblan.launcher.ui.local.LocalLauncherApps
+import com.eblan.launcher.ui.local.LocalUserManager
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -147,6 +172,11 @@ internal fun SharedTransitionScope.PagerScreen(
     screenWidth: Int,
     statusBarNotifications: Map<String, Int>,
     textColor: TextColor,
+    associate: Associate?,
+    configureResultCode: Int?,
+    dragIntOffset: IntOffset,
+    lockMovement: Boolean,
+    moveGridItemResult: MoveGridItemResult?,
     onDeleteApplicationInfoGridItem: (ApplicationInfoGridItem) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onDraggingGridItem: (
@@ -185,6 +215,61 @@ internal fun SharedTransitionScope.PagerScreen(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onDeleteGridItemCache: (GridItem) -> Unit,
+    onDeleteWidgetGridItemCache: (
+        gridItem: GridItem,
+        appWidgetId: Int,
+    ) -> Unit,
+    onDragCancelAfterMove: () -> Unit,
+    onDragEndAfterMove: (MoveGridItemResult) -> Unit,
+    onDragEndAfterMoveFolder: () -> Unit,
+    onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
+    onMoveFolderGridItem: (
+        folderGridItem: GridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        dragX: Int,
+        dragY: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        currentPage: Int,
+    ) -> Unit,
+    onMoveFolderGridItemOutsideFolder: (
+        folderGridItem: GridItem,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+    ) -> Unit,
+    onMoveGridItem: (
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        lockMovement: Boolean,
+    ) -> Unit,
+    onResetConfigureResultCode: () -> Unit,
+    onShowFolderWhenDragging: (
+        id: String,
+        movingGridItem: GridItem,
+        gridItemSource: GridItemSource,
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onUpdateAssociate: (Associate) -> Unit,
+    onUpdateShortcutConfigGridItemDataCache: (
+        byteArray: ByteArray?,
+        moveGridItemResult: MoveGridItemResult,
+        gridItem: GridItem,
+        data: GridItemData.ShortcutConfig,
+    ) -> Unit,
+    onUpdateShortcutConfigIntoShortcutInfoGridItem: (
+        moveGridItemResult: MoveGridItemResult,
+        pinItemRequestType: PinItemRequestType.ShortcutInfo,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -310,6 +395,283 @@ internal fun SharedTransitionScope.PagerScreen(
     val pageIndicatorHeightPx = with(density) {
         PAGE_INDICATOR_HEIGHT.roundToPx()
     }
+
+    //Drag
+    val appWidgetManager = LocalAppWidgetManager.current
+
+    val userManager = LocalUserManager.current
+
+    val imageSerializer = LocalImageSerializer.current
+
+    val fileManager = LocalFileManager.current
+
+    val appWidgetHost = LocalAppWidgetHost.current
+
+    var lastAppWidgetId by remember { mutableIntStateOf(AppWidgetManager.INVALID_APPWIDGET_ID) }
+
+    var deleteAppWidgetId by remember { mutableStateOf(false) }
+
+    var updatedWidgetGridItem by remember { mutableStateOf<GridItem?>(null) }
+
+    var gridPageDirection by remember { mutableStateOf<PageDirection?>(null) }
+
+    var dockPageDirection by remember { mutableStateOf<PageDirection?>(null) }
+
+    var folderPageDirection by remember { mutableStateOf<PageDirection?>(null) }
+
+    var isLongPress by remember { mutableStateOf(false) }
+
+    val appWidgetLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        handleAppWidgetLauncherResult(
+            appWidgetManager = appWidgetManager,
+            gridItemSource = gridItemSource,
+            result = result,
+            isLongPress = isLongPress,
+            onDeleteAppWidgetId = {
+                deleteAppWidgetId = true
+            },
+            onUpdateWidgetGridItem = { gridItem ->
+                updatedWidgetGridItem = gridItem
+            },
+        )
+    }
+
+    val shortcutConfigLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        scope.launch {
+            handleShortcutConfigLauncherResult(
+                gridItemSource = gridItemSource,
+                imageSerializer = imageSerializer,
+                moveGridItemResult = moveGridItemResult,
+                result = result,
+                isLongPress = isLongPress,
+                onDeleteGridItemCache = onDeleteGridItemCache,
+                onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
+            )
+        }
+    }
+
+    val shortcutConfigIntentSenderLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult(),
+    ) { result ->
+        scope.launch {
+            handleShortcutConfigIntentSenderLauncherResult(
+                fileManager = fileManager,
+                gridItemSource = gridItemSource,
+                imageSerializer = imageSerializer,
+                launcherAppsWrapper = launcherApps,
+                moveGridItemResult = moveGridItemResult,
+                result = result,
+                userManagerWrapper = userManager,
+                isLongPress = isLongPress,
+                onDeleteGridItemCache = onDeleteGridItemCache,
+                onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
+            )
+        }
+    }
+
+    var folderTitleHeightPx by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
+        handleDragGridItem(
+            columns = homeSettings.columns,
+            currentPage = currentPage,
+            density = density,
+            dockColumns = homeSettings.dockColumns,
+            dockHeight = dockHeight,
+            dockRows = homeSettings.dockRows,
+            drag = drag,
+            dragIntOffset = dragIntOffset,
+            folderCurrentPage = folderGridHorizontalPagerState.currentPage,
+            folderGridItem = folderGridItem,
+            folderPopupIntOffset = folderPopupIntOffset,
+            folderPopupIntSize = folderPopupIntSize,
+            folderTitleHeightPx = folderTitleHeightPx,
+            gridItemSource = gridItemSource,
+            isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+            lockMovement = lockMovement,
+            paddingValues = paddingValues,
+            rows = homeSettings.rows,
+            screenHeight = screenHeight,
+            screenWidth = screenWidth,
+            isLongPress = isLongPress,
+            onMoveFolderGridItem = onMoveFolderGridItem,
+            onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
+            onMoveGridItem = onMoveGridItem,
+            onUpdateAssociate = onUpdateAssociate,
+            onUpdateGridItemSource = onUpdateGridItemSource,
+        )
+    }
+
+    LaunchedEffect(key1 = drag) {
+        when (drag) {
+            Drag.End -> {
+                handleDropGridItem(
+                    androidAppWidgetHostWrapper = appWidgetHost,
+                    appWidgetManager = appWidgetManager,
+                    gridItemSource = gridItemSource,
+                    launcherAppsWrapper = launcherApps,
+                    moveGridItemResult = moveGridItemResult,
+                    userManagerWrapper = userManager,
+                    isLongPress = isLongPress,
+                    onDeleteGridItemCache = onDeleteGridItemCache,
+                    onDragCancelAfterMove = onDragCancelAfterMove,
+                    onDragEndAfterMove = onDragEndAfterMove,
+                    onDragEndAfterMoveFolder = onDragEndAfterMoveFolder,
+                    onLaunchShortcutConfigIntent = shortcutConfigLauncher::launch,
+                    onLaunchShortcutConfigIntentSenderRequest = shortcutConfigIntentSenderLauncher::launch,
+                    onLaunchWidgetIntent = appWidgetLauncher::launch,
+                    onToast = {
+                        Toast.makeText(
+                            context,
+                            "Layout was canceled due to an invalid position",
+                            Toast.LENGTH_LONG,
+                        ).show()
+                    },
+                    onUpdateAppWidgetId = { appWidgetId ->
+                        lastAppWidgetId = appWidgetId
+                    },
+                    onUpdateWidgetGridItem = { gridItem ->
+                        updatedWidgetGridItem = gridItem
+                    },
+                    onUpdateIsLongPress = { newIsLongPress ->
+                        isLongPress = newIsLongPress
+                    },
+                )
+
+                onResetConfigureResultCode()
+            }
+
+            Drag.Cancel -> {
+                isLongPress = false
+
+                onDragCancelAfterMove()
+            }
+
+            else -> Unit
+        }
+    }
+
+    LaunchedEffect(key1 = deleteAppWidgetId) {
+        handleDeleteAppWidgetId(
+            appWidgetId = lastAppWidgetId,
+            deleteAppWidgetId = deleteAppWidgetId,
+            gridItemSource = gridItemSource,
+            isLongPress = isLongPress,
+            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+            onUpdateIsLongPress = { newIsLongPress ->
+                isLongPress = newIsLongPress
+            },
+        )
+    }
+
+    LaunchedEffect(key1 = updatedWidgetGridItem) {
+        handleBoundWidget(
+            activity = activity,
+            androidAppWidgetHostWrapper = appWidgetHost,
+            gridItemSource = gridItemSource,
+            moveGridItemResult = moveGridItemResult,
+            updatedWidgetGridItem = updatedWidgetGridItem,
+            isLongPress = isLongPress,
+            onDeleteGridItemCache = onDeleteGridItemCache,
+            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+            onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
+            onUpdateIsLongPress = { newIsLongPress ->
+                isLongPress = newIsLongPress
+            },
+        )
+    }
+
+    LaunchedEffect(key1 = gridHorizontalPagerState) {
+        handleWallpaperScroll(
+            horizontalPagerState = gridHorizontalPagerState,
+            infiniteScroll = homeSettings.infiniteScroll,
+            pageCount = homeSettings.pageCount,
+            wallpaperManagerWrapper = wallpaperManagerWrapper,
+            wallpaperScroll = homeSettings.wallpaperScroll,
+            windowToken = view.windowToken,
+        )
+    }
+
+    LaunchedEffect(key1 = moveGridItemResult, key2 = drag) {
+        handleConflictingGridItem(
+            columns = homeSettings.columns,
+            density = density,
+            dockHeight = dockHeight,
+            drag = drag,
+            gridItemSource = gridItemSource,
+            moveGridItemResult = moveGridItemResult,
+            paddingValues = paddingValues,
+            rows = homeSettings.rows,
+            screenHeight = screenHeight,
+            screenWidth = screenWidth,
+            onShowFolderWhenDragging = onShowFolderWhenDragging,
+        )
+    }
+
+    LaunchedEffect(key1 = dragIntOffset) {
+        handleAnimateScrollToPage(
+            associate = associate,
+            columns = homeSettings.columns,
+            density = density,
+            dragIntOffset = dragIntOffset,
+            folderGridItem = folderGridItem,
+            folderPopupIntOffset = folderPopupIntOffset,
+            folderPopupIntSize = folderPopupIntSize,
+            gridItemSource = gridItemSource,
+            paddingValues = paddingValues,
+            screenWidth = screenWidth,
+            onUpdateDockPageDirection = { pageDirection ->
+                dockPageDirection = pageDirection
+            },
+            onUpdateFolderPageDirection = { pageDirection ->
+                folderPageDirection = pageDirection
+            },
+            onUpdateGridPageDirection = { pageDirection ->
+                gridPageDirection = pageDirection
+            },
+        )
+    }
+
+    LaunchedEffect(key1 = configureResultCode) {
+        handleConfigureLauncherResult(
+            moveGridItemResult = moveGridItemResult,
+            resultCode = configureResultCode,
+            updatedGridItem = updatedWidgetGridItem,
+            isLongPress = isLongPress,
+            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+            onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
+            onResetConfigureResultCode = onResetConfigureResultCode,
+            onUpdateIsLongPress = { newIsLongPress ->
+                isLongPress = newIsLongPress
+            },
+        )
+    }
+
+    LaunchedEffect(key1 = gridPageDirection) {
+        handlePageDirection(
+            pageDirection = gridPageDirection,
+            pagerState = gridHorizontalPagerState,
+        )
+    }
+
+    LaunchedEffect(key1 = dockPageDirection) {
+        handlePageDirection(
+            pageDirection = dockPageDirection,
+            pagerState = dockGridHorizontalPagerState,
+        )
+    }
+
+    LaunchedEffect(key1 = folderPageDirection) {
+        handlePageDirection(
+            pageDirection = folderPageDirection,
+            pagerState = folderGridHorizontalPagerState,
+        )
+    }
+    //Drag
 
     LaunchedEffect(key1 = hasDoubleTap) {
         handleHasDoubleTap(
@@ -508,6 +870,8 @@ internal fun SharedTransitionScope.PagerScreen(
                         screen = screen,
                         statusBarNotifications = statusBarNotifications,
                         textColor = textColor,
+                        gridItemSource = gridItemSource,
+                        isLongPress = isLongPress,
                         onDraggingGridItem = {
                             showGridItemPopup = false
 
@@ -585,6 +949,9 @@ internal fun SharedTransitionScope.PagerScreen(
                         onUpdateImageBitmap = onUpdateImageBitmap,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                         onUpdateGridItemSource = onUpdateGridItemSource,
+                        onUpdateIsLongPress = { newIsLongPress ->
+                            isLongPress = newIsLongPress
+                        },
                     )
                 },
             )
@@ -647,6 +1014,8 @@ internal fun SharedTransitionScope.PagerScreen(
                     screen = screen,
                     statusBarNotifications = statusBarNotifications,
                     textColor = textColor,
+                    gridItemSource = gridItemSource,
+                    isLongPress = isLongPress,
                     onDraggingGridItem = {
                         showGridItemPopup = false
 
@@ -724,6 +1093,9 @@ internal fun SharedTransitionScope.PagerScreen(
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onUpdateGridItemSource = onUpdateGridItemSource,
+                    onUpdateIsLongPress = { newIsLongPress ->
+                        isLongPress = newIsLongPress
+                    },
                 )
             }
         }

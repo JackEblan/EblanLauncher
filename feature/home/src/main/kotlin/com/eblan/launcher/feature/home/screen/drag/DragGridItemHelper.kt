@@ -51,13 +51,15 @@ internal fun handleAnimateScrollToPage(
     folderGridItem: GridItem?,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
-    gridItemSource: GridItemSource,
+    gridItemSource: GridItemSource?,
     paddingValues: PaddingValues,
     screenWidth: Int,
     onUpdateDockPageDirection: (PageDirection?) -> Unit,
     onUpdateFolderPageDirection: (PageDirection?) -> Unit,
     onUpdateGridPageDirection: (PageDirection?) -> Unit,
 ) {
+    if (gridItemSource == null) return
+
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
@@ -153,13 +155,14 @@ internal suspend fun handleDragGridItem(
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
     folderTitleHeightPx: Int,
-    gridItemSource: GridItemSource,
+    gridItemSource: GridItemSource?,
     isScrollInProgress: Boolean,
     lockMovement: Boolean,
     paddingValues: PaddingValues,
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
+    isLongPress: Boolean,
     onMoveFolderGridItem: (
         folderGridItem: GridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
@@ -193,7 +196,9 @@ internal suspend fun handleDragGridItem(
     if (drag == Drag.None ||
         drag == Drag.End ||
         drag == Drag.Cancel ||
-        isScrollInProgress
+        isScrollInProgress ||
+        gridItemSource == null ||
+        !isLongPress
     ) {
         return
     }
@@ -334,7 +339,8 @@ private suspend fun handleDragFolderGridItem(
 
     val data = folderGridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
 
-    val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemData.Folder")
+    val gridItemSourceFolder =
+        gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemData.Folder")
 
     if (lockMovement) return
 
@@ -368,7 +374,7 @@ private suspend fun handleDragFolderGridItem(
         (folderGridHeightPx - folderTitleHeightPx) - (folderGridPaddingPx * 2)
 
     val isInsideFolder = folderDragX in 0..folderGridVisibleWidthPx &&
-        folderDragY in 0..folderGridVisibleHeightPx
+            folderDragY in 0..folderGridVisibleHeightPx
 
     if (isInsideFolder) {
         onMoveFolderGridItem(
@@ -568,7 +574,7 @@ internal suspend fun handleConflictingGridItem(
     density: Density,
     dockHeight: Dp,
     drag: Drag,
-    gridItemSource: GridItemSource,
+    gridItemSource: GridItemSource?,
     moveGridItemResult: MoveGridItemResult?,
     paddingValues: PaddingValues,
     rows: Int,
@@ -585,6 +591,7 @@ internal suspend fun handleConflictingGridItem(
     delay(1000L)
 
     if (drag != Drag.Dragging ||
+        gridItemSource == null ||
         moveGridItemResult == null
     ) {
         return

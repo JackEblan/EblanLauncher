@@ -15,17 +15,25 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.component.gesture
+package com.eblan.launcher.feature.home.component.modifier
 
 import android.content.Context
+import android.graphics.Paint
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -134,4 +142,41 @@ internal fun onDoubleTap(
     }
 } else {
     null
+}
+
+internal fun Modifier.whiteBox(
+    visible: Boolean,
+    textColor: Color,
+): Modifier {
+    return if (visible) {
+        drawBehind {
+            drawContext.canvas.nativeCanvas.apply {
+                val paint = Paint().apply {
+                    style = Paint.Style.STROKE
+                    strokeWidth = 1.5.dp.toPx()
+
+                    color = textColor.copy(alpha = 0.3f).toArgb()
+
+                    setShadowLayer(
+                        12.dp.toPx(),
+                        0f,
+                        0f,
+                        textColor.toArgb(),
+                    )
+                }
+
+                drawRoundRect(
+                    0f,
+                    0f,
+                    size.width,
+                    size.height,
+                    5.dp.toPx(),
+                    5.dp.toPx(),
+                    paint,
+                )
+            }
+        }
+    } else {
+        this
+    }
 }

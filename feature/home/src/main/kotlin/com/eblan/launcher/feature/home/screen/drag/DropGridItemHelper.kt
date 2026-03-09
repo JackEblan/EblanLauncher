@@ -87,6 +87,8 @@ internal suspend fun handleDropGridItem(
                 return
             }
 
+            onUpdateIsDragging(false)
+
             when (val data = gridItemSource.gridItem.data) {
                 is GridItemData.Widget -> {
                     onDragEndWidget(
@@ -113,8 +115,6 @@ internal suspend fun handleDropGridItem(
                 }
 
                 else -> {
-                    onUpdateIsDragging(false)
-
                     onDragEndAfterMove(moveGridItemResult)
                 }
             }
@@ -128,6 +128,8 @@ internal suspend fun handleDropGridItem(
 
                 return
             }
+
+            onUpdateIsDragging(false)
 
             when (val data = gridItemSource.gridItem.data) {
                 is GridItemData.ShortcutInfo -> {
@@ -153,14 +155,14 @@ internal suspend fun handleDropGridItem(
                 }
 
                 else -> {
-                    onUpdateIsDragging(false)
-
                     onDragEndAfterMove(moveGridItemResult)
                 }
             }
         }
 
         is GridItemSource.Folder -> {
+            onUpdateIsDragging(false)
+
             onDragEndAfterMoveFolder()
         }
 

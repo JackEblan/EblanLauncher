@@ -203,6 +203,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     onVerticalDrag: (Float) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -253,6 +254,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             onVerticalDrag = onVerticalDrag,
             onUpdateImageBitmap = onUpdateImageBitmap,
             onUpdateGridItemSource = onUpdateGridItemSource,
+            onUpdateIsLongPress = onUpdateIsLongPress,
         )
     }
 }
@@ -304,6 +306,7 @@ private fun SharedTransitionScope.Success(
     onVerticalDrag: (Float) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -493,6 +496,8 @@ private fun SharedTransitionScope.Success(
                     onVerticalDrag = onVerticalDrag,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
+                    onDismiss = onDismiss,
+                    onUpdateIsLongPress = onUpdateIsLongPress,
                 )
             }
         } else {
@@ -532,6 +537,8 @@ private fun SharedTransitionScope.Success(
                 onVerticalDrag = onVerticalDrag,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateGridItemSource = onUpdateGridItemSource,
+                onDismiss = onDismiss,
+                onUpdateIsLongPress = onUpdateIsLongPress,
             )
         }
     }
@@ -656,6 +663,8 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     onVerticalDrag: (Float) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onDismiss: () -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     val userManager = LocalUserManager.current
 
@@ -730,6 +739,8 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 onVerticalDrag = onVerticalDrag,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateGridItemSource = onUpdateGridItemSource,
+                onDismiss = onDismiss,
+                onUpdateIsLongPress = onUpdateIsLongPress,
             )
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && packageManager.isDefaultLauncher() && eblanUser.serialNumber > 0 && userHandle != null) {
@@ -841,6 +852,8 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     onVerticalDrag: (Float) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onDismiss: () -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -915,6 +928,8 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                                 onUpdateImageBitmap = onUpdateImageBitmap,
                                 onUpdateGridItemSource = onUpdateGridItemSource,
+                                onDismiss = onDismiss,
+                                onUpdateIsLongPress = onUpdateIsLongPress,
                             )
                         }
                     }
@@ -955,6 +970,8 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                                 onUpdateImageBitmap = onUpdateImageBitmap,
                                 onUpdateGridItemSource = onUpdateGridItemSource,
+                                onDismiss = onDismiss,
+                                onUpdateIsLongPress = onUpdateIsLongPress,
                             )
                         }
                     }
@@ -1000,6 +1017,8 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onDismiss: () -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -1051,6 +1070,10 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Dragging if isLongPress -> {
+                onUpdatePopupMenu(false)
+
+                onDismiss()
+
                 val data = GridItemData.ApplicationInfo(
                     serialNumber = eblanApplicationInfo.serialNumber,
                     componentName = eblanApplicationInfo.componentName,
@@ -1100,7 +1123,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                     gridItems,
                 )
 
-                onUpdatePopupMenu(false)
+                onUpdateIsLongPress(true)
             }
 
             Drag.End, Drag.Cancel -> {

@@ -1318,6 +1318,9 @@ internal fun SharedTransitionScope.PagerScreen(
             },
             onUpdateImageBitmap = onUpdateImageBitmap,
             onUpdateGridItemSource = onUpdateGridItemSource,
+            onUpdateIsLongPress = { newIsLongPress ->
+                isLongPress = newIsLongPress
+            },
         )
     }
 
@@ -1397,6 +1400,9 @@ internal fun SharedTransitionScope.PagerScreen(
             },
             onUpdateImageBitmap = onUpdateImageBitmap,
             onUpdateGridItemSource = onUpdateGridItemSource,
+            onUpdateIsLongPress = { newIsLongPress ->
+                isLongPress = newIsLongPress
+            },
         )
     }
 

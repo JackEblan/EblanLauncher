@@ -19,8 +19,6 @@ package com.eblan.launcher.feature.home.screen.folder
 
 import android.graphics.Rect
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -57,7 +55,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -181,29 +178,14 @@ internal fun SharedTransitionScope.FolderScreen(
         folderGridHeightDp.roundToPx()
     }
 
-    var visible by remember { mutableStateOf(true) }
-
-    val alpha = remember { Animatable(0f) }
-
-    LaunchedEffect(visible) {
-        if (visible) {
-            alpha.animateTo(1f, animationSpec = tween())
-        } else {
-            alpha.animateTo(0f, animationSpec = tween())
-
-            onDismissRequest()
-        }
-    }
-
     Box(
         modifier = modifier
-            .graphicsLayer(alpha = alpha.value)
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {
                         awaitRelease()
 
-                        visible = false
+                        onDismissRequest()
                     },
                 )
             }

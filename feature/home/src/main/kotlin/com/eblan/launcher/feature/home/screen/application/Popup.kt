@@ -53,7 +53,6 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.popup.ShortcutInfoMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.ui.local.LocalLauncherApps
 
@@ -72,10 +71,7 @@ internal fun PopupApplicationInfoMenu(
     popupIntOffset: IntOffset,
     popupIntSize: IntSize,
     onDismissRequest: () -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -228,10 +224,7 @@ private fun ApplicationInfoMenu(
     hasShortcutHostPermission: Boolean,
     icon: String?,
     onApplicationInfo: () -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onEdit: () -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
@@ -268,10 +261,7 @@ private fun ApplicationInfoMenu(
                         onTapShortcutInfo = onTapShortcutInfo,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onDraggingGridItem = {
-                            onDraggingGridItem(
-                                Screen.Pager,
-                                gridItems,
-                            )
+                            onDraggingGridItem(gridItems)
                         },
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                         onUpdateImageBitmap = onUpdateImageBitmap,

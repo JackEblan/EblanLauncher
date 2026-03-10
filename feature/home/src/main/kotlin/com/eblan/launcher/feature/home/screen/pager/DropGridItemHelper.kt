@@ -62,8 +62,7 @@ internal suspend fun handleDropGridItem(
     onToast: () -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
     onUpdateWidgetGridItem: (GridItem) -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
-    onResetGridItemSource: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     if (!isDragging || isApplicationScreenVisible) {
         return
@@ -71,9 +70,7 @@ internal suspend fun handleDropGridItem(
 
     when (gridItemSource) {
         is GridItemSource.Existing -> {
-            onUpdateIsDragging(false)
-
-            onResetGridItemSource()
+            onResetOverlay()
 
             if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
@@ -88,9 +85,7 @@ internal suspend fun handleDropGridItem(
             if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
-                onUpdateIsDragging(false)
-
-                onResetGridItemSource()
+                onResetOverlay()
 
                 onToast()
             } else {
@@ -123,9 +118,7 @@ internal suspend fun handleDropGridItem(
                     is GridItemData.Folder,
                     is GridItemData.ShortcutInfo,
                         -> {
-                        onUpdateIsDragging(false)
-
-                        onResetGridItemSource()
+                        onResetOverlay()
 
                         onDragEndAfterMove(moveGridItemResult)
                     }
@@ -137,7 +130,7 @@ internal suspend fun handleDropGridItem(
             if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
-                onResetGridItemSource()
+                onResetOverlay()
 
                 onToast()
             } else {
@@ -172,9 +165,7 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.Folder -> {
-            onUpdateIsDragging(false)
-
-            onResetGridItemSource()
+            onResetOverlay()
 
             onDragEndAfterMoveFolder()
         }

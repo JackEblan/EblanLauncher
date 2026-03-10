@@ -104,7 +104,6 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnec
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
@@ -128,10 +127,7 @@ internal fun ShortcutConfigScreen(
     paddingValues: PaddingValues,
     screenHeight: Int,
     onDismiss: () -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -247,10 +243,7 @@ private fun Success(
     paddingValues: PaddingValues,
     onDismiss: () -> Unit,
     onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -412,10 +405,7 @@ private fun EblanShortcutConfigsPage(
     index: Int,
     paddingValues: PaddingValues,
     onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
@@ -513,10 +503,7 @@ private fun EblanApplicationInfoItem(
     eblanShortcutConfigs: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     gridItemSettings: GridItemSettings,
     gridItems: List<GridItem>,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -593,10 +580,7 @@ private fun EblanShortcutConfigItem(
     eblanShortcutConfig: EblanShortcutConfig,
     gridItemSettings: GridItemSettings,
     gridItems: List<GridItem>,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -674,10 +658,7 @@ private fun EblanShortcutConfigItem(
                                 intSize,
                             )
 
-                            onDraggingGridItem(
-                                Screen.Pager,
-                                gridItems,
-                            )
+                            onDraggingGridItem(gridItems)
                         }
                     },
                 )

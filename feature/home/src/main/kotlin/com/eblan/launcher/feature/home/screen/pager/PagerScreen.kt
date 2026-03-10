@@ -188,10 +188,7 @@ internal fun PagerScreen(
     pinGridItem: GridItem?,
     onDeleteApplicationInfoGridItem: (ApplicationInfoGridItem) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -683,10 +680,7 @@ internal fun PagerScreen(
                 pinItemRequest = pinItemRequest,
             )
 
-            onDraggingGridItem(
-                Screen.Pager,
-                gridItems,
-            )
+            onDraggingGridItem(gridItems)
         }
     }
 
@@ -784,12 +778,21 @@ internal fun PagerScreen(
                     onUpdateWidgetGridItem = { gridItem ->
                         updatedWidgetGridItem = gridItem
                     },
-                    onUpdateIsDragging = { newIsDragging ->
-                        isDragging = newIsDragging
-                    },
-                    onResetGridItemSource = {
+                    onResetOverlay = {
+                        isDragging = false
+
                         gridItemSource = null
-                    }
+
+                        overlayImageBitmap = null
+
+                        sharedElementKey = null
+
+                        overlayIntOffset = IntOffset.Zero
+
+                        overlayIntSize = IntSize.Zero
+
+                        drag = Drag.None
+                    },
                 )
 
                 onResetConfigureResultCode()
@@ -1189,10 +1192,7 @@ internal fun PagerScreen(
 
                                 isDragging = true
 
-                                onDraggingGridItem(
-                                    Screen.Pager,
-                                    gridItems,
-                                )
+                                onDraggingGridItem(gridItems)
                             },
                             onOpenAppDrawer = {
                                 showAppDrawer = true
@@ -1346,10 +1346,7 @@ internal fun PagerScreen(
 
                             isDragging = true
 
-                            onDraggingGridItem(
-                                Screen.Pager,
-                                gridItems,
-                            )
+                            onDraggingGridItem(gridItems)
                         },
                         onOpenAppDrawer = {
                             showAppDrawer = true
@@ -1458,10 +1455,7 @@ internal fun PagerScreen(
                     showGridItemPopup = false
                 },
                 onDraggingGridItem = {
-                    onDraggingGridItem(
-                        Screen.Pager,
-                        gridItems,
-                    )
+                    onDraggingGridItem(gridItems)
                 },
                 onEdit = onEditGridItem,
                 onInfo = { serialNumber, componentName ->
@@ -1581,10 +1575,7 @@ internal fun PagerScreen(
                 onDraggingGridItem = {
                     showFolderGridItemPopup = false
 
-                    onDraggingGridItem(
-                        Screen.Pager,
-                        gridItems,
-                    )
+                    onDraggingGridItem(gridItems)
                 },
                 onOpenAppDrawer = {
                     showAppDrawer = true
@@ -1913,17 +1904,6 @@ internal fun PagerScreen(
             overlayIntOffset = overlayIntOffset,
             overlayIntSize = overlayIntSize,
             sharedElementKey = sharedElementKey,
-            onResetOverlay = {
-                overlayImageBitmap = null
-
-                sharedElementKey = null
-
-                overlayIntOffset = IntOffset.Zero
-
-                overlayIntSize = IntSize.Zero
-
-                drag = Drag.None
-            },
         )
     }
 }
@@ -1937,7 +1917,6 @@ private fun SharedTransitionScope.OverlayImage(
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
     sharedElementKey: SharedElementKey?,
-    onResetOverlay: () -> Unit,
 ) {
     if (overlayImageBitmap == null || sharedElementKey == null) return
 
@@ -1945,12 +1924,6 @@ private fun SharedTransitionScope.OverlayImage(
 
     val size = with(density) {
         DpSize(width = overlayIntSize.width.toDp(), height = overlayIntSize.height.toDp())
-    }
-
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Cancel || drag == Drag.End) {
-            onResetOverlay()
-        }
     }
 
     Image(

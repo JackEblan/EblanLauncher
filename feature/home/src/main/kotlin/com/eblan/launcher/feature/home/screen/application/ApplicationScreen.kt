@@ -182,10 +182,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     swipeY: Float,
     onDismiss: () -> Unit,
     onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -283,10 +280,7 @@ private fun SharedTransitionScope.Success(
     swipeY: Float,
     onDismiss: () -> Unit,
     onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -643,10 +637,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     paddingValues: PaddingValues,
     onDismissDragAndDrop: () -> Unit,
     onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -831,10 +822,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     managedProfileResult: ManagedProfileResult?,
     paddingValues: PaddingValues,
     onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -994,10 +982,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     gridItems: List<GridItem>,
     iconPackFilePaths: Map<String, String>,
     paddingValues: PaddingValues,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -1116,10 +1101,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                     ),
                 )
 
-                onDraggingGridItem(
-                    Screen.Pager,
-                    gridItems,
-                )
+                onDraggingGridItem(gridItems)
 
                 onUpdateIsDragging(true)
             }

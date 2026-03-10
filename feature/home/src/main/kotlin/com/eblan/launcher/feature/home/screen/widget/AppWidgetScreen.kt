@@ -72,7 +72,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -96,10 +95,7 @@ internal fun AppWidgetScreen(
     screenHeight: Int,
     screenWidth: Int,
     onDismiss: () -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -247,10 +243,7 @@ private fun Success(
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
@@ -312,10 +305,7 @@ private fun EblanAppWidgetProviderInfoItem(
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -374,10 +364,7 @@ private fun EblanAppWidgetProviderInfoItem(
                                 intSize,
                             )
 
-                            onDraggingGridItem(
-                                Screen.Pager,
-                                gridItems,
-                            )
+                            onDraggingGridItem(gridItems)
                         }
                     },
                 )

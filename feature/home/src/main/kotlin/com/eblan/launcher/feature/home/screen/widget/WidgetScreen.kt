@@ -92,7 +92,6 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnec
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
@@ -119,10 +118,7 @@ internal fun WidgetScreen(
     screenHeight: Int,
     screenWidth: Int,
     onDismiss: () -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -245,10 +241,7 @@ private fun Success(
     screenWidth: Int,
     onDismiss: () -> Unit,
     onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -396,10 +389,7 @@ private fun EblanApplicationInfoItem(
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -484,10 +474,7 @@ private fun EblanAppWidgetProviderInfoItem(
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -546,10 +533,7 @@ private fun EblanAppWidgetProviderInfoItem(
                                 intSize,
                             )
 
-                            onDraggingGridItem(
-                                Screen.Pager,
-                                gridItems,
-                            )
+                            onDraggingGridItem(gridItems)
                         }
                     },
                 )

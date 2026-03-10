@@ -273,14 +273,9 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun showGridCache(
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) {
+    fun showGridCache(gridItems: List<GridItem>) {
         viewModelScope.launch {
             gridCacheRepository.insertGridItems(gridItems = gridItems)
-
-            delay(defaultDelay)
 
             _isCache.update {
                 true
@@ -367,8 +362,6 @@ internal class HomeViewModel @Inject constructor(
             moveGridItemJob?.cancelAndJoin()
 
             updateGridItemsAfterMoveUseCase(moveGridItemResult = moveGridItemResult)
-
-            delay(defaultDelay)
 
             _isCache.update {
                 false
@@ -665,8 +658,6 @@ internal class HomeViewModel @Inject constructor(
             moveGridItemJob?.cancelAndJoin()
 
             gridRepository.updateGridItems(gridItems = gridCacheRepository.gridItemsCache.first())
-
-            delay(defaultDelay)
 
             _isCache.update {
                 false

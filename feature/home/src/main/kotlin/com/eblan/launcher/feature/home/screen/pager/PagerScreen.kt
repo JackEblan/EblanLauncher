@@ -748,6 +748,9 @@ internal fun PagerScreen(
 
                 associate = newGridItemSource.gridItem.associate
             },
+            onUpdateSharedElementKey = { newSharedElementKey ->
+                sharedElementKey = newSharedElementKey
+            },
         )
     }
 
@@ -875,6 +878,9 @@ internal fun PagerScreen(
                 folderPopupIntOffset = intOffset
 
                 folderPopupIntSize = intSize
+            },
+            onUpdateSharedElementKey = { newSharedElementKey ->
+                sharedElementKey = newSharedElementKey
             },
         )
     }

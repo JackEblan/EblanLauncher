@@ -84,7 +84,7 @@ internal fun GridItemPopup(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onWidgets: (EblanApplicationInfoGroup) -> Unit,
 ) {
-    requireNotNull(gridItem)
+    if(gridItem == null) return
 
     val density = LocalDensity.current
 

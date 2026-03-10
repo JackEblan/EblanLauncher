@@ -56,11 +56,12 @@ internal fun handleAnimateScrollToPage(
     gridItemSource: GridItemSource?,
     paddingValues: PaddingValues,
     screenWidth: Int,
+    isDragging: Boolean,
     onUpdateDockPageDirection: (PageDirection?) -> Unit,
     onUpdateFolderPageDirection: (PageDirection?) -> Unit,
     onUpdateGridPageDirection: (PageDirection?) -> Unit,
 ) {
-    if (gridItemSource == null) return
+    if (gridItemSource == null || !isDragging) return
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -164,6 +165,7 @@ internal suspend fun handleDragGridItem(
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
+    isDragging: Boolean,
     onMoveFolderGridItem: (
         folderGridItem: GridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
@@ -199,7 +201,8 @@ internal suspend fun handleDragGridItem(
         drag == Drag.End ||
         drag == Drag.Cancel ||
         isScrollInProgress ||
-        gridItemSource == null
+        gridItemSource == null ||
+        !isDragging
     ) {
         return
     }
@@ -588,6 +591,7 @@ internal suspend fun handleConflictingGridItem(
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
+    isDragging: Boolean,
     onShowFolderWhenDragging: (
         id: String,
         movingGridItem: GridItem,
@@ -602,6 +606,7 @@ internal suspend fun handleConflictingGridItem(
     if (drag != Drag.Dragging ||
         gridItemSource == null ||
         moveGridItemResult == null
+        || !isDragging
     ) {
         return
     }

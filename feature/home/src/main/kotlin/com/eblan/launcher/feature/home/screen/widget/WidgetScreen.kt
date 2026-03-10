@@ -129,6 +129,7 @@ internal fun WidgetScreen(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateIsDragging: (Boolean) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -220,6 +221,8 @@ internal fun WidgetScreen(
                             easing = FastOutSlowInEasing,
                         ),
                     )
+
+                    onUpdateIsDragging(true)
 
                     onDraggingGridItem(gridItems)
 

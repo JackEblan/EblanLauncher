@@ -355,6 +355,10 @@ internal fun PagerScreen(
 
     var showFolderGridItemPopup by remember { mutableStateOf(false) }
 
+    var isLongPress by remember { mutableStateOf(false) }
+
+    var isDragging by remember { mutableStateOf(false) }
+
     var settingsPopupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var popupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -718,6 +722,7 @@ internal fun PagerScreen(
             rows = homeSettings.rows,
             screenHeight = screenHeight,
             screenWidth = screenWidth,
+            isDragging = isDragging,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
             onMoveGridItem = onMoveGridItem,
@@ -745,6 +750,7 @@ internal fun PagerScreen(
                     launcherAppsWrapper = launcherApps,
                     moveGridItemResult = moveGridItemResult,
                     userManagerWrapper = userManager,
+                    isDragging = isDragging,
                     isApplicationScreenVisible = isApplicationScreenVisible,
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onDragCancelAfterMove = onDragCancelAfterMove,
@@ -766,22 +772,10 @@ internal fun PagerScreen(
                     onUpdateWidgetGridItem = { gridItem ->
                         updatedWidgetGridItem = gridItem
                     },
-                    onResetOverlay = {
-                        gridItemSource = null
-
-                        overlayImageBitmap = null
-
-                        sharedElementKey = null
-
-                        overlayIntOffset = IntOffset.Zero
-
-                        overlayIntSize = IntSize.Zero
-
-                        drag = Drag.None
+                    onUpdateIsDragging = { newIsDragging ->
+                        isDragging = newIsDragging
                     },
                 )
-
-                onResetConfigureResultCode()
             }
 
             Drag.Cancel -> {
@@ -797,19 +791,10 @@ internal fun PagerScreen(
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
             gridItemSource = gridItemSource,
+            isDragging = isDragging,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-            onResetOverlay = {
-                gridItemSource = null
-
-                overlayImageBitmap = null
-
-                sharedElementKey = null
-
-                overlayIntOffset = IntOffset.Zero
-
-                overlayIntSize = IntSize.Zero
-
-                drag = Drag.None
+            onUpdateIsDragging = { newIsDragging ->
+                isDragging = newIsDragging
             },
         )
     }
@@ -821,21 +806,12 @@ internal fun PagerScreen(
             gridItemSource = gridItemSource,
             moveGridItemResult = moveGridItemResult,
             updatedWidgetGridItem = updatedWidgetGridItem,
+            isDragging = isDragging,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
-            onResetOverlay = {
-                gridItemSource = null
-
-                overlayImageBitmap = null
-
-                sharedElementKey = null
-
-                overlayIntOffset = IntOffset.Zero
-
-                overlayIntSize = IntSize.Zero
-
-                drag = Drag.None
+            onUpdateIsDragging = { newIsDragging ->
+                isDragging = newIsDragging
             },
         )
     }
@@ -863,6 +839,7 @@ internal fun PagerScreen(
             rows = homeSettings.rows,
             screenHeight = screenHeight,
             screenWidth = screenWidth,
+            isDragging = isDragging,
             onShowFolderWhenDragging = { id, movingGridItem, newGridItemSource, intOffset, intSize ->
                 onShowFolderWhenDragging(
                     id,
@@ -899,6 +876,7 @@ internal fun PagerScreen(
             gridItemSource = gridItemSource,
             paddingValues = paddingValues,
             screenWidth = screenWidth,
+            isDragging = isDragging,
             onUpdateDockPageDirection = { pageDirection ->
                 dockPageDirection = pageDirection
             },
@@ -919,18 +897,8 @@ internal fun PagerScreen(
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
             onResetConfigureResultCode = onResetConfigureResultCode,
-            onResetOverlay = {
-                gridItemSource = null
-
-                overlayImageBitmap = null
-
-                sharedElementKey = null
-
-                overlayIntOffset = IntOffset.Zero
-
-                overlayIntSize = IntSize.Zero
-
-                drag = Drag.None
+            onUpdateIsDragging = { newIsDragging ->
+                isDragging = newIsDragging
             },
         )
     }
@@ -1191,6 +1159,7 @@ internal fun PagerScreen(
                             statusBarNotifications = statusBarNotifications,
                             textColor = textColor,
                             gridItemSource = gridItemSource,
+                            isLongPress = isLongPress,
                             onDraggingGridItem = {
                                 showGridItemPopup = false
 
@@ -1281,6 +1250,12 @@ internal fun PagerScreen(
 
                                 associate = newGridItemSource.gridItem.associate
                             },
+                            onUpdateIsLongPress = { newIsLongPress ->
+                                isLongPress = newIsLongPress
+                            },
+                            onUpdateIsDragging = { newIsDragging ->
+                                isDragging = newIsDragging
+                            },
                         )
                     },
                 )
@@ -1343,6 +1318,7 @@ internal fun PagerScreen(
                         statusBarNotifications = statusBarNotifications,
                         textColor = textColor,
                         gridItemSource = gridItemSource,
+                        isLongPress = isLongPress,
                         onDraggingGridItem = {
                             showGridItemPopup = false
 
@@ -1432,6 +1408,12 @@ internal fun PagerScreen(
                             gridItemSource = newGridItemSource
 
                             associate = newGridItemSource.gridItem.associate
+                        },
+                        onUpdateIsLongPress = { newIsLongPress ->
+                            isLongPress = newIsLongPress
+                        },
+                        onUpdateIsDragging = { newIsDragging ->
+                            isDragging = newIsDragging
                         },
                     )
                 }
@@ -1559,6 +1541,7 @@ internal fun PagerScreen(
                 statusBarNotifications = statusBarNotifications,
                 textColor = textColor,
                 gridItemSource = gridItemSource,
+                isLongPress = isLongPress,
                 onDismissRequest = {
                     onUpdateFolderGridItemId(null)
 
@@ -1601,6 +1584,12 @@ internal fun PagerScreen(
                     gridItemSource = newGridItemSource
 
                     associate = newGridItemSource.gridItem.associate
+                },
+                onUpdateIsDragging = { newIsDragging ->
+                    isDragging = newIsDragging
+                },
+                onUpdateIsLongPress = { newIsLongPress ->
+                    isLongPress = newIsLongPress
                 },
             )
         }
@@ -1690,6 +1679,9 @@ internal fun PagerScreen(
                     gridItemSource = newGridItemSource
 
                     associate = newGridItemSource.gridItem.associate
+                },
+                onUpdateIsDragging = { newIsDragging ->
+                    isDragging = newIsDragging
                 },
             )
         }
@@ -1781,6 +1773,9 @@ internal fun PagerScreen(
 
                     associate = newGridItemSource.gridItem.associate
                 },
+                onUpdateIsDragging = { newIsDragging ->
+                    isDragging = newIsDragging
+                },
             )
         }
 
@@ -1819,6 +1814,9 @@ internal fun PagerScreen(
                 },
                 onUpdateSharedElementKey = { newSharedElementKey ->
                     sharedElementKey = newSharedElementKey
+                },
+                onUpdateIsDragging = { newIsDragging ->
+                    isDragging = newIsDragging
                 },
             )
         }
@@ -1898,6 +1896,17 @@ internal fun PagerScreen(
             overlayIntOffset = overlayIntOffset,
             overlayIntSize = overlayIntSize,
             sharedElementKey = sharedElementKey,
+            onResetOverlay = {
+                overlayImageBitmap = null
+
+                sharedElementKey = null
+
+                overlayIntOffset = IntOffset.Zero
+
+                overlayIntSize = IntSize.Zero
+
+                drag = Drag.None
+            },
         )
     }
 }
@@ -1911,6 +1920,7 @@ private fun SharedTransitionScope.OverlayImage(
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
     sharedElementKey: SharedElementKey?,
+    onResetOverlay: () -> Unit,
 ) {
     if (overlayImageBitmap == null || sharedElementKey == null) return
 
@@ -1918,6 +1928,12 @@ private fun SharedTransitionScope.OverlayImage(
 
     val size = with(density) {
         DpSize(width = overlayIntSize.width.toDp(), height = overlayIntSize.height.toDp())
+    }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Cancel || drag == Drag.End) {
+            onResetOverlay()
+        }
     }
 
     Image(

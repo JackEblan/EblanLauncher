@@ -116,6 +116,7 @@ internal fun SharedTransitionScope.FolderScreen(
     statusBarNotifications: Map<String, Int>,
     textColor: TextColor,
     gridItemSource: GridItemSource?,
+    isLongPress: Boolean,
     onDismissRequest: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
@@ -126,6 +127,8 @@ internal fun SharedTransitionScope.FolderScreen(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     val data = folderGridItem.data as? GridItemData.Folder ?: return
 
@@ -192,14 +195,17 @@ internal fun SharedTransitionScope.FolderScreen(
         Surface(
             modifier = Modifier
                 .offset {
-                    getFolderScreenOffset(
-                        folderGridHeightPx = folderGridHeightPx,
-                        folderGridWidthPx = folderGridWidthPx,
-                        folderPopupIntOffset = folderPopupIntOffset,
-                        folderPopupIntSize = folderPopupIntSize,
-                        safeDrawingHeight = safeDrawingHeight,
-                        safeDrawingWidth = safeDrawingWidth,
-                    )
+                    val centeredX =
+                        folderPopupIntOffset.x + (folderPopupIntSize.width / 2) - (folderGridWidthPx / 2)
+
+                    val centeredY =
+                        folderPopupIntOffset.y + (folderPopupIntSize.height / 2) - (folderGridHeightPx / 2)
+
+                    val popupX = centeredX.coerceIn(0, safeDrawingWidth - folderGridWidthPx)
+
+                    val popupY = centeredY.coerceIn(0, safeDrawingHeight - folderGridHeightPx)
+
+                    IntOffset(x = popupX, y = popupY)
                 }
                 .size(
                     width = folderGridWidthDp,
@@ -229,12 +235,15 @@ internal fun SharedTransitionScope.FolderScreen(
                                     textColor = textColor,
                                     folderGridItem = folderGridItem,
                                     gridItemSource = gridItemSource,
+                                    isLongPress = isLongPress,
                                     onDraggingGridItem = onDraggingGridItem,
                                     onOpenAppDrawer = onOpenAppDrawer,
                                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                                     onUpdateImageBitmap = onUpdateImageBitmap,
                                     onUpdateGridItemSource = onUpdateGridItemSource,
                                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                    onUpdateIsDragging = onUpdateIsDragging,
+                                    onUpdateIsLongPress = onUpdateIsLongPress,
                                 )
                             },
                         )
@@ -317,6 +326,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
     textColor: TextColor,
     folderGridItem: GridItem,
     gridItemSource: GridItemSource?,
+    isLongPress: Boolean,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
     onUpdateGridItemOffset: (
@@ -326,6 +336,8 @@ private fun SharedTransitionScope.FolderGridItemContent(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -382,7 +394,11 @@ private fun SharedTransitionScope.FolderGridItemContent(
                 ) > 0
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isSelected) {
+        if (drag == Drag.Dragging && isSelected && isLongPress) {
+            onUpdateIsLongPress(false)
+
+            onUpdateIsDragging(true)
+
             onDraggingGridItem()
         }
     }
@@ -419,6 +435,8 @@ private fun SharedTransitionScope.FolderGridItemContent(
                                     parent = SharedElementKeyParent.Grid,
                                 ),
                             )
+
+                            onUpdateIsLongPress(true)
                         }
                     },
                     onTap = {

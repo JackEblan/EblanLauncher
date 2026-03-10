@@ -385,7 +385,7 @@ internal class HomeViewModel @Inject constructor(
             delay(defaultDelay)
 
             _isCache.update {
-                true
+                false
             }
 
             _moveGridItemResult.update {
@@ -682,8 +682,8 @@ internal class HomeViewModel @Inject constructor(
 
             delay(defaultDelay)
 
-            _screen.update {
-                Screen.Pager
+            _isCache.update {
+                false
             }
 
             _moveGridItemResult.update {

@@ -446,7 +446,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
 
                             onUpdateSharedElementKey(
                                 SharedElementKey(
-                                    id = gridItem.id,
+                                    id = folderGridItem.id + gridItem.id,
                                     screen = Screen.Pager,
                                 ),
                             )
@@ -496,7 +496,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
                         .sharedElementWithCallerManagedVisibility(
                             rememberSharedContentState(
                                 key = SharedElementKey(
-                                    id = gridItem.id,
+                                    id = folderGridItem.id + gridItem.id,
                                     screen = Screen.Pager,
                                 ),
                             ),

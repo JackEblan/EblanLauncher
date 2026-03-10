@@ -19,5 +19,9 @@ package com.eblan.launcher.feature.home.model
 
 internal data class SharedElementKey(
     val id: String,
-    val screen: Any,
+    val parent: SharedElementKeyParent,
 )
+
+enum class SharedElementKeyParent {
+    Grid, SwipeY,
+}

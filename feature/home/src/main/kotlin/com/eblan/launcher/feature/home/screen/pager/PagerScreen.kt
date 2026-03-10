@@ -745,6 +745,7 @@ internal fun PagerScreen(
                     launcherAppsWrapper = launcherApps,
                     moveGridItemResult = moveGridItemResult,
                     userManagerWrapper = userManager,
+                    isApplicationScreenVisible = isApplicationScreenVisible,
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onDragCancelAfterMove = onDragCancelAfterMove,
                     onDragEndAfterMove = onDragEndAfterMove,

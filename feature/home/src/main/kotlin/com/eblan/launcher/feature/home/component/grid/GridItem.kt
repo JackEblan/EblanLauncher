@@ -273,17 +273,7 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
                 model = Builder(LocalContext.current).data(data.customIcon ?: icon)
                     .addLastModifiedToFileCacheKey(true).build(),
                 contentDescription = null,
-                modifier = Modifier
-                    .matchParentSize()
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = gridItem.id,
-                                screen = screen,
-                            ),
-                        ),
-                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
-                    ),
+                modifier = Modifier.matchParentSize(),
             )
 
             if (settings.isNotificationAccessGranted() && hasNotifications) {
@@ -369,16 +359,7 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
                 model = customIcon,
                 modifier = Modifier
                     .matchParentSize()
-                    .alpha(alpha)
-                    .sharedElementWithCallerManagedVisibility(
-                        sharedContentState = rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = gridItem.id,
-                                screen = screen,
-                            ),
-                        ),
-                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
-                    ),
+                    .alpha(alpha),
                 contentDescription = null,
             )
 
@@ -427,17 +408,7 @@ private fun SharedTransitionScope.FolderGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
-    val commonModifier = Modifier
-        .size(gridItemSettings.iconSize.dp)
-        .sharedElementWithCallerManagedVisibility(
-            sharedContentState = rememberSharedContentState(
-                key = SharedElementKey(
-                    id = gridItem.id,
-                    screen = screen,
-                ),
-            ),
-            visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
-        )
+    val commonModifier = Modifier.size(gridItemSettings.iconSize.dp)
 
     Column(
         modifier = modifier
@@ -481,17 +452,7 @@ private fun SharedTransitionScope.FolderGridItem(
                                     .data(applicationInfoFolderGridItem.customIcon ?: icon)
                                     .addLastModifiedToFileCacheKey(true).build(),
                                 contentDescription = null,
-                                modifier = Modifier
-                                    .size((gridItemSettings.iconSize * 0.25).dp)
-                                    .sharedElementWithCallerManagedVisibility(
-                                        rememberSharedContentState(
-                                            key = SharedElementKey(
-                                                id = applicationInfoFolderGridItem.id,
-                                                screen = screen,
-                                            ),
-                                        ),
-                                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
-                                    ),
+                                modifier = Modifier.size((gridItemSettings.iconSize * 0.25).dp),
                             )
                         }
                     }
@@ -528,17 +489,7 @@ private fun SharedTransitionScope.WidgetGridItem(
 
     val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
 
-    val commonModifier = modifier
-        .fillMaxSize()
-        .sharedElementWithCallerManagedVisibility(
-            rememberSharedContentState(
-                key = SharedElementKey(
-                    id = gridItem.id,
-                    screen = screen,
-                ),
-            ),
-            visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
-        )
+    val commonModifier = modifier.fillMaxSize()
 
     if (appWidgetInfo != null) {
         AndroidView(
@@ -631,17 +582,7 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
                 model = Builder(LocalContext.current).data(icon)
                     .addLastModifiedToFileCacheKey(true).build(),
                 contentDescription = null,
-                modifier = Modifier
-                    .matchParentSize()
-                    .sharedElementWithCallerManagedVisibility(
-                        sharedContentState = rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = gridItem.id,
-                                screen = screen,
-                            ),
-                        ),
-                        visible = !isScrollInProgress && (drag == Drag.Cancel || drag == Drag.End),
-                    ),
+                modifier = Modifier.matchParentSize(),
             )
 
             if (data.serialNumber != 0L) {

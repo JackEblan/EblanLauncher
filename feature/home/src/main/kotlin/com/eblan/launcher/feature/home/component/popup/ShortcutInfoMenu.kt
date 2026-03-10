@@ -56,8 +56,8 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.model.SharedElementKeyParent
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -228,7 +228,7 @@ private fun ShortcutInfoMenuItem(
                                     onUpdateSharedElementKey(
                                         SharedElementKey(
                                             id = id,
-                                            screen = Screen.Pager,
+                                            parent = SharedElementKeyParent.Grid,
                                         ),
                                     )
 

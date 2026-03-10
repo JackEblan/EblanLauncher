@@ -50,6 +50,7 @@ internal suspend fun handleDropGridItem(
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
     moveGridItemResult: MoveGridItemResult?,
     userManagerWrapper: AndroidUserManagerWrapper,
+    isApplicationScreenVisible: Boolean,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragCancelAfterMove: () -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
@@ -76,6 +77,12 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.New -> {
+            if (isApplicationScreenVisible) {
+                onResetOverlay()
+
+                return
+            }
+
             if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
@@ -164,9 +171,7 @@ internal suspend fun handleDropGridItem(
             onDragEndAfterMoveFolder()
         }
 
-        null -> {
-            onResetOverlay()
-        }
+        null -> Unit
     }
 }
 

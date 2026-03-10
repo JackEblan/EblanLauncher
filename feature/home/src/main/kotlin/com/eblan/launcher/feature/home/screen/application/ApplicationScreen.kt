@@ -133,8 +133,8 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.dialog.EblanApplicationInfoOrderDialog
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.model.SharedElementKeyParent
 import com.eblan.launcher.feature.home.screen.application.draganddrop.DragAndDropEblanApplicationInfos
 import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
@@ -1022,13 +1022,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    val isDragging by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
-
-    val applicationScreenId = remember { Uuid.random().toHexString() }
+    val id = remember { Uuid.random().toHexString() }
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
@@ -1037,56 +1031,10 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
                 onDismiss()
 
-                val pagerScreenId = Uuid.random().toHexString()
-
-                val data = GridItemData.ApplicationInfo(
-                    serialNumber = eblanApplicationInfo.serialNumber,
-                    componentName = eblanApplicationInfo.componentName,
-                    packageName = eblanApplicationInfo.packageName,
-                    icon = eblanApplicationInfo.icon,
-                    label = eblanApplicationInfo.label,
-                    customIcon = eblanApplicationInfo.customIcon,
-                    customLabel = eblanApplicationInfo.customLabel,
-                    index = -1,
-                    folderId = null,
-                )
-
-                onUpdateGridItemSource(
-                    GridItemSource.New(
-                        gridItem = GridItem(
-                            id = pagerScreenId,
-                            page = currentPage,
-                            startColumn = -1,
-                            startRow = -1,
-                            columnSpan = 1,
-                            rowSpan = 1,
-                            data = data,
-                            associate = Associate.Grid,
-                            override = false,
-                            gridItemSettings = appDrawerSettings.gridItemSettings,
-                            doubleTap = EblanAction(
-                                eblanActionType = EblanActionType.None,
-                                serialNumber = 0L,
-                                componentName = "",
-                            ),
-                            swipeUp = EblanAction(
-                                eblanActionType = EblanActionType.None,
-                                serialNumber = 0L,
-                                componentName = "",
-                            ),
-                            swipeDown = EblanAction(
-                                eblanActionType = EblanActionType.None,
-                                serialNumber = 0L,
-                                componentName = "",
-                            ),
-                        ),
-                    ),
-                )
-
                 onUpdateSharedElementKey(
                     SharedElementKey(
-                        id = pagerScreenId,
-                        screen = Screen.Pager,
+                        id = id,
+                        parent = SharedElementKeyParent.Grid,
                     ),
                 )
 
@@ -1094,7 +1042,9 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
             }
 
             Drag.End, Drag.Cancel -> {
-                isLongPress = false
+                if (isLongPress) {
+                    isLongPress = false
+                }
             }
 
             else -> Unit
@@ -1130,10 +1080,54 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                                 intSize,
                             )
 
+                            val data = GridItemData.ApplicationInfo(
+                                serialNumber = eblanApplicationInfo.serialNumber,
+                                componentName = eblanApplicationInfo.componentName,
+                                packageName = eblanApplicationInfo.packageName,
+                                icon = eblanApplicationInfo.icon,
+                                label = eblanApplicationInfo.label,
+                                customIcon = eblanApplicationInfo.customIcon,
+                                customLabel = eblanApplicationInfo.customLabel,
+                                index = -1,
+                                folderId = null,
+                            )
+
+                            onUpdateGridItemSource(
+                                GridItemSource.New(
+                                    gridItem = GridItem(
+                                        id = id,
+                                        page = currentPage,
+                                        startColumn = -1,
+                                        startRow = -1,
+                                        columnSpan = 1,
+                                        rowSpan = 1,
+                                        data = data,
+                                        associate = Associate.Grid,
+                                        override = false,
+                                        gridItemSettings = appDrawerSettings.gridItemSettings,
+                                        doubleTap = EblanAction(
+                                            eblanActionType = EblanActionType.None,
+                                            serialNumber = 0L,
+                                            componentName = "",
+                                        ),
+                                        swipeUp = EblanAction(
+                                            eblanActionType = EblanActionType.None,
+                                            serialNumber = 0L,
+                                            componentName = "",
+                                        ),
+                                        swipeDown = EblanAction(
+                                            eblanActionType = EblanActionType.None,
+                                            serialNumber = 0L,
+                                            componentName = "",
+                                        ),
+                                    ),
+                                ),
+                            )
+
                             onUpdateSharedElementKey(
                                 SharedElementKey(
-                                    id = applicationScreenId,
-                                    screen = Screen.Pager,
+                                    id = id,
+                                    parent = SharedElementKeyParent.SwipeY,
                                 ),
                             )
 
@@ -1153,7 +1147,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!isDragging) {
+        if (!(isLongPress && (drag == Drag.Start || drag == Drag.Dragging))) {
             Box(modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
@@ -1177,11 +1171,11 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                         .sharedElementWithCallerManagedVisibility(
                             rememberSharedContentState(
                                 key = SharedElementKey(
-                                    id = applicationScreenId,
-                                    screen = Screen.Pager,
+                                    id = id,
+                                    parent = SharedElementKeyParent.SwipeY,
                                 ),
                             ),
-                            visible = drag == Drag.None,
+                            visible = true,
                         ),
                 )
 

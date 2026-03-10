@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.screen.drag
+package com.eblan.launcher.feature.home.screen.pager
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager

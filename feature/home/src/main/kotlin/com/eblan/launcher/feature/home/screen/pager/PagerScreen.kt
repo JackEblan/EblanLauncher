@@ -134,17 +134,6 @@ import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
-import com.eblan.launcher.feature.home.screen.drag.handleAnimateScrollToPage
-import com.eblan.launcher.feature.home.screen.drag.handleAppWidgetLauncherResult
-import com.eblan.launcher.feature.home.screen.drag.handleBoundWidget
-import com.eblan.launcher.feature.home.screen.drag.handleConfigureLauncherResult
-import com.eblan.launcher.feature.home.screen.drag.handleConflictingGridItem
-import com.eblan.launcher.feature.home.screen.drag.handleDeleteAppWidgetId
-import com.eblan.launcher.feature.home.screen.drag.handleDragGridItem
-import com.eblan.launcher.feature.home.screen.drag.handleDropGridItem
-import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
-import com.eblan.launcher.feature.home.screen.drag.handleShortcutConfigIntentSenderLauncherResult
-import com.eblan.launcher.feature.home.screen.drag.handleShortcutConfigLauncherResult
 import com.eblan.launcher.feature.home.screen.folder.FolderScreen
 import com.eblan.launcher.feature.home.screen.shortcutconfig.ShortcutConfigScreen
 import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
@@ -405,7 +394,6 @@ internal fun PagerScreen(
         PAGE_INDICATOR_HEIGHT.roundToPx()
     }
 
-    //Drag
     val appWidgetManager = LocalAppWidgetManager.current
 
     val userManager = LocalUserManager.current
@@ -953,7 +941,6 @@ internal fun PagerScreen(
             pagerState = folderGridHorizontalPagerState,
         )
     }
-    //Drag
 
     LaunchedEffect(key1 = hasDoubleTap) {
         handleHasDoubleTap(

@@ -29,7 +29,6 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemData.ShortcutInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
@@ -49,8 +48,6 @@ import com.eblan.launcher.domain.usecase.application.GetEblanShortcutConfigsByLa
 import com.eblan.launcher.domain.usecase.application.GetEblanShortcutInfosUseCase
 import com.eblan.launcher.domain.usecase.application.UpdateEblanApplicationInfosIndexesUseCase
 import com.eblan.launcher.domain.usecase.grid.GetFolderGridItemsByIdUseCase
-import com.eblan.launcher.domain.usecase.grid.GetFolderGridItemsCacheByIdUseCase
-import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemOutsideFolderUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveGridItemUseCase
@@ -95,7 +92,6 @@ internal class HomeViewModel @Inject constructor(
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     private val updateGridItemsAfterResizeUseCase: UpdateGridItemsAfterResizeUseCase,
     private val updateGridItemsAfterMoveUseCase: UpdateGridItemsAfterMoveUseCase,
-    getGridItemsCacheUseCase: GetGridItemsCacheUseCase,
     private val getPinGridItemUseCase: GetPinGridItemUseCase,
     private val fileManager: FileManager,
     private val packageManagerWrapper: PackageManagerWrapper,
@@ -117,7 +113,6 @@ internal class HomeViewModel @Inject constructor(
     private val updateEblanApplicationInfosIndexesUseCase: UpdateEblanApplicationInfosIndexesUseCase,
     getFolderGridItemsByIdUseCase: GetFolderGridItemsByIdUseCase,
     private val moveFolderGridItemUseCase: MoveFolderGridItemUseCase,
-    getFolderGridItemsCacheByIdUseCase: GetFolderGridItemsCacheByIdUseCase,
     private val moveFolderGridItemOutsideFolderUseCase: MoveFolderGridItemOutsideFolderUseCase,
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val showFolderWhenDraggingUseCase: ShowFolderWhenDraggingUseCase,
@@ -145,15 +140,6 @@ internal class HomeViewModel @Inject constructor(
     val pageItems = _pageItems.asStateFlow()
 
     private var moveGridItemJob: Job? = null
-
-    val gridItemsCache = getGridItemsCacheUseCase().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = GridItemCache(
-            gridItemsCacheByPage = emptyMap(),
-            dockGridItemsCache = emptyMap(),
-        ),
-    )
 
     private val _pinGridItem = MutableStateFlow<GridItem?>(null)
 

@@ -139,8 +139,6 @@ internal fun HomeRoute(
 
     val pageItems by viewModel.pageItems.collectAsStateWithLifecycle()
 
-    val gridItemsCache by viewModel.gridItemsCache.collectAsStateWithLifecycle()
-
     val pinGridItem by viewModel.pinGridItem.collectAsStateWithLifecycle()
 
     val getEblanApplicationInfos by viewModel.getEblanApplicationInfosByLabel.collectAsStateWithLifecycle()
@@ -169,7 +167,6 @@ internal fun HomeRoute(
         eblanShortcutInfosGroup = eblanShortcutInfosGroup,
         folderGridItem = folderGridItem,
         getEblanApplicationInfosByLabel = getEblanApplicationInfos,
-        gridItemsCache = gridItemsCache,
         homeUiState = homeUiState,
         iconPackFilePaths = iconPackFilePaths,
         movedGridItemResult = movedGridItemResult,
@@ -226,7 +223,6 @@ internal fun HomeScreen(
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     folderGridItem: GridItem?,
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
-    gridItemsCache: GridItemCache,
     homeUiState: HomeUiState,
     iconPackFilePaths: Map<String, String>,
     movedGridItemResult: MoveGridItemResult?,
@@ -347,7 +343,6 @@ internal fun HomeScreen(
                 eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                 folderGridItem = folderGridItem,
                 getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
-                gridItemCache = gridItemsCache,
                 homeData = homeUiState.homeData,
                 iconPackFilePaths = iconPackFilePaths,
                 movedGridItemResult = movedGridItemResult,
@@ -409,7 +404,6 @@ private fun Success(
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     folderGridItem: GridItem?,
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
-    gridItemCache: GridItemCache,
     homeData: HomeData,
     iconPackFilePaths: Map<String, String>,
     movedGridItemResult: MoveGridItemResult?,

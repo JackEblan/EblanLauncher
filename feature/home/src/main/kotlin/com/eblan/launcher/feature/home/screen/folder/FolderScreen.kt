@@ -126,7 +126,6 @@ internal fun SharedTransitionScope.FolderScreen(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
 ) {
     val data = folderGridItem.data as? GridItemData.Folder ?: return
 
@@ -236,7 +235,6 @@ internal fun SharedTransitionScope.FolderScreen(
                                     onUpdateImageBitmap = onUpdateImageBitmap,
                                     onUpdateGridItemSource = onUpdateGridItemSource,
                                     onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                    onUpdateIsDragging = onUpdateIsDragging,
                                 )
                             },
                         )
@@ -328,7 +326,6 @@ private fun SharedTransitionScope.FolderGridItemContent(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -386,8 +383,6 @@ private fun SharedTransitionScope.FolderGridItemContent(
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isSelected) {
-            onUpdateIsDragging(true)
-
             onDraggingGridItem()
         }
     }

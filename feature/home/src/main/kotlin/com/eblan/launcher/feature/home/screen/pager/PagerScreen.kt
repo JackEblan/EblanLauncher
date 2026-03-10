@@ -413,8 +413,6 @@ internal fun PagerScreen(
 
     var folderPageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
-    var isDragging by remember { mutableStateOf(false) }
-
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     var folderTitleHeightPx by remember { mutableIntStateOf(0) }
@@ -500,16 +498,11 @@ internal fun PagerScreen(
             appWidgetManager = appWidgetManager,
             gridItemSource = gridItemSource,
             result = result,
-            isDragging = isDragging,
-            isApplicationScreenVisible = isApplicationScreenVisible,
             onDeleteAppWidgetId = {
                 deleteAppWidgetId = true
             },
             onUpdateWidgetGridItem = { gridItem ->
                 updatedWidgetGridItem = gridItem
-            },
-            onUpdateIsDragging = { newIsDragging ->
-                isDragging = newIsDragging
             },
         )
     }
@@ -523,7 +516,6 @@ internal fun PagerScreen(
                 imageSerializer = imageSerializer,
                 moveGridItemResult = moveGridItemResult,
                 result = result,
-                isDragging = isDragging,
                 onDeleteGridItemCache = onDeleteGridItemCache,
                 onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
             )
@@ -542,7 +534,6 @@ internal fun PagerScreen(
                 moveGridItemResult = moveGridItemResult,
                 result = result,
                 userManagerWrapper = userManager,
-                isDragging = isDragging,
                 onDeleteGridItemCache = onDeleteGridItemCache,
                 onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
             )
@@ -727,8 +718,6 @@ internal fun PagerScreen(
             rows = homeSettings.rows,
             screenHeight = screenHeight,
             screenWidth = screenWidth,
-            isDragging = isDragging,
-            isApplicationScreenVisible = isApplicationScreenVisible,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
             onMoveGridItem = onMoveGridItem,
@@ -756,8 +745,6 @@ internal fun PagerScreen(
                     launcherAppsWrapper = launcherApps,
                     moveGridItemResult = moveGridItemResult,
                     userManagerWrapper = userManager,
-                    isDragging = isDragging,
-                    isApplicationScreenVisible = isApplicationScreenVisible,
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onDragCancelAfterMove = onDragCancelAfterMove,
                     onDragEndAfterMove = onDragEndAfterMove,
@@ -779,8 +766,6 @@ internal fun PagerScreen(
                         updatedWidgetGridItem = gridItem
                     },
                     onResetOverlay = {
-                        isDragging = false
-
                         gridItemSource = null
 
                         overlayImageBitmap = null
@@ -799,8 +784,6 @@ internal fun PagerScreen(
             }
 
             Drag.Cancel -> {
-                isDragging = false
-
                 onDragCancelAfterMove()
             }
 
@@ -813,12 +796,7 @@ internal fun PagerScreen(
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
             gridItemSource = gridItemSource,
-            isDragging = isDragging,
-            isApplicationScreenVisible = isApplicationScreenVisible,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-            onUpdateIsDragging = { newIsDragging ->
-                isDragging = newIsDragging
-            },
         )
     }
 
@@ -829,14 +807,9 @@ internal fun PagerScreen(
             gridItemSource = gridItemSource,
             moveGridItemResult = moveGridItemResult,
             updatedWidgetGridItem = updatedWidgetGridItem,
-            isDragging = isDragging,
-            isApplicationScreenVisible = isApplicationScreenVisible,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
-            onUpdateIsDragging = { newIsDragging ->
-                isDragging = newIsDragging
-            },
         )
     }
 
@@ -863,8 +836,6 @@ internal fun PagerScreen(
             rows = homeSettings.rows,
             screenHeight = screenHeight,
             screenWidth = screenWidth,
-            isDragging = isDragging,
-            isApplicationScreenVisible = isApplicationScreenVisible,
             onShowFolderWhenDragging = { id, movingGridItem, newGridItemSource, intOffset, intSize ->
                 onShowFolderWhenDragging(
                     id,
@@ -901,8 +872,6 @@ internal fun PagerScreen(
             gridItemSource = gridItemSource,
             paddingValues = paddingValues,
             screenWidth = screenWidth,
-            isDragging = isDragging,
-            isApplicationScreenVisible = isApplicationScreenVisible,
             onUpdateDockPageDirection = { pageDirection ->
                 dockPageDirection = pageDirection
             },
@@ -920,14 +889,9 @@ internal fun PagerScreen(
             moveGridItemResult = moveGridItemResult,
             resultCode = configureResultCode,
             updatedGridItem = updatedWidgetGridItem,
-            isDragging = isDragging,
-            isApplicationScreenVisible = isApplicationScreenVisible,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
             onResetConfigureResultCode = onResetConfigureResultCode,
-            onUpdateIsDragging = { newIsDragging ->
-                isDragging = newIsDragging
-            },
         )
     }
 
@@ -1190,8 +1154,6 @@ internal fun PagerScreen(
                             onDraggingGridItem = {
                                 showGridItemPopup = false
 
-                                isDragging = true
-
                                 onDraggingGridItem(gridItems)
                             },
                             onOpenAppDrawer = {
@@ -1343,8 +1305,6 @@ internal fun PagerScreen(
                         gridItemSource = gridItemSource,
                         onDraggingGridItem = {
                             showGridItemPopup = false
-
-                            isDragging = true
 
                             onDraggingGridItem(gridItems)
                         },
@@ -1602,9 +1562,6 @@ internal fun PagerScreen(
 
                     associate = newGridItemSource.gridItem.associate
                 },
-                onUpdateIsDragging = { newIsDragging ->
-                    isDragging = newIsDragging
-                },
             )
         }
 
@@ -1693,9 +1650,6 @@ internal fun PagerScreen(
                     gridItemSource = newGridItemSource
 
                     associate = newGridItemSource.gridItem.associate
-                },
-                onUpdateIsDragging = { newIsDragging ->
-                    isDragging = newIsDragging
                 },
             )
         }
@@ -1786,9 +1740,6 @@ internal fun PagerScreen(
                     gridItemSource = newGridItemSource
 
                     associate = newGridItemSource.gridItem.associate
-                },
-                onUpdateIsDragging = { newIsDragging ->
-                    isDragging = newIsDragging
                 },
             )
         }

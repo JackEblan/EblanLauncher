@@ -63,6 +63,7 @@ internal suspend fun handleDropGridItem(
     onUpdateAppWidgetId: (Int) -> Unit,
     onUpdateWidgetGridItem: (GridItem) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
+    onResetGridItemSource: () -> Unit,
 ) {
     if (!isDragging || isApplicationScreenVisible) {
         return
@@ -70,55 +71,64 @@ internal suspend fun handleDropGridItem(
 
     when (gridItemSource) {
         is GridItemSource.Existing -> {
+            onUpdateIsDragging(false)
+
+            onResetGridItemSource()
+
             if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
                 onToast()
-
-                return
+            } else {
+                onDragEndAfterMove(moveGridItemResult)
             }
-
-            onUpdateIsDragging(false)
-
-            onDragEndAfterMove(moveGridItemResult)
         }
 
         is GridItemSource.New -> {
             if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
+                onUpdateIsDragging(false)
+
+                onResetGridItemSource()
+
                 onToast()
+            } else {
+                when (val data = gridItemSource.gridItem.data) {
+                    is GridItemData.Widget -> {
+                        onDragEndWidget(
+                            androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
+                            appWidgetManager = appWidgetManager,
+                            data = data,
+                            gridItem = gridItemSource.gridItem,
+                            onLaunchWidgetIntent = onLaunchWidgetIntent,
+                            onUpdateAppWidgetId = onUpdateAppWidgetId,
+                            onUpdateWidgetGridItem = onUpdateWidgetGridItem,
+                        )
+                    }
 
-                return
-            }
+                    is GridItemData.ShortcutConfig -> {
+                        onDragEndShortcutConfig(
+                            data = data,
+                            gridItem = gridItemSource.gridItem,
+                            launcherAppsWrapper = launcherAppsWrapper,
+                            userManagerWrapper = userManagerWrapper,
+                            onDeleteGridItemCache = onDeleteGridItemCache,
+                            onLaunchShortcutConfigIntent = onLaunchShortcutConfigIntent,
+                            onLaunchShortcutConfigIntentSenderRequest = onLaunchShortcutConfigIntentSenderRequest,
+                        )
+                    }
 
-            when (val data = gridItemSource.gridItem.data) {
-                is GridItemData.Widget -> {
-                    onDragEndWidget(
-                        androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
-                        appWidgetManager = appWidgetManager,
-                        data = data,
-                        gridItem = gridItemSource.gridItem,
-                        onLaunchWidgetIntent = onLaunchWidgetIntent,
-                        onUpdateAppWidgetId = onUpdateAppWidgetId,
-                        onUpdateWidgetGridItem = onUpdateWidgetGridItem,
-                    )
-                }
+                    is GridItemData.ApplicationInfo,
+                    is GridItemData.Folder,
+                    is GridItemData.ShortcutInfo,
+                        -> {
+                        onUpdateIsDragging(false)
 
-                is GridItemData.ShortcutConfig -> {
-                    onDragEndShortcutConfig(
-                        data = data,
-                        gridItem = gridItemSource.gridItem,
-                        launcherAppsWrapper = launcherAppsWrapper,
-                        userManagerWrapper = userManagerWrapper,
-                        onDeleteGridItemCache = onDeleteGridItemCache,
-                        onLaunchShortcutConfigIntent = onLaunchShortcutConfigIntent,
-                        onLaunchShortcutConfigIntentSenderRequest = onLaunchShortcutConfigIntentSenderRequest,
-                    )
-                }
+                        onResetGridItemSource()
 
-                else -> {
-                    onDragEndAfterMove(moveGridItemResult)
+                        onDragEndAfterMove(moveGridItemResult)
+                    }
                 }
             }
         }
@@ -127,41 +137,45 @@ internal suspend fun handleDropGridItem(
             if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
+                onResetGridItemSource()
+
                 onToast()
+            } else {
+                when (val data = gridItemSource.gridItem.data) {
+                    is GridItemData.ShortcutInfo -> {
+                        onDragEndPinShortcut(
+                            gridItem = gridItemSource.gridItem,
+                            moveGridItemResult = moveGridItemResult,
+                            pinItemRequest = gridItemSource.pinItemRequest,
+                            onDeleteGridItemCache = onDeleteGridItemCache,
+                            onDragEndAfterMove = onDragEndAfterMove,
+                        )
+                    }
 
-                return
-            }
+                    is GridItemData.Widget -> {
+                        onDragEndWidget(
+                            androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
+                            appWidgetManager = appWidgetManager,
+                            data = data,
+                            gridItem = gridItemSource.gridItem,
+                            onLaunchWidgetIntent = onLaunchWidgetIntent,
+                            onUpdateAppWidgetId = onUpdateAppWidgetId,
+                            onUpdateWidgetGridItem = onUpdateWidgetGridItem,
+                        )
+                    }
 
-            when (val data = gridItemSource.gridItem.data) {
-                is GridItemData.ShortcutInfo -> {
-                    onDragEndPinShortcut(
-                        gridItem = gridItemSource.gridItem,
-                        moveGridItemResult = moveGridItemResult,
-                        pinItemRequest = gridItemSource.pinItemRequest,
-                        onDeleteGridItemCache = onDeleteGridItemCache,
-                        onDragEndAfterMove = onDragEndAfterMove,
-                    )
-                }
-
-                is GridItemData.Widget -> {
-                    onDragEndWidget(
-                        androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
-                        appWidgetManager = appWidgetManager,
-                        data = data,
-                        gridItem = gridItemSource.gridItem,
-                        onLaunchWidgetIntent = onLaunchWidgetIntent,
-                        onUpdateAppWidgetId = onUpdateAppWidgetId,
-                        onUpdateWidgetGridItem = onUpdateWidgetGridItem,
-                    )
-                }
-
-                else -> {
-                    onDragEndAfterMove(moveGridItemResult)
+                    else -> {
+                        onDragEndAfterMove(moveGridItemResult)
+                    }
                 }
             }
         }
 
         is GridItemSource.Folder -> {
+            onUpdateIsDragging(false)
+
+            onResetGridItemSource()
+
             onDragEndAfterMoveFolder()
         }
 

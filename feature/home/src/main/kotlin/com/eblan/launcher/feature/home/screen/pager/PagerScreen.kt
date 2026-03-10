@@ -418,8 +418,6 @@ internal fun PagerScreen(
 
     var isDragging by remember { mutableStateOf(false) }
 
-    var isLongPress by remember { mutableStateOf(false) }
-
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     var folderTitleHeightPx by remember { mutableIntStateOf(0) }
@@ -789,6 +787,9 @@ internal fun PagerScreen(
                     onUpdateIsDragging = { newIsDragging ->
                         isDragging = newIsDragging
                     },
+                    onResetGridItemSource = {
+                        gridItemSource = null
+                    }
                 )
 
                 onResetConfigureResultCode()
@@ -1183,9 +1184,10 @@ internal fun PagerScreen(
                             statusBarNotifications = statusBarNotifications,
                             textColor = textColor,
                             gridItemSource = gridItemSource,
-                            isLongPress = isLongPress,
                             onDraggingGridItem = {
                                 showGridItemPopup = false
+
+                                isDragging = true
 
                                 onDraggingGridItem(
                                     Screen.Pager,
@@ -1277,12 +1279,6 @@ internal fun PagerScreen(
 
                                 associate = newGridItemSource.gridItem.associate
                             },
-                            onUpdateIsDragging = { newIsDragging ->
-                                isDragging = newIsDragging
-                            },
-                            onUpdateIsLongPress = { newIsLongPress ->
-                                isLongPress = newIsLongPress
-                            },
                         )
                     },
                 )
@@ -1345,9 +1341,10 @@ internal fun PagerScreen(
                         statusBarNotifications = statusBarNotifications,
                         textColor = textColor,
                         gridItemSource = gridItemSource,
-                        isLongPress = isLongPress,
                         onDraggingGridItem = {
                             showGridItemPopup = false
+
+                            isDragging = true
 
                             onDraggingGridItem(
                                 Screen.Pager,
@@ -1438,12 +1435,6 @@ internal fun PagerScreen(
                             gridItemSource = newGridItemSource
 
                             associate = newGridItemSource.gridItem.associate
-                        },
-                        onUpdateIsDragging = { newIsDragging ->
-                            isDragging = newIsDragging
-                        },
-                        onUpdateIsLongPress = { newIsLongPress ->
-                            isLongPress = newIsLongPress
                         },
                     )
                 }
@@ -1574,7 +1565,6 @@ internal fun PagerScreen(
                 statusBarNotifications = statusBarNotifications,
                 textColor = textColor,
                 gridItemSource = gridItemSource,
-                isLongPress = isLongPress,
                 onDismissRequest = {
                     onUpdateFolderGridItemId(null)
 
@@ -1623,9 +1613,6 @@ internal fun PagerScreen(
                 },
                 onUpdateIsDragging = { newIsDragging ->
                     isDragging = newIsDragging
-                },
-                onUpdateIsLongPress = { newIsLongPress ->
-                    isLongPress = newIsLongPress
                 },
             )
         }

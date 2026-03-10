@@ -116,7 +116,6 @@ internal fun SharedTransitionScope.FolderScreen(
     statusBarNotifications: Map<String, Int>,
     textColor: TextColor,
     gridItemSource: GridItemSource?,
-    isLongPress: Boolean,
     onDismissRequest: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
@@ -128,7 +127,6 @@ internal fun SharedTransitionScope.FolderScreen(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
-    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     val data = folderGridItem.data as? GridItemData.Folder ?: return
 
@@ -232,7 +230,6 @@ internal fun SharedTransitionScope.FolderScreen(
                                     textColor = textColor,
                                     folderGridItem = folderGridItem,
                                     gridItemSource = gridItemSource,
-                                    isLongPress = isLongPress,
                                     onDraggingGridItem = onDraggingGridItem,
                                     onOpenAppDrawer = onOpenAppDrawer,
                                     onUpdateGridItemOffset = onUpdateGridItemOffset,
@@ -240,7 +237,6 @@ internal fun SharedTransitionScope.FolderScreen(
                                     onUpdateGridItemSource = onUpdateGridItemSource,
                                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                                     onUpdateIsDragging = onUpdateIsDragging,
-                                    onUpdateIsLongPress = onUpdateIsLongPress,
                                 )
                             },
                         )
@@ -323,7 +319,6 @@ private fun SharedTransitionScope.FolderGridItemContent(
     textColor: TextColor,
     folderGridItem: GridItem,
     gridItemSource: GridItemSource?,
-    isLongPress: Boolean,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
     onUpdateGridItemOffset: (
@@ -334,7 +329,6 @@ private fun SharedTransitionScope.FolderGridItemContent(
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
-    onUpdateIsLongPress: (Boolean) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -395,8 +389,6 @@ private fun SharedTransitionScope.FolderGridItemContent(
             onUpdateIsDragging(true)
 
             onDraggingGridItem()
-        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected) {
-            onUpdateIsLongPress(false)
         }
     }
 
@@ -432,8 +424,6 @@ private fun SharedTransitionScope.FolderGridItemContent(
                                     screen = Screen.Pager,
                                 ),
                             )
-
-                            onUpdateIsLongPress(true)
                         }
                     },
                     onTap = {
@@ -462,13 +452,13 @@ private fun SharedTransitionScope.FolderGridItemContent(
                 shape = RoundedCornerShape(size = currentGridItemSettings.cornerRadius.dp),
             )
             .whiteBox(
-                visible = isLongPress && isSelected && drag == Drag.Dragging,
+                visible = isSelected && drag == Drag.Dragging,
                 textColor = currentTextColor,
             ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!(isLongPress && isSelected && (drag == Drag.Start || drag == Drag.Dragging))) {
+        if (!(isSelected && (drag == Drag.Start || drag == Drag.Dragging))) {
             Box(modifier = Modifier.size(currentGridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = Builder(LocalContext.current).data(gridItem.customIcon ?: icon)

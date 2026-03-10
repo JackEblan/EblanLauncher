@@ -220,6 +220,7 @@ internal fun handleConfigureLauncherResult(
     ) -> Unit,
     onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onResetConfigureResultCode: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     if (resultCode == null ||
         moveGridItemResult == null ||
@@ -238,6 +239,8 @@ internal fun handleConfigureLauncherResult(
     }
 
     onResetConfigureResultCode()
+
+    onResetOverlay()
 }
 
 internal fun handleDeleteAppWidgetId(
@@ -248,6 +251,7 @@ internal fun handleDeleteAppWidgetId(
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     if (gridItemSource == null) return
 
@@ -255,6 +259,8 @@ internal fun handleDeleteAppWidgetId(
         check(gridItemSource.gridItem.data is GridItemData.Widget)
 
         onDeleteWidgetGridItemCache(gridItemSource.gridItem, appWidgetId)
+
+        onResetOverlay()
     }
 }
 
@@ -270,6 +276,7 @@ internal fun handleBoundWidget(
         appWidgetId: Int,
     ) -> Unit,
     onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     if (gridItemSource == null || moveGridItemResult == null) return
 
@@ -286,6 +293,7 @@ internal fun handleBoundWidget(
                 updatedWidgetGridItem = updatedWidgetGridItem,
                 onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
                 onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
+                onResetOverlay = onResetOverlay,
             )
         }
 
@@ -297,6 +305,7 @@ internal fun handleBoundWidget(
                 updatedWidgetGridItem = updatedWidgetGridItem,
                 onDeleteGridItemCache = onDeleteGridItemCache,
                 onDragEndAfterMove = onDragEndAfterMoveWidgetGridItem,
+                onResetOverlay = onResetOverlay,
             )
         }
 
@@ -507,6 +516,7 @@ private fun bindPinWidget(
     updatedWidgetGridItem: GridItem,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val extras = Bundle().apply {
         putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -520,6 +530,8 @@ private fun bindPinWidget(
     } else {
         onDeleteGridItemCache(updatedWidgetGridItem)
     }
+
+    onResetOverlay()
 }
 
 private suspend fun onDragEndShortcutConfig(
@@ -573,6 +585,7 @@ private fun startAppWidgetConfigureActivityForResult(
         appWidgetId: Int,
     ) -> Unit,
     onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val configureComponent = configure?.let(ComponentName::unflattenFromString)
 
@@ -586,11 +599,17 @@ private fun startAppWidgetConfigureActivityForResult(
                 null,
             )
         } else {
+            onResetOverlay()
+
             onDragEndAfterMoveWidgetGridItem(moveGridItemResult.copy(movingGridItem = updatedWidgetGridItem))
         }
     } catch (_: ActivityNotFoundException) {
+        onResetOverlay()
+
         onDeleteWidgetGridItemCache(updatedWidgetGridItem, appWidgetId)
     } catch (_: SecurityException) {
+        onResetOverlay()
+
         onDeleteWidgetGridItemCache(updatedWidgetGridItem, appWidgetId)
     }
 }

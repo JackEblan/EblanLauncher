@@ -798,6 +798,19 @@ internal fun PagerScreen(
             deleteAppWidgetId = deleteAppWidgetId,
             gridItemSource = gridItemSource,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+            onResetOverlay = {
+                gridItemSource = null
+
+                overlayImageBitmap = null
+
+                sharedElementKey = null
+
+                overlayIntOffset = IntOffset.Zero
+
+                overlayIntSize = IntSize.Zero
+
+                drag = Drag.None
+            },
         )
     }
 
@@ -811,6 +824,19 @@ internal fun PagerScreen(
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
+            onResetOverlay = {
+                gridItemSource = null
+
+                overlayImageBitmap = null
+
+                sharedElementKey = null
+
+                overlayIntOffset = IntOffset.Zero
+
+                overlayIntSize = IntSize.Zero
+
+                drag = Drag.None
+            },
         )
     }
 
@@ -893,6 +919,19 @@ internal fun PagerScreen(
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
             onResetConfigureResultCode = onResetConfigureResultCode,
+            onResetOverlay = {
+                gridItemSource = null
+
+                overlayImageBitmap = null
+
+                sharedElementKey = null
+
+                overlayIntOffset = IntOffset.Zero
+
+                overlayIntSize = IntSize.Zero
+
+                drag = Drag.None
+            },
         )
     }
 
@@ -1777,6 +1816,9 @@ internal fun PagerScreen(
                     gridItemSource = newGridItemSource
 
                     associate = newGridItemSource.gridItem.associate
+                },
+                onUpdateSharedElementKey = { newSharedElementKey ->
+                    sharedElementKey = newSharedElementKey
                 },
             )
         }

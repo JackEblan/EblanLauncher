@@ -386,6 +386,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
                         doubleTap = gridItem.doubleTap,
                         launcherApps = launcherApps,
                         context = context,
+                        scope = scope,
                         onOpenAppDrawer = onOpenAppDrawer,
                     ),
                     onLongPress = {

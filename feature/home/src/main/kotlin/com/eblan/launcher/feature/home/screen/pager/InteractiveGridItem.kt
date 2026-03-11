@@ -345,6 +345,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                         doubleTap = gridItem.doubleTap,
                         launcherApps = launcherApps,
                         context = context,
+                        scope = scope,
                         onOpenAppDrawer = onOpenAppDrawer,
                     ),
                     onLongPress = {
@@ -670,6 +671,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                         doubleTap = gridItem.doubleTap,
                         launcherApps = launcherApps,
                         context = context,
+                        scope = scope,
                         onOpenAppDrawer = onOpenAppDrawer,
                     ),
                     onLongPress = {
@@ -846,6 +848,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                         doubleTap = gridItem.doubleTap,
                         launcherApps = launcherApps,
                         context = context,
+                        scope = scope,
                         onOpenAppDrawer = onOpenAppDrawer,
                     ),
                     onLongPress = {
@@ -1081,6 +1084,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                         doubleTap = gridItem.doubleTap,
                         launcherApps = launcherApps,
                         context = context,
+                        scope = scope,
                         onOpenAppDrawer = onOpenAppDrawer,
                     ),
                     onLongPress = {

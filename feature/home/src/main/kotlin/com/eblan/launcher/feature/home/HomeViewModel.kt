@@ -341,20 +341,17 @@ internal class HomeViewModel @Inject constructor(
 
     fun resetGridCacheAfterResize(resizingGridItem: GridItem) {
         viewModelScope.launch {
-            TODO()
-//            moveGridItemJob?.cancelAndJoin()
-//
-//            updateGridItemsAfterResizeUseCase(resizingGridItem = resizingGridItem)
-//
-//            delay(defaultDelay)
-//
-//            _screen.update {
-//                Screen.Pager
-//            }
-//
-//            _moveGridItemResult.update {
-//                null
-//            }
+            moveGridItemJob?.cancelAndJoin()
+
+            updateGridItemsAfterResizeUseCase(resizingGridItem = resizingGridItem)
+
+            _isCache.update {
+                false
+            }
+
+            _moveGridItemResult.update {
+                null
+            }
         }
     }
 

@@ -21,10 +21,7 @@ import android.content.Context
 import android.graphics.Paint
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,6 +41,7 @@ import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.feature.home.util.handleEblanAction
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.ui.local.LocalLauncherApps
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -130,15 +128,18 @@ internal fun onDoubleTap(
     doubleTap: EblanAction,
     launcherApps: AndroidLauncherAppsWrapper,
     context: Context,
+    scope: CoroutineScope,
     onOpenAppDrawer: () -> Unit,
 ): ((Offset) -> Unit)? = if (doubleTap.eblanActionType != EblanActionType.None) {
     {
-        handleEblanAction(
-            context = context,
-            eblanAction = doubleTap,
-            launcherApps = launcherApps,
-            onOpenAppDrawer = onOpenAppDrawer,
-        )
+        scope.launch {
+            handleEblanAction(
+                context = context,
+                eblanAction = doubleTap,
+                launcherApps = launcherApps,
+                onOpenAppDrawer = onOpenAppDrawer,
+            )
+        }
     }
 } else {
     null

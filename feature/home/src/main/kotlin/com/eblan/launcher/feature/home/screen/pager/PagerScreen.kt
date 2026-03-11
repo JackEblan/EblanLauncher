@@ -131,10 +131,10 @@ import com.eblan.launcher.feature.home.handlePinItemRequest
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.folder.FolderScreen
+import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.screen.shortcutconfig.ShortcutConfigScreen
 import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
@@ -202,10 +202,6 @@ internal fun PagerScreen(
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
-    onResize: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
     onSettings: () -> Unit,
     onUpdateFolderGridItemId: (String?) -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
@@ -265,6 +261,14 @@ internal fun PagerScreen(
     onGetPinGridItem: (PinItemRequestType) -> Unit,
     onStartSyncData: () -> Unit,
     onStopSyncData: () -> Unit,
+    onResizeCancel: () -> Unit,
+    onResizeEnd: (GridItem) -> Unit,
+    onResizeGridItem: (
+        gridItem: GridItem,
+        columns: Int,
+        rows: Int,
+        lockMovement: Boolean,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -352,6 +356,8 @@ internal fun PagerScreen(
     var isLongPress by remember { mutableStateOf(false) }
 
     var isDragging by remember { mutableStateOf(false) }
+
+    var isResizing by remember { mutableStateOf(false) }
 
     var settingsPopupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -1450,10 +1456,9 @@ internal fun PagerScreen(
                     )
                 },
                 onResize = {
-                    onResize(
-                        Screen.Resize,
-                        gridItems,
-                    )
+                    isResizing = true
+
+                    onDraggingGridItem(gridItems)
                 },
                 onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
                     val sourceBoundsX = popupIntOffset.x + leftPadding
@@ -1817,6 +1822,23 @@ internal fun PagerScreen(
                     isLongPress = true
 
                     isDragging = true
+                },
+            )
+        }
+
+        if (isResizing && gridItemSource != null) {
+            ResizeScreen(
+                gridItem = gridItemSource?.gridItem,
+                homeSettings = homeSettings,
+                lockMovement = lockMovement,
+                moveGridItemResult = moveGridItemResult,
+                paddingValues = paddingValues,
+                textColor = textColor,
+                onResizeCancel = onResizeCancel,
+                onResizeEnd = onResizeEnd,
+                onResizeGridItem = onResizeGridItem,
+                onUpdateIsResizing = { newIsResizing ->
+                    isResizing = newIsResizing
                 },
             )
         }

@@ -497,7 +497,6 @@ private fun Success(
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
                     onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-                    onResize = {_,_ ->},
                     onSettings = onSettings,
                     onUpdateFolderGridItemId = onUpdateFolderGridItemId,
                     onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
@@ -522,31 +521,10 @@ private fun Success(
                     onGetPinGridItem = onGetPinGridItem,
                     onStartSyncData = onStartSyncData,
                     onStopSyncData = onStopSyncData,
+                    onResizeCancel = onCancelGridCache,
+                    onResizeEnd = onResetGridCacheAfterResize,
+                    onResizeGridItem = onResizeGridItem,
                 )
-            }
-
-            Screen.Resize -> {
-//                ResizeScreen(
-//                    dockCurrentPage = dockCurrentPage,
-//                    gridCurrentPage = gridCurrentPage,
-//                    gridHorizontalPagerState = gridHorizontalPagerState,
-//                    gridItem = gridItemSource?.gridItem,
-//                    gridItemCache = gridItemCache,
-//                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
-//                    homeSettings = homeData.userData.homeSettings,
-//                    iconPackFilePaths = iconPackFilePaths,
-//                    lockMovement = homeData.userData.experimentalSettings.lockMovement,
-//                    moveGridItemResult = movedGridItemResult,
-//                    paddingValues = paddingValues,
-//                    screen = targetState,
-//                    screenHeight = screenHeight,
-//                    screenWidth = screenWidth,
-//                    statusBarNotifications = statusBarNotifications,
-//                    textColor = homeData.textColor,
-//                    onResizeCancel = onCancelGridCache,
-//                    onResizeEnd = onResetGridCacheAfterResize,
-//                    onResizeGridItem = onResizeGridItem,
-//                )
             }
 
             Screen.Loading -> {

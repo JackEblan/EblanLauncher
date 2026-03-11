@@ -1507,12 +1507,12 @@ internal fun PagerScreen(
                 homeSettings = homeSettings,
                 iconPackFilePaths = iconPackFilePaths,
                 paddingValues = paddingValues,
-                screenHeight = screenHeight,
-                screenWidth = screenWidth,
                 statusBarNotifications = statusBarNotifications,
                 textColor = textColor,
                 gridItemSource = gridItemSource,
                 isLongPress = isLongPress,
+                safeDrawingWidth = safeDrawingWidth,
+                safeDrawingHeight = safeDrawingHeight,
                 onDismissRequest = {
                     onUpdateFolderGridItemId(null)
 

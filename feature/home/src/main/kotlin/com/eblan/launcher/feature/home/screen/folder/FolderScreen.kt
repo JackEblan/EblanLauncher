@@ -26,8 +26,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -66,7 +64,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
@@ -111,12 +108,12 @@ internal fun SharedTransitionScope.FolderScreen(
     homeSettings: HomeSettings,
     iconPackFilePaths: Map<String, String>,
     paddingValues: PaddingValues,
-    screenHeight: Int,
-    screenWidth: Int,
     statusBarNotifications: Map<String, Int>,
     textColor: TextColor,
     gridItemSource: GridItemSource?,
     isLongPress: Boolean,
+    safeDrawingWidth: Int,
+    safeDrawingHeight: Int,
     onDismissRequest: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
@@ -133,30 +130,6 @@ internal fun SharedTransitionScope.FolderScreen(
     val data = folderGridItem.data as? GridItemData.Folder ?: return
 
     val density = LocalDensity.current
-
-    val leftPadding = with(density) {
-        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
-    }
-
-    val rightPadding = with(density) {
-        paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
-    }
-
-    val topPadding = with(density) {
-        paddingValues.calculateTopPadding().roundToPx()
-    }
-
-    val bottomPadding = with(density) {
-        paddingValues.calculateBottomPadding().roundToPx()
-    }
-
-    val horizontalPadding = leftPadding + rightPadding
-
-    val verticalPadding = topPadding + bottomPadding
-
-    val safeDrawingWidth = screenWidth - horizontalPadding
-
-    val safeDrawingHeight = screenHeight - verticalPadding
 
     val folderCellWidth = safeDrawingWidth / homeSettings.columns
 

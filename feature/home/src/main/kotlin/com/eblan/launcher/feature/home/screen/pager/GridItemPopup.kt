@@ -20,6 +20,7 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.appwidget.AppWidgetProviderInfo
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,6 +45,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutInfo
@@ -134,6 +137,87 @@ internal fun GridItemPopup(
                 onWidgets = onWidgets,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateGridItemSource = onUpdateGridItemSource,
+            )
+        },
+    ) { measurables, constraints ->
+        val placeable = measurables.first().measure(
+            constraints.copy(
+                minWidth = 0,
+                minHeight = 0,
+            ),
+        )
+
+        val parentCenterX = x + popupIntSize.width / 2
+
+        val childX = (parentCenterX - placeable.width / 2)
+            .coerceIn(0, constraints.maxWidth - placeable.width)
+
+        val topY = y - placeable.height
+        val bottomY = y + popupIntSize.height
+
+        val childY = if (topY < 0) bottomY else topY
+
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            placeable.place(
+                x = childX,
+                y = childY,
+            )
+        }
+    }
+}
+
+
+@Composable
+internal fun FolderGridItemPopup(
+    modifier: Modifier = Modifier,
+    gridItemSource: GridItemSource?,
+    paddingValues: PaddingValues,
+    popupIntOffset: IntOffset,
+    popupIntSize: IntSize,
+    onDeleteApplicationInfoGridItem: (ApplicationInfoGridItem) -> Unit,
+    onDismissRequest: () -> Unit,
+    onEdit: (String) -> Unit,
+) {
+    val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder ?: return
+
+    val density = LocalDensity.current
+
+    val leftPadding = with(density) {
+        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+    val x = popupIntOffset.x - leftPadding
+
+    val y = popupIntOffset.y - topPadding
+
+    Layout(
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+                        awaitRelease()
+
+                        onDismissRequest()
+                    },
+                )
+            }
+            .fillMaxSize()
+            .padding(paddingValues),
+        content = {
+            FolderGridItemPopupContent(
+                onDelete = {
+                    onDeleteApplicationInfoGridItem(gridItemSource.applicationInfoGridItem)
+
+                    onDismissRequest()
+                },
+                onEdit = {
+                    onEdit(gridItemSourceFolder.applicationInfoGridItem.id)
+
+                    onDismissRequest()
+                },
             )
         },
     ) { measurables, constraints ->
@@ -311,6 +395,36 @@ private fun GridItemPopupContent(
                             onDismissRequest()
                         },
                     )
+                }
+            }
+        },
+    )
+}
+
+
+
+@Composable
+private fun FolderGridItemPopupContent(
+    modifier: Modifier = Modifier,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit,
+) {
+    Surface(
+        modifier = modifier.width(IntrinsicSize.Max),
+        shape = RoundedCornerShape(30.dp),
+        shadowElevation = 2.dp,
+        content = {
+            Row(modifier = modifier) {
+                IconButton(
+                    onClick = onEdit,
+                ) {
+                    Icon(imageVector = EblanLauncherIcons.Edit, contentDescription = null)
+                }
+
+                IconButton(
+                    onClick = onDelete,
+                ) {
+                    Icon(imageVector = EblanLauncherIcons.Delete, contentDescription = null)
                 }
             }
         },

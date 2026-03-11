@@ -166,7 +166,6 @@ internal fun GridItemPopup(
     }
 }
 
-
 @Composable
 internal fun FolderGridItemPopup(
     modifier: Modifier = Modifier,
@@ -400,7 +399,6 @@ private fun GridItemPopupContent(
         },
     )
 }
-
 
 @Composable
 private fun FolderGridItemPopupContent(

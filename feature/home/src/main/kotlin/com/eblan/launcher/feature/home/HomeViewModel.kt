@@ -287,7 +287,6 @@ internal class HomeViewModel @Inject constructor(
     fun showPageCache(
         gridItems: List<GridItem>,
         associate: Associate,
-        screen: Screen,
     ) {
         viewModelScope.launch {
             _screen.update {
@@ -304,7 +303,7 @@ internal class HomeViewModel @Inject constructor(
             delay(defaultDelay)
 
             _screen.update {
-                screen
+                Screen.EditPage
             }
         }
     }

@@ -23,5 +23,6 @@ internal data class SharedElementKey(
 )
 
 enum class SharedElementKeyParent {
-    Grid, SwipeY,
+    Grid,
+    SwipeY,
 }

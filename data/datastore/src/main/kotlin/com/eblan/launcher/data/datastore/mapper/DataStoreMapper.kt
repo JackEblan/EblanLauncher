@@ -88,53 +88,45 @@ internal fun GeneralSettingsProto.toGeneralSettings(): GeneralSettings = General
     iconPackInfoPackageName = iconPackInfoPackageName,
 )
 
-internal fun GridItemSettings.toGridItemSettingsProto(): GridItemSettingsProto =
-    GridItemSettingsProto.newBuilder().setIconSize(iconSize)
-        .setTextColorProto(textColor.toTextColorProto()).setTextSize(textSize)
-        .setShowLabel(showLabel).setSingleLineLabel(singleLineLabel)
-        .setHorizontalAlignmentProto(horizontalAlignment.toHorizontalAlignmentProto())
-        .setVerticalArrangementProto(verticalArrangement.toVerticalArrangementProto())
-        .setCustomTextColor(customTextColor).setCustomBackgroundColor(customBackgroundColor)
-        .setPadding(padding).setCornerRadius(cornerRadius).build()
+internal fun GridItemSettings.toGridItemSettingsProto(): GridItemSettingsProto = GridItemSettingsProto.newBuilder().setIconSize(iconSize)
+    .setTextColorProto(textColor.toTextColorProto()).setTextSize(textSize)
+    .setShowLabel(showLabel).setSingleLineLabel(singleLineLabel)
+    .setHorizontalAlignmentProto(horizontalAlignment.toHorizontalAlignmentProto())
+    .setVerticalArrangementProto(verticalArrangement.toVerticalArrangementProto())
+    .setCustomTextColor(customTextColor).setCustomBackgroundColor(customBackgroundColor)
+    .setPadding(padding).setCornerRadius(cornerRadius).build()
 
-internal fun HomeSettings.toHomeSettingsProto(): HomeSettingsProto =
-    HomeSettingsProto.newBuilder().setColumns(columns).setRows(rows).setPageCount(pageCount)
-        .setInfiniteScroll(infiniteScroll).setDockColumns(dockColumns).setDockRows(dockRows)
-        .setDockHeight(dockHeight).setInitialPage(initialPage).setWallpaperScroll(wallpaperScroll)
-        .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
-        .setLockScreenOrientation(lockScreenOrientation).setDockPageCount(dockPageCount)
-        .setDockInfiniteScroll(dockInfiniteScroll).setDockInitialPage(dockInitialPage).build()
+internal fun HomeSettings.toHomeSettingsProto(): HomeSettingsProto = HomeSettingsProto.newBuilder().setColumns(columns).setRows(rows).setPageCount(pageCount)
+    .setInfiniteScroll(infiniteScroll).setDockColumns(dockColumns).setDockRows(dockRows)
+    .setDockHeight(dockHeight).setInitialPage(initialPage).setWallpaperScroll(wallpaperScroll)
+    .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
+    .setLockScreenOrientation(lockScreenOrientation).setDockPageCount(dockPageCount)
+    .setDockInfiniteScroll(dockInfiniteScroll).setDockInitialPage(dockInitialPage).build()
 
-internal fun AppDrawerSettings.toAppDrawerSettingsProto(): AppDrawerSettingsProto =
-    AppDrawerSettingsProto.newBuilder().setAppDrawerColumns(appDrawerColumns)
-        .setAppDrawerRowsHeight(appDrawerRowsHeight)
-        .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
-        .setEblanApplicationInfoOrderProto(eblanApplicationInfoOrder.toEblanApplicationInfoOrderProto())
-        .build()
+internal fun AppDrawerSettings.toAppDrawerSettingsProto(): AppDrawerSettingsProto = AppDrawerSettingsProto.newBuilder().setAppDrawerColumns(appDrawerColumns)
+    .setAppDrawerRowsHeight(appDrawerRowsHeight)
+    .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
+    .setEblanApplicationInfoOrderProto(eblanApplicationInfoOrder.toEblanApplicationInfoOrderProto())
+    .build()
 
-internal fun GeneralSettings.toGeneralSettingsProto(): GeneralSettingsProto =
-    GeneralSettingsProto.newBuilder().setThemeProto(theme.toThemeProto())
-        .setDynamicTheme(dynamicTheme).setIconPackInfoPackageName(iconPackInfoPackageName).build()
+internal fun GeneralSettings.toGeneralSettingsProto(): GeneralSettingsProto = GeneralSettingsProto.newBuilder().setThemeProto(theme.toThemeProto())
+    .setDynamicTheme(dynamicTheme).setIconPackInfoPackageName(iconPackInfoPackageName).build()
 
-internal fun GestureSettings.toGestureSettingsProto(): GestureSettingsProto =
-    GestureSettingsProto.newBuilder().setDoubleTapProto(doubleTap.toEblanActionProto())
-        .setSwipeUpProto(swipeUp.toEblanActionProto())
-        .setSwipeDownProto(swipeDown.toEblanActionProto()).build()
+internal fun GestureSettings.toGestureSettingsProto(): GestureSettingsProto = GestureSettingsProto.newBuilder().setDoubleTapProto(doubleTap.toEblanActionProto())
+    .setSwipeUpProto(swipeUp.toEblanActionProto())
+    .setSwipeDownProto(swipeDown.toEblanActionProto()).build()
 
-internal fun ExperimentalSettings.toExperimentalSettingsProto(): ExperimentalSettingsProto =
-    ExperimentalSettingsProto.newBuilder().setSyncData(syncData).setFirstLaunch(firstLaunch)
-        .setLockMovement(lockMovement).build()
+internal fun ExperimentalSettings.toExperimentalSettingsProto(): ExperimentalSettingsProto = ExperimentalSettingsProto.newBuilder().setSyncData(syncData).setFirstLaunch(firstLaunch)
+    .setLockMovement(lockMovement).build()
 
-internal fun ExperimentalSettingsProto.toExperimentalSettings(): ExperimentalSettings =
-    ExperimentalSettings(
-        syncData = syncData,
-        firstLaunch = firstLaunch,
-        lockMovement = lockMovement,
-    )
+internal fun ExperimentalSettingsProto.toExperimentalSettings(): ExperimentalSettings = ExperimentalSettings(
+    syncData = syncData,
+    firstLaunch = firstLaunch,
+    lockMovement = lockMovement,
+)
 
-internal fun EblanAction.toEblanActionProto(): EblanActionProto =
-    EblanActionProto.newBuilder().setEblanActionTypeProto(eblanActionType.toEblanActionTypeProto())
-        .setSerialNumber(serialNumber).setComponentName(componentName).build()
+internal fun EblanAction.toEblanActionProto(): EblanActionProto = EblanActionProto.newBuilder().setEblanActionTypeProto(eblanActionType.toEblanActionTypeProto())
+    .setSerialNumber(serialNumber).setComponentName(componentName).build()
 
 internal fun GestureSettingsProto.toGestureSettings(): GestureSettings = GestureSettings(
     doubleTap = doubleTapProto.toEblanAction(),
@@ -180,18 +172,16 @@ private fun ThemeProto.toDarkThemeConfig(): Theme = when (this) {
     ThemeProto.DarkThemeConfigDark -> Theme.Dark
 }
 
-private fun EblanApplicationInfoOrderProto.toEblanApplicationInfoOrder(): EblanApplicationInfoOrder =
-    when (this) {
-        EblanApplicationInfoOrderProto.Alphabetical -> EblanApplicationInfoOrder.Alphabetical
-        EblanApplicationInfoOrderProto.Index -> EblanApplicationInfoOrder.Index
-        EblanApplicationInfoOrderProto.UNRECOGNIZED -> EblanApplicationInfoOrder.Alphabetical
-    }
+private fun EblanApplicationInfoOrderProto.toEblanApplicationInfoOrder(): EblanApplicationInfoOrder = when (this) {
+    EblanApplicationInfoOrderProto.Alphabetical -> EblanApplicationInfoOrder.Alphabetical
+    EblanApplicationInfoOrderProto.Index -> EblanApplicationInfoOrder.Index
+    EblanApplicationInfoOrderProto.UNRECOGNIZED -> EblanApplicationInfoOrder.Alphabetical
+}
 
-private fun EblanApplicationInfoOrder.toEblanApplicationInfoOrderProto(): EblanApplicationInfoOrderProto =
-    when (this) {
-        EblanApplicationInfoOrder.Alphabetical -> EblanApplicationInfoOrderProto.Alphabetical
-        EblanApplicationInfoOrder.Index -> EblanApplicationInfoOrderProto.Index
-    }
+private fun EblanApplicationInfoOrder.toEblanApplicationInfoOrderProto(): EblanApplicationInfoOrderProto = when (this) {
+    EblanApplicationInfoOrder.Alphabetical -> EblanApplicationInfoOrderProto.Alphabetical
+    EblanApplicationInfoOrder.Index -> EblanApplicationInfoOrderProto.Index
+}
 
 private fun TextColor.toTextColorProto(): TextColorProto = when (this) {
     TextColor.System -> TextColorProto.TextColorSystem
@@ -207,12 +197,11 @@ private fun TextColorProto.toTextColor(): TextColor = when (this) {
     TextColorProto.TextColorCustom -> TextColor.Custom
 }
 
-private fun HorizontalAlignment.toHorizontalAlignmentProto(): HorizontalAlignmentProto =
-    when (this) {
-        HorizontalAlignment.Start -> HorizontalAlignmentProto.Start
-        HorizontalAlignment.CenterHorizontally -> HorizontalAlignmentProto.CenterHorizontally
-        HorizontalAlignment.End -> HorizontalAlignmentProto.End
-    }
+private fun HorizontalAlignment.toHorizontalAlignmentProto(): HorizontalAlignmentProto = when (this) {
+    HorizontalAlignment.Start -> HorizontalAlignmentProto.Start
+    HorizontalAlignment.CenterHorizontally -> HorizontalAlignmentProto.CenterHorizontally
+    HorizontalAlignment.End -> HorizontalAlignmentProto.End
+}
 
 private fun HorizontalAlignmentProto.toHorizontalAlignment(): HorizontalAlignment = when (this) {
     HorizontalAlignmentProto.Start -> HorizontalAlignment.Start
@@ -220,12 +209,11 @@ private fun HorizontalAlignmentProto.toHorizontalAlignment(): HorizontalAlignmen
     HorizontalAlignmentProto.End -> HorizontalAlignment.End
 }
 
-private fun VerticalArrangement.toVerticalArrangementProto(): VerticalArrangementProto =
-    when (this) {
-        VerticalArrangement.Top -> VerticalArrangementProto.Top
-        VerticalArrangement.Center -> VerticalArrangementProto.Center
-        VerticalArrangement.Bottom -> VerticalArrangementProto.Bottom
-    }
+private fun VerticalArrangement.toVerticalArrangementProto(): VerticalArrangementProto = when (this) {
+    VerticalArrangement.Top -> VerticalArrangementProto.Top
+    VerticalArrangement.Center -> VerticalArrangementProto.Center
+    VerticalArrangement.Bottom -> VerticalArrangementProto.Bottom
+}
 
 private fun VerticalArrangementProto.toVerticalArrangement(): VerticalArrangement = when (this) {
     VerticalArrangementProto.Top -> VerticalArrangement.Top

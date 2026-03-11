@@ -321,7 +321,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
     val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder
 
     val isSelected = gridItemSourceFolder != null &&
-            gridItem.id == gridItemSourceFolder.applicationInfoGridItem.id
+        gridItem.id == gridItemSourceFolder.applicationInfoGridItem.id
 
     val currentGridItemSettings = if (gridItem.override) {
         gridItem.gridItemSettings
@@ -362,9 +362,9 @@ private fun SharedTransitionScope.FolderGridItemContent(
 
     val hasNotifications =
         statusBarNotifications[gridItem.packageName] != null && (
-                statusBarNotifications[gridItem.packageName]
-                    ?: 0
-                ) > 0
+            statusBarNotifications[gridItem.packageName]
+                ?: 0
+            ) > 0
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isSelected && isLongPress) {

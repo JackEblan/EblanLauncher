@@ -148,36 +148,34 @@ internal fun onDoubleTap(
 internal fun Modifier.whiteBox(
     visible: Boolean,
     textColor: Color,
-): Modifier {
-    return if (visible) {
-        drawBehind {
-            drawContext.canvas.nativeCanvas.apply {
-                val paint = Paint().apply {
-                    style = Paint.Style.STROKE
-                    strokeWidth = 1.5.dp.toPx()
+): Modifier = if (visible) {
+    drawBehind {
+        drawContext.canvas.nativeCanvas.apply {
+            val paint = Paint().apply {
+                style = Paint.Style.STROKE
+                strokeWidth = 1.5.dp.toPx()
 
-                    color = textColor.copy(alpha = 0.3f).toArgb()
+                color = textColor.copy(alpha = 0.3f).toArgb()
 
-                    setShadowLayer(
-                        12.dp.toPx(),
-                        0f,
-                        0f,
-                        textColor.toArgb(),
-                    )
-                }
-
-                drawRoundRect(
+                setShadowLayer(
+                    12.dp.toPx(),
                     0f,
                     0f,
-                    size.width,
-                    size.height,
-                    5.dp.toPx(),
-                    5.dp.toPx(),
-                    paint,
+                    textColor.toArgb(),
                 )
             }
+
+            drawRoundRect(
+                0f,
+                0f,
+                size.width,
+                size.height,
+                5.dp.toPx(),
+                5.dp.toPx(),
+                paint,
+            )
         }
-    } else {
-        this
     }
+} else {
+    this
 }

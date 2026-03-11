@@ -593,7 +593,7 @@ private fun SharedTransitionScope.Success(
             onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
 
-            )
+        )
     }
 
     if (showEblanApplicationInfoOrderDialog) {

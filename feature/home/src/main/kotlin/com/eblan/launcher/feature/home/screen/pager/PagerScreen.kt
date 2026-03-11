@@ -198,7 +198,6 @@ internal fun PagerScreen(
     onEditPage: (
         gridItems: List<GridItem>,
         associate: Associate,
-        screen: Screen,
     ) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
@@ -1954,7 +1953,8 @@ private fun LifecycleEffect(
                         UserHandle::class.java,
                     )
                 } else {
-                    @Suppress("DEPRECATION") intent.getParcelableExtra(Intent.EXTRA_USER)
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra(Intent.EXTRA_USER)
                 }
 
                 if (userHandle != null) {

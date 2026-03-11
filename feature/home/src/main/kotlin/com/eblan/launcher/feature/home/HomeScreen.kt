@@ -197,7 +197,6 @@ internal fun HomeScreen(
     onEditPage: (
         gridItems: List<GridItem>,
         associate: Associate,
-        screen: Screen,
     ) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
@@ -379,7 +378,6 @@ private fun Success(
     onEditPage: (
         gridItems: List<GridItem>,
         associate: Associate,
-        screen: Screen,
     ) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
@@ -555,7 +553,6 @@ private fun Success(
         PostNotificationPermissionEffect()
     }
 }
-
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalPermissionsApi::class)

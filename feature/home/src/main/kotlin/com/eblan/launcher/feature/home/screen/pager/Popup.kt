@@ -51,7 +51,6 @@ internal fun SettingsPopup(
     onEditPage: (
         gridItems: List<GridItem>,
         associate: Associate,
-        screen: Screen,
     ) -> Unit,
     onSettings: () -> Unit,
     onShortcutConfigActivities: () -> Unit,
@@ -71,7 +70,6 @@ internal fun SettingsPopup(
                 onEditPage(
                     gridItems,
                     Associate.Dock,
-                    Screen.EditDockPage,
                 )
 
                 onDismissRequest()
@@ -80,7 +78,6 @@ internal fun SettingsPopup(
                 onEditPage(
                     gridItems,
                     Associate.Grid,
-                    Screen.EditPage,
                 )
 
                 onDismissRequest()

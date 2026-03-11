@@ -272,8 +272,6 @@ internal fun PagerScreen(
 
     var hasDoubleTap by remember { mutableStateOf(false) }
 
-    var showAppDrawer by remember { mutableStateOf(false) }
-
     var showWidgets by remember { mutableStateOf(false) }
 
     var showShortcutConfigActivities by remember { mutableStateOf(false) }
@@ -907,7 +905,13 @@ internal fun PagerScreen(
             hasDoubleTap = hasDoubleTap,
             launcherApps = launcherApps,
             onOpenAppDrawer = {
-                showAppDrawer = true
+                swipeY.animateTo(
+                    targetValue = 0f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessLow,
+                    ),
+                )
             },
         )
 
@@ -941,7 +945,13 @@ internal fun PagerScreen(
                     intent = intent,
                     launcherApps = launcherApps,
                     onOpenAppDrawer = {
-                        showAppDrawer = true
+                        swipeY.animateTo(
+                            targetValue = 0f,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessLow,
+                            ),
+                        )
                     },
                 )
             }
@@ -1035,16 +1045,16 @@ internal fun PagerScreen(
                             }
                         },
                         onDragEnd = {
-                            swipeEblanAction(
-                                context = context,
-                                gestureSettings = gestureSettings,
-                                launcherApps = launcherApps,
-                                screenHeight = screenHeight,
-                                swipeDownY = swipeDownY.value,
-                                swipeUpY = swipeUpY.value,
-                            )
-
                             scope.launch {
+                                swipeEblanAction(
+                                    context = context,
+                                    gestureSettings = gestureSettings,
+                                    launcherApps = launcherApps,
+                                    screenHeight = screenHeight,
+                                    swipeDownY = swipeDownY.value,
+                                    swipeUpY = swipeUpY.value,
+                                )
+
                                 resetSwipeOffset(
                                     gestureSettings = gestureSettings,
                                     screenHeight = screenHeight,
@@ -1133,7 +1143,15 @@ internal fun PagerScreen(
                                 onDraggingGridItem(gridItems)
                             },
                             onOpenAppDrawer = {
-                                showAppDrawer = true
+                                scope.launch {
+                                    swipeY.animateTo(
+                                        targetValue = 0f,
+                                        animationSpec = spring(
+                                            dampingRatio = Spring.DampingRatioNoBouncy,
+                                            stiffness = Spring.StiffnessLow,
+                                        ),
+                                    )
+                                }
                             },
                             onTapApplicationInfo = { serialNumber, componentName ->
                                 val sourceBoundsX = x + leftPadding
@@ -1292,7 +1310,15 @@ internal fun PagerScreen(
                             onDraggingGridItem(gridItems)
                         },
                         onOpenAppDrawer = {
-                            showAppDrawer = true
+                            scope.launch {
+                                swipeY.animateTo(
+                                    targetValue = 0f,
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioNoBouncy,
+                                        stiffness = Spring.StiffnessLow,
+                                    ),
+                                )
+                            }
                         },
                         onTapApplicationInfo = { serialNumber, componentName ->
                             val sourceBoundsX = x + leftPadding
@@ -1532,7 +1558,15 @@ internal fun PagerScreen(
                     onDraggingGridItem(gridItems)
                 },
                 onOpenAppDrawer = {
-                    showAppDrawer = true
+                    scope.launch {
+                        swipeY.animateTo(
+                            targetValue = 0f,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessLow,
+                            ),
+                        )
+                    }
                 },
                 onUpdateGridItemOffset = { intOffset, intSize ->
                     popupIntOffset = intOffset
@@ -1654,100 +1688,6 @@ internal fun PagerScreen(
                     isLongPress = true
 
                     isDragging = true
-                },
-            )
-        }
-
-        if (showAppDrawer) {
-            LaunchedEffect(key1 = Unit) {
-                swipeY.animateTo(
-                    targetValue = 0f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioNoBouncy,
-                        stiffness = Spring.StiffnessLow,
-                    ),
-                )
-            }
-
-            ApplicationScreen(
-                alpha = applicationScreenAlpha,
-                appDrawerSettings = appDrawerSettings,
-                columns = homeSettings.columns,
-                cornerSize = cornerSize,
-                currentPage = currentPage,
-                drag = drag,
-                eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
-                eblanApplicationInfoTags = eblanApplicationInfoTags,
-                eblanShortcutInfosGroup = eblanShortcutInfosGroup,
-                getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
-                gridItemSource = gridItemSource,
-                gridItems = gridItems,
-                hasShortcutHostPermission = hasShortcutHostPermission,
-                iconPackFilePaths = iconPackFilePaths,
-                isPressHome = isPressHome,
-                managedProfileResult = managedProfileResult,
-                paddingValues = paddingValues,
-                rows = homeSettings.rows,
-                screenHeight = screenHeight,
-                screenWidth = screenWidth,
-                swipeY = swipeY.value,
-                onDismiss = {
-                    scope.launch {
-                        swipeY.animateTo(
-                            targetValue = screenHeight.toFloat(),
-                            animationSpec = tween(
-                                easing = FastOutSlowInEasing,
-                            ),
-                        )
-
-                        showAppDrawer = false
-
-                        isPressHome = false
-                    }
-                },
-                onDragEnd = { remaining ->
-                    scope.launch {
-                        handleApplyFling(
-                            offsetY = swipeY,
-                            remaining = remaining,
-                            screenHeight = screenHeight,
-                            onDismiss = {
-                                showAppDrawer = false
-                            },
-                        )
-                    }
-                },
-                onDraggingGridItem = onDraggingGridItem,
-                onEditApplicationInfo = onEditApplicationInfo,
-                onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-                onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
-                onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
-                onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
-                onUpdateGridItemOffset = { intOffset, intSize ->
-                    overlayIntOffset = intOffset
-
-                    overlayIntSize = intSize
-                },
-                onUpdateSharedElementKey = { newSharedElementKey ->
-                    sharedElementKey = newSharedElementKey
-                },
-                onVerticalDrag = { dragAmount ->
-                    scope.launch {
-                        swipeY.snapTo(swipeY.value + dragAmount)
-                    }
-                },
-                onUpdateImageBitmap = { newImageBitmap ->
-                    overlayImageBitmap = newImageBitmap
-                },
-                onUpdateGridItemSource = { newGridItemSource ->
-                    gridItemSource = newGridItemSource
-
-                    associate = newGridItemSource.gridItem.associate
-                },
-                onUpdateIsLongPressAndIsDragging = {
-                    isLongPress = false
-
-                    isDragging = false
                 },
             )
         }

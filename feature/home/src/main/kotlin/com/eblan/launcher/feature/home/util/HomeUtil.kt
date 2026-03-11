@@ -41,11 +41,11 @@ internal fun handleActionMainIntent(
     onActionMainIntent()
 }
 
-internal fun handleEblanAction(
+internal suspend fun handleEblanAction(
     context: Context,
     eblanAction: EblanAction,
     launcherApps: AndroidLauncherAppsWrapper,
-    onOpenAppDrawer: () -> Unit,
+    onOpenAppDrawer: suspend () -> Unit,
 ) {
     when (eblanAction.eblanActionType) {
         EblanActionType.OpenApp -> {

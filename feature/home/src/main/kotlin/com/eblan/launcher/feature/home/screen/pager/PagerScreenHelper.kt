@@ -40,7 +40,7 @@ import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import kotlinx.serialization.json.Json
 
-internal fun swipeEblanAction(
+internal suspend fun swipeEblanAction(
     context: Context,
     gestureSettings: GestureSettings,
     launcherApps: AndroidLauncherAppsWrapper,
@@ -166,11 +166,11 @@ internal suspend fun handleActionMainIntent(
     }
 }
 
-internal fun handleEblanActionIntent(
+internal suspend fun handleEblanActionIntent(
     context: Context,
     intent: Intent,
     launcherApps: AndroidLauncherAppsWrapper,
-    onOpenAppDrawer: () -> Unit,
+    onOpenAppDrawer: suspend () -> Unit,
 ) {
     if (intent.action != EblanAction.ACTION) return
 
@@ -223,12 +223,12 @@ internal suspend fun handleApplyFling(
     }
 }
 
-internal fun handleHasDoubleTap(
+internal suspend fun handleHasDoubleTap(
     context: Context,
     gestureSettings: GestureSettings,
     hasDoubleTap: Boolean,
     launcherApps: AndroidLauncherAppsWrapper,
-    onOpenAppDrawer: () -> Unit,
+    onOpenAppDrawer: suspend () -> Unit,
 ) {
     if (!hasDoubleTap) return
 

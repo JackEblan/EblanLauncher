@@ -384,10 +384,8 @@ internal class HomeViewModel @Inject constructor(
 
             updateGridItemsAfterMoveUseCase(moveGridItemResult = moveGridItemResult)
 
-            delay(defaultDelay)
-
-            _screen.update {
-                Screen.Pager
+            _isCache.update {
+                true
             }
 
             _moveGridItemResult.update {
@@ -461,10 +459,8 @@ internal class HomeViewModel @Inject constructor(
 
             gridRepository.updateGridItems(gridItems = gridCacheRepository.gridItemsCache.first())
 
-            delay(defaultDelay)
-
-            _screen.update {
-                Screen.Pager
+            _isCache.update {
+                false
             }
         }
     }

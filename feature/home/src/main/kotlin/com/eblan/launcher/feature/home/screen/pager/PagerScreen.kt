@@ -751,7 +751,6 @@ internal fun PagerScreen(
                     moveGridItemResult = moveGridItemResult,
                     userManagerWrapper = userManager,
                     isDragging = isDragging,
-                    isApplicationScreenVisible = isApplicationScreenVisible,
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onDragCancelAfterMove = onDragCancelAfterMove,
                     onDragEndAfterMove = onDragEndAfterMove,
@@ -788,8 +787,12 @@ internal fun PagerScreen(
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
             gridItemSource = gridItemSource,
-            isDragging = isDragging,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+            onResetAppWidgetId = {
+                lastAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
+
+                deleteAppWidgetId = false
+            },
         )
     }
 
@@ -800,7 +803,6 @@ internal fun PagerScreen(
             gridItemSource = gridItemSource,
             moveGridItemResult = moveGridItemResult,
             updatedWidgetGridItem = updatedWidgetGridItem,
-            isDragging = isDragging,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,

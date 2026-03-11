@@ -42,6 +42,7 @@ import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import java.io.File
+import kotlin.error
 
 internal suspend fun handleDropGridItem(
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
@@ -51,7 +52,6 @@ internal suspend fun handleDropGridItem(
     moveGridItemResult: MoveGridItemResult?,
     userManagerWrapper: AndroidUserManagerWrapper,
     isDragging: Boolean,
-    isApplicationScreenVisible: Boolean,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragCancelAfterMove: () -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
@@ -77,10 +77,6 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.New -> {
-            if (isApplicationScreenVisible) {
-                return
-            }
-
             if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
@@ -218,8 +214,7 @@ internal fun handleConfigureLauncherResult(
         return
     }
 
-    val data =
-        (updatedGridItem.data as? GridItemData.Widget) ?: error("Expected GridItemData.Widget")
+    val data = (updatedGridItem.data as? GridItemData.Widget) ?: error("Expected GridItemData.Widget")
 
     if (resultCode == Activity.RESULT_OK) {
         onDragEndAfterMoveWidgetGridItem(moveGridItemResult.copy(movingGridItem = updatedGridItem))
@@ -234,19 +229,24 @@ internal fun handleDeleteAppWidgetId(
     appWidgetId: Int,
     deleteAppWidgetId: Boolean,
     gridItemSource: GridItemSource?,
-    isDragging: Boolean,
     onDeleteWidgetGridItemCache: (
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
+    onResetAppWidgetId: () -> Unit,
 ) {
-    if (gridItemSource == null || !isDragging) return
-
-    if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID && deleteAppWidgetId) {
-        check(gridItemSource.gridItem.data is GridItemData.Widget)
-
-        onDeleteWidgetGridItemCache(gridItemSource.gridItem, appWidgetId)
+    if (gridItemSource == null ||
+        appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID ||
+        !deleteAppWidgetId
+    ) {
+        return
     }
+
+    check(gridItemSource.gridItem.data is GridItemData.Widget)
+
+    onDeleteWidgetGridItemCache(gridItemSource.gridItem, appWidgetId)
+
+    onResetAppWidgetId()
 }
 
 internal fun handleBoundWidget(
@@ -255,7 +255,6 @@ internal fun handleBoundWidget(
     gridItemSource: GridItemSource?,
     moveGridItemResult: MoveGridItemResult?,
     updatedWidgetGridItem: GridItem?,
-    isDragging: Boolean,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDeleteWidgetGridItemCache: (
         gridItem: GridItem,
@@ -263,9 +262,9 @@ internal fun handleBoundWidget(
     ) -> Unit,
     onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
 ) {
-    if (gridItemSource == null || moveGridItemResult == null || !isDragging) return
+    if (gridItemSource == null || moveGridItemResult == null) return
 
-    val data = (updatedWidgetGridItem?.data as? GridItemData.Widget) ?: return
+    val data = (updatedWidgetGridItem?.data as? GridItemData.Widget) ?: error("Expected GridItemData.Widget")
 
     when (gridItemSource) {
         is GridItemSource.New -> {

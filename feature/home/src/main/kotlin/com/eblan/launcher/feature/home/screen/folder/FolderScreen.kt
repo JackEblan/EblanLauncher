@@ -126,6 +126,7 @@ internal fun SharedTransitionScope.FolderScreen(
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
     onUpdateIsLongPress: (Boolean) -> Unit,
+    onUpdateShowFolderGridItemPopup: (Boolean) -> Unit,
 ) {
     val data = folderGridItem.data as? GridItemData.Folder ?: return
 
@@ -217,6 +218,7 @@ internal fun SharedTransitionScope.FolderScreen(
                                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                                     onUpdateIsDragging = onUpdateIsDragging,
                                     onUpdateIsLongPress = onUpdateIsLongPress,
+                                    onUpdateShowFolderGridItemPopup = onUpdateShowFolderGridItemPopup,
                                 )
                             },
                         )
@@ -311,6 +313,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
     onUpdateIsLongPress: (Boolean) -> Unit,
+    onUpdateShowFolderGridItemPopup: (Boolean) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -370,6 +373,8 @@ private fun SharedTransitionScope.FolderGridItemContent(
         if (drag == Drag.Dragging && isSelected && isLongPress) {
             onUpdateIsDragging(true)
 
+            onUpdateShowFolderGridItemPopup(false)
+
             onDraggingGridItem()
         } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected && isLongPress) {
             onUpdateIsLongPress(false)
@@ -413,6 +418,8 @@ private fun SharedTransitionScope.FolderGridItemContent(
                             )
 
                             onUpdateIsLongPress(true)
+
+                            onUpdateShowFolderGridItemPopup(true)
                         }
                     },
                     onTap = {

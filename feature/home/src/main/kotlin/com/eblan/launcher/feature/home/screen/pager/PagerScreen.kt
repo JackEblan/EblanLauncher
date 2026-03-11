@@ -1114,7 +1114,7 @@ internal fun PagerScreen(
                     gridItems = gridItemsByPage[page],
                     columns = homeSettings.columns,
                     rows = homeSettings.rows,
-                    { gridItem ->
+                    content = { gridItem ->
                         val gridHeight = safeDrawingHeight - pageIndicatorHeightPx - dockHeightPx
 
                         val cellWidth = safeDrawingWidth / homeSettings.columns
@@ -1141,8 +1141,6 @@ internal fun PagerScreen(
                             gridItemSource = gridItemSource,
                             isLongPress = isLongPress,
                             onDraggingGridItem = {
-                                showGridItemPopup = false
-
                                 onDraggingGridItem(gridItems)
                             },
                             onOpenAppDrawer = {
@@ -1224,8 +1222,6 @@ internal fun PagerScreen(
                                 overlayIntOffset = intOffset
 
                                 overlayIntSize = intSize
-
-                                showGridItemPopup = true
                             },
                             onUpdateImageBitmap = { newImageBitmap ->
                                 overlayImageBitmap = newImageBitmap
@@ -1243,6 +1239,9 @@ internal fun PagerScreen(
                             },
                             onUpdateIsDragging = { newIsDragging ->
                                 isDragging = newIsDragging
+                            },
+                            onUpdateShowGridItemPopup = { newShowGridItemPopup ->
+                                showGridItemPopup = newShowGridItemPopup
                             },
                         )
                     },
@@ -1283,94 +1282,52 @@ internal fun PagerScreen(
                     gridItems = dockGridItemsByPage[page],
                     columns = homeSettings.dockColumns,
                     rows = homeSettings.dockRows,
-                ) { gridItem ->
-                    val cellWidth = safeDrawingWidth / homeSettings.dockColumns
+                    content = { gridItem ->
+                        val cellWidth = safeDrawingWidth / homeSettings.dockColumns
 
-                    val cellHeight = dockHeightPx / homeSettings.dockRows
+                        val cellHeight = dockHeightPx / homeSettings.dockRows
 
-                    val x = gridItem.startColumn * cellWidth
+                        val x = gridItem.startColumn * cellWidth
 
-                    val y = gridItem.startRow * cellHeight
+                        val y = gridItem.startRow * cellHeight
 
-                    val width = gridItem.columnSpan * cellWidth
+                        val width = gridItem.columnSpan * cellWidth
 
-                    val height = gridItem.rowSpan * cellHeight
+                        val height = gridItem.rowSpan * cellHeight
 
-                    InteractiveGridItemContent(
-                        drag = drag,
-                        gridItem = gridItem,
-                        gridItemSettings = homeSettings.gridItemSettings,
-                        hasShortcutHostPermission = hasShortcutHostPermission,
-                        iconPackFilePaths = iconPackFilePaths,
-                        isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
-                        statusBarNotifications = statusBarNotifications,
-                        textColor = textColor,
-                        gridItemSource = gridItemSource,
-                        isLongPress = isLongPress,
-                        onDraggingGridItem = {
-                            showGridItemPopup = false
+                        InteractiveGridItemContent(
+                            drag = drag,
+                            gridItem = gridItem,
+                            gridItemSettings = homeSettings.gridItemSettings,
+                            hasShortcutHostPermission = hasShortcutHostPermission,
+                            iconPackFilePaths = iconPackFilePaths,
+                            isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
+                            statusBarNotifications = statusBarNotifications,
+                            textColor = textColor,
+                            gridItemSource = gridItemSource,
+                            isLongPress = isLongPress,
+                            onDraggingGridItem = {
+                                onDraggingGridItem(gridItems)
+                            },
+                            onOpenAppDrawer = {
+                                scope.launch {
+                                    swipeY.animateTo(
+                                        targetValue = 0f,
+                                        animationSpec = spring(
+                                            dampingRatio = Spring.DampingRatioNoBouncy,
+                                            stiffness = Spring.StiffnessLow,
+                                        ),
+                                    )
+                                }
+                            },
+                            onTapApplicationInfo = { serialNumber, componentName ->
+                                val sourceBoundsX = x + leftPadding
 
-                            onDraggingGridItem(gridItems)
-                        },
-                        onOpenAppDrawer = {
-                            scope.launch {
-                                swipeY.animateTo(
-                                    targetValue = 0f,
-                                    animationSpec = spring(
-                                        dampingRatio = Spring.DampingRatioNoBouncy,
-                                        stiffness = Spring.StiffnessLow,
-                                    ),
-                                )
-                            }
-                        },
-                        onTapApplicationInfo = { serialNumber, componentName ->
-                            val sourceBoundsX = x + leftPadding
+                                val sourceBoundsY = y + dockTopLeft
 
-                            val sourceBoundsY = y + dockTopLeft
-
-                            launcherApps.startMainActivity(
-                                serialNumber = serialNumber,
-                                componentName = componentName,
-                                sourceBounds = Rect(
-                                    sourceBoundsX,
-                                    sourceBoundsY,
-                                    sourceBoundsX + width,
-                                    sourceBoundsY + height,
-                                ),
-                            )
-                        },
-                        onTapFolderGridItem = {
-                            onUpdateFolderGridItemId(gridItem.id)
-
-                            lastFolderPopupX = x
-                            lastFolderPopupY = y + dockTopLeft
-
-                            lastFolderPopupWidth = width
-                            lastFolderPopupHeight = height
-
-                            folderPopupIntOffset = IntOffset(
-                                x = x,
-                                y = y + dockTopLeft,
-                            )
-
-                            folderPopupIntSize = IntSize(
-                                width = width,
-                                height = height,
-                            )
-                        },
-                        onTapShortcutConfig = { uri ->
-                            context.startActivity(parseUri(uri, 0))
-                        },
-                        onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
-                            val sourceBoundsX = x + leftPadding
-
-                            val sourceBoundsY = y + dockTopLeft
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                                launcherApps.startShortcut(
+                                launcherApps.startMainActivity(
                                     serialNumber = serialNumber,
-                                    packageName = packageName,
-                                    id = shortcutId,
+                                    componentName = componentName,
                                     sourceBounds = Rect(
                                         sourceBoundsX,
                                         sourceBoundsY,
@@ -1378,41 +1335,83 @@ internal fun PagerScreen(
                                         sourceBoundsY + height,
                                     ),
                                 )
-                            }
-                        },
-                        onUpdateGridItemBounds = { intOffset, intSize ->
-                            popupIntOffset = intOffset
+                            },
+                            onTapFolderGridItem = {
+                                onUpdateFolderGridItemId(gridItem.id)
 
-                            popupIntSize = IntSize(
-                                width = intSize.width,
-                                height = height,
-                            )
+                                lastFolderPopupX = x
+                                lastFolderPopupY = y + dockTopLeft
 
-                            overlayIntOffset = intOffset
+                                lastFolderPopupWidth = width
+                                lastFolderPopupHeight = height
 
-                            overlayIntSize = intSize
+                                folderPopupIntOffset = IntOffset(
+                                    x = x,
+                                    y = y + dockTopLeft,
+                                )
 
-                            showGridItemPopup = true
-                        },
-                        onUpdateImageBitmap = { newImageBitmap ->
-                            overlayImageBitmap = newImageBitmap
-                        },
-                        onUpdateSharedElementKey = { newSharedElementKey ->
-                            sharedElementKey = newSharedElementKey
-                        },
-                        onUpdateGridItemSource = { newGridItemSource ->
-                            gridItemSource = newGridItemSource
+                                folderPopupIntSize = IntSize(
+                                    width = width,
+                                    height = height,
+                                )
+                            },
+                            onTapShortcutConfig = { uri ->
+                                context.startActivity(parseUri(uri, 0))
+                            },
+                            onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
+                                val sourceBoundsX = x + leftPadding
 
-                            associate = newGridItemSource.gridItem.associate
-                        },
-                        onUpdateIsLongPress = { newIsLongPress ->
-                            isLongPress = newIsLongPress
-                        },
-                        onUpdateIsDragging = { newIsDragging ->
-                            isDragging = newIsDragging
-                        },
-                    )
-                }
+                                val sourceBoundsY = y + dockTopLeft
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                                    launcherApps.startShortcut(
+                                        serialNumber = serialNumber,
+                                        packageName = packageName,
+                                        id = shortcutId,
+                                        sourceBounds = Rect(
+                                            sourceBoundsX,
+                                            sourceBoundsY,
+                                            sourceBoundsX + width,
+                                            sourceBoundsY + height,
+                                        ),
+                                    )
+                                }
+                            },
+                            onUpdateGridItemBounds = { intOffset, intSize ->
+                                popupIntOffset = intOffset
+
+                                popupIntSize = IntSize(
+                                    width = intSize.width,
+                                    height = height,
+                                )
+
+                                overlayIntOffset = intOffset
+
+                                overlayIntSize = intSize
+                            },
+                            onUpdateImageBitmap = { newImageBitmap ->
+                                overlayImageBitmap = newImageBitmap
+                            },
+                            onUpdateSharedElementKey = { newSharedElementKey ->
+                                sharedElementKey = newSharedElementKey
+                            },
+                            onUpdateGridItemSource = { newGridItemSource ->
+                                gridItemSource = newGridItemSource
+
+                                associate = newGridItemSource.gridItem.associate
+                            },
+                            onUpdateIsLongPress = { newIsLongPress ->
+                                isLongPress = newIsLongPress
+                            },
+                            onUpdateIsDragging = { newIsDragging ->
+                                isDragging = newIsDragging
+                            },
+                            onUpdateShowGridItemPopup = { newShowGridItemPopup ->
+                                showGridItemPopup = newShowGridItemPopup
+                            },
+                        )
+                    },
+                )
             }
         }
 
@@ -1555,8 +1554,6 @@ internal fun PagerScreen(
                     folderPopupIntSize = IntSize.Zero
                 },
                 onDraggingGridItem = {
-                    showFolderGridItemPopup = false
-
                     onDraggingGridItem(gridItems)
                 },
                 onOpenAppDrawer = {
@@ -1578,8 +1575,6 @@ internal fun PagerScreen(
                     overlayIntOffset = intOffset
 
                     overlayIntSize = intSize
-
-                    showFolderGridItemPopup = true
                 },
                 onUpdateSharedElementKey = { newSharedElementKey ->
                     sharedElementKey = newSharedElementKey
@@ -1597,6 +1592,9 @@ internal fun PagerScreen(
                 },
                 onUpdateIsLongPress = { newIsLongPress ->
                     isLongPress = newIsLongPress
+                },
+                onUpdateShowFolderGridItemPopup = { newShowFolderGridItemPopup ->
+                    showFolderGridItemPopup = newShowFolderGridItemPopup
                 },
             )
         }

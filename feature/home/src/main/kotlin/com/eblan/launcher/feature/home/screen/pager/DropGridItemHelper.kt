@@ -165,7 +165,7 @@ internal suspend fun handleDropGridItem(
 }
 
 internal fun handleAppWidgetLauncherResult(
-    appWidgetManager: AndroidAppWidgetManagerWrapper,
+    androidAppWidgetManagerWrapper: AndroidAppWidgetManagerWrapper,
     gridItemSource: GridItemSource?,
     result: ActivityResult,
     onDeleteAppWidgetId: () -> Unit,
@@ -186,7 +186,7 @@ internal fun handleAppWidgetLauncherResult(
             putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, data.minHeight)
         }
 
-        appWidgetManager.updateAppWidgetOptions(
+        androidAppWidgetManagerWrapper.updateAppWidgetOptions(
             appWidgetId = appWidgetId,
             options = options,
         )

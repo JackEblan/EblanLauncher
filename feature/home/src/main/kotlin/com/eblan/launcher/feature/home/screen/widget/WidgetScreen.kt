@@ -94,7 +94,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.model.SharedElementKeyParent
-import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
+import com.eblan.launcher.feature.home.util.handleApplyFling
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce

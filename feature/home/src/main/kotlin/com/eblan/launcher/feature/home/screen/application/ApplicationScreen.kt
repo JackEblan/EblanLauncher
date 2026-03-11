@@ -173,7 +173,6 @@ internal fun SharedTransitionScope.ApplicationScreen(
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
-    klwpIntegration: Boolean,
     managedProfileResult: ManagedProfileResult?,
     paddingValues: PaddingValues,
     rows: Int,
@@ -209,11 +208,6 @@ internal fun SharedTransitionScope.ApplicationScreen(
             .fillMaxSize()
             .clip(RoundedCornerShape(cornerSize))
             .alpha(alpha),
-        color = if (klwpIntegration) {
-            Color.Transparent
-        } else {
-            MaterialTheme.colorScheme.surface
-        },
     ) {
         Success(
             appDrawerSettings = appDrawerSettings,
@@ -229,7 +223,6 @@ internal fun SharedTransitionScope.ApplicationScreen(
             hasShortcutHostPermission = hasShortcutHostPermission,
             iconPackFilePaths = iconPackFilePaths,
             isPressHome = isPressHome,
-            klwpIntegration = klwpIntegration,
             managedProfileResult = managedProfileResult,
             paddingValues = paddingValues,
             rows = rows,
@@ -271,7 +264,6 @@ private fun SharedTransitionScope.Success(
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
-    klwpIntegration: Boolean,
     managedProfileResult: ManagedProfileResult?,
     paddingValues: PaddingValues,
     rows: Int,
@@ -446,7 +438,6 @@ private fun SharedTransitionScope.Success(
             EblanApplicationInfoTabRow(
                 currentPage = horizontalPagerState.currentPage,
                 eblanApplicationInfos = getEblanApplicationInfosByLabel.eblanApplicationInfos,
-                klwpIntegration = klwpIntegration,
                 onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
             )
 
@@ -1221,20 +1212,16 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun EblanApplicationInfoTabRow(
+    modifier: Modifier = Modifier,
     currentPage: Int,
     eblanApplicationInfos: Map<EblanUser, List<EblanApplicationInfo>>,
-    klwpIntegration: Boolean,
     onAnimateScrollToPage: suspend (Int) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
     SecondaryTabRow(
+        modifier = modifier,
         selectedTabIndex = currentPage,
-        containerColor = if (klwpIntegration) {
-            Color.Transparent
-        } else {
-            TabRowDefaults.secondaryContainerColor
-        },
     ) {
         eblanApplicationInfos.keys.forEachIndexed { index, eblanUser ->
             Tab(

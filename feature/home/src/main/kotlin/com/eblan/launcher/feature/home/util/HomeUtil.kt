@@ -100,11 +100,6 @@ internal fun handleEblanAction(
     }
 }
 
-internal const val KUSTOM_ACTION = "org.kustom.action.SEND_VAR"
-internal const val KUSTOM_ACTION_EXT_NAME = "org.kustom.action.EXT_NAME"
-internal const val KUSTOM_ACTION_VAR_NAME = "org.kustom.action.VAR_NAME"
-internal const val KUSTOM_ACTION_VAR_VALUE = "org.kustom.action.VAR_VALUE"
-
 internal val PAGE_INDICATOR_HEIGHT = 30.dp
 internal val DRAG_HANDLE_SIZE = 30.dp
 internal val FOLDER_GRID_PADDING = 10.dp

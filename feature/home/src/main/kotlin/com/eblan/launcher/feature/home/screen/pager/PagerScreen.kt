@@ -326,11 +326,7 @@ internal fun PagerScreen(
 
     val applicationScreenAlpha by remember {
         derivedStateOf {
-            if (experimentalSettings.klwpIntegration) {
-                1f
-            } else {
-                ((screenHeight - swipeY.value) / (screenHeight / 2)).coerceIn(0f, 1f)
-            }
+            ((screenHeight - swipeY.value) / (screenHeight / 2)).coerceIn(0f, 1f)
         }
     }
 
@@ -667,16 +663,23 @@ internal fun PagerScreen(
     }
 
     LaunchedEffect(key1 = pinGridItem) {
-        val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
+        handlePinGridItem(
+            pinItemRequestWrapper = pinItemRequestWrapper,
+            pinGridItem = pinGridItem,
+            isApplicationScreenVisible = isApplicationScreenVisible,
+            swipeY = swipeY,
+            screenHeight = screenHeight,
+            onUpdateGridItemSource = { newGridItemSource ->
+                gridItemSource = newGridItemSource
+            },
+            onDraggingGridItem = {
+                isLongPress = true
 
-        if (pinGridItem != null && pinItemRequest != null) {
-            gridItemSource = GridItemSource.Pin(
-                gridItem = pinGridItem,
-                pinItemRequest = pinItemRequest,
-            )
+                isDragging = true
 
-            onDraggingGridItem(gridItems)
-        }
+                onDraggingGridItem(gridItems)
+            },
+        )
     }
 
     LifecycleEffect(
@@ -691,14 +694,6 @@ internal fun PagerScreen(
         },
         onStopSyncData = onStopSyncData,
     )
-
-//    LaunchedEffect(key1 = screen) {
-//        handleKlwpBroadcasts(
-//            context = context,
-//            klwpIntegration = experimentalSettings.klwpIntegration,
-//            screen = screen,
-//        )
-//    }
 
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleDragGridItem(
@@ -957,14 +952,6 @@ internal fun PagerScreen(
         onDispose {
             activity.removeOnNewIntentListener(listener)
         }
-    }
-
-    LaunchedEffect(key1 = isApplicationScreenVisible) {
-        handleKlwpBroadcasts(
-            context = context,
-            isApplicationScreenVisible = isApplicationScreenVisible,
-            klwpIntegration = experimentalSettings.klwpIntegration,
-        )
     }
 
     LaunchedEffect(key1 = swipeUpY) {
@@ -1609,7 +1596,6 @@ internal fun PagerScreen(
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 iconPackFilePaths = iconPackFilePaths,
                 isPressHome = isPressHome,
-                klwpIntegration = experimentalSettings.klwpIntegration,
                 managedProfileResult = managedProfileResult,
                 paddingValues = paddingValues,
                 rows = homeSettings.rows,
@@ -1699,7 +1685,6 @@ internal fun PagerScreen(
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 iconPackFilePaths = iconPackFilePaths,
                 isPressHome = isPressHome,
-                klwpIntegration = experimentalSettings.klwpIntegration,
                 managedProfileResult = managedProfileResult,
                 paddingValues = paddingValues,
                 rows = homeSettings.rows,

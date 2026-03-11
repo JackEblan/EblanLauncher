@@ -31,14 +31,12 @@ import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.GestureSettings
-import com.eblan.launcher.feature.home.model.Klwp
-import com.eblan.launcher.feature.home.util.KUSTOM_ACTION
-import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_EXT_NAME
-import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_NAME
-import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_VALUE
+import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.handleEblanAction
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
+import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import kotlinx.serialization.json.Json
 
@@ -242,29 +240,34 @@ internal fun handleHasDoubleTap(
     )
 }
 
-internal fun handleKlwpBroadcasts(
-    context: Context,
+internal suspend fun handlePinGridItem(
+    pinItemRequestWrapper: PinItemRequestWrapper,
+    pinGridItem: GridItem?,
     isApplicationScreenVisible: Boolean,
-    klwpIntegration: Boolean,
+    swipeY: Animatable<Float, AnimationVector1D>,
+    screenHeight: Int,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
-    if (!klwpIntegration) return
+    if (pinGridItem == null) return
 
-    val intent = Intent(KUSTOM_ACTION).apply {
-        putExtra(KUSTOM_ACTION_EXT_NAME, "yagni-launcher")
-        putExtra(KUSTOM_ACTION_VAR_NAME, "screen")
-    }
+    val pinItemRequest = pinItemRequestWrapper.getPinItemRequest() ?: return
 
     if (isApplicationScreenVisible) {
-        context.sendBroadcast(
-            intent.apply {
-                putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.AppDrawer.ordinal)
-            },
-        )
-    } else {
-        context.sendBroadcast(
-            intent.apply {
-                putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.Pager.ordinal)
-            },
+        swipeY.animateTo(
+            targetValue = screenHeight.toFloat(),
+            animationSpec = tween(
+                easing = FastOutSlowInEasing,
+            ),
         )
     }
+
+    onUpdateGridItemSource(
+        GridItemSource.Pin(
+            gridItem = pinGridItem,
+            pinItemRequest = pinItemRequest,
+        ),
+    )
+
+    onDraggingGridItem()
 }

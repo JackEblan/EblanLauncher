@@ -153,9 +153,7 @@ internal suspend fun handleDropGridItem(
                         )
                     }
 
-                    else -> {
-                        onDragEndAfterMove(moveGridItemResult)
-                    }
+                    else -> error("Expected GridItemData.ShortcutInfo or GridItemData.Widget")
                 }
             }
         }

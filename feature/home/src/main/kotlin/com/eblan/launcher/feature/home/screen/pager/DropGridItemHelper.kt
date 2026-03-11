@@ -35,6 +35,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PinItemRequestType
+import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.framework.imageserializer.AndroidImageSerializer
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
@@ -42,7 +43,6 @@ import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import java.io.File
-import kotlin.error
 
 internal suspend fun handleDropGridItem(
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
@@ -52,6 +52,7 @@ internal suspend fun handleDropGridItem(
     moveGridItemResult: MoveGridItemResult?,
     userManagerWrapper: AndroidUserManagerWrapper,
     isDragging: Boolean,
+    drag: Drag,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragCancelAfterMove: () -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
@@ -63,7 +64,13 @@ internal suspend fun handleDropGridItem(
     onUpdateAppWidgetId: (Int) -> Unit,
     onUpdateWidgetGridItem: (GridItem) -> Unit,
 ) {
-    if (!isDragging) return
+    if (drag == Drag.Start ||
+        drag == Drag.Dragging ||
+        gridItemSource == null ||
+        !isDragging
+    ) {
+        return
+    }
 
     when (gridItemSource) {
         is GridItemSource.Existing -> {
@@ -156,8 +163,6 @@ internal suspend fun handleDropGridItem(
         is GridItemSource.Folder -> {
             onDragEndAfterMoveFolder()
         }
-
-        null -> Unit
     }
 }
 
@@ -214,7 +219,8 @@ internal fun handleConfigureLauncherResult(
         return
     }
 
-    val data = (updatedGridItem.data as? GridItemData.Widget) ?: error("Expected GridItemData.Widget")
+    val data =
+        (updatedGridItem.data as? GridItemData.Widget) ?: error("Expected GridItemData.Widget")
 
     if (resultCode == Activity.RESULT_OK) {
         onDragEndAfterMoveWidgetGridItem(moveGridItemResult.copy(movingGridItem = updatedGridItem))
@@ -264,7 +270,8 @@ internal fun handleBoundWidget(
 ) {
     if (gridItemSource == null || moveGridItemResult == null) return
 
-    val data = (updatedWidgetGridItem?.data as? GridItemData.Widget) ?: error("Expected GridItemData.Widget")
+    val data = (updatedWidgetGridItem?.data as? GridItemData.Widget)
+        ?: error("Expected GridItemData.Widget")
 
     when (gridItemSource) {
         is GridItemSource.New -> {

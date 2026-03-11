@@ -741,45 +741,36 @@ internal fun PagerScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.End -> {
-                handleDropGridItem(
-                    androidAppWidgetHostWrapper = appWidgetHost,
-                    appWidgetManager = appWidgetManager,
-                    gridItemSource = gridItemSource,
-                    launcherAppsWrapper = launcherApps,
-                    moveGridItemResult = moveGridItemResult,
-                    userManagerWrapper = userManager,
-                    isDragging = isDragging,
-                    onDeleteGridItemCache = onDeleteGridItemCache,
-                    onDragCancelAfterMove = onDragCancelAfterMove,
-                    onDragEndAfterMove = onDragEndAfterMove,
-                    onDragEndAfterMoveFolder = onDragEndAfterMoveFolder,
-                    onLaunchShortcutConfigIntent = shortcutConfigLauncher::launch,
-                    onLaunchShortcutConfigIntentSenderRequest = shortcutConfigIntentSenderLauncher::launch,
-                    onLaunchWidgetIntent = appWidgetLauncher::launch,
-                    onToast = {
-                        Toast.makeText(
-                            context,
-                            "Layout was canceled due to an invalid position",
-                            Toast.LENGTH_LONG,
-                        ).show()
-                    },
-                    onUpdateAppWidgetId = { appWidgetId ->
-                        lastAppWidgetId = appWidgetId
-                    },
-                    onUpdateWidgetGridItem = { gridItem ->
-                        updatedWidgetGridItem = gridItem
-                    },
-                )
-            }
-
-            Drag.Cancel -> {
-                onDragCancelAfterMove()
-            }
-
-            else -> Unit
-        }
+        handleDropGridItem(
+            androidAppWidgetHostWrapper = appWidgetHost,
+            appWidgetManager = appWidgetManager,
+            gridItemSource = gridItemSource,
+            launcherAppsWrapper = launcherApps,
+            moveGridItemResult = moveGridItemResult,
+            userManagerWrapper = userManager,
+            isDragging = isDragging,
+            drag = drag,
+            onDeleteGridItemCache = onDeleteGridItemCache,
+            onDragCancelAfterMove = onDragCancelAfterMove,
+            onDragEndAfterMove = onDragEndAfterMove,
+            onDragEndAfterMoveFolder = onDragEndAfterMoveFolder,
+            onLaunchShortcutConfigIntent = shortcutConfigLauncher::launch,
+            onLaunchShortcutConfigIntentSenderRequest = shortcutConfigIntentSenderLauncher::launch,
+            onLaunchWidgetIntent = appWidgetLauncher::launch,
+            onToast = {
+                Toast.makeText(
+                    context,
+                    "Layout was canceled due to an invalid position",
+                    Toast.LENGTH_LONG,
+                ).show()
+            },
+            onUpdateAppWidgetId = { appWidgetId ->
+                lastAppWidgetId = appWidgetId
+            },
+            onUpdateWidgetGridItem = { gridItem ->
+                updatedWidgetGridItem = gridItem
+            },
+        )
     }
 
     LaunchedEffect(key1 = deleteAppWidgetId) {

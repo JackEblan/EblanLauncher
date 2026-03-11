@@ -341,19 +341,20 @@ internal class HomeViewModel @Inject constructor(
 
     fun resetGridCacheAfterResize(resizingGridItem: GridItem) {
         viewModelScope.launch {
-            moveGridItemJob?.cancelAndJoin()
-
-            updateGridItemsAfterResizeUseCase(resizingGridItem = resizingGridItem)
-
-            delay(defaultDelay)
-
-            _screen.update {
-                Screen.Pager
-            }
-
-            _moveGridItemResult.update {
-                null
-            }
+            TODO()
+//            moveGridItemJob?.cancelAndJoin()
+//
+//            updateGridItemsAfterResizeUseCase(resizingGridItem = resizingGridItem)
+//
+//            delay(defaultDelay)
+//
+//            _screen.update {
+//                Screen.Pager
+//            }
+//
+//            _moveGridItemResult.update {
+//                null
+//            }
         }
     }
 
@@ -385,7 +386,7 @@ internal class HomeViewModel @Inject constructor(
             updateGridItemsAfterMoveUseCase(moveGridItemResult = moveGridItemResult)
 
             _isCache.update {
-                true
+                false
             }
 
             _moveGridItemResult.update {
@@ -398,10 +399,8 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
-            delay(defaultDelay)
-
-            _screen.update {
-                Screen.Pager
+            _isCache.update {
+                false
             }
 
             _moveGridItemResult.update {
@@ -440,10 +439,8 @@ internal class HomeViewModel @Inject constructor(
 
             gridRepository.updateGridItems(gridItems = gridCacheRepository.gridItemsCache.first())
 
-            delay(defaultDelay)
-
-            _screen.update {
-                Screen.Pager
+            _isCache.update {
+                false
             }
         }
     }

@@ -104,6 +104,8 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnec
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.model.SharedElementKeyParent
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
@@ -135,6 +137,8 @@ internal fun ShortcutConfigScreen(
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -191,7 +195,6 @@ internal fun ShortcutConfigScreen(
             drag = drag,
             eblanShortcutConfigs = eblanShortcutConfigs,
             gridItemSettings = gridItemSettings,
-            gridItems = gridItems,
             isPressHome = isPressHome,
             paddingValues = paddingValues,
             onDismiss = {
@@ -216,7 +219,22 @@ internal fun ShortcutConfigScreen(
                     )
                 }
             },
-            onDraggingGridItem = onDraggingGridItem,
+            onDraggingGridItem = {
+                scope.launch {
+                    offsetY.animateTo(
+                        targetValue = screenHeight.toFloat(),
+                        animationSpec = tween(
+                            easing = FastOutSlowInEasing,
+                        ),
+                    )
+
+                    onUpdateIsLongPressAndIsDragging()
+
+                    onDraggingGridItem(gridItems)
+
+                    onDismiss()
+                }
+            },
             onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onVerticalDrag = { dragAmount ->
@@ -226,6 +244,7 @@ internal fun ShortcutConfigScreen(
             },
             onUpdateImageBitmap = onUpdateImageBitmap,
             onUpdateGridItemSource = onUpdateGridItemSource,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 }
@@ -238,12 +257,11 @@ private fun Success(
     drag: Drag,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
     isPressHome: Boolean,
     paddingValues: PaddingValues,
     onDismiss: () -> Unit,
     onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -252,6 +270,7 @@ private fun Success(
     onVerticalDrag: (Float) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val horizontalPagerState = rememberPagerState(
         pageCount = {
@@ -333,7 +352,6 @@ private fun Success(
                     drag = drag,
                     eblanShortcutConfigs = eblanShortcutConfigs,
                     gridItemSettings = gridItemSettings,
-                    gridItems = gridItems,
                     index = index,
                     paddingValues = paddingValues,
                     onDragEnd = onDragEnd,
@@ -342,6 +360,7 @@ private fun Success(
                     onVerticalDrag = onVerticalDrag,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         } else {
@@ -350,7 +369,6 @@ private fun Success(
                 drag = drag,
                 eblanShortcutConfigs = eblanShortcutConfigs,
                 gridItemSettings = gridItemSettings,
-                gridItems = gridItems,
                 index = 0,
                 paddingValues = paddingValues,
                 onDragEnd = onDragEnd,
@@ -359,6 +377,7 @@ private fun Success(
                 onVerticalDrag = onVerticalDrag,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateGridItemSource = onUpdateGridItemSource,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         }
     }
@@ -401,15 +420,15 @@ private fun EblanShortcutConfigsPage(
     drag: Drag,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
     index: Int,
     paddingValues: PaddingValues,
     onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -481,11 +500,11 @@ private fun EblanShortcutConfigsPage(
                         eblanApplicationInfoGroup = eblanApplicationInfoGroup,
                         eblanShortcutConfigs = eblanShortcutConfigs[serialNumber].orEmpty(),
                         gridItemSettings = gridItemSettings,
-                        gridItems = gridItems,
                         onDraggingGridItem = onDraggingGridItem,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onUpdateImageBitmap = onUpdateImageBitmap,
                         onUpdateGridItemSource = onUpdateGridItemSource,
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
                 }
             }
@@ -502,14 +521,14 @@ private fun EblanApplicationInfoItem(
     eblanApplicationInfoGroup: EblanApplicationInfoGroup,
     eblanShortcutConfigs: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -560,11 +579,11 @@ private fun EblanApplicationInfoItem(
                     drag = drag,
                     eblanShortcutConfig = eblanShortcutConfig,
                     gridItemSettings = gridItemSettings,
-                    gridItems = gridItems,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
@@ -579,14 +598,14 @@ private fun EblanShortcutConfigItem(
     drag: Drag,
     eblanShortcutConfig: EblanShortcutConfig,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -658,7 +677,14 @@ private fun EblanShortcutConfigItem(
                                 intSize,
                             )
 
-                            onDraggingGridItem(gridItems)
+                            onUpdateSharedElementKey(
+                                SharedElementKey(
+                                    id = id,
+                                    parent = SharedElementKeyParent.Grid,
+                                ),
+                            )
+
+                            onDraggingGridItem()
                         }
                     },
                 )

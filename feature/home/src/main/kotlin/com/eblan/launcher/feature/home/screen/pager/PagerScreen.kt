@@ -1838,6 +1838,14 @@ internal fun PagerScreen(
 
                     associate = newGridItemSource.gridItem.associate
                 },
+                onUpdateSharedElementKey = { newSharedElementKey ->
+                    sharedElementKey = newSharedElementKey
+                },
+                onUpdateIsLongPressAndIsDragging = {
+                    isLongPress = true
+
+                    isDragging = true
+                },
             )
         }
 

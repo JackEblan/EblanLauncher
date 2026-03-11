@@ -979,17 +979,6 @@ internal fun PagerScreen(
         }.collect()
     }
 
-    LaunchedEffect(key1 = gridHorizontalPagerState) {
-        handleWallpaperScroll(
-            horizontalPagerState = gridHorizontalPagerState,
-            infiniteScroll = homeSettings.infiniteScroll,
-            pageCount = homeSettings.pageCount,
-            wallpaperManagerWrapper = wallpaperManagerWrapper,
-            wallpaperScroll = homeSettings.wallpaperScroll,
-            windowToken = view.windowToken,
-        )
-    }
-
     LaunchedEffect(key1 = isPressHome) {
         if (isPressHome) {
             showGridItemPopup = false

@@ -26,7 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
@@ -149,29 +149,29 @@ internal fun Modifier.whiteBox(
     visible: Boolean,
     textColor: Color,
 ): Modifier = if (visible) {
-    drawBehind {
-        drawContext.canvas.nativeCanvas.apply {
-            val paint = Paint().apply {
-                style = Paint.Style.STROKE
-                strokeWidth = 1.5.dp.toPx()
+    drawWithCache {
+        val strokeWidth = 1.5.dp.toPx()
 
-                color = textColor.copy(alpha = 0.3f).toArgb()
+        val cornerRadius = 5.dp.toPx()
 
-                setShadowLayer(
-                    12.dp.toPx(),
-                    0f,
-                    0f,
-                    textColor.toArgb(),
-                )
-            }
+        val inset = strokeWidth / 2f
 
-            drawRoundRect(
-                0f,
-                0f,
-                size.width,
-                size.height,
-                5.dp.toPx(),
-                5.dp.toPx(),
+        val paint = Paint().apply {
+            isAntiAlias = true
+            style = Paint.Style.STROKE
+            this.strokeWidth = strokeWidth
+            color = textColor.copy(alpha = 0.3f).toArgb()
+            setShadowLayer(12.dp.toPx(), 0f, 0f, textColor.toArgb())
+        }
+
+        onDrawBehind {
+            drawContext.canvas.nativeCanvas.drawRoundRect(
+                inset,
+                inset,
+                size.width - inset,
+                size.height - inset,
+                cornerRadius,
+                cornerRadius,
                 paint,
             )
         }

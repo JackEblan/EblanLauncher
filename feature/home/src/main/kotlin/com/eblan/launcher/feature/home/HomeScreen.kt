@@ -52,6 +52,7 @@ import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.EblanUser
+import com.eblan.launcher.domain.model.EditPageData
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -88,7 +89,7 @@ internal fun HomeRoute(
 
     val movedGridItemResult by viewModel.movedGridItemResult.collectAsStateWithLifecycle()
 
-    val pageItems by viewModel.pageItems.collectAsStateWithLifecycle()
+    val editPageData by viewModel.editPageData.collectAsStateWithLifecycle()
 
     val pinGridItem by viewModel.pinGridItem.collectAsStateWithLifecycle()
 
@@ -121,7 +122,7 @@ internal fun HomeRoute(
         homeUiState = homeUiState,
         iconPackFilePaths = iconPackFilePaths,
         movedGridItemResult = movedGridItemResult,
-        pageItems = pageItems,
+        editPageData = editPageData,
         pinGridItem = pinGridItem,
         screen = screen,
         onCancelGridCache = viewModel::cancelGridCache,
@@ -177,7 +178,7 @@ internal fun HomeScreen(
     homeUiState: HomeUiState,
     iconPackFilePaths: Map<String, String>,
     movedGridItemResult: MoveGridItemResult?,
-    pageItems: List<PageItem>,
+    editPageData: EditPageData?,
     pinGridItem: GridItem?,
     screen: Screen,
     onCancelGridCache: () -> Unit,
@@ -296,7 +297,7 @@ internal fun HomeScreen(
                 iconPackFilePaths = iconPackFilePaths,
                 movedGridItemResult = movedGridItemResult,
                 paddingValues = paddingValues,
-                pageItems = pageItems,
+                editPageData = editPageData,
                 pinGridItem = pinGridItem,
                 screen = screen,
                 screenHeight = screenIntSize.height,
@@ -357,7 +358,7 @@ private fun Success(
     iconPackFilePaths: Map<String, String>,
     movedGridItemResult: MoveGridItemResult?,
     paddingValues: PaddingValues,
-    pageItems: List<PageItem>,
+    editPageData: EditPageData?,
     pinGridItem: GridItem?,
     screen: Screen,
     screenHeight: Int,
@@ -536,27 +537,11 @@ private fun Success(
 
             Screen.EditPage -> {
                 EditPageScreen(
-                    associate = Associate.Grid,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     homeSettings = homeData.userData.homeSettings,
                     iconPackFilePaths = iconPackFilePaths,
                     paddingValues = paddingValues,
-                    pageItems = pageItems,
-                    screenHeight = screenHeight,
-                    textColor = homeData.textColor,
-                    onSaveEditPage = onSaveEditPage,
-                    onUpdateScreen = onUpdateScreen,
-                )
-            }
-
-            Screen.EditDockPage -> {
-                EditPageScreen(
-                    associate = Associate.Dock,
-                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
-                    homeSettings = homeData.userData.homeSettings,
-                    iconPackFilePaths = iconPackFilePaths,
-                    paddingValues = paddingValues,
-                    pageItems = pageItems,
+                    editPageData = editPageData,
                     screenHeight = screenHeight,
                     textColor = homeData.textColor,
                     onSaveEditPage = onSaveEditPage,

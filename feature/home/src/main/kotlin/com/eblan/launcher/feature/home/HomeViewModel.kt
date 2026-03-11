@@ -27,6 +27,7 @@ import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EditPageData
 import com.eblan.launcher.domain.model.GetEblanApplicationInfosByLabel
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -135,9 +136,9 @@ internal class HomeViewModel @Inject constructor(
 
     private val defaultDelay = 500L
 
-    private val _pageItems = MutableStateFlow(emptyList<PageItem>())
+    private val _editPageData = MutableStateFlow<EditPageData?>(null)
 
-    val pageItems = _pageItems.asStateFlow()
+    val editPageData = _editPageData.asStateFlow()
 
     private var moveGridItemJob: Job? = null
 
@@ -293,7 +294,7 @@ internal class HomeViewModel @Inject constructor(
                 Screen.Loading
             }
 
-            _pageItems.update {
+            _editPageData.update {
                 cachePageItemsUseCase(
                     gridItems = gridItems,
                     associate = associate,

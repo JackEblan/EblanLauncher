@@ -600,7 +600,10 @@ private fun SharedTransitionScope.Success(
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onUpdateImageBitmap = onUpdateImageBitmap,
             onUpdateGridItemSource = onUpdateGridItemSource,
-        )
+            onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
+
+            )
     }
 
     if (showEblanApplicationInfoOrderDialog) {
@@ -1036,31 +1039,23 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     val id = remember { Uuid.random().toHexString() }
 
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Dragging if isLongPress -> {
-                onUpdatePopupMenu(false)
+        if (drag == Drag.Dragging && isLongPress) {
+            onUpdatePopupMenu(false)
 
-                onDismiss()
+            onDismiss()
 
-                onUpdateSharedElementKey(
-                    SharedElementKey(
-                        id = id,
-                        parent = SharedElementKeyParent.Grid,
-                    ),
-                )
+            onUpdateSharedElementKey(
+                SharedElementKey(
+                    id = id,
+                    parent = SharedElementKeyParent.Grid,
+                ),
+            )
 
-                onUpdateIsLongPressAndIsDragging()
+            onUpdateIsLongPressAndIsDragging()
 
-                onDraggingGridItem(gridItems)
-            }
-
-            Drag.End, Drag.Cancel -> {
-                if (isLongPress) {
-                    isLongPress = false
-                }
-            }
-
-            else -> Unit
+            onDraggingGridItem(gridItems)
+        } else if ((drag == Drag.End || drag == Drag.Cancel) && isLongPress) {
+            isLongPress = false
         }
     }
 

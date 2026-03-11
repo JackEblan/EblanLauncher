@@ -772,11 +772,6 @@ internal fun PagerScreen(
                     onUpdateWidgetGridItem = { gridItem ->
                         updatedWidgetGridItem = gridItem
                     },
-                    onResetIsLongPressAndIsDragging = {
-                        isLongPress = false
-
-                        isDragging = false
-                    },
                 )
             }
 
@@ -795,11 +790,6 @@ internal fun PagerScreen(
             gridItemSource = gridItemSource,
             isDragging = isDragging,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-            onResetIsLongPressAndIsDragging = {
-                isLongPress = false
-
-                isDragging = false
-            },
         )
     }
 
@@ -814,11 +804,6 @@ internal fun PagerScreen(
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
-            onResetIsLongPressAndIsDragging = {
-                isLongPress = false
-
-                isDragging = false
-            },
         )
     }
 
@@ -903,11 +888,6 @@ internal fun PagerScreen(
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
             onResetConfigureResultCode = onResetConfigureResultCode,
-            onUpdateIsDragging = { newIsDragging ->
-                isLongPress = newIsDragging
-
-                isDragging = newIsDragging
-            },
         )
     }
 
@@ -1827,8 +1807,10 @@ internal fun PagerScreen(
                 onUpdateSharedElementKey = { newSharedElementKey ->
                     sharedElementKey = newSharedElementKey
                 },
-                onUpdateIsDragging = { newIsDragging ->
-                    isDragging = newIsDragging
+                onUpdateIsLongPressAndIsDragging = {
+                    isLongPress = true
+
+                    isDragging = true
                 },
             )
         }
@@ -1898,6 +1880,14 @@ internal fun PagerScreen(
                     gridItemSource = newGridItemSource
 
                     associate = newGridItemSource.gridItem.associate
+                },
+                onUpdateSharedElementKey = { newSharedElementKey ->
+                    sharedElementKey = newSharedElementKey
+                },
+                onUpdateIsLongPressAndIsDragging = {
+                    isLongPress = true
+
+                    isDragging = true
                 },
             )
         }

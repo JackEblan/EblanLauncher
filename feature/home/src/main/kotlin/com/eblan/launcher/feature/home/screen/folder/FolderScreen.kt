@@ -395,11 +395,13 @@ private fun SharedTransitionScope.FolderGridItemContent(
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isSelected && isLongPress) {
-            onUpdateIsLongPress(false)
-
             onUpdateIsDragging(true)
 
             onDraggingGridItem()
+        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected && isLongPress) {
+            onUpdateIsLongPress(false)
+
+            onUpdateIsDragging(false)
         }
     }
 

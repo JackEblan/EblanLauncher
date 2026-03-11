@@ -72,6 +72,8 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.model.SharedElementKeyParent
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -102,6 +104,8 @@ internal fun AppWidgetScreen(
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -215,14 +219,29 @@ internal fun AppWidgetScreen(
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosGroup[eblanApplicationInfoGroup.packageName].orEmpty(),
                     eblanApplicationInfoGroup = eblanApplicationInfoGroup,
                     gridItemSettings = gridItemSettings,
-                    gridItems = gridItems,
                     rows = rows,
                     screenHeight = screenHeight,
                     screenWidth = screenWidth,
-                    onDraggingGridItem = onDraggingGridItem,
+                    onDraggingGridItem = {
+                        scope.launch {
+                            offsetY.animateTo(
+                                targetValue = screenHeight.toFloat(),
+                                animationSpec = tween(
+                                    easing = FastOutSlowInEasing,
+                                ),
+                            )
+
+                            onUpdateIsLongPressAndIsDragging()
+
+                            onDraggingGridItem(gridItems)
+
+                            onDismiss()
+                        }
+                    },
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
@@ -239,14 +258,14 @@ private fun Success(
     eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -278,7 +297,6 @@ private fun Success(
                     drag = drag,
                     eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
                     gridItemSettings = gridItemSettings,
-                    gridItems = gridItems,
                     rows = rows,
                     screenHeight = screenHeight,
                     screenWidth = screenWidth,
@@ -286,6 +304,7 @@ private fun Success(
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
@@ -301,17 +320,17 @@ private fun EblanAppWidgetProviderInfoItem(
     drag: Drag,
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -364,7 +383,14 @@ private fun EblanAppWidgetProviderInfoItem(
                                 intSize,
                             )
 
-                            onDraggingGridItem(gridItems)
+                            onUpdateSharedElementKey(
+                                SharedElementKey(
+                                    id = id,
+                                    parent = SharedElementKeyParent.Grid,
+                                ),
+                            )
+
+                            onDraggingGridItem()
                         }
                     },
                 )

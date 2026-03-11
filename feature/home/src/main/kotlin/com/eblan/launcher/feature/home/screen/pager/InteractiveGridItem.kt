@@ -169,7 +169,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateIsLongPress = onUpdateIsLongPress,
                 onUpdateIsDragging = onUpdateIsDragging,
-                )
+            )
         }
 
         is GridItemData.Widget -> {
@@ -330,6 +330,10 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
             onUpdateIsDragging(true)
 
             onDraggingGridItem()
+        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected && isLongPress) {
+            onUpdateIsLongPress(false)
+
+            onUpdateIsDragging(false)
         }
     }
 
@@ -505,6 +509,10 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
             onUpdateIsDragging(true)
 
             onDraggingGridItem()
+        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected && isLongPress) {
+            onUpdateIsLongPress(false)
+
+            onUpdateIsDragging(false)
         }
     }
 
@@ -647,6 +655,10 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
             onUpdateIsDragging(true)
 
             onDraggingGridItem()
+        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected && isLongPress) {
+            onUpdateIsLongPress(false)
+
+            onUpdateIsDragging(false)
         }
     }
 
@@ -819,6 +831,10 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
             onUpdateIsDragging(true)
 
             onDraggingGridItem()
+        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected && isLongPress) {
+            onUpdateIsLongPress(false)
+
+            onUpdateIsDragging(false)
         }
     }
 
@@ -1050,6 +1066,10 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
             onUpdateIsDragging(true)
 
             onDraggingGridItem()
+        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected && isLongPress) {
+            onUpdateIsLongPress(false)
+
+            onUpdateIsDragging(false)
         }
     }
 

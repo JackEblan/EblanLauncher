@@ -129,7 +129,7 @@ internal fun WidgetScreen(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -222,7 +222,7 @@ internal fun WidgetScreen(
                         ),
                     )
 
-                    onUpdateIsDragging(true)
+                    onUpdateIsLongPressAndIsDragging()
 
                     onDraggingGridItem(gridItems)
 

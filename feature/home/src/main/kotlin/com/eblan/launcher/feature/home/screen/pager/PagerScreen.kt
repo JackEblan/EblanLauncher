@@ -1119,8 +1119,7 @@ internal fun PagerScreen(
 
                         val cellWidth = safeDrawingWidth / homeSettings.columns
 
-                        val cellHeight =
-                            gridHeight / homeSettings.rows
+                        val cellHeight = gridHeight / homeSettings.rows
 
                         val x = gridItem.startColumn * cellWidth
 
@@ -1418,6 +1417,10 @@ internal fun PagerScreen(
                     showGridItemPopup = false
                 },
                 onDraggingGridItem = {
+                    isLongPress = true
+
+                    isDragging = true
+
                     onDraggingGridItem(gridItems)
                 },
                 onEdit = onEditGridItem,
@@ -2002,8 +2005,7 @@ private fun LifecycleEffect(
                         UserHandle::class.java,
                     )
                 } else {
-                    @Suppress("DEPRECATION")
-                    intent.getParcelableExtra(Intent.EXTRA_USER)
+                    @Suppress("DEPRECATION") intent.getParcelableExtra(Intent.EXTRA_USER)
                 }
 
                 if (userHandle != null) {

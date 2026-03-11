@@ -131,6 +131,7 @@ import com.eblan.launcher.feature.home.handlePinItemRequest
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
+import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.folder.FolderScreen
@@ -197,6 +198,7 @@ internal fun PagerScreen(
     onEditPage: (
         gridItems: List<GridItem>,
         associate: Associate,
+        screen: Screen,
     ) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,

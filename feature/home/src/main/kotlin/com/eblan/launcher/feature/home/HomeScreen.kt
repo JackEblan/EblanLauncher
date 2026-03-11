@@ -61,6 +61,7 @@ import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.ui.dialog.TextDialog
@@ -195,6 +196,7 @@ internal fun HomeScreen(
     onEditPage: (
         gridItems: List<GridItem>,
         associate: Associate,
+        screen: Screen,
     ) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
@@ -376,6 +378,7 @@ private fun Success(
     onEditPage: (
         gridItems: List<GridItem>,
         associate: Associate,
+        screen: Screen,
     ) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
@@ -532,19 +535,33 @@ private fun Success(
             }
 
             Screen.EditPage -> {
-//                EditPageScreen(
-//                    associate = associate,
-//                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
-//                    homeSettings = homeData.userData.homeSettings,
-//                    iconPackFilePaths = iconPackFilePaths,
-//                    paddingValues = paddingValues,
-//                    pageItems = pageItems,
-//                    screen = targetState,
-//                    screenHeight = screenHeight,
-//                    textColor = homeData.textColor,
-//                    onSaveEditPage = onSaveEditPage,
-//                    onUpdateScreen = onUpdateScreen,
-//                )
+                EditPageScreen(
+                    associate = Associate.Grid,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    homeSettings = homeData.userData.homeSettings,
+                    iconPackFilePaths = iconPackFilePaths,
+                    paddingValues = paddingValues,
+                    pageItems = pageItems,
+                    screenHeight = screenHeight,
+                    textColor = homeData.textColor,
+                    onSaveEditPage = onSaveEditPage,
+                    onUpdateScreen = onUpdateScreen,
+                )
+            }
+
+            Screen.EditDockPage -> {
+                EditPageScreen(
+                    associate = Associate.Dock,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    homeSettings = homeData.userData.homeSettings,
+                    iconPackFilePaths = iconPackFilePaths,
+                    paddingValues = paddingValues,
+                    pageItems = pageItems,
+                    screenHeight = screenHeight,
+                    textColor = homeData.textColor,
+                    onSaveEditPage = onSaveEditPage,
+                    onUpdateScreen = onUpdateScreen,
+                )
             }
         }
     }

@@ -23,7 +23,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -66,15 +65,13 @@ import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.handleActionMainIntent
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun SharedTransitionScope.EditPageScreen(
+internal fun EditPageScreen(
     modifier: Modifier = Modifier,
     associate: Associate?,
     hasShortcutHostPermission: Boolean,
@@ -82,7 +79,6 @@ internal fun SharedTransitionScope.EditPageScreen(
     iconPackFilePaths: Map<String, String>,
     paddingValues: PaddingValues,
     pageItems: List<PageItem>,
-    screen: Screen,
     screenHeight: Int,
     textColor: TextColor,
     onSaveEditPage: (
@@ -227,10 +223,6 @@ internal fun SharedTransitionScope.EditPageScreen(
                                     statusBarNotifications = emptyMap(),
                                     hasShortcutHostPermission = hasShortcutHostPermission,
                                     iconPackFilePaths = iconPackFilePaths,
-                                    drag = Drag.None,
-                                    screen = screen,
-                                    isScrollInProgress = false,
-                                    gridItemSource = GridItemSource.Existing(gridItem = gridItem),
                                 )
                             },
                         )

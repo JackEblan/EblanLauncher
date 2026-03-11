@@ -21,4 +21,5 @@ enum class Screen {
     Pager,
     Loading,
     EditPage,
+    EditDockPage,
 }

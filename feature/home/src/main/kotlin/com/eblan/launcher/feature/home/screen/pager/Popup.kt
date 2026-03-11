@@ -40,6 +40,7 @@ import androidx.compose.ui.window.Popup
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.feature.home.model.Screen
 
 @Composable
 internal fun SettingsPopup(
@@ -50,6 +51,7 @@ internal fun SettingsPopup(
     onEditPage: (
         gridItems: List<GridItem>,
         associate: Associate,
+        screen: Screen,
     ) -> Unit,
     onSettings: () -> Unit,
     onShortcutConfigActivities: () -> Unit,
@@ -69,6 +71,7 @@ internal fun SettingsPopup(
                 onEditPage(
                     gridItems,
                     Associate.Dock,
+                    Screen.EditDockPage,
                 )
 
                 onDismissRequest()
@@ -77,6 +80,7 @@ internal fun SettingsPopup(
                 onEditPage(
                     gridItems,
                     Associate.Grid,
+                    Screen.EditPage,
                 )
 
                 onDismissRequest()

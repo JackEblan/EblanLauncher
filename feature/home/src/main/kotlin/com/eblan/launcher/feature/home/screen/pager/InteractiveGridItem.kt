@@ -169,8 +169,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateIsLongPress = onUpdateIsLongPress,
                 onUpdateIsDragging = onUpdateIsDragging,
-
-            )
+                )
         }
 
         is GridItemData.Widget -> {
@@ -328,8 +327,6 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isSelected && isLongPress) {
-            onUpdateIsLongPress(false)
-
             onUpdateIsDragging(true)
 
             onDraggingGridItem()
@@ -395,7 +392,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!(isSelected && (drag == Drag.Start || drag == Drag.Dragging))) {
+        if (!(isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging))) {
             Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = Builder(LocalContext.current).data(data.customIcon ?: icon)
@@ -505,8 +502,6 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isSelected && isLongPress) {
-            onUpdateIsLongPress(false)
-
             onUpdateIsDragging(true)
 
             onDraggingGridItem()
@@ -521,7 +516,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                 textColor = textColor,
             ),
     ) {
-        if (!(isSelected && (drag == Drag.Start || drag == Drag.Dragging))) {
+        if (!(isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging))) {
             val commonModifier = Modifier
                 .matchParentSize()
                 .drawWithContent {
@@ -649,8 +644,6 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isSelected && isLongPress) {
-            onUpdateIsLongPress(false)
-
             onUpdateIsDragging(true)
 
             onDraggingGridItem()
@@ -719,7 +712,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!(isSelected && (drag == Drag.Start || drag == Drag.Dragging))) {
+        if (!(isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging))) {
             Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = customIcon,
@@ -823,8 +816,6 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isSelected && isLongPress) {
-            onUpdateIsLongPress(false)
-
             onUpdateIsDragging(true)
 
             onDraggingGridItem()
@@ -885,7 +876,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!(isSelected && (drag == Drag.Start || drag == Drag.Dragging))) {
+        if (!(isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging))) {
             val commonModifier = Modifier
                 .size(gridItemSettings.iconSize.dp)
                 .drawWithContent {
@@ -1056,8 +1047,6 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isSelected && isLongPress) {
-            onUpdateIsLongPress(false)
-
             onUpdateIsDragging(true)
 
             onDraggingGridItem()
@@ -1118,7 +1107,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!(isSelected && (drag == Drag.Start || drag == Drag.Dragging))) {
+        if (!(isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging))) {
             Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = Builder(LocalContext.current).data(icon)

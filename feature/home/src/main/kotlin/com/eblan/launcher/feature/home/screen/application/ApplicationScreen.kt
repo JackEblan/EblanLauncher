@@ -199,7 +199,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     onVerticalDrag: (Float) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -249,7 +249,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             onVerticalDrag = onVerticalDrag,
             onUpdateImageBitmap = onUpdateImageBitmap,
             onUpdateGridItemSource = onUpdateGridItemSource,
-            onUpdateIsDragging = onUpdateIsDragging,
+            onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
         )
     }
 }
@@ -297,7 +297,7 @@ private fun SharedTransitionScope.Success(
     onVerticalDrag: (Float) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -487,7 +487,7 @@ private fun SharedTransitionScope.Success(
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
                     onDismiss = onDismiss,
-                    onUpdateIsDragging = onUpdateIsDragging,
+                    onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                 )
             }
         } else {
@@ -527,7 +527,7 @@ private fun SharedTransitionScope.Success(
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateGridItemSource = onUpdateGridItemSource,
                 onDismiss = onDismiss,
-                onUpdateIsDragging = onUpdateIsDragging,
+                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
             )
         }
     }
@@ -649,7 +649,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onDismiss: () -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val userManager = LocalUserManager.current
 
@@ -724,7 +724,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateGridItemSource = onUpdateGridItemSource,
                 onDismiss = onDismiss,
-                onUpdateIsDragging = onUpdateIsDragging,
+                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
             )
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && packageManager.isDefaultLauncher() && eblanUser.serialNumber > 0 && userHandle != null) {
@@ -833,7 +833,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onDismiss: () -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -908,7 +908,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 onUpdateImageBitmap = onUpdateImageBitmap,
                                 onUpdateGridItemSource = onUpdateGridItemSource,
                                 onDismiss = onDismiss,
-                                onUpdateIsDragging = onUpdateIsDragging,
+                                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                             )
                         }
                     }
@@ -949,7 +949,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 onUpdateImageBitmap = onUpdateImageBitmap,
                                 onUpdateGridItemSource = onUpdateGridItemSource,
                                 onDismiss = onDismiss,
-                                onUpdateIsDragging = onUpdateIsDragging,
+                                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                             )
                         }
                     }
@@ -992,7 +992,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onDismiss: () -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -1049,7 +1049,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                     ),
                 )
 
-                onUpdateIsDragging(true)
+                onUpdateIsLongPressAndIsDragging()
 
                 onDraggingGridItem(gridItems)
             }

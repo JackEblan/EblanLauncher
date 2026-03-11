@@ -62,13 +62,13 @@ internal suspend fun handleDropGridItem(
     onToast: () -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
     onUpdateWidgetGridItem: (GridItem) -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
+    onResetIsLongPressAndIsDragging: () -> Unit,
 ) {
     if (!isDragging) return
 
     when (gridItemSource) {
         is GridItemSource.Existing -> {
-            onUpdateIsDragging(false)
+            onResetIsLongPressAndIsDragging()
 
             if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
@@ -87,7 +87,7 @@ internal suspend fun handleDropGridItem(
             if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
-                onUpdateIsDragging(false)
+                onResetIsLongPressAndIsDragging()
 
                 onToast()
             } else {
@@ -120,7 +120,7 @@ internal suspend fun handleDropGridItem(
                     is GridItemData.Folder,
                     is GridItemData.ShortcutInfo,
                         -> {
-                        onUpdateIsDragging(false)
+                        onResetIsLongPressAndIsDragging()
 
                         onDragEndAfterMove(moveGridItemResult)
                     }
@@ -132,7 +132,7 @@ internal suspend fun handleDropGridItem(
             if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
-                onUpdateIsDragging(false)
+                onResetIsLongPressAndIsDragging()
 
                 onToast()
             } else {
@@ -167,7 +167,7 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.Folder -> {
-            onUpdateIsDragging(false)
+            onResetIsLongPressAndIsDragging()
 
             onDragEndAfterMoveFolder()
         }
@@ -253,7 +253,7 @@ internal fun handleDeleteAppWidgetId(
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
+    onResetIsLongPressAndIsDragging: () -> Unit,
 ) {
     if (gridItemSource == null || !isDragging) return
 
@@ -262,7 +262,7 @@ internal fun handleDeleteAppWidgetId(
 
         onDeleteWidgetGridItemCache(gridItemSource.gridItem, appWidgetId)
 
-        onUpdateIsDragging(false)
+        onResetIsLongPressAndIsDragging()
     }
 }
 
@@ -279,7 +279,7 @@ internal fun handleBoundWidget(
         appWidgetId: Int,
     ) -> Unit,
     onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
+    onResetIsLongPressAndIsDragging: () -> Unit,
 ) {
     if (gridItemSource == null || moveGridItemResult == null || !isDragging) return
 
@@ -296,7 +296,7 @@ internal fun handleBoundWidget(
                 updatedWidgetGridItem = updatedWidgetGridItem,
                 onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
                 onDragEndAfterMoveWidgetGridItem = onDragEndAfterMoveWidgetGridItem,
-                onUpdateIsDragging = onUpdateIsDragging,
+                onResetIsLongPressAndIsDragging = onResetIsLongPressAndIsDragging,
             )
         }
 
@@ -308,7 +308,7 @@ internal fun handleBoundWidget(
                 updatedWidgetGridItem = updatedWidgetGridItem,
                 onDeleteGridItemCache = onDeleteGridItemCache,
                 onDragEndAfterMove = onDragEndAfterMoveWidgetGridItem,
-                onUpdateIsDragging = onUpdateIsDragging,
+                onResetIsLongPressAndIsDragging = onResetIsLongPressAndIsDragging,
             )
         }
 
@@ -519,7 +519,7 @@ private fun bindPinWidget(
     updatedWidgetGridItem: GridItem,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
+    onResetIsLongPressAndIsDragging: () -> Unit,
 ) {
     val extras = Bundle().apply {
         putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -534,7 +534,7 @@ private fun bindPinWidget(
         onDeleteGridItemCache(updatedWidgetGridItem)
     }
 
-    onUpdateIsDragging(false)
+    onResetIsLongPressAndIsDragging()
 }
 
 private suspend fun onDragEndShortcutConfig(
@@ -588,7 +588,7 @@ private fun startAppWidgetConfigureActivityForResult(
         appWidgetId: Int,
     ) -> Unit,
     onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
+    onResetIsLongPressAndIsDragging: () -> Unit,
 ) {
     val configureComponent = configure?.let(ComponentName::unflattenFromString)
 
@@ -602,16 +602,16 @@ private fun startAppWidgetConfigureActivityForResult(
                 null,
             )
         } else {
-            onUpdateIsDragging(false)
+            onResetIsLongPressAndIsDragging()
 
             onDragEndAfterMoveWidgetGridItem(moveGridItemResult.copy(movingGridItem = updatedWidgetGridItem))
         }
     } catch (_: ActivityNotFoundException) {
-        onUpdateIsDragging(false)
+        onResetIsLongPressAndIsDragging()
 
         onDeleteWidgetGridItemCache(updatedWidgetGridItem, appWidgetId)
     } catch (_: SecurityException) {
-        onUpdateIsDragging(false)
+        onResetIsLongPressAndIsDragging()
 
         onDeleteWidgetGridItemCache(updatedWidgetGridItem, appWidgetId)
     }

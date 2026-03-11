@@ -98,7 +98,7 @@ internal fun LazyGridScope.privateSpace(
     paddingValues: PaddingValues,
     privateEblanApplicationInfos: List<EblanApplicationInfo>,
     privateEblanUser: EblanUser?,
-    onUpdateGridItemOffset: (
+    onUpdateGridItemBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -125,7 +125,7 @@ internal fun LazyGridScope.privateSpace(
                 eblanApplicationInfo = eblanApplicationInfo,
                 iconPackFilePaths = iconPackFilePaths,
                 paddingValues = paddingValues,
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateGridItemBounds = onUpdateGridItemBounds,
                 onUpdatePopupMenu = onUpdatePopupMenu,
                 onUpdateGridItemSource = onUpdateGridItemSource,
             )
@@ -229,7 +229,7 @@ private fun PrivateSpaceEblanApplicationInfoItem(
     eblanApplicationInfo: EblanApplicationInfo,
     iconPackFilePaths: Map<String, String>,
     paddingValues: PaddingValues,
-    onUpdateGridItemOffset: (
+    onUpdateGridItemBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -336,7 +336,7 @@ private fun PrivateSpaceEblanApplicationInfoItem(
                             ),
                         )
 
-                        onUpdateGridItemOffset(
+                        onUpdateGridItemBounds(
                             intOffset,
                             intSize,
                         )

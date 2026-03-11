@@ -131,7 +131,6 @@ import com.eblan.launcher.feature.home.handlePinItemRequest
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.folder.FolderScreen
@@ -275,6 +274,26 @@ internal fun PagerScreen(
 
     val launcherApps = LocalLauncherApps.current
 
+    val wallpaperManagerWrapper = LocalWallpaperManager.current
+
+    val view = LocalView.current
+
+    val activity = LocalActivity.current as ComponentActivity
+
+    val density = LocalDensity.current
+
+    val appWidgetManager = LocalAppWidgetManager.current
+
+    val userManager = LocalUserManager.current
+
+    val imageSerializer = LocalImageSerializer.current
+
+    val fileManager = LocalFileManager.current
+
+    val appWidgetHost = LocalAppWidgetHost.current
+
+    val pinItemRequestWrapper = LocalPinItemRequest.current
+
     var hasDoubleTap by remember { mutableStateOf(false) }
 
     var showWidgets by remember { mutableStateOf(false) }
@@ -290,12 +309,6 @@ internal fun PagerScreen(
     val swipeUpY = remember { Animatable(lastSwipeUpY) }
 
     val swipeDownY = remember { Animatable(lastSwipeDownY) }
-
-    val wallpaperManagerWrapper = LocalWallpaperManager.current
-
-    val view = LocalView.current
-
-    val activity = LocalActivity.current as ComponentActivity
 
     val swipeY by remember {
         derivedStateOf {
@@ -340,8 +353,6 @@ internal fun PagerScreen(
             (20 * progress).dp
         }
     }
-
-    val density = LocalDensity.current
 
     val dockHeight = homeSettings.dockHeight.dp
 
@@ -396,16 +407,6 @@ internal fun PagerScreen(
         PAGE_INDICATOR_HEIGHT.roundToPx()
     }
 
-    val appWidgetManager = LocalAppWidgetManager.current
-
-    val userManager = LocalUserManager.current
-
-    val imageSerializer = LocalImageSerializer.current
-
-    val fileManager = LocalFileManager.current
-
-    val appWidgetHost = LocalAppWidgetHost.current
-
     var lastAppWidgetId by remember { mutableIntStateOf(AppWidgetManager.INVALID_APPWIDGET_ID) }
 
     var deleteAppWidgetId by remember { mutableStateOf(false) }
@@ -421,8 +422,6 @@ internal fun PagerScreen(
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     var folderTitleHeightPx by remember { mutableIntStateOf(0) }
-
-    val pinItemRequestWrapper = LocalPinItemRequest.current
 
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -824,14 +823,14 @@ internal fun PagerScreen(
             screenHeight = screenHeight,
             screenWidth = screenWidth,
             isDragging = isDragging,
-            onShowFolderWhenDragging = { id, movingGridItem, newGridItemSource, intOffset, intSize ->
-                onShowFolderWhenDragging(
-                    id,
-                    movingGridItem,
-                )
-
+            onShowFolderWhenDragging = onShowFolderWhenDragging,
+            onUpdateGridItemSource = { newGridItemSource ->
                 gridItemSource = newGridItemSource
-
+            },
+            onUpdateSharedElementKey = { newSharedElementKey ->
+                sharedElementKey = newSharedElementKey
+            },
+            onUpdateFolderPopupBounds = { intOffset, intSize ->
                 lastFolderPopupX = intOffset.x
                 lastFolderPopupY = intOffset.y
 
@@ -841,9 +840,6 @@ internal fun PagerScreen(
                 folderPopupIntOffset = intOffset
 
                 folderPopupIntSize = intSize
-            },
-            onUpdateSharedElementKey = { newSharedElementKey ->
-                sharedElementKey = newSharedElementKey
             },
         )
     }
@@ -1217,7 +1213,7 @@ internal fun PagerScreen(
                                     )
                                 }
                             },
-                            onUpdateGridItemOffset = { intOffset, intSize ->
+                            onUpdateGridItemBounds = { intOffset, intSize ->
                                 popupIntOffset = intOffset
 
                                 popupIntSize = IntSize(
@@ -1384,7 +1380,7 @@ internal fun PagerScreen(
                                 )
                             }
                         },
-                        onUpdateGridItemOffset = { intOffset, intSize ->
+                        onUpdateGridItemBounds = { intOffset, intSize ->
                             popupIntOffset = intOffset
 
                             popupIntSize = IntSize(
@@ -1480,7 +1476,7 @@ internal fun PagerScreen(
                         )
                     }
                 },
-                onUpdateGridItemOffset = { intOffset, intSize ->
+                onUpdateGridItemBounds = { intOffset, intSize ->
                     overlayIntOffset = intOffset
 
                     overlayIntSize = intSize
@@ -1574,7 +1570,7 @@ internal fun PagerScreen(
                         )
                     }
                 },
-                onUpdateGridItemOffset = { intOffset, intSize ->
+                onUpdateGridItemBounds = { intOffset, intSize ->
                     popupIntOffset = intOffset
 
                     popupIntSize = intSize
@@ -1669,7 +1665,7 @@ internal fun PagerScreen(
                 onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
                 onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
                 onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
-                onUpdateGridItemOffset = { intOffset, intSize ->
+                onUpdateGridItemBounds = { intOffset, intSize ->
                     overlayIntOffset = intOffset
 
                     overlayIntSize = intSize
@@ -1718,7 +1714,7 @@ internal fun PagerScreen(
                 },
                 onDraggingGridItem = onDraggingGridItem,
                 onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-                onUpdateGridItemOffset = { intOffset, intSize ->
+                onUpdateGridItemBounds = { intOffset, intSize ->
                     overlayIntOffset = intOffset
 
                     overlayIntSize = intSize
@@ -1759,7 +1755,7 @@ internal fun PagerScreen(
                 },
                 onDraggingGridItem = onDraggingGridItem,
                 onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-                onUpdateGridItemOffset = { intOffset, intSize ->
+                onUpdateGridItemBounds = { intOffset, intSize ->
                     overlayIntOffset = intOffset
 
                     overlayIntSize = intSize
@@ -1803,7 +1799,7 @@ internal fun PagerScreen(
                     isPressHome = false
                 },
                 onDraggingGridItem = onDraggingGridItem,
-                onUpdateGridItemOffset = { intOffset, intSize ->
+                onUpdateGridItemBounds = { intOffset, intSize ->
                     overlayIntOffset = intOffset
 
                     overlayIntSize = intSize

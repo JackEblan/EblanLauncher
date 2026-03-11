@@ -75,7 +75,7 @@ internal fun ShortcutInfoMenu(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onUpdateGridItemOffset: (
+    onUpdateGridItemBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -100,7 +100,7 @@ internal fun ShortcutInfoMenu(
                 gridItemSettings = gridItemSettings,
                 onTapShortcutInfo = onTapShortcutInfo,
                 eblanShortcutInfo = eblanShortcutInfo,
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateGridItemBounds = onUpdateGridItemBounds,
                 onDraggingGridItem = onDraggingGridItem,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateImageBitmap = onUpdateImageBitmap,
@@ -120,7 +120,7 @@ private fun ShortcutInfoMenuItem(
     gridItemSettings: GridItemSettings,
     onTapShortcutInfo: (Long, String, String) -> Unit,
     eblanShortcutInfo: EblanShortcutInfo,
-    onUpdateGridItemOffset: (
+    onUpdateGridItemBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -220,7 +220,7 @@ private fun ShortcutInfoMenuItem(
 
                                     onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                                    onUpdateGridItemOffset(
+                                    onUpdateGridItemBounds(
                                         intOffset,
                                         intSize,
                                     )

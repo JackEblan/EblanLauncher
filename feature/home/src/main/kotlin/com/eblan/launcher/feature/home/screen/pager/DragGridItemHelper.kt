@@ -380,7 +380,7 @@ private suspend fun handleDragFolderGridItem(
         (folderGridHeightPx - folderTitleHeightPx) - (folderGridPaddingPx * 2)
 
     val isInsideFolder = folderDragX in 0..folderGridVisibleWidthPx &&
-        folderDragY in 0..folderGridVisibleHeightPx
+            folderDragY in 0..folderGridVisibleHeightPx
 
     if (isInsideFolder) {
         onMoveFolderGridItem(
@@ -595,11 +595,13 @@ internal suspend fun handleConflictingGridItem(
     onShowFolderWhenDragging: (
         id: String,
         movingGridItem: GridItem,
-        gridItemSource: GridItemSource,
+    ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateFolderPopupBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     delay(1000L)
 
@@ -695,6 +697,9 @@ internal suspend fun handleConflictingGridItem(
     onShowFolderWhenDragging(
         conflictingData.id,
         moveGridItemResult.movingGridItem,
+    )
+
+    onUpdateGridItemSource(
         GridItemSource.Folder(
             gridItem = moveGridItemResult.movingGridItem,
             applicationInfoGridItem = ApplicationInfoGridItem(
@@ -721,6 +726,10 @@ internal suspend fun handleConflictingGridItem(
                 folderId = conflictingData.id,
             ),
         ),
+    )
+
+
+    onUpdateFolderPopupBounds(
         intOffset,
         intSize,
     )

@@ -114,7 +114,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onUpdateGridItemOffset: (
+    onUpdateGridItemBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -163,7 +163,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onDraggingGridItem = onDraggingGridItem,
                 onOpenAppDrawer = onOpenAppDrawer,
                 onTapApplicationInfo = onTapApplicationInfo,
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateGridItemBounds = onUpdateGridItemBounds,
                 onUpdateGridItemSource = onUpdateGridItemSource,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
@@ -183,7 +183,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 isLongPress = isLongPress,
                 textColor = currentTextColor,
                 onDraggingGridItem = onDraggingGridItem,
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateGridItemBounds = onUpdateGridItemBounds,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateGridItemSource = onUpdateGridItemSource,
@@ -207,7 +207,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onDraggingGridItem = onDraggingGridItem,
                 onOpenAppDrawer = onOpenAppDrawer,
                 onTapShortcutInfo = onTapShortcutInfo,
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateGridItemBounds = onUpdateGridItemBounds,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateGridItemSource = onUpdateGridItemSource,
@@ -231,7 +231,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onDraggingGridItem = onDraggingGridItem,
                 onOpenAppDrawer = onOpenAppDrawer,
                 onTap = onTapFolderGridItem,
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateGridItemBounds = onUpdateGridItemBounds,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateGridItemSource = onUpdateGridItemSource,
@@ -254,7 +254,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onDraggingGridItem = onDraggingGridItem,
                 onOpenAppDrawer = onOpenAppDrawer,
                 onTapShortcutConfig = onTapShortcutConfig,
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateGridItemBounds = onUpdateGridItemBounds,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateGridItemSource = onUpdateGridItemSource,
@@ -285,7 +285,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         serialNumber: Long,
         componentName: String,
     ) -> Unit,
-    onUpdateGridItemOffset: (
+    onUpdateGridItemBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -354,7 +354,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onUpdateGridItemOffset(
+                            onUpdateGridItemBounds(
                                 intOffset,
                                 intSize,
                             )
@@ -481,7 +481,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
     textColor: Color,
     isLongPress: Boolean,
     onDraggingGridItem: () -> Unit,
-    onUpdateGridItemOffset: (
+    onUpdateGridItemBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -563,7 +563,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
 
                                     onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                                    onUpdateGridItemOffset(
+                                    onUpdateGridItemBounds(
                                         intOffset,
                                         intSize,
                                     )
@@ -615,7 +615,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onUpdateGridItemOffset: (
+    onUpdateGridItemBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -680,7 +680,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onUpdateGridItemOffset(
+                            onUpdateGridItemBounds(
                                 intOffset,
                                 intSize,
                             )
@@ -798,7 +798,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
     onTap: () -> Unit,
-    onUpdateGridItemOffset: (
+    onUpdateGridItemBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -857,7 +857,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onUpdateGridItemOffset(
+                            onUpdateGridItemBounds(
                                 intOffset,
                                 intSize,
                             )
@@ -998,7 +998,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
     onTapShortcutConfig: (String) -> Unit,
-    onUpdateGridItemOffset: (
+    onUpdateGridItemBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -1093,7 +1093,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onUpdateGridItemOffset(
+                            onUpdateGridItemBounds(
                                 intOffset,
                                 intSize,
                             )

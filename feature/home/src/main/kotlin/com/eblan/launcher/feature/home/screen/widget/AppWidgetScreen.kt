@@ -98,7 +98,7 @@ internal fun AppWidgetScreen(
     screenWidth: Int,
     onDismiss: () -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
-    onUpdateGridItemOffset: (
+    onUpdateGridItemBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -238,7 +238,7 @@ internal fun AppWidgetScreen(
                             onDismiss()
                         }
                     },
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onUpdateGridItemBounds = onUpdateGridItemBounds,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
@@ -262,7 +262,7 @@ private fun Success(
     screenHeight: Int,
     screenWidth: Int,
     onDraggingGridItem: () -> Unit,
-    onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
+    onUpdateGridItemBounds: (IntOffset, IntSize) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
@@ -301,7 +301,7 @@ private fun Success(
                     screenHeight = screenHeight,
                     screenWidth = screenWidth,
                     onDraggingGridItem = onDraggingGridItem,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onUpdateGridItemBounds = onUpdateGridItemBounds,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
@@ -324,7 +324,7 @@ private fun EblanAppWidgetProviderInfoItem(
     screenHeight: Int,
     screenWidth: Int,
     onDraggingGridItem: () -> Unit,
-    onUpdateGridItemOffset: (
+    onUpdateGridItemBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -378,7 +378,7 @@ private fun EblanAppWidgetProviderInfoItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onUpdateGridItemOffset(
+                            onUpdateGridItemBounds(
                                 intOffset,
                                 intSize,
                             )

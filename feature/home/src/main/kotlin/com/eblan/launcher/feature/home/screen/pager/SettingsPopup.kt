@@ -40,7 +40,6 @@ import androidx.compose.ui.window.Popup
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.feature.home.model.Screen
 
 @Composable
 internal fun SettingsPopup(

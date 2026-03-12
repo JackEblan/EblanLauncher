@@ -585,6 +585,8 @@ private fun SharedTransitionScope.Success(
             screenWidth = screenWidth,
             onDismiss = {
                 eblanApplicationInfoGroup = null
+
+                onDismiss()
             },
             onDraggingGridItem = onDraggingGridItem,
             onUpdateOverlayBounds = onUpdateOverlayBounds,

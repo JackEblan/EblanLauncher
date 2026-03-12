@@ -196,9 +196,7 @@ internal suspend fun handleDragGridItem(
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
-    if (drag == Drag.None ||
-        drag == Drag.End ||
-        drag == Drag.Cancel ||
+    if (drag != Drag.Dragging ||
         isScrollInProgress ||
         gridItemSource == null ||
         !isDragging

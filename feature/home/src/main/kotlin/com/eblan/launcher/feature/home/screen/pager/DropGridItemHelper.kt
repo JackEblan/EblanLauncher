@@ -64,7 +64,8 @@ internal suspend fun handleDropGridItem(
     onUpdateAppWidgetId: (Int) -> Unit,
     onUpdateWidgetGridItem: (GridItem) -> Unit,
 ) {
-    if (drag == Drag.Start ||
+    if (drag == Drag.None ||
+        drag == Drag.Start ||
         drag == Drag.Dragging ||
         gridItemSource == null ||
         !isDragging
@@ -117,7 +118,7 @@ internal suspend fun handleDropGridItem(
                     is GridItemData.ApplicationInfo,
                     is GridItemData.Folder,
                     is GridItemData.ShortcutInfo,
-                    -> {
+                        -> {
                         onDragEndAfterMove(moveGridItemResult)
                     }
                 }
@@ -210,10 +211,7 @@ internal fun handleConfigureLauncherResult(
     onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onResetConfigureResultCode: () -> Unit,
 ) {
-    if (resultCode == null ||
-        moveGridItemResult == null ||
-        updatedGridItem == null
-    ) {
+    if (resultCode == null || moveGridItemResult == null || updatedGridItem == null) {
         return
     }
 
@@ -239,10 +237,7 @@ internal fun handleDeleteAppWidgetId(
     ) -> Unit,
     onResetAppWidgetId: () -> Unit,
 ) {
-    if (gridItemSource == null ||
-        appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID ||
-        !deleteAppWidgetId
-    ) {
+    if (gridItemSource == null || appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID || !deleteAppWidgetId) {
         return
     }
 

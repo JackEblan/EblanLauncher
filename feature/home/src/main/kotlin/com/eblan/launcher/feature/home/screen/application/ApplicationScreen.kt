@@ -133,7 +133,6 @@ import com.eblan.launcher.feature.home.dialog.EblanApplicationInfoOrderDialog
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.model.SharedElementKeyParent
 import com.eblan.launcher.feature.home.screen.application.draganddrop.DragAndDropEblanApplicationInfos
 import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
@@ -1038,7 +1037,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
             onUpdateSharedElementKey(
                 SharedElementKey(
                     id = id,
-                    parent = SharedElementKeyParent.Grid,
+                    parent = SharedElementKey.Parent.Grid,
                 ),
             )
 
@@ -1126,7 +1125,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = id,
-                                    parent = SharedElementKeyParent.SwipeY,
+                                    parent = SharedElementKey.Parent.SwipeY,
                                 ),
                             )
 
@@ -1171,7 +1170,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                             rememberSharedContentState(
                                 key = SharedElementKey(
                                     id = id,
-                                    parent = SharedElementKeyParent.SwipeY,
+                                    parent = SharedElementKey.Parent.SwipeY,
                                 ),
                             ),
                             visible = true,

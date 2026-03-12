@@ -76,7 +76,6 @@ import com.eblan.launcher.feature.home.component.modifier.whiteBox
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.model.SharedElementKeyParent
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -371,7 +370,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = gridItem.id,
-                                    parent = SharedElementKeyParent.Grid,
+                                    parent = SharedElementKey.Parent.Grid,
                                 ),
                             )
 
@@ -432,7 +431,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                             rememberSharedContentState(
                                 key = SharedElementKey(
                                     id = gridItem.id,
-                                    parent = SharedElementKeyParent.Grid,
+                                    parent = SharedElementKey.Parent.Grid,
                                 ),
                             ),
                             visible = !isScrollInProgress,
@@ -558,7 +557,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                     rememberSharedContentState(
                         key = SharedElementKey(
                             id = gridItem.id,
-                            parent = SharedElementKeyParent.Grid,
+                            parent = SharedElementKey.Parent.Grid,
                         ),
                     ),
                     visible = !isScrollInProgress,
@@ -585,7 +584,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                                     onUpdateSharedElementKey(
                                         SharedElementKey(
                                             id = gridItem.id,
-                                            parent = SharedElementKeyParent.Grid,
+                                            parent = SharedElementKey.Parent.Grid,
                                         ),
                                     )
 
@@ -707,7 +706,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = gridItem.id,
-                                    parent = SharedElementKeyParent.Grid,
+                                    parent = SharedElementKey.Parent.Grid,
                                 ),
                             )
 
@@ -770,7 +769,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                             rememberSharedContentState(
                                 key = SharedElementKey(
                                     id = gridItem.id,
-                                    parent = SharedElementKeyParent.Grid,
+                                    parent = SharedElementKey.Parent.Grid,
                                 ),
                             ),
                             visible = !isScrollInProgress,
@@ -889,7 +888,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = gridItem.id,
-                                    parent = SharedElementKeyParent.Grid,
+                                    parent = SharedElementKey.Parent.Grid,
                                 ),
                             )
 
@@ -940,7 +939,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                     rememberSharedContentState(
                         key = SharedElementKey(
                             id = gridItem.id,
-                            parent = SharedElementKeyParent.Grid,
+                            parent = SharedElementKey.Parent.Grid,
                         ),
                     ),
                     visible = !isScrollInProgress,
@@ -983,7 +982,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                                             rememberSharedContentState(
                                                 key = SharedElementKey(
                                                     id = applicationInfoFolderGridItem.id,
-                                                    parent = SharedElementKeyParent.Grid,
+                                                    parent = SharedElementKey.Parent.Grid,
                                                 ),
                                             ),
                                             visible = !isScrollInProgress,
@@ -1130,7 +1129,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = gridItem.id,
-                                    parent = SharedElementKeyParent.Grid,
+                                    parent = SharedElementKey.Parent.Grid,
                                 ),
                             )
 
@@ -1186,7 +1185,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                             rememberSharedContentState(
                                 key = SharedElementKey(
                                     id = gridItem.id,
-                                    parent = SharedElementKeyParent.Grid,
+                                    parent = SharedElementKey.Parent.Grid,
                                 ),
                             ),
                             visible = !isScrollInProgress,

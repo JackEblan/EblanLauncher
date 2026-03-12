@@ -93,7 +93,6 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.model.SharedElementKeyParent
 import com.eblan.launcher.feature.home.util.handleApplyFling
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
@@ -555,7 +554,7 @@ private fun EblanAppWidgetProviderInfoItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = id,
-                                    parent = SharedElementKeyParent.Grid,
+                                    parent = SharedElementKey.Parent.Grid,
                                 ),
                             )
 

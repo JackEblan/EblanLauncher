@@ -39,7 +39,6 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.model.SharedElementKeyParent
 import com.eblan.launcher.feature.home.util.FOLDER_GRID_PADDING
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import kotlinx.coroutines.delay
@@ -433,7 +432,7 @@ private suspend fun handleDragFolderGridItem(
         onUpdateSharedElementKey(
             SharedElementKey(
                 id = gridItem.id,
-                parent = SharedElementKeyParent.Grid,
+                parent = SharedElementKey.Parent.Grid,
             ),
         )
     }
@@ -689,8 +688,8 @@ internal suspend fun handleConflictingGridItem(
 
     onUpdateSharedElementKey(
         SharedElementKey(
-            id = conflictingData.id + moveGridItemResult.movingGridItem.id,
-            parent = SharedElementKeyParent.Grid,
+            id = moveGridItemResult.movingGridItem.id,
+            parent = SharedElementKey.Parent.Folder,
         ),
     )
 

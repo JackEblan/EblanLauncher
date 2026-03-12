@@ -85,7 +85,6 @@ import com.eblan.launcher.feature.home.component.modifier.whiteBox
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.model.SharedElementKeyParent
 import com.eblan.launcher.feature.home.util.FOLDER_GRID_PADDING
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
@@ -412,8 +411,8 @@ private fun SharedTransitionScope.FolderGridItemContent(
 
                             onUpdateSharedElementKey(
                                 SharedElementKey(
-                                    id = folderGridItem.id + gridItem.id,
-                                    parent = SharedElementKeyParent.Grid,
+                                    id = gridItem.id,
+                                    parent = SharedElementKey.Parent.Folder,
                                 ),
                             )
 
@@ -464,8 +463,8 @@ private fun SharedTransitionScope.FolderGridItemContent(
                         .sharedElementWithCallerManagedVisibility(
                             rememberSharedContentState(
                                 key = SharedElementKey(
-                                    id = folderGridItem.id + gridItem.id,
-                                    parent = SharedElementKeyParent.Grid,
+                                    id = gridItem.id,
+                                    parent = SharedElementKey.Parent.Folder,
                                 ),
                             ),
                             visible = drag == Drag.None || drag == Drag.Cancel || drag == Drag.End,

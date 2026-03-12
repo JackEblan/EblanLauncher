@@ -73,7 +73,6 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.model.SharedElementKeyParent
 import com.eblan.launcher.feature.home.util.handleApplyFling
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -386,7 +385,7 @@ private fun EblanAppWidgetProviderInfoItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = id,
-                                    parent = SharedElementKeyParent.Grid,
+                                    parent = SharedElementKey.Parent.Grid,
                                 ),
                             )
 

@@ -166,7 +166,6 @@ internal fun SharedTransitionScope.ApplicationScreen(
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
-    gridItemSource: GridItemSource?,
     gridItems: List<GridItem>,
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
@@ -216,7 +215,6 @@ internal fun SharedTransitionScope.ApplicationScreen(
             eblanApplicationInfoTags = eblanApplicationInfoTags,
             eblanShortcutInfosGroup = eblanShortcutInfosGroup,
             getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
-            gridItemSource = gridItemSource,
             gridItems = gridItems,
             hasShortcutHostPermission = hasShortcutHostPermission,
             iconPackFilePaths = iconPackFilePaths,
@@ -257,7 +255,6 @@ private fun SharedTransitionScope.Success(
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
-    gridItemSource: GridItemSource?,
     gridItems: List<GridItem>,
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
@@ -330,6 +327,8 @@ private fun SharedTransitionScope.Success(
     var isRearrangeEblanApplicationInfo by remember { mutableStateOf(false) }
 
     var showEblanApplicationInfoOrderDialog by remember { mutableStateOf(false) }
+
+    var selectedEblanApplicationInfo by remember { mutableStateOf<EblanApplicationInfo?>(null) }
 
     LaunchedEffect(key1 = textFieldState) {
         snapshotFlow { textFieldState.text }.debounce(500L).onEach { text ->
@@ -477,6 +476,9 @@ private fun SharedTransitionScope.Success(
                     },
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onVerticalDrag = onVerticalDrag,
+                    onUpdateEblanApplicationInfo = { eblanApplicationInfo ->
+                        selectedEblanApplicationInfo = eblanApplicationInfo
+                    },
                 )
             }
         } else {
@@ -517,17 +519,20 @@ private fun SharedTransitionScope.Success(
                 },
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onVerticalDrag = onVerticalDrag,
+                onUpdateEblanApplicationInfo = { eblanApplicationInfo ->
+                    selectedEblanApplicationInfo = eblanApplicationInfo
+                },
             )
         }
     }
 
-    if (showPopupApplicationMenu && gridItemSource?.gridItem != null) {
+    if (showPopupApplicationMenu && selectedEblanApplicationInfo != null) {
         PopupApplicationInfoMenu(
             currentPage = currentPage,
             drag = drag,
             eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosGroup,
             eblanShortcutInfosGroup = eblanShortcutInfosGroup,
-            gridItem = gridItemSource.gridItem,
+            eblanApplicationInfo = selectedEblanApplicationInfo,
             gridItemSettings = appDrawerSettings.gridItemSettings,
             hasShortcutHostPermission = hasShortcutHostPermission,
             paddingValues = paddingValues,
@@ -595,7 +600,7 @@ private fun SharedTransitionScope.Success(
             onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
 
-            )
+        )
     }
 
     if (showEblanApplicationInfoOrderDialog) {
@@ -645,6 +650,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     onUpdatePopupMenu: (Boolean) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onVerticalDrag: (Float) -> Unit,
+    onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
 ) {
     val userManager = LocalUserManager.current
 
@@ -720,6 +726,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 onUpdatePopupMenu = onUpdatePopupMenu,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onVerticalDrag = onVerticalDrag,
+                onUpdateEblanApplicationInfo = onUpdateEblanApplicationInfo,
             )
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && packageManager.isDefaultLauncher() && eblanUser.serialNumber > 0 && userHandle != null) {
@@ -829,6 +836,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     onUpdatePopupMenu: (Boolean) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onVerticalDrag: (Float) -> Unit,
+    onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -904,6 +912,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                                 onUpdatePopupMenu = onUpdatePopupMenu,
                                 onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                onUpdateEblanApplicationInfo = onUpdateEblanApplicationInfo,
                             )
                         }
                     }
@@ -945,6 +954,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                                 onUpdatePopupMenu = onUpdatePopupMenu,
                                 onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                onUpdateEblanApplicationInfo = onUpdateEblanApplicationInfo,
                             )
                         }
                     }
@@ -988,6 +998,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     ) -> Unit,
     onUpdatePopupMenu: (Boolean) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -1028,7 +1039,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    val id = remember { Uuid.random().toHexString() }
+    val applicationScreenId = remember { Uuid.random().toHexString() }
 
     val hasInteraction by remember(key1 = drag) {
         derivedStateOf {
@@ -1042,9 +1053,55 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
             onDismiss()
 
+            val pagerScreenId = Uuid.random().toHexString()
+
+            val data = GridItemData.ApplicationInfo(
+                serialNumber = eblanApplicationInfo.serialNumber,
+                componentName = eblanApplicationInfo.componentName,
+                packageName = eblanApplicationInfo.packageName,
+                icon = eblanApplicationInfo.icon,
+                label = eblanApplicationInfo.label,
+                customIcon = eblanApplicationInfo.customIcon,
+                customLabel = eblanApplicationInfo.customLabel,
+                index = -1,
+                folderId = null,
+            )
+
+            onUpdateGridItemSource(
+                GridItemSource.New(
+                    gridItem = GridItem(
+                        id = pagerScreenId,
+                        page = currentPage,
+                        startColumn = -1,
+                        startRow = -1,
+                        columnSpan = 1,
+                        rowSpan = 1,
+                        data = data,
+                        associate = Associate.Grid,
+                        override = false,
+                        gridItemSettings = appDrawerSettings.gridItemSettings,
+                        doubleTap = EblanAction(
+                            eblanActionType = EblanActionType.None,
+                            serialNumber = 0L,
+                            componentName = "",
+                        ),
+                        swipeUp = EblanAction(
+                            eblanActionType = EblanActionType.None,
+                            serialNumber = 0L,
+                            componentName = "",
+                        ),
+                        swipeDown = EblanAction(
+                            eblanActionType = EblanActionType.None,
+                            serialNumber = 0L,
+                            componentName = "",
+                        ),
+                    ),
+                ),
+            )
+
             onUpdateSharedElementKey(
                 SharedElementKey(
-                    id = id,
+                    id = pagerScreenId,
                     parent = SharedElementKey.Parent.Grid,
                 ),
             )
@@ -1086,56 +1143,14 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                                 intSize,
                             )
 
-                            val data = GridItemData.ApplicationInfo(
-                                serialNumber = eblanApplicationInfo.serialNumber,
-                                componentName = eblanApplicationInfo.componentName,
-                                packageName = eblanApplicationInfo.packageName,
-                                icon = eblanApplicationInfo.icon,
-                                label = eblanApplicationInfo.label,
-                                customIcon = eblanApplicationInfo.customIcon,
-                                customLabel = eblanApplicationInfo.customLabel,
-                                index = -1,
-                                folderId = null,
-                            )
-
-                            onUpdateGridItemSource(
-                                GridItemSource.New(
-                                    gridItem = GridItem(
-                                        id = id,
-                                        page = currentPage,
-                                        startColumn = -1,
-                                        startRow = -1,
-                                        columnSpan = 1,
-                                        rowSpan = 1,
-                                        data = data,
-                                        associate = Associate.Grid,
-                                        override = false,
-                                        gridItemSettings = appDrawerSettings.gridItemSettings,
-                                        doubleTap = EblanAction(
-                                            eblanActionType = EblanActionType.None,
-                                            serialNumber = 0L,
-                                            componentName = "",
-                                        ),
-                                        swipeUp = EblanAction(
-                                            eblanActionType = EblanActionType.None,
-                                            serialNumber = 0L,
-                                            componentName = "",
-                                        ),
-                                        swipeDown = EblanAction(
-                                            eblanActionType = EblanActionType.None,
-                                            serialNumber = 0L,
-                                            componentName = "",
-                                        ),
-                                    ),
-                                ),
-                            )
-
                             onUpdateSharedElementKey(
                                 SharedElementKey(
-                                    id = id,
+                                    id = applicationScreenId,
                                     parent = SharedElementKey.Parent.SwipeY,
                                 ),
                             )
+
+                            onUpdateEblanApplicationInfo(eblanApplicationInfo)
 
                             onUpdatePopupMenu(true)
 
@@ -1177,7 +1192,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                         .sharedElementWithCallerManagedVisibility(
                             rememberSharedContentState(
                                 key = SharedElementKey(
-                                    id = id,
+                                    id = applicationScreenId,
                                     parent = SharedElementKey.Parent.SwipeY,
                                 ),
                             ),

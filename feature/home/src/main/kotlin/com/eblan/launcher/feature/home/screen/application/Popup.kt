@@ -44,11 +44,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
-import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.popup.ShortcutInfoMenu
 import com.eblan.launcher.feature.home.model.Drag
@@ -63,7 +62,7 @@ internal fun PopupApplicationInfoMenu(
     drag: Drag,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    gridItem: GridItem?,
+    eblanApplicationInfo: EblanApplicationInfo?,
     gridItemSettings: GridItemSettings,
     hasShortcutHostPermission: Boolean,
     paddingValues: PaddingValues,
@@ -89,7 +88,7 @@ internal fun PopupApplicationInfoMenu(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onWidgets: (EblanApplicationInfoGroup) -> Unit,
 ) {
-    val applicationInfo = gridItem?.data as? GridItemData.ApplicationInfo ?: return
+    requireNotNull(eblanApplicationInfo)
 
     val density = LocalDensity.current
 
@@ -124,20 +123,20 @@ internal fun PopupApplicationInfoMenu(
             ApplicationInfoMenu(
                 currentPage = currentPage,
                 drag = drag,
-                eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfos[applicationInfo.packageName],
+                eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfos[eblanApplicationInfo.packageName],
                 eblanShortcutInfosGroup = eblanShortcutInfosGroup[
                     EblanShortcutInfoByGroup(
-                        serialNumber = applicationInfo.serialNumber,
-                        packageName = applicationInfo.packageName,
+                        serialNumber = eblanApplicationInfo.serialNumber,
+                        packageName = eblanApplicationInfo.packageName,
                     ),
                 ],
                 gridItemSettings = gridItemSettings,
                 hasShortcutHostPermission = hasShortcutHostPermission,
-                icon = applicationInfo.icon,
+                icon = eblanApplicationInfo.icon,
                 onApplicationInfo = {
                     launcherApps.startAppDetailsActivity(
-                        serialNumber = applicationInfo.serialNumber,
-                        componentName = applicationInfo.componentName,
+                        serialNumber = eblanApplicationInfo.serialNumber,
+                        componentName = eblanApplicationInfo.componentName,
                         sourceBounds = Rect(
                             x,
                             y,
@@ -153,8 +152,8 @@ internal fun PopupApplicationInfoMenu(
                     onDismissRequest()
 
                     onEditApplicationInfo(
-                        applicationInfo.serialNumber,
-                        applicationInfo.componentName,
+                        eblanApplicationInfo.serialNumber,
+                        eblanApplicationInfo.componentName,
                     )
                 },
                 onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
@@ -173,10 +172,10 @@ internal fun PopupApplicationInfoMenu(
                 onWidgets = {
                     onWidgets(
                         EblanApplicationInfoGroup(
-                            serialNumber = applicationInfo.serialNumber,
-                            packageName = applicationInfo.packageName,
-                            icon = applicationInfo.icon,
-                            label = applicationInfo.label,
+                            serialNumber = eblanApplicationInfo.serialNumber,
+                            packageName = eblanApplicationInfo.packageName,
+                            icon = eblanApplicationInfo.icon,
+                            label = eblanApplicationInfo.label,
                         ),
                     )
 

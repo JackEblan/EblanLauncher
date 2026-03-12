@@ -1079,7 +1079,6 @@ internal fun PagerScreen(
                 eblanApplicationInfoTags = eblanApplicationInfoTags,
                 eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                 getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
-                gridItemSource = pagerScreenState.gridItemSource,
                 gridItems = gridItems,
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 iconPackFilePaths = iconPackFilePaths,

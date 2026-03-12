@@ -67,11 +67,7 @@ internal suspend fun handleDropGridItem(
     onUpdateIsLongPress: (Boolean) -> Unit,
     onUpdateWidgetGridItem: (GridItem) -> Unit,
 ) {
-    if (drag == Drag.None ||
-        drag == Drag.Start ||
-        drag == Drag.Dragging ||
-        gridItemSource == null
-    ) {
+    if (drag == Drag.None || drag == Drag.Start || drag == Drag.Dragging || gridItemSource == null) {
         return
     }
 
@@ -97,11 +93,19 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.New -> {
-            if (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess) {
+            if (isDragging && isLongPress && (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess)) {
+                onUpdateIsLongPress(false)
+
+                onUpdateIsDragging(false)
+
                 onDragCancelAfterMove()
 
                 onToast()
-            } else {
+            } else if (isDragging && isLongPress && moveGridItemResult != null) {
+                onUpdateIsLongPress(false)
+
+                onUpdateIsDragging(false)
+
                 when (val data = gridItemSource.gridItem.data) {
                     is GridItemData.Widget -> {
                         onDragEndWidget(
@@ -130,7 +134,7 @@ internal suspend fun handleDropGridItem(
                     is GridItemData.ApplicationInfo,
                     is GridItemData.Folder,
                     is GridItemData.ShortcutInfo,
-                        -> {
+                    -> {
                         onDragEndAfterMove(moveGridItemResult)
                     }
                 }
@@ -138,11 +142,19 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.Pin -> {
-            if (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess) {
+            if (isDragging && isLongPress && (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess)) {
+                onUpdateIsLongPress(false)
+
+                onUpdateIsDragging(false)
+
                 onDragCancelAfterMove()
 
                 onToast()
-            } else {
+            } else if (isDragging && isLongPress && moveGridItemResult != null) {
+                onUpdateIsLongPress(false)
+
+                onUpdateIsDragging(false)
+
                 when (val data = gridItemSource.gridItem.data) {
                     is GridItemData.ShortcutInfo -> {
                         onDragEndPinShortcut(

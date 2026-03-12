@@ -98,7 +98,7 @@ internal fun AppWidgetScreen(
     screenWidth: Int,
     onDismiss: () -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -238,7 +238,7 @@ internal fun AppWidgetScreen(
                             onDismiss()
                         }
                     },
-                    onUpdateGridItemBounds = onUpdateGridItemBounds,
+                    onUpdateOverlayBounds = onUpdateOverlayBounds,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
@@ -262,7 +262,7 @@ private fun Success(
     screenHeight: Int,
     screenWidth: Int,
     onDraggingGridItem: () -> Unit,
-    onUpdateGridItemBounds: (IntOffset, IntSize) -> Unit,
+    onUpdateOverlayBounds: (IntOffset, IntSize) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
@@ -301,7 +301,7 @@ private fun Success(
                     screenHeight = screenHeight,
                     screenWidth = screenWidth,
                     onDraggingGridItem = onDraggingGridItem,
-                    onUpdateGridItemBounds = onUpdateGridItemBounds,
+                    onUpdateOverlayBounds = onUpdateOverlayBounds,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
@@ -324,7 +324,7 @@ private fun EblanAppWidgetProviderInfoItem(
     screenHeight: Int,
     screenWidth: Int,
     onDraggingGridItem: () -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -378,7 +378,7 @@ private fun EblanAppWidgetProviderInfoItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onUpdateGridItemBounds(
+                            onUpdateOverlayBounds(
                                 intOffset,
                                 intSize,
                             )

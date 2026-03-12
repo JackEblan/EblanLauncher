@@ -122,7 +122,7 @@ internal fun WidgetScreen(
     onDismiss: () -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -230,7 +230,7 @@ internal fun WidgetScreen(
                 }
             },
             onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-            onUpdateGridItemBounds = onUpdateGridItemBounds,
+            onUpdateOverlayBounds = onUpdateOverlayBounds,
             onVerticalDrag = { dragAmount ->
                 scope.launch {
                     offsetY.snapTo(offsetY.value + dragAmount)
@@ -261,7 +261,7 @@ private fun Success(
     onDragEnd: (Float) -> Unit,
     onDraggingGridItem: () -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -383,7 +383,7 @@ private fun Success(
                         screenHeight = screenHeight,
                         screenWidth = screenWidth,
                         onDraggingGridItem = onDraggingGridItem,
-                        onUpdateGridItemBounds = onUpdateGridItemBounds,
+                        onUpdateOverlayBounds = onUpdateOverlayBounds,
                         onUpdateImageBitmap = onUpdateImageBitmap,
                         onUpdateGridItemSource = onUpdateGridItemSource,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
@@ -408,7 +408,7 @@ private fun EblanApplicationInfoItem(
     screenHeight: Int,
     screenWidth: Int,
     onDraggingGridItem: () -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -470,7 +470,7 @@ private fun EblanApplicationInfoItem(
                     screenHeight = screenHeight,
                     screenWidth = screenWidth,
                     onDraggingGridItem = onDraggingGridItem,
-                    onUpdateGridItemBounds = onUpdateGridItemBounds,
+                    onUpdateOverlayBounds = onUpdateOverlayBounds,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
@@ -493,7 +493,7 @@ private fun EblanAppWidgetProviderInfoItem(
     screenHeight: Int,
     screenWidth: Int,
     onDraggingGridItem: () -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -547,7 +547,7 @@ private fun EblanAppWidgetProviderInfoItem(
                                 ),
                             )
 
-                            onUpdateGridItemBounds(
+                            onUpdateOverlayBounds(
                                 intOffset,
                                 intSize,
                             )

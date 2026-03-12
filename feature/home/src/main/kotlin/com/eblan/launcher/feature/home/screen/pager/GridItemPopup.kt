@@ -80,7 +80,7 @@ internal fun GridItemPopup(
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onResize: () -> Unit,
     onTapShortcutInfo: (Long, String, String) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -132,7 +132,7 @@ internal fun GridItemPopup(
                 onInfo = onInfo,
                 onResize = onResize,
                 onTapShortcutInfo = onTapShortcutInfo,
-                onUpdateGridItemBounds = onUpdateGridItemBounds,
+                onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onWidgets = onWidgets,
                 onUpdateImageBitmap = onUpdateImageBitmap,
@@ -270,7 +270,7 @@ private fun GridItemPopupContent(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -337,7 +337,7 @@ private fun GridItemPopupContent(
 
                             onDismissRequest()
                         },
-                        onUpdateGridItemBounds = onUpdateGridItemBounds,
+                        onUpdateOverlayBounds = onUpdateOverlayBounds,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                         onWidgets = {
                             onWidgets(
@@ -448,7 +448,7 @@ private fun ApplicationInfoGridItemMenu(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -472,7 +472,7 @@ private fun ApplicationInfoGridItemMenu(
                 eblanShortcutInfosGroup = eblanShortcutInfosByPackageName,
                 gridItemSettings = gridItemSettings,
                 onTapShortcutInfo = onTapShortcutInfo,
-                onUpdateGridItemBounds = onUpdateGridItemBounds,
+                onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateImageBitmap = onUpdateImageBitmap,

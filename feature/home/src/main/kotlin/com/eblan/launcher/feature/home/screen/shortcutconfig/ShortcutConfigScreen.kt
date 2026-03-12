@@ -131,7 +131,7 @@ internal fun ShortcutConfigScreen(
     onDismiss: () -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -236,7 +236,7 @@ internal fun ShortcutConfigScreen(
                 }
             },
             onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-            onUpdateGridItemBounds = onUpdateGridItemBounds,
+            onUpdateOverlayBounds = onUpdateOverlayBounds,
             onVerticalDrag = { dragAmount ->
                 scope.launch {
                     offsetY.snapTo(offsetY.value + dragAmount)
@@ -263,7 +263,7 @@ private fun Success(
     onDragEnd: (Float) -> Unit,
     onDraggingGridItem: () -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -356,7 +356,7 @@ private fun Success(
                     paddingValues = paddingValues,
                     onDragEnd = onDragEnd,
                     onDraggingGridItem = onDraggingGridItem,
-                    onUpdateGridItemBounds = onUpdateGridItemBounds,
+                    onUpdateOverlayBounds = onUpdateOverlayBounds,
                     onVerticalDrag = onVerticalDrag,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
@@ -373,7 +373,7 @@ private fun Success(
                 paddingValues = paddingValues,
                 onDragEnd = onDragEnd,
                 onDraggingGridItem = onDraggingGridItem,
-                onUpdateGridItemBounds = onUpdateGridItemBounds,
+                onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onVerticalDrag = onVerticalDrag,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateGridItemSource = onUpdateGridItemSource,
@@ -424,7 +424,7 @@ private fun EblanShortcutConfigsPage(
     paddingValues: PaddingValues,
     onDragEnd: (Float) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onUpdateGridItemBounds: (IntOffset, IntSize) -> Unit,
+    onUpdateOverlayBounds: (IntOffset, IntSize) -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
@@ -501,7 +501,7 @@ private fun EblanShortcutConfigsPage(
                         eblanShortcutConfigs = eblanShortcutConfigs[serialNumber].orEmpty(),
                         gridItemSettings = gridItemSettings,
                         onDraggingGridItem = onDraggingGridItem,
-                        onUpdateGridItemBounds = onUpdateGridItemBounds,
+                        onUpdateOverlayBounds = onUpdateOverlayBounds,
                         onUpdateImageBitmap = onUpdateImageBitmap,
                         onUpdateGridItemSource = onUpdateGridItemSource,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
@@ -522,7 +522,7 @@ private fun EblanApplicationInfoItem(
     eblanShortcutConfigs: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -580,7 +580,7 @@ private fun EblanApplicationInfoItem(
                     eblanShortcutConfig = eblanShortcutConfig,
                     gridItemSettings = gridItemSettings,
                     onDraggingGridItem = onDraggingGridItem,
-                    onUpdateGridItemBounds = onUpdateGridItemBounds,
+                    onUpdateOverlayBounds = onUpdateOverlayBounds,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
@@ -599,7 +599,7 @@ private fun EblanShortcutConfigItem(
     eblanShortcutConfig: EblanShortcutConfig,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -672,7 +672,7 @@ private fun EblanShortcutConfigItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onUpdateGridItemBounds(
+                            onUpdateOverlayBounds(
                                 intOffset,
                                 intSize,
                             )

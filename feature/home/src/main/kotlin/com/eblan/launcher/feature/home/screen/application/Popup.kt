@@ -80,7 +80,7 @@ internal fun PopupApplicationInfoMenu(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -166,7 +166,7 @@ internal fun PopupApplicationInfoMenu(
 
                     onDismissRequest()
                 },
-                onUpdateGridItemBounds = onUpdateGridItemBounds,
+                onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onWidgets = {
                     onWidgets(
@@ -228,7 +228,7 @@ private fun ApplicationInfoMenu(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -256,7 +256,7 @@ private fun ApplicationInfoMenu(
                         eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                         gridItemSettings = gridItemSettings,
                         onTapShortcutInfo = onTapShortcutInfo,
-                        onUpdateGridItemBounds = onUpdateGridItemBounds,
+                        onUpdateOverlayBounds = onUpdateOverlayBounds,
                         onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                         onUpdateImageBitmap = onUpdateImageBitmap,

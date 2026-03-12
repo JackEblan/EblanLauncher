@@ -117,7 +117,7 @@ internal fun SharedTransitionScope.FolderScreen(
     onDismissRequest: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -212,7 +212,7 @@ internal fun SharedTransitionScope.FolderScreen(
                                     isLongPress = isLongPress,
                                     onDraggingGridItem = onDraggingGridItem,
                                     onOpenAppDrawer = onOpenAppDrawer,
-                                    onUpdateGridItemBounds = onUpdateGridItemBounds,
+                                    onUpdateOverlayBounds = onUpdateOverlayBounds,
                                     onUpdateImageBitmap = onUpdateImageBitmap,
                                     onUpdateGridItemSource = onUpdateGridItemSource,
                                     onUpdateSharedElementKey = onUpdateSharedElementKey,
@@ -304,7 +304,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
     isLongPress: Boolean,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -405,7 +405,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onUpdateGridItemBounds(
+                            onUpdateOverlayBounds(
                                 intOffset,
                                 intSize,
                             )

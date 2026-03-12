@@ -189,7 +189,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -236,7 +236,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
             onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
             onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
-            onUpdateGridItemBounds = onUpdateGridItemBounds,
+            onUpdateOverlayBounds = onUpdateOverlayBounds,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onVerticalDrag = onVerticalDrag,
             onUpdateImageBitmap = onUpdateImageBitmap,
@@ -280,7 +280,7 @@ private fun SharedTransitionScope.Success(
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -462,8 +462,8 @@ private fun SharedTransitionScope.Success(
                     onDragEnd = onDragEnd,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
-                    onUpdateGridItemBounds = { intOffset, intSize ->
-                        onUpdateGridItemBounds(intOffset, intSize)
+                    onUpdateOverlayBounds = { intOffset, intSize ->
+                        onUpdateOverlayBounds(intOffset, intSize)
 
                         popupIntOffset = intOffset
 
@@ -499,8 +499,8 @@ private fun SharedTransitionScope.Success(
                 onDragEnd = onDragEnd,
                 onDraggingGridItem = onDraggingGridItem,
                 onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
-                onUpdateGridItemBounds = { intOffset, intSize ->
-                    onUpdateGridItemBounds(intOffset, intSize)
+                onUpdateOverlayBounds = { intOffset, intSize ->
+                    onUpdateOverlayBounds(intOffset, intSize)
 
                     popupIntOffset = intOffset
 
@@ -560,7 +560,7 @@ private fun SharedTransitionScope.Success(
                     )
                 }
             },
-            onUpdateGridItemBounds = onUpdateGridItemBounds,
+            onUpdateOverlayBounds = onUpdateOverlayBounds,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onWidgets = { newEblanApplicationInfoGroup ->
                 eblanApplicationInfoGroup = newEblanApplicationInfoGroup
@@ -588,7 +588,7 @@ private fun SharedTransitionScope.Success(
                 eblanApplicationInfoGroup = null
             },
             onDraggingGridItem = onDraggingGridItem,
-            onUpdateGridItemBounds = onUpdateGridItemBounds,
+            onUpdateOverlayBounds = onUpdateOverlayBounds,
             onUpdateImageBitmap = onUpdateImageBitmap,
             onUpdateGridItemSource = onUpdateGridItemSource,
             onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
@@ -633,7 +633,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     onDragEnd: (Float) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -711,7 +711,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 paddingValues = paddingValues,
                 onDragEnd = onDragEnd,
                 onDraggingGridItem = onDraggingGridItem,
-                onUpdateGridItemBounds = onUpdateGridItemBounds,
+                onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onUpdatePopupMenu = onUpdatePopupMenu,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onVerticalDrag = onVerticalDrag,
@@ -817,7 +817,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     paddingValues: PaddingValues,
     onDragEnd: (Float) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -896,7 +896,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 iconPackFilePaths = iconPackFilePaths,
                                 paddingValues = paddingValues,
                                 onDraggingGridItem = onDraggingGridItem,
-                                onUpdateGridItemBounds = onUpdateGridItemBounds,
+                                onUpdateOverlayBounds = onUpdateOverlayBounds,
                                 onUpdatePopupMenu = onUpdatePopupMenu,
                                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                                 onUpdateImageBitmap = onUpdateImageBitmap,
@@ -916,7 +916,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                         paddingValues = paddingValues,
                         privateEblanApplicationInfos = getEblanApplicationInfosByLabel.privateEblanApplicationInfos,
                         privateEblanUser = getEblanApplicationInfosByLabel.privateEblanUser,
-                        onUpdateGridItemBounds = onUpdateGridItemBounds,
+                        onUpdateOverlayBounds = onUpdateOverlayBounds,
                         onUpdateIsQuietModeEnabled = { newIsQuiteModeEnabled ->
                             isQuietModeEnabled = newIsQuiteModeEnabled
                         },
@@ -937,7 +937,7 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 iconPackFilePaths = iconPackFilePaths,
                                 paddingValues = paddingValues,
                                 onDraggingGridItem = onDraggingGridItem,
-                                onUpdateGridItemBounds = onUpdateGridItemBounds,
+                                onUpdateOverlayBounds = onUpdateOverlayBounds,
                                 onUpdatePopupMenu = onUpdatePopupMenu,
                                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                                 onUpdateImageBitmap = onUpdateImageBitmap,
@@ -977,7 +977,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     iconPackFilePaths: Map<String, String>,
     paddingValues: PaddingValues,
     onDraggingGridItem: (List<GridItem>) -> Unit,
-    onUpdateGridItemBounds: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -1074,7 +1074,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                         scope.launch {
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onUpdateGridItemBounds(
+                            onUpdateOverlayBounds(
                                 intOffset,
                                 intSize,
                             )

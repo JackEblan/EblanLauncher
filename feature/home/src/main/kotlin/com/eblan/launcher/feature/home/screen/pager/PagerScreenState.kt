@@ -1043,7 +1043,7 @@ internal class PagerScreenState(
         onDraggingGridItem(gridItems)
     }
 
-    fun closeAppDrawer() {
+    fun dismissApplicationScreen() {
         scope.launch {
             swipeY.animateTo(
                 targetValue = screenHeight.toFloat(),

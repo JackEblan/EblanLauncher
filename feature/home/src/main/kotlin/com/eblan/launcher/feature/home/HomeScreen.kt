@@ -251,6 +251,7 @@ internal fun HomeScreen(
     onSettings: () -> Unit,
     onShowFolderWhenDragging: (
         id: String,
+        conflictingGridItem: GridItem,
         movingGridItem: GridItem,
     ) -> Unit,
     onShowGridCache: (List<GridItem>) -> Unit,
@@ -432,6 +433,7 @@ private fun Success(
     onSettings: () -> Unit,
     onShowFolderWhenDragging: (
         id: String,
+        conflictingGridItem: GridItem,
         movingGridItem: GridItem,
     ) -> Unit,
     onShowGridCache: (List<GridItem>) -> Unit,

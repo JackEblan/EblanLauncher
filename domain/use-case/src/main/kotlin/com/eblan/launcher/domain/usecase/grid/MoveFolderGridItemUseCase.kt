@@ -59,7 +59,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
             val movingIndex =
                 currentApplicationInfoGridItems.indexOfFirst { it.id == movingApplicationInfoGridItem.id }
 
-            val applicationInfoGridItem = if (movingIndex >= 0) {
+            val applicationInfoGridItem = if (movingIndex != -1) {
                 currentApplicationInfoGridItems.removeAt(movingIndex)
             } else {
                 movingApplicationInfoGridItem

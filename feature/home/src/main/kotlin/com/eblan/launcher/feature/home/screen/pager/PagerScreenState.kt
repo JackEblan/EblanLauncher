@@ -162,7 +162,11 @@ internal class PagerScreenState(
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
-    private val onShowFolderWhenDragging: (id: String, movingGridItem: GridItem) -> Unit,
+    private val onShowFolderWhenDragging: (
+        id: String,
+        conflictingGridItem: GridItem,
+        movingGridItem: GridItem,
+    ) -> Unit,
     private val onUpdateFolderGridItemId: (String?) -> Unit,
     private val onDraggingGridItem: (List<GridItem>) -> Unit,
 ) {
@@ -1093,8 +1097,7 @@ internal class PagerScreenState(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
             when (pinItemRequest.requestType) {
                 PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
-                    val appWidgetProviderInfo =
-                        pinItemRequest.getAppWidgetProviderInfo(context)
+                    val appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(context)
 
                     if (appWidgetProviderInfo != null) {
                         val componentName = appWidgetProviderInfo.provider.flattenToString()
@@ -1235,7 +1238,11 @@ internal class PagerScreenState(
             onDragEndAfterMove: (MoveGridItemResult) -> Unit,
             onDragEndAfterMoveFolder: () -> Unit,
             onDeleteWidgetGridItemCache: (gridItem: GridItem, appWidgetId: Int) -> Unit,
-            onShowFolderWhenDragging: (id: String, movingGridItem: GridItem) -> Unit,
+            onShowFolderWhenDragging: (
+                id: String,
+                conflictingGridItem: GridItem,
+                movingGridItem: GridItem,
+            ) -> Unit,
             onUpdateFolderGridItemId: (String?) -> Unit,
             onDraggingGridItem: (List<GridItem>) -> Unit,
         ): Saver<PagerScreenState, *> = listSaver(
@@ -1335,7 +1342,11 @@ internal fun rememberPagerScreenState(
         lockMovement: Boolean,
     ) -> Unit,
     onResetPinGridItem: () -> Unit,
-    onShowFolderWhenDragging: (id: String, movingGridItem: GridItem) -> Unit,
+    onShowFolderWhenDragging: (
+        id: String,
+        conflictingGridItem: GridItem,
+        movingGridItem: GridItem,
+    ) -> Unit,
     onUpdateFolderGridItemId: (String?) -> Unit,
 ): PagerScreenState {
     val scope = rememberCoroutineScope()

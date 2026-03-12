@@ -207,6 +207,7 @@ internal fun PagerScreen(
     onSettings: () -> Unit,
     onShowFolderWhenDragging: (
         id: String,
+        conflictingGridItem: GridItem,
         movingGridItem: GridItem,
     ) -> Unit,
     onStartSyncData: () -> Unit,

@@ -653,10 +653,6 @@ internal class HomeViewModel @Inject constructor(
             _isCache.update {
                 false
             }
-
-            _moveGridItemResult.update {
-                null
-            }
         }
     }
 
@@ -680,16 +676,21 @@ internal class HomeViewModel @Inject constructor(
 
     fun showFolderWhenDragging(
         id: String,
+        conflictingGridItem: GridItem,
         movingGridItem: GridItem,
     ) {
         viewModelScope.launch {
             showFolderWhenDraggingUseCase(
-                id = id,
+                conflictingGridItem = conflictingGridItem,
                 movingGridItem = movingGridItem,
             )
 
             _folderGridItemId.update {
                 id
+            }
+
+            _moveGridItemResult.update {
+                null
             }
         }
     }

@@ -586,6 +586,7 @@ internal suspend fun handleConflictingGridItem(
     screenWidth: Int,
     onShowFolderWhenDragging: (
         id: String,
+        conflictingGridItem: GridItem,
         movingGridItem: GridItem,
     ) -> Unit,
     onUpdateFolderPopupBounds: (
@@ -688,6 +689,7 @@ internal suspend fun handleConflictingGridItem(
 
     onShowFolderWhenDragging(
         conflictingData.id,
+        conflictingGridItem,
         moveGridItemResult.movingGridItem,
     )
 

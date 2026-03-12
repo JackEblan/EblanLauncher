@@ -33,84 +33,77 @@ class ShowFolderWhenDraggingUseCase @Inject constructor(
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
-        id: String,
+        conflictingGridItem: GridItem,
         movingGridItem: GridItem,
     ) {
         withContext(defaultDispatcher) {
-            val conflictingGridItem =
-                gridCacheRepository.gridItemsCache.first().firstOrNull { gridItem ->
-                    gridItem.id == id
-                }
+            val conflictingData =
+                conflictingGridItem.data as? GridItemData.Folder
+                    ?: error("Expected GridItemData.Folder")
 
-            if (conflictingGridItem != null) {
-                val conflictingData =
-                    conflictingGridItem.data as? GridItemData.Folder
-                        ?: error("Expected GridItemData.Folder")
+            val movingData =
+                movingGridItem.data as? GridItemData.ApplicationInfo
+                    ?: error("Expected GridItemData.Application")
 
-                val movingData =
-                    movingGridItem.data as? GridItemData.ApplicationInfo
-                        ?: error("Expected GridItemData.Application")
+            val currentApplicationInfoGridItems = conflictingData.gridItems.toMutableList()
 
-                val currentApplicationInfoGridItems = conflictingData.gridItems.toMutableList()
-
-                val index = currentApplicationInfoGridItems.indexOfFirst { gridItem ->
-                    gridItem.id == movingGridItem.id
-                }
-
-                val applicationInfoGridItem = ApplicationInfoGridItem(
-                    id = movingGridItem.id,
-                    page = movingGridItem.page,
-                    startColumn = movingGridItem.startColumn,
-                    startRow = movingGridItem.startRow,
-                    columnSpan = movingGridItem.columnSpan,
-                    rowSpan = movingGridItem.rowSpan,
-                    associate = movingGridItem.associate,
-                    componentName = movingData.componentName,
-                    packageName = movingData.packageName,
-                    icon = movingData.icon,
-                    label = movingData.label,
-                    override = movingGridItem.override,
-                    serialNumber = movingData.serialNumber,
-                    customIcon = movingData.customIcon,
-                    customLabel = movingData.customLabel,
-                    gridItemSettings = movingGridItem.gridItemSettings,
-                    doubleTap = movingGridItem.doubleTap,
-                    swipeUp = movingGridItem.swipeUp,
-                    swipeDown = movingGridItem.swipeDown,
-                    index = conflictingData.gridItems.lastIndex + 1,
-                    folderId = conflictingData.id,
-                )
-
-                if (index != -1) {
-                    currentApplicationInfoGridItems[index] = applicationInfoGridItem
-                } else {
-                    currentApplicationInfoGridItems.add(applicationInfoGridItem)
-                }
-
-                val gridItems = currentApplicationInfoGridItems.mapIndexed { index, gridItem ->
-                    gridItem.copy(index = index)
-                }
-
-                val gridItemsByPage = gridItems.getGridItemsByPage()
-
-                val firstPageGridItems = gridItemsByPage[0] ?: emptyList()
-
-                val (columns, rows) = getGridDimension(count = firstPageGridItems.size)
-
-                val newData = conflictingData.copy(
-                    gridItems = gridItems,
-                    gridItemsByPage = gridItemsByPage,
-                    columns = columns,
-                    rows = rows,
-                )
-
-                gridCacheRepository.deleteGridItem(gridItem = movingGridItem)
-
-                gridCacheRepository.updateGridItemData(
-                    id = id,
-                    data = newData,
-                )
+            val index = currentApplicationInfoGridItems.indexOfFirst { gridItem ->
+                gridItem.id == movingGridItem.id
             }
+
+            val applicationInfoGridItem = ApplicationInfoGridItem(
+                id = movingGridItem.id,
+                page = movingGridItem.page,
+                startColumn = movingGridItem.startColumn,
+                startRow = movingGridItem.startRow,
+                columnSpan = movingGridItem.columnSpan,
+                rowSpan = movingGridItem.rowSpan,
+                associate = movingGridItem.associate,
+                componentName = movingData.componentName,
+                packageName = movingData.packageName,
+                icon = movingData.icon,
+                label = movingData.label,
+                override = movingGridItem.override,
+                serialNumber = movingData.serialNumber,
+                customIcon = movingData.customIcon,
+                customLabel = movingData.customLabel,
+                gridItemSettings = movingGridItem.gridItemSettings,
+                doubleTap = movingGridItem.doubleTap,
+                swipeUp = movingGridItem.swipeUp,
+                swipeDown = movingGridItem.swipeDown,
+                index = conflictingData.gridItems.lastIndex + 1,
+                folderId = conflictingData.id,
+            )
+
+            if (index != -1) {
+                currentApplicationInfoGridItems[index] = applicationInfoGridItem
+            } else {
+                currentApplicationInfoGridItems.add(applicationInfoGridItem)
+            }
+
+            val gridItems = currentApplicationInfoGridItems.mapIndexed { index, gridItem ->
+                gridItem.copy(index = index)
+            }
+
+            val gridItemsByPage = gridItems.getGridItemsByPage()
+
+            val firstPageGridItems = gridItemsByPage[0] ?: emptyList()
+
+            val (columns, rows) = getGridDimension(count = firstPageGridItems.size)
+
+            val newData = conflictingData.copy(
+                gridItems = gridItems,
+                gridItemsByPage = gridItemsByPage,
+                columns = columns,
+                rows = rows,
+            )
+
+            gridCacheRepository.deleteGridItem(gridItem = movingGridItem)
+
+            gridCacheRepository.updateGridItemData(
+                id = conflictingGridItem.id,
+                data = newData,
+            )
         }
     }
 }

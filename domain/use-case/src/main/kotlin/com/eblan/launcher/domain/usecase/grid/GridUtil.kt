@@ -30,7 +30,9 @@ private const val MAX_COLUMNS = 5
 private const val MAX_ROWS = 4
 
 internal fun FolderGridItemWrapper.asGridItem(): GridItem {
-    val gridItemsByPage = applicationInfoGridItems.getGridItemsByPage()
+    val sortedApplicationInfoGridItems = applicationInfoGridItems.sortedBy { it.index }
+
+    val gridItemsByPage = sortedApplicationInfoGridItems.getGridItemsByPage()
 
     val firstPageGridItems = gridItemsByPage[0] ?: emptyList()
 
@@ -39,7 +41,7 @@ internal fun FolderGridItemWrapper.asGridItem(): GridItem {
     val data = Folder(
         id = folderGridItem.id,
         label = folderGridItem.label,
-        gridItems = applicationInfoGridItems,
+        gridItems = sortedApplicationInfoGridItems,
         gridItemsByPage = gridItemsByPage,
         previewGridItemsByPage = gridItemsByPage.values.firstOrNull() ?: emptyList(),
         icon = folderGridItem.icon,
@@ -64,8 +66,7 @@ internal fun FolderGridItemWrapper.asGridItem(): GridItem {
     )
 }
 
-internal fun List<ApplicationInfoGridItem>.getGridItemsByPage(): Map<Int, List<ApplicationInfoGridItem>> = sortedBy { it.index }
-    .chunked(MAX_COLUMNS * MAX_ROWS)
+internal fun List<ApplicationInfoGridItem>.getGridItemsByPage(): Map<Int, List<ApplicationInfoGridItem>> = chunked(MAX_COLUMNS * MAX_ROWS)
     .mapIndexed { pageIndex, pageItems -> pageIndex to pageItems }
     .toMap()
 

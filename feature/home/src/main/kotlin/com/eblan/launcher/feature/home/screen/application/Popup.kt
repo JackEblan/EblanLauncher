@@ -80,14 +80,14 @@ internal fun PopupApplicationInfoMenu(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onWidgets: (EblanApplicationInfoGroup) -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val applicationInfo = gridItem?.data as? GridItemData.ApplicationInfo ?: return
 
@@ -166,6 +166,8 @@ internal fun PopupApplicationInfoMenu(
 
                     onDismissRequest()
                 },
+                onUpdateGridItemSource = onUpdateGridItemSource,
+                onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onWidgets = {
@@ -180,8 +182,6 @@ internal fun PopupApplicationInfoMenu(
 
                     onDismissRequest()
                 },
-                onUpdateImageBitmap = onUpdateImageBitmap,
-                onUpdateGridItemSource = onUpdateGridItemSource,
             )
         },
     ) { measurables, constraints ->
@@ -228,14 +228,14 @@ private fun ApplicationInfoMenu(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onWidgets: () -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     Surface(
         modifier = modifier.padding(5.dp),
@@ -252,15 +252,15 @@ private fun ApplicationInfoMenu(
                         modifier = modifier,
                         currentPage = currentPage,
                         drag = drag,
-                        icon = icon,
                         eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                         gridItemSettings = gridItemSettings,
-                        onTapShortcutInfo = onTapShortcutInfo,
-                        onUpdateOverlayBounds = onUpdateOverlayBounds,
+                        icon = icon,
                         onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
-                        onUpdateSharedElementKey = onUpdateSharedElementKey,
-                        onUpdateImageBitmap = onUpdateImageBitmap,
+                        onTapShortcutInfo = onTapShortcutInfo,
                         onUpdateGridItemSource = onUpdateGridItemSource,
+                        onUpdateImageBitmap = onUpdateImageBitmap,
+                        onUpdateOverlayBounds = onUpdateOverlayBounds,
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
 
                     Spacer(modifier = Modifier.height(5.dp))

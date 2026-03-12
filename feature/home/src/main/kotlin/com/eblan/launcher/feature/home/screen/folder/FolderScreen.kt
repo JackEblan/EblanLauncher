@@ -104,27 +104,27 @@ internal fun SharedTransitionScope.FolderScreen(
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
     gridItemSettings: GridItemSettings,
+    gridItemSource: GridItemSource?,
     homeSettings: HomeSettings,
     iconPackFilePaths: Map<String, String>,
+    isLongPress: Boolean,
     paddingValues: PaddingValues,
+    safeDrawingHeight: Int,
+    safeDrawingWidth: Int,
     statusBarNotifications: Map<String, Int>,
     textColor: TextColor,
-    gridItemSource: GridItemSource?,
-    isLongPress: Boolean,
-    safeDrawingWidth: Int,
-    safeDrawingHeight: Int,
     onDismissRequest: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
-    onUpdateIsLongPress: (Boolean) -> Unit,
     onUpdateShowFolderGridItemPopup: (Boolean) -> Unit,
 ) {
     val data = folderGridItem.data as? GridItemData.Folder ?: return
@@ -195,28 +195,28 @@ internal fun SharedTransitionScope.FolderScreen(
                     ) { index ->
                         FolderGridLayout(
                             modifier = Modifier.fillMaxSize(),
-                            gridItems = data.gridItemsByPage[index],
                             columns = data.columns,
+                            gridItems = data.gridItemsByPage[index],
                             rows = data.rows,
                             { applicationInfoGridItem ->
                                 FolderGridItemContent(
                                     drag = drag,
+                                    folderGridItem = folderGridItem,
                                     gridItem = applicationInfoGridItem,
                                     gridItemSettings = gridItemSettings,
+                                    gridItemSource = gridItemSource,
                                     iconPackFilePaths = iconPackFilePaths,
+                                    isLongPress = isLongPress,
                                     statusBarNotifications = statusBarNotifications,
                                     textColor = textColor,
-                                    folderGridItem = folderGridItem,
-                                    gridItemSource = gridItemSource,
-                                    isLongPress = isLongPress,
                                     onDraggingGridItem = onDraggingGridItem,
                                     onOpenAppDrawer = onOpenAppDrawer,
-                                    onUpdateOverlayBounds = onUpdateOverlayBounds,
-                                    onUpdateImageBitmap = onUpdateImageBitmap,
                                     onUpdateGridItemSource = onUpdateGridItemSource,
-                                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                    onUpdateImageBitmap = onUpdateImageBitmap,
                                     onUpdateIsDragging = onUpdateIsDragging,
                                     onUpdateIsLongPress = onUpdateIsLongPress,
+                                    onUpdateOverlayBounds = onUpdateOverlayBounds,
+                                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                                     onUpdateShowFolderGridItemPopup = onUpdateShowFolderGridItemPopup,
                                 )
                             },
@@ -261,13 +261,13 @@ internal fun FolderTitle(
 
             PageIndicator(
                 modifier = Modifier.height(PAGE_INDICATOR_HEIGHT),
-                gridHorizontalPagerState = folderGridHorizontalPagerState,
-                infiniteScroll = false,
-                pageCount = data.gridItemsByPage.size,
                 color = getSystemTextColor(
                     systemCustomTextColor = homeSettings.gridItemSettings.customTextColor,
                     systemTextColor = textColor,
                 ),
+                gridHorizontalPagerState = folderGridHorizontalPagerState,
+                infiniteScroll = false,
+                pageCount = data.gridItemsByPage.size,
             )
         }
     } else {
@@ -293,25 +293,25 @@ internal fun FolderTitle(
 private fun SharedTransitionScope.FolderGridItemContent(
     modifier: Modifier = Modifier,
     drag: Drag,
+    folderGridItem: GridItem,
     gridItem: ApplicationInfoGridItem,
     gridItemSettings: GridItemSettings,
+    gridItemSource: GridItemSource?,
     iconPackFilePaths: Map<String, String>,
+    isLongPress: Boolean,
     statusBarNotifications: Map<String, Int>,
     textColor: TextColor,
-    folderGridItem: GridItem,
-    gridItemSource: GridItemSource?,
-    isLongPress: Boolean,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateIsDragging: (Boolean) -> Unit,
-    onUpdateIsLongPress: (Boolean) -> Unit,
     onUpdateShowFolderGridItemPopup: (Boolean) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
@@ -387,9 +387,9 @@ private fun SharedTransitionScope.FolderGridItemContent(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onDoubleTap = onDoubleTap(
+                        context = context,
                         doubleTap = gridItem.doubleTap,
                         launcherApps = launcherApps,
-                        context = context,
                         scope = scope,
                         onOpenAppDrawer = onOpenAppDrawer,
                     ),
@@ -436,8 +436,8 @@ private fun SharedTransitionScope.FolderGridItemContent(
                 )
             }
             .swipeGestures(
-                swipeUp = gridItem.swipeUp,
                 swipeDown = gridItem.swipeDown,
+                swipeUp = gridItem.swipeUp,
                 onOpenAppDrawer = onOpenAppDrawer,
             )
             .fillMaxSize()
@@ -446,10 +446,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
                 color = Color(currentGridItemSettings.customBackgroundColor),
                 shape = RoundedCornerShape(size = currentGridItemSettings.cornerRadius.dp),
             )
-            .whiteBox(
-                visible = isSelected && drag == Drag.Dragging,
-                textColor = currentTextColor,
-            ),
+            .whiteBox(textColor = currentTextColor, visible = isSelected && drag == Drag.Dragging),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {

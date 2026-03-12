@@ -47,13 +47,13 @@ import java.io.File
 internal suspend fun handleDropGridItem(
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     androidAppWidgetManagerWrapper: AndroidAppWidgetManagerWrapper,
-    gridItemSource: GridItemSource?,
     androidLauncherAppsWrapper: AndroidLauncherAppsWrapper,
-    moveGridItemResult: MoveGridItemResult?,
     androidUserManagerWrapper: AndroidUserManagerWrapper,
+    drag: Drag,
+    gridItemSource: GridItemSource?,
     isDragging: Boolean,
     isLongPress: Boolean,
-    drag: Drag,
+    moveGridItemResult: MoveGridItemResult?,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragCancelAfterMove: () -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
@@ -63,9 +63,9 @@ internal suspend fun handleDropGridItem(
     onLaunchWidgetIntent: (Intent) -> Unit,
     onToast: () -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
-    onUpdateWidgetGridItem: (GridItem) -> Unit,
-    onUpdateIsLongPress: (Boolean) -> Unit,
     onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
+    onUpdateWidgetGridItem: (GridItem) -> Unit,
 ) {
     if (drag == Drag.None ||
         drag == Drag.Start ||
@@ -109,10 +109,10 @@ internal suspend fun handleDropGridItem(
 
                     is GridItemData.ShortcutConfig -> {
                         onDragEndShortcutConfig(
-                            data = data,
-                            gridItem = gridItemSource.gridItem,
                             androidLauncherAppsWrapper = androidLauncherAppsWrapper,
                             androidUserManagerWrapper = androidUserManagerWrapper,
+                            data = data,
+                            gridItem = gridItemSource.gridItem,
                             onDeleteGridItemCache = onDeleteGridItemCache,
                             onLaunchShortcutConfigIntent = onLaunchShortcutConfigIntent,
                             onLaunchShortcutConfigIntentSenderRequest = onLaunchShortcutConfigIntentSenderRequest,
@@ -305,8 +305,8 @@ internal fun handleBoundWidget(
 
 @Suppress("DEPRECATION")
 internal suspend fun handleShortcutConfigLauncherResult(
-    gridItemSource: GridItemSource?,
     androidImageSerializer: AndroidImageSerializer,
+    gridItemSource: GridItemSource?,
     moveGridItemResult: MoveGridItemResult?,
     result: ActivityResult,
     onDeleteGridItemCache: (GridItem) -> Unit,
@@ -367,13 +367,13 @@ internal suspend fun handleShortcutConfigLauncherResult(
 
 @Suppress("DEPRECATION")
 internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
-    fileManager: FileManager,
-    gridItemSource: GridItemSource?,
     androidImageSerializer: AndroidImageSerializer,
     androidLauncherAppsWrapper: AndroidLauncherAppsWrapper,
+    androidUserManagerWrapper: AndroidUserManagerWrapper,
+    fileManager: FileManager,
+    gridItemSource: GridItemSource?,
     moveGridItemResult: MoveGridItemResult?,
     result: ActivityResult,
-    androidUserManagerWrapper: AndroidUserManagerWrapper,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
@@ -522,10 +522,10 @@ private fun bindPinWidget(
 }
 
 private suspend fun onDragEndShortcutConfig(
-    data: GridItemData.ShortcutConfig,
-    gridItem: GridItem,
     androidLauncherAppsWrapper: AndroidLauncherAppsWrapper,
     androidUserManagerWrapper: AndroidUserManagerWrapper,
+    data: GridItemData.ShortcutConfig,
+    gridItem: GridItem,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onLaunchShortcutConfigIntent: (Intent) -> Unit,
     onLaunchShortcutConfigIntentSenderRequest: (IntentSenderRequest) -> Unit,

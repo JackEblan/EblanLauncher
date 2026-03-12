@@ -62,11 +62,11 @@ import com.eblan.launcher.ui.local.LocalSettings
 internal fun GridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
-    textColor: TextColor,
     gridItemSettings: GridItemSettings,
-    statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
+    statusBarNotifications: Map<String, Int>,
+    textColor: TextColor,
 ) {
     val currentGridItemSettings = if (gridItem.override) {
         gridItem.gridItemSettings
@@ -93,27 +93,24 @@ internal fun GridItemContent(
             ApplicationInfoGridItem(
                 modifier = modifier,
                 data = data,
-                textColor = currentTextColor,
                 gridItemSettings = currentGridItemSettings,
-                statusBarNotifications = statusBarNotifications,
                 iconPackFilePaths = iconPackFilePaths,
+                statusBarNotifications = statusBarNotifications,
+                textColor = currentTextColor,
             )
         }
 
         is GridItemData.Widget -> {
-            WidgetGridItem(
-                modifier = modifier,
-                data = data,
-            )
+            WidgetGridItem(modifier = modifier, data = data)
         }
 
         is GridItemData.ShortcutInfo -> {
             ShortcutInfoGridItem(
                 modifier = modifier,
                 data = data,
-                textColor = currentTextColor,
                 gridItemSettings = currentGridItemSettings,
                 hasShortcutHostPermission = hasShortcutHostPermission,
+                textColor = currentTextColor,
             )
         }
 
@@ -121,9 +118,9 @@ internal fun GridItemContent(
             FolderGridItem(
                 modifier = modifier,
                 data = data,
-                textColor = currentTextColor,
                 gridItemSettings = currentGridItemSettings,
                 iconPackFilePaths = iconPackFilePaths,
+                textColor = currentTextColor,
             )
         }
 
@@ -131,8 +128,8 @@ internal fun GridItemContent(
             ShortcutConfigGridItem(
                 modifier = modifier,
                 data = data,
-                textColor = currentTextColor,
                 gridItemSettings = currentGridItemSettings,
+                textColor = currentTextColor,
             )
         }
     }
@@ -143,10 +140,10 @@ internal fun GridItemContent(
 private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ApplicationInfo,
-    textColor: Color,
     gridItemSettings: GridItemSettings,
-    statusBarNotifications: Map<String, Int>,
     iconPackFilePaths: Map<String, String>,
+    statusBarNotifications: Map<String, Int>,
+    textColor: Color,
 ) {
     val settings = LocalSettings.current
 
@@ -230,9 +227,9 @@ private fun ApplicationInfoGridItem(
 private fun ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ShortcutInfo,
-    textColor: Color,
     gridItemSettings: GridItemSettings,
     hasShortcutHostPermission: Boolean,
+    textColor: Color,
 ) {
     val horizontalAlignment =
         getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
@@ -297,9 +294,9 @@ private fun ShortcutInfoGridItem(
 private fun FolderGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Folder,
-    textColor: Color,
     gridItemSettings: GridItemSettings,
     iconPackFilePaths: Map<String, String>,
+    textColor: Color,
 ) {
     val horizontalAlignment =
         getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)
@@ -376,10 +373,7 @@ private fun FolderGridItem(
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun WidgetGridItem(
-    modifier: Modifier = Modifier,
-    data: GridItemData.Widget,
-) {
+private fun WidgetGridItem(modifier: Modifier = Modifier, data: GridItemData.Widget) {
     AsyncImage(
         model = data.preview ?: data.icon,
         contentDescription = null,
@@ -392,8 +386,8 @@ private fun WidgetGridItem(
 private fun ShortcutConfigGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ShortcutConfig,
-    textColor: Color,
     gridItemSettings: GridItemSettings,
+    textColor: Color,
 ) {
     val horizontalAlignment =
         getHorizontalAlignment(horizontalAlignment = gridItemSettings.horizontalAlignment)

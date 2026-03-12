@@ -41,10 +41,10 @@ import kotlin.math.abs
 @Composable
 fun PageIndicator(
     modifier: Modifier = Modifier,
+    color: Color,
     gridHorizontalPagerState: PagerState,
     infiniteScroll: Boolean,
     pageCount: Int,
-    color: Color,
 ) {
     val baseWidth = 8.dp
     val baseHeight = 8.dp

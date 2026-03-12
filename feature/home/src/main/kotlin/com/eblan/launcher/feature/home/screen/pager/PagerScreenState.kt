@@ -20,6 +20,8 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.LauncherApps.PinItemRequest
+import android.os.Build
 import android.os.IBinder
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
@@ -69,7 +71,6 @@ import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.ManagedProfileResult
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PinItemRequestType
-import com.eblan.launcher.feature.home.handlePinItemRequest
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
@@ -94,6 +95,7 @@ import com.eblan.launcher.ui.local.LocalWallpaperManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import java.io.File
 import kotlin.math.roundToInt
 
 /**
@@ -277,18 +279,8 @@ internal class PagerScreenState(
 
             dragIntOffset = offset
 
-            val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
-
             scope.launch {
-                handlePinItemRequest(
-                    context = context,
-                    fileManager = fileManager,
-                    imageSerializer = androidImageSerializer,
-                    launcherAppsWrapper = androidLauncherAppsWrapper,
-                    pinItemRequest = pinItemRequest,
-                    userManager = androidUserManagerWrapper,
-                    onGetPinGridItem = onGetPinGridItem,
-                )
+                handlePinItemRequest(pinItemRequest = pinItemRequestWrapper.getPinItemRequest())
             }
         }
 
@@ -377,20 +369,20 @@ internal class PagerScreenState(
         onDraggingGridItem: (List<GridItem>) -> Unit,
     ) {
         handlePinGridItem(
-            pinItemRequestWrapper = pinItemRequestWrapper,
-            pinGridItem = pinGridItem,
             isApplicationScreenVisible = isApplicationScreenVisible,
-            swipeY = swipeY,
+            pinGridItem = pinGridItem,
+            pinItemRequestWrapper = pinItemRequestWrapper,
             screenHeight = screenHeight,
-            onUpdateGridItemSource = { newGridItemSource ->
-                gridItemSource = newGridItemSource
-            },
+            swipeY = swipeY,
             onDraggingGridItem = {
                 isLongPress = true
 
                 isDragging = true
 
                 onDraggingGridItem(gridItems)
+            },
+            onUpdateGridItemSource = { newGridItemSource ->
+                gridItemSource = newGridItemSource
             },
         )
     }
@@ -420,13 +412,13 @@ internal class PagerScreenState(
             folderPopupIntSize = folderPopupIntSize,
             folderTitleHeightPx = folderTitleHeightPx,
             gridItemSource = gridItemSource,
+            isDragging = isDragging,
             isScrollInProgress = isScrollInProgress,
             lockMovement = lockMovement,
             paddingValues = paddingValues,
             rows = homeSettings.rows,
             screenHeight = screenHeight,
             screenWidth = screenWidth,
-            isDragging = isDragging,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
             onMoveGridItem = onMoveGridItem,
@@ -453,13 +445,13 @@ internal class PagerScreenState(
         handleDropGridItem(
             androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
             androidAppWidgetManagerWrapper = androidAppWidgetManagerWrapper,
-            gridItemSource = gridItemSource,
             androidLauncherAppsWrapper = androidLauncherAppsWrapper,
-            moveGridItemResult = moveGridItemResult,
             androidUserManagerWrapper = androidUserManagerWrapper,
+            drag = drag,
+            gridItemSource = gridItemSource,
             isDragging = isDragging,
             isLongPress = isLongPress,
-            drag = drag,
+            moveGridItemResult = moveGridItemResult,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDragCancelAfterMove = onDragCancelAfterMove,
             onDragEndAfterMove = onDragEndAfterMove,
@@ -477,14 +469,14 @@ internal class PagerScreenState(
             onUpdateAppWidgetId = { appWidgetId ->
                 lastAppWidgetId = appWidgetId
             },
-            onUpdateWidgetGridItem = { gridItem ->
-                updatedWidgetGridItem = gridItem
-            },
             onUpdateIsDragging = { newIsDragging ->
                 isDragging = newIsDragging
             },
             onUpdateIsLongPress = { newIsLongPress ->
                 isLongPress = newIsLongPress
+            },
+            onUpdateWidgetGridItem = { gridItem ->
+                updatedWidgetGridItem = gridItem
             },
         )
     }
@@ -515,19 +507,13 @@ internal class PagerScreenState(
             dockHeight = dockHeight,
             drag = drag,
             gridItemSource = gridItemSource,
+            isDragging = isDragging,
             moveGridItemResult = moveGridItemResult,
             paddingValues = paddingValues,
             rows = homeSettings.rows,
             screenHeight = screenHeight,
             screenWidth = screenWidth,
-            isDragging = isDragging,
             onShowFolderWhenDragging = onShowFolderWhenDragging,
-            onUpdateGridItemSource = { newGridItemSource ->
-                gridItemSource = newGridItemSource
-            },
-            onUpdateSharedElementKey = { newSharedElementKey ->
-                sharedElementKey = newSharedElementKey
-            },
             onUpdateFolderPopupBounds = { intOffset, intSize ->
                 lastFolderPopupX = intOffset.x
                 lastFolderPopupY = intOffset.y
@@ -538,6 +524,12 @@ internal class PagerScreenState(
                 folderPopupIntOffset = intOffset
 
                 folderPopupIntSize = intSize
+            },
+            onUpdateGridItemSource = { newGridItemSource ->
+                gridItemSource = newGridItemSource
+            },
+            onUpdateSharedElementKey = { newSharedElementKey ->
+                sharedElementKey = newSharedElementKey
             },
         )
     }
@@ -556,9 +548,9 @@ internal class PagerScreenState(
             folderPopupIntOffset = folderPopupIntOffset,
             folderPopupIntSize = folderPopupIntSize,
             gridItemSource = gridItemSource,
+            isDragging = isDragging,
             paddingValues = paddingValues,
             screenWidth = screenWidth,
-            isDragging = isDragging,
             onUpdateDockPageDirection = { pageDirection ->
                 dockPageDirection = pageDirection
             },
@@ -573,10 +565,10 @@ internal class PagerScreenState(
 
     internal suspend fun handleHasDoubleTap() {
         handleHasDoubleTap(
+            androidLauncherAppsWrapper = androidLauncherAppsWrapper,
             context = context,
             gestureSettings = gestureSettings,
             hasDoubleTap = hasDoubleTap,
-            androidLauncherAppsWrapper = androidLauncherAppsWrapper,
             onOpenAppDrawer = {
                 swipeY.animateTo(
                     targetValue = 0f,
@@ -796,10 +788,10 @@ internal class PagerScreenState(
     }
 
     internal suspend fun handleHasDoubleTap(
+        androidLauncherAppsWrapper: AndroidLauncherAppsWrapper,
         context: Context,
         gestureSettings: GestureSettings,
         hasDoubleTap: Boolean,
-        androidLauncherAppsWrapper: AndroidLauncherAppsWrapper,
         onOpenAppDrawer: suspend () -> Unit,
     ) {
         if (!hasDoubleTap) return
@@ -813,13 +805,13 @@ internal class PagerScreenState(
     }
 
     internal suspend fun handlePinGridItem(
-        pinItemRequestWrapper: PinItemRequestWrapper,
-        pinGridItem: GridItem?,
         isApplicationScreenVisible: Boolean,
-        swipeY: Animatable<Float, AnimationVector1D>,
+        pinGridItem: GridItem?,
+        pinItemRequestWrapper: PinItemRequestWrapper,
         screenHeight: Int,
-        onUpdateGridItemSource: (GridItemSource) -> Unit,
+        swipeY: Animatable<Float, AnimationVector1D>,
         onDraggingGridItem: () -> Unit,
+        onUpdateGridItemSource: (GridItemSource) -> Unit,
     ) {
         if (pinGridItem == null) return
 
@@ -865,11 +857,11 @@ internal class PagerScreenState(
     }
 
     internal fun tapFolderGridItem(
+        height: Int,
         id: String?,
+        width: Int,
         x: Int,
         y: Int,
-        width: Int,
-        height: Int,
     ) {
         onUpdateFolderGridItemId(id)
 
@@ -1097,6 +1089,125 @@ internal class PagerScreenState(
         isPressHome = false
     }
 
+    internal suspend fun handlePinItemRequest(pinItemRequest: PinItemRequest?) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
+            when (pinItemRequest.requestType) {
+                PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
+                    val appWidgetProviderInfo =
+                        pinItemRequest.getAppWidgetProviderInfo(context)
+
+                    if (appWidgetProviderInfo != null) {
+                        val componentName = appWidgetProviderInfo.provider.flattenToString()
+
+                        val preview =
+                            appWidgetProviderInfo.loadPreviewImage(context, 0)?.let { drawable ->
+                                val directory =
+                                    fileManager.getFilesDirectory(FileManager.WIDGETS_DIR)
+
+                                val file = File(
+                                    directory,
+                                    fileManager.getHashedFileName(name = componentName),
+                                )
+
+                                androidImageSerializer.createDrawablePath(
+                                    drawable = drawable,
+                                    file = file,
+                                )
+
+                                file.absolutePath
+                            }
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            onGetPinGridItem(
+                                PinItemRequestType.Widget(
+                                    appWidgetId = 0,
+                                    componentName = componentName,
+                                    packageName = appWidgetProviderInfo.provider.packageName,
+                                    serialNumber = androidUserManagerWrapper.getSerialNumberForUser(
+                                        userHandle = appWidgetProviderInfo.profile,
+                                    ),
+                                    configure = appWidgetProviderInfo.configure.flattenToString(),
+                                    minWidth = appWidgetProviderInfo.minWidth,
+                                    minHeight = appWidgetProviderInfo.minHeight,
+                                    resizeMode = appWidgetProviderInfo.resizeMode,
+                                    minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                                    minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                                    maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
+                                    maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
+                                    targetCellHeight = appWidgetProviderInfo.targetCellHeight,
+                                    targetCellWidth = appWidgetProviderInfo.targetCellWidth,
+                                    preview = preview,
+                                ),
+                            )
+                        } else {
+                            onGetPinGridItem(
+                                PinItemRequestType.Widget(
+                                    appWidgetId = 0,
+                                    componentName = appWidgetProviderInfo.provider.flattenToString(),
+                                    packageName = appWidgetProviderInfo.provider.packageName,
+                                    serialNumber = androidUserManagerWrapper.getSerialNumberForUser(
+                                        userHandle = appWidgetProviderInfo.profile,
+                                    ),
+                                    configure = appWidgetProviderInfo.configure.flattenToString(),
+                                    minWidth = appWidgetProviderInfo.minWidth,
+                                    minHeight = appWidgetProviderInfo.minHeight,
+                                    resizeMode = appWidgetProviderInfo.resizeMode,
+                                    minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                                    minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                                    maxResizeWidth = 0,
+                                    maxResizeHeight = 0,
+                                    targetCellHeight = 0,
+                                    targetCellWidth = 0,
+                                    preview = preview,
+                                ),
+                            )
+                        }
+                    }
+                }
+
+                PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
+                    val shortcutInfo = pinItemRequest.shortcutInfo
+
+                    if (shortcutInfo != null) {
+                        val icon = androidLauncherAppsWrapper.getShortcutIconDrawable(
+                            shortcutInfo = shortcutInfo,
+                            density = 0,
+                        )?.let { drawable ->
+                            val directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR)
+
+                            val file = File(
+                                directory,
+                                fileManager.getHashedFileName(name = shortcutInfo.id),
+                            )
+
+                            androidImageSerializer.createDrawablePath(
+                                drawable = drawable,
+                                file = file,
+                            )
+
+                            file.absolutePath
+                        }
+
+                        onGetPinGridItem(
+                            PinItemRequestType.ShortcutInfo(
+                                serialNumber = androidUserManagerWrapper.getSerialNumberForUser(
+                                    userHandle = shortcutInfo.userHandle,
+                                ),
+                                shortcutId = shortcutInfo.id,
+                                packageName = shortcutInfo.`package`,
+                                shortLabel = shortcutInfo.shortLabel.toString(),
+                                longLabel = shortcutInfo.longLabel.toString(),
+                                isEnabled = shortcutInfo.isEnabled,
+                                disabledMessage = shortcutInfo.disabledMessage?.toString(),
+                                icon = icon,
+                            ),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     companion object {
         fun Saver(
             screenWidth: Int,
@@ -1182,23 +1293,50 @@ internal class PagerScreenState(
 
 @Composable
 internal fun rememberPagerScreenState(
-    screenWidth: Int,
-    screenHeight: Int,
     gestureSettings: GestureSettings,
     homeSettings: HomeSettings,
-    onGetPinGridItem: (PinItemRequestType) -> Unit,
-    onResetPinGridItem: () -> Unit,
-    onMoveFolderGridItem: (GridItem, List<ApplicationInfoGridItem>, ApplicationInfoGridItem, Int, Int, Int, Int, Int, Int, Int) -> Unit,
-    onMoveFolderGridItemOutsideFolder: (GridItem, ApplicationInfoGridItem, List<ApplicationInfoGridItem>) -> Unit,
-    onMoveGridItem: (GridItem, Int, Int, Int, Int, Int, Int, Boolean) -> Unit,
+    screenHeight: Int,
+    screenWidth: Int,
     onDeleteGridItemCache: (GridItem) -> Unit,
+    onDeleteWidgetGridItemCache: (
+        gridItem: GridItem,
+        appWidgetId: Int,
+    ) -> Unit,
     onDragCancelAfterMove: () -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
     onDragEndAfterMoveFolder: () -> Unit,
-    onDeleteWidgetGridItemCache: (GridItem, Int) -> Unit,
-    onShowFolderWhenDragging: (String, GridItem) -> Unit,
-    onUpdateFolderGridItemId: (String?) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
+    onGetPinGridItem: (PinItemRequestType) -> Unit,
+    onMoveFolderGridItem: (
+        folderGridItem: GridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        dragX: Int,
+        dragY: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        currentPage: Int,
+    ) -> Unit,
+    onMoveFolderGridItemOutsideFolder: (
+        folderGridItem: GridItem,
+        movingApplicationInfoGridItem: ApplicationInfoGridItem,
+        applicationInfoGridItems: List<ApplicationInfoGridItem>,
+    ) -> Unit,
+    onMoveGridItem: (
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        columns: Int,
+        rows: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        lockMovement: Boolean,
+    ) -> Unit,
+    onResetPinGridItem: () -> Unit,
+    onShowFolderWhenDragging: (id: String, movingGridItem: GridItem) -> Unit,
+    onUpdateFolderGridItemId: (String?) -> Unit,
 ): PagerScreenState {
     val scope = rememberCoroutineScope()
 

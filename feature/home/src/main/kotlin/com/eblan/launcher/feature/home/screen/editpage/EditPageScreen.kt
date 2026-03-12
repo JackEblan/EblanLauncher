@@ -73,11 +73,11 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun EditPageScreen(
     modifier: Modifier = Modifier,
+    editPageData: EditPageData?,
     hasShortcutHostPermission: Boolean,
     homeSettings: HomeSettings,
     iconPackFilePaths: Map<String, String>,
     paddingValues: PaddingValues,
-    editPageData: EditPageData?,
     screenHeight: Int,
     textColor: TextColor,
     onSaveEditPage: (
@@ -211,17 +211,17 @@ internal fun EditPageScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(cardHeight),
-                            gridItems = pageItem.gridItems,
                             columns = columns,
+                            gridItems = pageItem.gridItems,
                             rows = rows,
                             content = { gridItem ->
                                 GridItemContent(
                                     gridItem = gridItem,
-                                    textColor = textColor,
                                     gridItemSettings = homeSettings.gridItemSettings,
-                                    statusBarNotifications = emptyMap(),
                                     hasShortcutHostPermission = hasShortcutHostPermission,
                                     iconPackFilePaths = iconPackFilePaths,
+                                    statusBarNotifications = emptyMap(),
+                                    textColor = textColor,
                                 )
                             },
                         )

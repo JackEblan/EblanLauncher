@@ -66,22 +66,22 @@ internal fun ShortcutInfoMenu(
     modifier: Modifier = Modifier,
     currentPage: Int,
     drag: Drag,
-    icon: String?,
     eblanShortcutInfosGroup: List<EblanShortcutInfo>,
     gridItemSettings: GridItemSettings,
+    icon: String?,
+    onDraggingShortcutInfoGridItem: () -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
         packageName: String,
         shortcutId: String,
     ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingShortcutInfoGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -94,16 +94,16 @@ internal fun ShortcutInfoMenu(
         eblanShortcutInfosGroup.forEach { eblanShortcutInfo ->
             ShortcutInfoMenuItem(
                 currentPage = currentPage,
-                icon = icon,
                 drag = drag,
-                gridItemSettings = gridItemSettings,
-                onTapShortcutInfo = onTapShortcutInfo,
                 eblanShortcutInfo = eblanShortcutInfo,
-                onUpdateOverlayBounds = onUpdateOverlayBounds,
+                gridItemSettings = gridItemSettings,
+                icon = icon,
                 onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
-                onUpdateSharedElementKey = onUpdateSharedElementKey,
-                onUpdateImageBitmap = onUpdateImageBitmap,
+                onTapShortcutInfo = onTapShortcutInfo,
                 onUpdateGridItemSource = onUpdateGridItemSource,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateOverlayBounds = onUpdateOverlayBounds,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         }
     }
@@ -115,18 +115,18 @@ private fun ShortcutInfoMenuItem(
     modifier: Modifier = Modifier,
     currentPage: Int,
     drag: Drag,
-    icon: String?,
-    gridItemSettings: GridItemSettings,
-    onTapShortcutInfo: (Long, String, String) -> Unit,
     eblanShortcutInfo: EblanShortcutInfo,
+    gridItemSettings: GridItemSettings,
+    icon: String?,
+    onDraggingShortcutInfoGridItem: () -> Unit,
+    onTapShortcutInfo: (Long, String, String) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingShortcutInfoGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 

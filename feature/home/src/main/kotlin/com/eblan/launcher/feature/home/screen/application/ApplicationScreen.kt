@@ -188,15 +188,15 @@ internal fun SharedTransitionScope.ApplicationScreen(
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onVerticalDrag: (Float) -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
-    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -235,12 +235,12 @@ internal fun SharedTransitionScope.ApplicationScreen(
             onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
             onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
             onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
+            onUpdateGridItemSource = onUpdateGridItemSource,
+            onUpdateImageBitmap = onUpdateImageBitmap,
+            onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
             onUpdateOverlayBounds = onUpdateOverlayBounds,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onVerticalDrag = onVerticalDrag,
-            onUpdateImageBitmap = onUpdateImageBitmap,
-            onUpdateGridItemSource = onUpdateGridItemSource,
-            onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
         )
     }
 }
@@ -279,15 +279,15 @@ private fun SharedTransitionScope.Success(
     onGetEblanApplicationInfosByTagIds: (List<Long>) -> Unit,
     onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onVerticalDrag: (Float) -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
-    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -455,12 +455,16 @@ private fun SharedTransitionScope.Success(
                     isRearrangeEblanApplicationInfo = isRearrangeEblanApplicationInfo,
                     managedProfileResult = managedProfileResult,
                     paddingValues = paddingValues,
+                    onDismiss = onDismiss,
                     onDismissDragAndDrop = {
                         isRearrangeEblanApplicationInfo = false
                     },
                     onDragEnd = onDragEnd,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
+                    onUpdateGridItemSource = onUpdateGridItemSource,
+                    onUpdateImageBitmap = onUpdateImageBitmap,
+                    onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                     onUpdateOverlayBounds = { intOffset, intSize ->
                         onUpdateOverlayBounds(intOffset, intSize)
 
@@ -473,10 +477,6 @@ private fun SharedTransitionScope.Success(
                     },
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                     onVerticalDrag = onVerticalDrag,
-                    onUpdateImageBitmap = onUpdateImageBitmap,
-                    onUpdateGridItemSource = onUpdateGridItemSource,
-                    onDismiss = onDismiss,
-                    onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                 )
             }
         } else {
@@ -492,12 +492,16 @@ private fun SharedTransitionScope.Success(
                 isRearrangeEblanApplicationInfo = isRearrangeEblanApplicationInfo,
                 managedProfileResult = managedProfileResult,
                 paddingValues = paddingValues,
+                onDismiss = onDismiss,
                 onDismissDragAndDrop = {
                     isRearrangeEblanApplicationInfo = false
                 },
                 onDragEnd = onDragEnd,
                 onDraggingGridItem = onDraggingGridItem,
                 onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
+                onUpdateGridItemSource = onUpdateGridItemSource,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                 onUpdateOverlayBounds = { intOffset, intSize ->
                     onUpdateOverlayBounds(intOffset, intSize)
 
@@ -513,10 +517,6 @@ private fun SharedTransitionScope.Success(
                 },
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onVerticalDrag = onVerticalDrag,
-                onUpdateImageBitmap = onUpdateImageBitmap,
-                onUpdateGridItemSource = onUpdateGridItemSource,
-                onDismiss = onDismiss,
-                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
             )
         }
     }
@@ -559,13 +559,13 @@ private fun SharedTransitionScope.Success(
                     )
                 }
             },
+            onUpdateGridItemSource = onUpdateGridItemSource,
+            onUpdateImageBitmap = onUpdateImageBitmap,
             onUpdateOverlayBounds = onUpdateOverlayBounds,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onWidgets = { newEblanApplicationInfoGroup ->
                 eblanApplicationInfoGroup = newEblanApplicationInfoGroup
             },
-            onUpdateImageBitmap = onUpdateImageBitmap,
-            onUpdateGridItemSource = onUpdateGridItemSource,
         )
     }
 
@@ -630,10 +630,14 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     isRearrangeEblanApplicationInfo: Boolean,
     managedProfileResult: ManagedProfileResult?,
     paddingValues: PaddingValues,
+    onDismiss: () -> Unit,
     onDismissDragAndDrop: () -> Unit,
     onDragEnd: (Float) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -641,10 +645,6 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     onUpdatePopupMenu: (Boolean) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onVerticalDrag: (Float) -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
-    onDismiss: () -> Unit,
-    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val userManager = LocalUserManager.current
 
@@ -710,16 +710,16 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 iconPackFilePaths = iconPackFilePaths,
                 managedProfileResult = managedProfileResult,
                 paddingValues = paddingValues,
+                onDismiss = onDismiss,
                 onDragEnd = onDragEnd,
                 onDraggingGridItem = onDraggingGridItem,
+                onUpdateGridItemSource = onUpdateGridItemSource,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onUpdatePopupMenu = onUpdatePopupMenu,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onVerticalDrag = onVerticalDrag,
-                onUpdateImageBitmap = onUpdateImageBitmap,
-                onUpdateGridItemSource = onUpdateGridItemSource,
-                onDismiss = onDismiss,
-                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
             )
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && packageManager.isDefaultLauncher() && eblanUser.serialNumber > 0 && userHandle != null) {
@@ -816,8 +816,12 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
     paddingValues: PaddingValues,
+    onDismiss: () -> Unit,
     onDragEnd: (Float) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -825,10 +829,6 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     onUpdatePopupMenu: (Boolean) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onVerticalDrag: (Float) -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
-    onDismiss: () -> Unit,
-    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -896,14 +896,14 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 gridItems = gridItems,
                                 iconPackFilePaths = iconPackFilePaths,
                                 paddingValues = paddingValues,
+                                onDismiss = onDismiss,
                                 onDraggingGridItem = onDraggingGridItem,
+                                onUpdateGridItemSource = onUpdateGridItemSource,
+                                onUpdateImageBitmap = onUpdateImageBitmap,
+                                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                                 onUpdatePopupMenu = onUpdatePopupMenu,
                                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                onUpdateImageBitmap = onUpdateImageBitmap,
-                                onUpdateGridItemSource = onUpdateGridItemSource,
-                                onDismiss = onDismiss,
-                                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                             )
                         }
                     }
@@ -917,12 +917,12 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                         paddingValues = paddingValues,
                         privateEblanApplicationInfos = getEblanApplicationInfosByLabel.privateEblanApplicationInfos,
                         privateEblanUser = getEblanApplicationInfosByLabel.privateEblanUser,
-                        onUpdateOverlayBounds = onUpdateOverlayBounds,
+                        onUpdateGridItemSource = onUpdateGridItemSource,
                         onUpdateIsQuietModeEnabled = { newIsQuiteModeEnabled ->
                             isQuietModeEnabled = newIsQuiteModeEnabled
                         },
+                        onUpdateOverlayBounds = onUpdateOverlayBounds,
                         onUpdatePopupMenu = onUpdatePopupMenu,
-                        onUpdateGridItemSource = onUpdateGridItemSource,
                     )
                 }
 
@@ -937,14 +937,14 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 gridItems = gridItems,
                                 iconPackFilePaths = iconPackFilePaths,
                                 paddingValues = paddingValues,
+                                onDismiss = onDismiss,
                                 onDraggingGridItem = onDraggingGridItem,
+                                onUpdateGridItemSource = onUpdateGridItemSource,
+                                onUpdateImageBitmap = onUpdateImageBitmap,
+                                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                                 onUpdatePopupMenu = onUpdatePopupMenu,
                                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                onUpdateImageBitmap = onUpdateImageBitmap,
-                                onUpdateGridItemSource = onUpdateGridItemSource,
-                                onDismiss = onDismiss,
-                                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                             )
                         }
                     }
@@ -977,17 +977,17 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     gridItems: List<GridItem>,
     iconPackFilePaths: Map<String, String>,
     paddingValues: PaddingValues,
+    onDismiss: () -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdatePopupMenu: (Boolean) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
-    onDismiss: () -> Unit,
-    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 

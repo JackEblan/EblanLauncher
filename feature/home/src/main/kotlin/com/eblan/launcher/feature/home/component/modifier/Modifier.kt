@@ -47,8 +47,8 @@ import kotlin.math.roundToInt
 
 @Composable
 internal fun Modifier.swipeGestures(
-    swipeUp: EblanAction,
     swipeDown: EblanAction,
+    swipeUp: EblanAction,
     onOpenAppDrawer: () -> Unit,
 ): Modifier {
     val context = LocalContext.current
@@ -125,9 +125,9 @@ internal fun Modifier.swipeGestures(
 }
 
 internal fun onDoubleTap(
+    context: Context,
     doubleTap: EblanAction,
     launcherApps: AndroidLauncherAppsWrapper,
-    context: Context,
     scope: CoroutineScope,
     onOpenAppDrawer: () -> Unit,
 ): ((Offset) -> Unit)? = if (doubleTap.eblanActionType != EblanActionType.None) {
@@ -146,8 +146,8 @@ internal fun onDoubleTap(
 }
 
 internal fun Modifier.whiteBox(
-    visible: Boolean,
     textColor: Color,
+    visible: Boolean,
 ): Modifier = if (visible) {
     drawWithCache {
         val strokeWidth = 1.5.dp.toPx()

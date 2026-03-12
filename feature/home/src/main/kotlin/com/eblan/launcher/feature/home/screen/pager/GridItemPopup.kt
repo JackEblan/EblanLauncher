@@ -76,10 +76,10 @@ internal fun GridItemPopup(
     onDraggingShortcutInfoGridItem: () -> Unit,
     onEdit: (String) -> Unit,
     onInfo: (Long, String) -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
     onResize: () -> Unit,
     onTapShortcutInfo: (Long, String, String) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -132,11 +132,11 @@ internal fun GridItemPopup(
                 onInfo = onInfo,
                 onResize = onResize,
                 onTapShortcutInfo = onTapShortcutInfo,
+                onUpdateGridItemSource = onUpdateGridItemSource,
+                onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onWidgets = onWidgets,
-                onUpdateImageBitmap = onUpdateImageBitmap,
-                onUpdateGridItemSource = onUpdateGridItemSource,
             )
         },
     ) { measurables, constraints ->
@@ -270,14 +270,14 @@ private fun GridItemPopupContent(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onWidgets: (EblanApplicationInfoGroup) -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -337,6 +337,8 @@ private fun GridItemPopupContent(
 
                             onDismissRequest()
                         },
+                        onUpdateGridItemSource = onUpdateGridItemSource,
+                        onUpdateImageBitmap = onUpdateImageBitmap,
                         onUpdateOverlayBounds = onUpdateOverlayBounds,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                         onWidgets = {
@@ -351,8 +353,6 @@ private fun GridItemPopupContent(
 
                             onDismissRequest()
                         },
-                        onUpdateImageBitmap = onUpdateImageBitmap,
-                        onUpdateGridItemSource = onUpdateGridItemSource,
                     )
                 }
 
@@ -448,14 +448,14 @@ private fun ApplicationInfoGridItemMenu(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onWidgets: () -> Unit,
-    onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     Column(
         modifier = modifier,
@@ -468,15 +468,15 @@ private fun ApplicationInfoGridItemMenu(
                 modifier = modifier,
                 currentPage = currentPage,
                 drag = drag,
-                icon = icon,
                 eblanShortcutInfosGroup = eblanShortcutInfosByPackageName,
                 gridItemSettings = gridItemSettings,
-                onTapShortcutInfo = onTapShortcutInfo,
-                onUpdateOverlayBounds = onUpdateOverlayBounds,
+                icon = icon,
                 onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
-                onUpdateSharedElementKey = onUpdateSharedElementKey,
-                onUpdateImageBitmap = onUpdateImageBitmap,
+                onTapShortcutInfo = onTapShortcutInfo,
                 onUpdateGridItemSource = onUpdateGridItemSource,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateOverlayBounds = onUpdateOverlayBounds,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
 
             Spacer(modifier = Modifier.height(5.dp))

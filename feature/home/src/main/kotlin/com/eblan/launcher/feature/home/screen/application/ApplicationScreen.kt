@@ -1041,11 +1041,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     val applicationScreenId = remember { Uuid.random().toHexString() }
 
-    val hasInteraction by remember(key1 = drag) {
-        derivedStateOf {
-            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
-        }
-    }
+    val hasInteraction = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isLongPress) {

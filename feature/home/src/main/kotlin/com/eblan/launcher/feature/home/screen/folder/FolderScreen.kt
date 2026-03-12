@@ -80,6 +80,7 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.FolderGridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.component.modifier.onDoubleTap
+import com.eblan.launcher.feature.home.component.modifier.onLongPress
 import com.eblan.launcher.feature.home.component.modifier.swipeGestures
 import com.eblan.launcher.feature.home.component.modifier.whiteBox
 import com.eblan.launcher.feature.home.model.Drag
@@ -93,7 +94,6 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.getVerticalArrangement
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalSettings
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun SharedTransitionScope.FolderScreen(
@@ -386,52 +386,60 @@ private fun SharedTransitionScope.FolderGridItemContent(
         modifier = modifier
             .pointerInput(key1 = drag) {
                 detectTapGestures(
-                    onDoubleTap = onDoubleTap(
-                        context = context,
-                        doubleTap = gridItem.doubleTap,
-                        launcherApps = launcherApps,
-                        scope = scope,
-                        onOpenAppDrawer = onOpenAppDrawer,
-                    ),
-                    onLongPress = {
-                        scope.launch {
-                            onUpdateGridItemSource(
-                                GridItemSource.Folder(
+                    onDoubleTap = if (!isLongPress) {
+                        {
+                            onDoubleTap(
+                                context = context,
+                                doubleTap = gridItem.doubleTap,
+                                launcherApps = launcherApps,
+                                scope = scope,
+                                onOpenAppDrawer = onOpenAppDrawer,
+                            )
+                        }
+                    } else {
+                        null
+                    },
+                    onLongPress = if (!isLongPress) {
+                        {
+                            onLongPress(
+                                scope = scope,
+                                graphicsLayer = graphicsLayer,
+                                intOffset = intOffset,
+                                intSize = intSize,
+                                gridItemSource = GridItemSource.Folder(
                                     gridItem = folderGridItem,
                                     applicationInfoGridItem = gridItem,
                                 ),
-                            )
-
-                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
-
-                            onUpdateOverlayBounds(
-                                intOffset,
-                                intSize,
-                            )
-
-                            onUpdateSharedElementKey(
-                                SharedElementKey(
+                                sharedElementKey = SharedElementKey(
                                     id = gridItem.id,
                                     parent = SharedElementKey.Parent.Folder,
                                 ),
+                                onUpdateGridItemSource = onUpdateGridItemSource,
+                                onUpdateImageBitmap = onUpdateImageBitmap,
+                                onUpdateIsLongPress = onUpdateIsLongPress,
+                                onUpdateOverlayBounds = onUpdateOverlayBounds,
+                                onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                onUpdateShowGridItemPopup = onUpdateShowFolderGridItemPopup,
                             )
-
-                            onUpdateIsLongPress(true)
-
-                            onUpdateShowFolderGridItemPopup(true)
                         }
+                    } else {
+                        null
                     },
-                    onTap = {
-                        launcherApps.startMainActivity(
-                            serialNumber = gridItem.serialNumber,
-                            componentName = gridItem.componentName,
-                            sourceBounds = Rect(
-                                intOffset.x,
-                                intOffset.y,
-                                intOffset.x + intSize.width,
-                                intOffset.y + intSize.height,
-                            ),
-                        )
+                    onTap = if (!isLongPress) {
+                        {
+                            launcherApps.startMainActivity(
+                                serialNumber = gridItem.serialNumber,
+                                componentName = gridItem.componentName,
+                                sourceBounds = Rect(
+                                    intOffset.x,
+                                    intOffset.y,
+                                    intOffset.x + intSize.width,
+                                    intOffset.y + intSize.height,
+                                ),
+                            )
+                        }
+                    } else {
+                        null
                     },
                 )
             }

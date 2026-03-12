@@ -71,6 +71,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.modifier.onDoubleTap
+import com.eblan.launcher.feature.home.component.modifier.onLongPress
 import com.eblan.launcher.feature.home.component.modifier.swipeGestures
 import com.eblan.launcher.feature.home.component.modifier.whiteBox
 import com.eblan.launcher.feature.home.model.Drag
@@ -332,56 +333,67 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
             ) > 0
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isSelected && isLongPress) {
-            onUpdateIsDragging(true)
-
-            onUpdateShowGridItemPopup(false)
-
-            onDraggingGridItem()
-        }
+        handleDrag(
+            drag = drag,
+            isSelected = isSelected,
+            isLongPress = isLongPress,
+            onUpdateIsDragging = onUpdateIsDragging,
+            onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+            onDraggingGridItem = onDraggingGridItem,
+        )
     }
 
     Column(
         modifier = modifier
             .pointerInput(key1 = drag) {
                 detectTapGestures(
-                    onDoubleTap = onDoubleTap(
-                        context = context,
-                        doubleTap = gridItem.doubleTap,
-                        launcherApps = launcherApps,
-                        scope = scope,
-                        onOpenAppDrawer = onOpenAppDrawer,
-                    ),
-                    onLongPress = {
-                        scope.launch {
-                            onUpdateGridItemSource(GridItemSource.Existing(gridItem = gridItem))
-
-                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
-
-                            onUpdateOverlayBounds(
-                                intOffset,
-                                intSize,
+                    onDoubleTap = if (!isLongPress) {
+                        {
+                            onDoubleTap(
+                                context = context,
+                                doubleTap = gridItem.doubleTap,
+                                launcherApps = launcherApps,
+                                scope = scope,
+                                onOpenAppDrawer = onOpenAppDrawer,
                             )
-
-                            onUpdateSharedElementKey(
-                                SharedElementKey(
+                        }
+                    } else {
+                        null
+                    },
+                    onLongPress = if (!isLongPress) {
+                        {
+                            onLongPress(
+                                scope = scope,
+                                graphicsLayer = graphicsLayer,
+                                intOffset = intOffset,
+                                intSize = intSize,
+                                gridItemSource = GridItemSource.Existing(gridItem = gridItem),
+                                sharedElementKey = SharedElementKey(
                                     id = gridItem.id,
                                     parent = SharedElementKey.Parent.Grid,
                                 ),
+                                onUpdateGridItemSource = onUpdateGridItemSource,
+                                onUpdateImageBitmap = onUpdateImageBitmap,
+                                onUpdateIsLongPress = onUpdateIsLongPress,
+                                onUpdateOverlayBounds = onUpdateOverlayBounds,
+                                onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
                             )
-
-                            onUpdateIsLongPress(true)
-
-                            onUpdateShowGridItemPopup(true)
                         }
+                    } else {
+                        null
                     },
-                    onTap = {
-                        scope.launch {
-                            onTapApplicationInfo(
-                                data.serialNumber,
-                                data.componentName,
-                            )
+                    onTap = if (!isLongPress) {
+                        {
+                            scope.launch {
+                                onTapApplicationInfo(
+                                    data.serialNumber,
+                                    data.componentName,
+                                )
+                            }
                         }
+                    } else {
+                        null
                     },
                 )
             }
@@ -510,13 +522,14 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isSelected && isLongPress) {
-            onUpdateIsDragging(true)
-
-            onUpdateShowGridItemPopup(false)
-
-            onDraggingGridItem()
-        }
+        handleDrag(
+            drag = drag,
+            isSelected = isSelected,
+            isLongPress = isLongPress,
+            onUpdateIsDragging = onUpdateIsDragging,
+            onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+            onDraggingGridItem = onDraggingGridItem,
+        )
     }
 
     Box(
@@ -556,30 +569,28 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                             appWidgetId = data.appWidgetId,
                             appWidgetProviderInfo = appWidgetInfo,
                         ).apply {
-                            setOnLongClickListener {
-                                scope.launch {
-                                    onUpdateGridItemSource(GridItemSource.Existing(gridItem = gridItem))
-
-                                    onUpdateImageBitmap(graphicsLayer.toImageBitmap())
-
-                                    onUpdateOverlayBounds(
-                                        intOffset,
-                                        intSize,
-                                    )
-
-                                    onUpdateSharedElementKey(
-                                        SharedElementKey(
+                            if (!isLongPress) {
+                                setOnLongClickListener {
+                                    onLongPress(
+                                        scope = scope,
+                                        graphicsLayer = graphicsLayer,
+                                        intOffset = intOffset,
+                                        intSize = intSize,
+                                        gridItemSource = GridItemSource.Existing(gridItem = gridItem),
+                                        sharedElementKey = SharedElementKey(
                                             id = gridItem.id,
                                             parent = SharedElementKey.Parent.Grid,
                                         ),
+                                        onUpdateGridItemSource = onUpdateGridItemSource,
+                                        onUpdateImageBitmap = onUpdateImageBitmap,
+                                        onUpdateIsLongPress = onUpdateIsLongPress,
+                                        onUpdateOverlayBounds = onUpdateOverlayBounds,
+                                        onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                        onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
                                     )
 
-                                    onUpdateIsLongPress(true)
-
-                                    onUpdateShowGridItemPopup(true)
+                                    true
                                 }
-
-                                true
                             }
                         }
                     },
@@ -654,59 +665,70 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
     val alpha = if (hasShortcutHostPermission && data.isEnabled) 1f else 0.3f
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isSelected && isLongPress) {
-            onUpdateIsDragging(true)
-
-            onUpdateShowGridItemPopup(false)
-
-            onDraggingGridItem()
-        }
+        handleDrag(
+            drag = drag,
+            isSelected = isSelected,
+            isLongPress = isLongPress,
+            onUpdateIsDragging = onUpdateIsDragging,
+            onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+            onDraggingGridItem = onDraggingGridItem,
+        )
     }
 
     Column(
         modifier = modifier
             .pointerInput(key1 = drag) {
                 detectTapGestures(
-                    onDoubleTap = onDoubleTap(
-                        context = context,
-                        doubleTap = gridItem.doubleTap,
-                        launcherApps = launcherApps,
-                        scope = scope,
-                        onOpenAppDrawer = onOpenAppDrawer,
-                    ),
-                    onLongPress = {
-                        scope.launch {
-                            onUpdateGridItemSource(GridItemSource.Existing(gridItem = gridItem))
-
-                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
-
-                            onUpdateOverlayBounds(
-                                intOffset,
-                                intSize,
+                    onDoubleTap = if (!isLongPress) {
+                        {
+                            onDoubleTap(
+                                context = context,
+                                doubleTap = gridItem.doubleTap,
+                                launcherApps = launcherApps,
+                                scope = scope,
+                                onOpenAppDrawer = onOpenAppDrawer,
                             )
-
-                            onUpdateSharedElementKey(
-                                SharedElementKey(
+                        }
+                    } else {
+                        null
+                    },
+                    onLongPress = if (!isLongPress) {
+                        {
+                            onLongPress(
+                                scope = scope,
+                                graphicsLayer = graphicsLayer,
+                                intOffset = intOffset,
+                                intSize = intSize,
+                                gridItemSource = GridItemSource.Existing(gridItem = gridItem),
+                                sharedElementKey = SharedElementKey(
                                     id = gridItem.id,
                                     parent = SharedElementKey.Parent.Grid,
                                 ),
+                                onUpdateGridItemSource = onUpdateGridItemSource,
+                                onUpdateImageBitmap = onUpdateImageBitmap,
+                                onUpdateIsLongPress = onUpdateIsLongPress,
+                                onUpdateOverlayBounds = onUpdateOverlayBounds,
+                                onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
                             )
-
-                            onUpdateIsLongPress(true)
-
-                            onUpdateShowGridItemPopup(true)
                         }
+                    } else {
+                        null
                     },
-                    onTap = {
-                        if (hasShortcutHostPermission && data.isEnabled) {
-                            scope.launch {
-                                onTapShortcutInfo(
-                                    data.serialNumber,
-                                    data.packageName,
-                                    data.shortcutId,
-                                )
+                    onTap = if (!isLongPress) {
+                        {
+                            if (hasShortcutHostPermission && data.isEnabled) {
+                                scope.launch {
+                                    onTapShortcutInfo(
+                                        data.serialNumber,
+                                        data.packageName,
+                                        data.shortcutId,
+                                    )
+                                }
                             }
                         }
+                    } else {
+                        null
                     },
                 )
             }
@@ -829,51 +851,62 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isSelected && isLongPress) {
-            onUpdateIsDragging(true)
-
-            onUpdateShowGridItemPopup(false)
-
-            onDraggingGridItem()
-        }
+        handleDrag(
+            drag = drag,
+            isSelected = isSelected,
+            isLongPress = isLongPress,
+            onUpdateIsDragging = onUpdateIsDragging,
+            onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+            onDraggingGridItem = onDraggingGridItem,
+        )
     }
 
     Column(
         modifier = modifier
             .pointerInput(key1 = drag) {
                 detectTapGestures(
-                    onDoubleTap = onDoubleTap(
-                        context = context,
-                        doubleTap = gridItem.doubleTap,
-                        launcherApps = launcherApps,
-                        scope = scope,
-                        onOpenAppDrawer = onOpenAppDrawer,
-                    ),
-                    onLongPress = {
-                        scope.launch {
-                            onUpdateGridItemSource(GridItemSource.Existing(gridItem = gridItem))
-
-                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
-
-                            onUpdateOverlayBounds(
-                                intOffset,
-                                intSize,
+                    onDoubleTap = if (!isLongPress) {
+                        {
+                            onDoubleTap(
+                                context = context,
+                                doubleTap = gridItem.doubleTap,
+                                launcherApps = launcherApps,
+                                scope = scope,
+                                onOpenAppDrawer = onOpenAppDrawer,
                             )
-
-                            onUpdateSharedElementKey(
-                                SharedElementKey(
+                        }
+                    } else {
+                        null
+                    },
+                    onLongPress = if (!isLongPress) {
+                        {
+                            onLongPress(
+                                scope = scope,
+                                graphicsLayer = graphicsLayer,
+                                intOffset = intOffset,
+                                intSize = intSize,
+                                gridItemSource = GridItemSource.Existing(gridItem = gridItem),
+                                sharedElementKey = SharedElementKey(
                                     id = gridItem.id,
                                     parent = SharedElementKey.Parent.Grid,
                                 ),
+                                onUpdateGridItemSource = onUpdateGridItemSource,
+                                onUpdateImageBitmap = onUpdateImageBitmap,
+                                onUpdateIsLongPress = onUpdateIsLongPress,
+                                onUpdateOverlayBounds = onUpdateOverlayBounds,
+                                onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
                             )
-
-                            onUpdateIsLongPress(true)
-
-                            onUpdateShowGridItemPopup(true)
                         }
+                    } else {
+                        null
                     },
-                    onTap = {
-                        onTap()
+                    onTap = if (!isLongPress) {
+                        {
+                            onTap()
+                        }
+                    } else {
+                        null
                     },
                 )
             }
@@ -1063,51 +1096,62 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isSelected && isLongPress) {
-            onUpdateIsDragging(true)
-
-            onUpdateShowGridItemPopup(false)
-
-            onDraggingGridItem()
-        }
+        handleDrag(
+            drag = drag,
+            isSelected = isSelected,
+            isLongPress = isLongPress,
+            onUpdateIsDragging = onUpdateIsDragging,
+            onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+            onDraggingGridItem = onDraggingGridItem,
+        )
     }
 
     Column(
         modifier = modifier
             .pointerInput(key1 = drag) {
                 detectTapGestures(
-                    onDoubleTap = onDoubleTap(
-                        context = context,
-                        doubleTap = gridItem.doubleTap,
-                        launcherApps = launcherApps,
-                        scope = scope,
-                        onOpenAppDrawer = onOpenAppDrawer,
-                    ),
-                    onLongPress = {
-                        scope.launch {
-                            onUpdateGridItemSource(GridItemSource.Existing(gridItem = gridItem))
-
-                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
-
-                            onUpdateOverlayBounds(
-                                intOffset,
-                                intSize,
+                    onDoubleTap = if (!isLongPress) {
+                        {
+                            onDoubleTap(
+                                context = context,
+                                doubleTap = gridItem.doubleTap,
+                                launcherApps = launcherApps,
+                                scope = scope,
+                                onOpenAppDrawer = onOpenAppDrawer,
                             )
-
-                            onUpdateSharedElementKey(
-                                SharedElementKey(
+                        }
+                    } else {
+                        null
+                    },
+                    onLongPress = if (!isLongPress) {
+                        {
+                            onLongPress(
+                                scope = scope,
+                                graphicsLayer = graphicsLayer,
+                                intOffset = intOffset,
+                                intSize = intSize,
+                                gridItemSource = GridItemSource.Existing(gridItem = gridItem),
+                                sharedElementKey = SharedElementKey(
                                     id = gridItem.id,
                                     parent = SharedElementKey.Parent.Grid,
                                 ),
+                                onUpdateGridItemSource = onUpdateGridItemSource,
+                                onUpdateImageBitmap = onUpdateImageBitmap,
+                                onUpdateIsLongPress = onUpdateIsLongPress,
+                                onUpdateOverlayBounds = onUpdateOverlayBounds,
+                                onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
                             )
-
-                            onUpdateIsLongPress(true)
-
-                            onUpdateShowGridItemPopup(true)
                         }
+                    } else {
+                        null
                     },
-                    onTap = {
-                        data.shortcutIntentUri?.let(onTapShortcutConfig)
+                    onTap = if (!isLongPress) {
+                        {
+                            data.shortcutIntentUri?.let(onTapShortcutConfig)
+                        }
+                    } else {
+                        null
                     },
                 )
             }
@@ -1183,5 +1227,22 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                 )
             }
         }
+    }
+}
+
+private fun handleDrag(
+    drag: Drag,
+    isSelected: Boolean,
+    isLongPress: Boolean,
+    onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateShowGridItemPopup: (Boolean) -> Unit,
+    onDraggingGridItem: () -> Unit,
+) {
+    if (drag == Drag.Dragging && isSelected && isLongPress) {
+        onUpdateIsDragging(true)
+
+        onUpdateShowGridItemPopup(false)
+
+        onDraggingGridItem()
     }
 }

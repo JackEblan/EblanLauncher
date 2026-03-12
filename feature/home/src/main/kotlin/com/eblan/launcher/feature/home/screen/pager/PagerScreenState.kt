@@ -462,7 +462,7 @@ internal class PagerScreenState(
             onToast = {
                 Toast.makeText(
                     context,
-                    "Layout was canceled due to an invalid position",
+                    "Layout was canceled due to an invalid position, interruption or no changes were made",
                     Toast.LENGTH_LONG,
                 ).show()
             },

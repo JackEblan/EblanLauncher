@@ -79,7 +79,7 @@ internal suspend fun handleDropGridItem(
 
     when (gridItemSource) {
         is GridItemSource.Existing -> {
-            if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
+            if (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
                 onToast()
@@ -89,7 +89,7 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.New -> {
-            if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
+            if (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
                 onToast()
@@ -130,7 +130,7 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.Pin -> {
-            if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
+            if (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess) {
                 onDragCancelAfterMove()
 
                 onToast()
@@ -164,7 +164,13 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.Folder -> {
-            onDragEndAfterMoveFolder()
+            if (drag == Drag.Cancel) {
+                onDragCancelAfterMove()
+
+                onToast()
+            } else {
+                onDragEndAfterMoveFolder()
+            }
         }
     }
 

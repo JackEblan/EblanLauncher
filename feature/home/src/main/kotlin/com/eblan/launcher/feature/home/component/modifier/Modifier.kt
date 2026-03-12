@@ -17,7 +17,6 @@
  */
 package com.eblan.launcher.feature.home.component.modifier
 
-import android.content.Context
 import android.graphics.Paint
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -27,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
@@ -39,9 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.feature.home.util.handleEblanAction
-import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.ui.local.LocalLauncherApps
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -122,27 +118,6 @@ internal fun Modifier.swipeGestures(
     } else {
         this
     }
-}
-
-internal fun onDoubleTap(
-    context: Context,
-    doubleTap: EblanAction,
-    launcherApps: AndroidLauncherAppsWrapper,
-    scope: CoroutineScope,
-    onOpenAppDrawer: () -> Unit,
-): ((Offset) -> Unit)? = if (doubleTap.eblanActionType != EblanActionType.None) {
-    {
-        scope.launch {
-            handleEblanAction(
-                context = context,
-                eblanAction = doubleTap,
-                launcherApps = launcherApps,
-                onOpenAppDrawer = onOpenAppDrawer,
-            )
-        }
-    }
-} else {
-    null
 }
 
 internal fun Modifier.whiteBox(

@@ -46,11 +46,11 @@ import java.io.File
 
 internal suspend fun handleDropGridItem(
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
-    appWidgetManager: AndroidAppWidgetManagerWrapper,
+    androidAppWidgetManagerWrapper: AndroidAppWidgetManagerWrapper,
     gridItemSource: GridItemSource?,
-    launcherAppsWrapper: AndroidLauncherAppsWrapper,
+    androidLauncherAppsWrapper: AndroidLauncherAppsWrapper,
     moveGridItemResult: MoveGridItemResult?,
-    userManagerWrapper: AndroidUserManagerWrapper,
+    androidUserManagerWrapper: AndroidUserManagerWrapper,
     isDragging: Boolean,
     drag: Drag,
     onDeleteGridItemCache: (GridItem) -> Unit,
@@ -93,7 +93,7 @@ internal suspend fun handleDropGridItem(
                     is GridItemData.Widget -> {
                         onDragEndWidget(
                             androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
-                            appWidgetManager = appWidgetManager,
+                            androidAppWidgetManagerWrapper = androidAppWidgetManagerWrapper,
                             data = data,
                             gridItem = gridItemSource.gridItem,
                             onLaunchWidgetIntent = onLaunchWidgetIntent,
@@ -106,8 +106,8 @@ internal suspend fun handleDropGridItem(
                         onDragEndShortcutConfig(
                             data = data,
                             gridItem = gridItemSource.gridItem,
-                            launcherAppsWrapper = launcherAppsWrapper,
-                            userManagerWrapper = userManagerWrapper,
+                            androidLauncherAppsWrapper = androidLauncherAppsWrapper,
+                            androidUserManagerWrapper = androidUserManagerWrapper,
                             onDeleteGridItemCache = onDeleteGridItemCache,
                             onLaunchShortcutConfigIntent = onLaunchShortcutConfigIntent,
                             onLaunchShortcutConfigIntentSenderRequest = onLaunchShortcutConfigIntentSenderRequest,
@@ -144,7 +144,7 @@ internal suspend fun handleDropGridItem(
                     is GridItemData.Widget -> {
                         onDragEndWidget(
                             androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
-                            appWidgetManager = appWidgetManager,
+                            androidAppWidgetManagerWrapper = androidAppWidgetManagerWrapper,
                             data = data,
                             gridItem = gridItemSource.gridItem,
                             onLaunchWidgetIntent = onLaunchWidgetIntent,
@@ -303,7 +303,7 @@ internal fun handleBoundWidget(
 @Suppress("DEPRECATION")
 internal suspend fun handleShortcutConfigLauncherResult(
     gridItemSource: GridItemSource?,
-    imageSerializer: AndroidImageSerializer,
+    androidImageSerializer: AndroidImageSerializer,
     moveGridItemResult: MoveGridItemResult?,
     result: ActivityResult,
     onDeleteGridItemCache: (GridItem) -> Unit,
@@ -334,7 +334,7 @@ internal suspend fun handleShortcutConfigLauncherResult(
             intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON)
         }
     }?.let { bitmap ->
-        imageSerializer.createByteArray(bitmap = bitmap)
+        androidImageSerializer.createByteArray(bitmap = bitmap)
     }
 
     val shortcutIntentUri = result.data?.let { intent ->
@@ -366,11 +366,11 @@ internal suspend fun handleShortcutConfigLauncherResult(
 internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
     fileManager: FileManager,
     gridItemSource: GridItemSource?,
-    imageSerializer: AndroidImageSerializer,
-    launcherAppsWrapper: AndroidLauncherAppsWrapper,
+    androidImageSerializer: AndroidImageSerializer,
+    androidLauncherAppsWrapper: AndroidLauncherAppsWrapper,
     moveGridItemResult: MoveGridItemResult?,
     result: ActivityResult,
-    userManagerWrapper: AndroidUserManagerWrapper,
+    androidUserManagerWrapper: AndroidUserManagerWrapper,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
@@ -399,7 +399,7 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
     val shortcutInfo = pinItemRequest?.shortcutInfo
 
     if (pinItemRequest != null && shortcutInfo != null && pinItemRequest.isValid && pinItemRequest.accept()) {
-        val icon = launcherAppsWrapper.getShortcutIconDrawable(
+        val icon = androidLauncherAppsWrapper.getShortcutIconDrawable(
             shortcutInfo = shortcutInfo,
             density = 0,
         )?.let { drawable ->
@@ -410,13 +410,13 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
                 fileManager.getHashedFileName(name = shortcutInfo.id),
             )
 
-            imageSerializer.createDrawablePath(drawable = drawable, file = file)
+            androidImageSerializer.createDrawablePath(drawable = drawable, file = file)
 
             file.absolutePath
         }
 
         val pinItemRequestType = PinItemRequestType.ShortcutInfo(
-            serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = shortcutInfo.userHandle),
+            serialNumber = androidUserManagerWrapper.getSerialNumberForUser(userHandle = shortcutInfo.userHandle),
             shortcutId = shortcutInfo.id,
             packageName = shortcutInfo.`package`,
             shortLabel = shortcutInfo.shortLabel.toString(),
@@ -437,7 +437,7 @@ internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
 
 private fun onDragEndWidget(
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
-    appWidgetManager: AndroidAppWidgetManagerWrapper,
+    androidAppWidgetManagerWrapper: AndroidAppWidgetManagerWrapper,
     data: GridItemData.Widget,
     gridItem: GridItem,
     onLaunchWidgetIntent: (Intent) -> Unit,
@@ -450,7 +450,7 @@ private fun onDragEndWidget(
 
     val provider = ComponentName.unflattenFromString(data.componentName)
 
-    val bindAppWidgetIdIfAllowed = appWidgetManager.bindAppWidgetIdIfAllowed(
+    val bindAppWidgetIdIfAllowed = androidAppWidgetManagerWrapper.bindAppWidgetIdIfAllowed(
         appWidgetId = appWidgetId,
         provider = provider,
     )
@@ -463,7 +463,7 @@ private fun onDragEndWidget(
             putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, data.minHeight)
         }
 
-        appWidgetManager.updateAppWidgetOptions(
+        androidAppWidgetManagerWrapper.updateAppWidgetOptions(
             appWidgetId = appWidgetId,
             options = options,
         )
@@ -521,14 +521,14 @@ private fun bindPinWidget(
 private suspend fun onDragEndShortcutConfig(
     data: GridItemData.ShortcutConfig,
     gridItem: GridItem,
-    launcherAppsWrapper: AndroidLauncherAppsWrapper,
-    userManagerWrapper: AndroidUserManagerWrapper,
+    androidLauncherAppsWrapper: AndroidLauncherAppsWrapper,
+    androidUserManagerWrapper: AndroidUserManagerWrapper,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onLaunchShortcutConfigIntent: (Intent) -> Unit,
     onLaunchShortcutConfigIntentSenderRequest: (IntentSenderRequest) -> Unit,
 ) {
     val serialNumber =
-        userManagerWrapper.getSerialNumberForUser(userHandle = Process.myUserHandle())
+        androidUserManagerWrapper.getSerialNumberForUser(userHandle = Process.myUserHandle())
 
     if (serialNumber == data.serialNumber) {
         val intent = Intent(Intent.ACTION_CREATE_SHORTCUT).setComponent(
@@ -541,7 +541,7 @@ private suspend fun onDragEndShortcutConfig(
             onDeleteGridItemCache(gridItem)
         }
     } else {
-        val shortcutConfigIntent = launcherAppsWrapper.getShortcutConfigIntent(
+        val shortcutConfigIntent = androidLauncherAppsWrapper.getShortcutConfigIntent(
             serialNumber = data.serialNumber,
             packageName = data.packageName,
             componentName = data.componentName,

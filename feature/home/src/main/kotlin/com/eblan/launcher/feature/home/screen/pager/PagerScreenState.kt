@@ -39,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -48,6 +49,8 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -80,6 +83,14 @@ import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
+import com.eblan.launcher.ui.local.LocalAppWidgetHost
+import com.eblan.launcher.ui.local.LocalAppWidgetManager
+import com.eblan.launcher.ui.local.LocalFileManager
+import com.eblan.launcher.ui.local.LocalImageSerializer
+import com.eblan.launcher.ui.local.LocalLauncherApps
+import com.eblan.launcher.ui.local.LocalPinItemRequest
+import com.eblan.launcher.ui.local.LocalUserManager
+import com.eblan.launcher.ui.local.LocalWallpaperManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -100,17 +111,17 @@ internal class PagerScreenState(
     private val screenWidth: Int,
     private val screenHeight: Int,
     private val fileManager: FileManager,
-    private val imageSerializer: AndroidImageSerializer,
+    private val androidImageSerializer: AndroidImageSerializer,
     private val androidLauncherAppsWrapper: AndroidLauncherAppsWrapper,
     private val scope: CoroutineScope,
     private val context: Context,
-    private val userManager: AndroidUserManagerWrapper,
+    private val androidUserManagerWrapper: AndroidUserManagerWrapper,
     private val pinItemRequestWrapper: PinItemRequestWrapper,
     private val gestureSettings: GestureSettings,
     private val homeSettings: HomeSettings,
     private val androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     private val androidAppWidgetManagerWrapper: AndroidAppWidgetManagerWrapper,
-    private val wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
+    private val androidWallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
     private val density: Density,
     private val onGetPinGridItem: (PinItemRequestType) -> Unit,
     private val onResetPinGridItem: () -> Unit,
@@ -272,10 +283,10 @@ internal class PagerScreenState(
                 handlePinItemRequest(
                     context = context,
                     fileManager = fileManager,
-                    imageSerializer = imageSerializer,
+                    imageSerializer = androidImageSerializer,
                     launcherAppsWrapper = androidLauncherAppsWrapper,
                     pinItemRequest = pinItemRequest,
-                    userManager = userManager,
+                    userManager = androidUserManagerWrapper,
                     onGetPinGridItem = onGetPinGridItem,
                 )
             }
@@ -441,11 +452,11 @@ internal class PagerScreenState(
     ) {
         handleDropGridItem(
             androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
-            appWidgetManager = androidAppWidgetManagerWrapper,
+            androidAppWidgetManagerWrapper = androidAppWidgetManagerWrapper,
             gridItemSource = gridItemSource,
-            launcherAppsWrapper = androidLauncherAppsWrapper,
+            androidLauncherAppsWrapper = androidLauncherAppsWrapper,
             moveGridItemResult = moveGridItemResult,
-            userManagerWrapper = userManager,
+            androidUserManagerWrapper = androidUserManagerWrapper,
             isDragging = isDragging,
             drag = drag,
             onDeleteGridItemCache = onDeleteGridItemCache,
@@ -589,7 +600,7 @@ internal class PagerScreenState(
             showShortcutConfigActivities = showShortcutConfigActivities,
             showWidgets = showWidgets,
             swipeY = swipeY,
-            wallpaperManagerWrapper = wallpaperManagerWrapper,
+            wallpaperManagerWrapper = androidWallpaperManagerWrapper,
             wallpaperScroll = homeSettings.wallpaperScroll,
             windowToken = windowToken,
             onHome = {
@@ -627,7 +638,7 @@ internal class PagerScreenState(
         )
     }
 
-    internal suspend fun swipeEblanAction(
+    internal fun swipeEblanAction(
         context: Context,
         gestureSettings: GestureSettings,
         launcherApps: AndroidLauncherAppsWrapper,
@@ -635,28 +646,30 @@ internal class PagerScreenState(
         swipeDownY: Float,
         swipeUpY: Float,
     ) {
-        val swipeThreshold = 100f
+        scope.launch {
+            val swipeThreshold = 100f
 
-        if (swipeUpY < screenHeight - swipeThreshold) {
-            handleEblanAction(
-                context = context,
-                eblanAction = gestureSettings.swipeUp,
-                launcherApps = launcherApps,
-                onOpenAppDrawer = {},
-            )
-        }
+            if (swipeUpY < screenHeight - swipeThreshold) {
+                handleEblanAction(
+                    context = context,
+                    eblanAction = gestureSettings.swipeUp,
+                    launcherApps = launcherApps,
+                    onOpenAppDrawer = {},
+                )
+            }
 
-        if (swipeDownY < screenHeight - swipeThreshold) {
-            handleEblanAction(
-                context = context,
-                eblanAction = gestureSettings.swipeDown,
-                launcherApps = launcherApps,
-                onOpenAppDrawer = {},
-            )
+            if (swipeDownY < screenHeight - swipeThreshold) {
+                handleEblanAction(
+                    context = context,
+                    eblanAction = gestureSettings.swipeDown,
+                    launcherApps = launcherApps,
+                    onOpenAppDrawer = {},
+                )
+            }
         }
     }
 
-    internal suspend fun resetSwipeOffset(
+    internal fun resetSwipeOffset(
         gestureSettings: GestureSettings,
         screenHeight: Int,
         swipeDownY: Animatable<Float, AnimationVector1D>,
@@ -684,15 +697,17 @@ internal class PagerScreenState(
             }
         }
 
-        animateOffset(
-            eblanAction = gestureSettings.swipeUp,
-            swipeY = swipeUpY,
-        )
+        scope.launch {
+            animateOffset(
+                eblanAction = gestureSettings.swipeUp,
+                swipeY = swipeUpY,
+            )
 
-        animateOffset(
-            eblanAction = gestureSettings.swipeDown,
-            swipeY = swipeDownY,
-        )
+            animateOffset(
+                eblanAction = gestureSettings.swipeDown,
+                swipeY = swipeDownY,
+            )
+        }
     }
 
     internal suspend fun handleActionMainIntent(
@@ -980,16 +995,20 @@ internal class PagerScreenState(
         }
     }
 
-    suspend fun verticalDrag(dragAmount: Float) {
-        swipeUpY.snapTo(swipeUpY.value + dragAmount)
+    fun verticalDrag(dragAmount: Float) {
+        scope.launch {
+            swipeUpY.snapTo(swipeUpY.value + dragAmount)
 
-        swipeDownY.snapTo(swipeDownY.value - dragAmount)
+            swipeDownY.snapTo(swipeDownY.value - dragAmount)
+        }
     }
 
-    suspend fun verticalDragEnd() {
-        swipeUpY.animateTo(screenHeight.toFloat())
+    fun verticalDragEnd() {
+        scope.launch {
+            swipeUpY.animateTo(screenHeight.toFloat())
 
-        swipeDownY.animateTo(screenHeight.toFloat())
+            swipeDownY.animateTo(screenHeight.toFloat())
+        }
     }
 
     fun longPress(offset: Offset) {
@@ -998,14 +1017,16 @@ internal class PagerScreenState(
         showSettingsPopup = true
     }
 
-    suspend fun openAppDrawer() {
-        swipeY.animateTo(
-            targetValue = 0f,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessLow,
-            ),
-        )
+    fun openAppDrawer() {
+        scope.launch {
+            swipeY.animateTo(
+                targetValue = 0f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow,
+                ),
+            )
+        }
     }
 
     fun draggingShortcutInfoGridItem(gridItems: List<GridItem>) {
@@ -1022,16 +1043,18 @@ internal class PagerScreenState(
         onDraggingGridItem(gridItems)
     }
 
-    suspend fun closeAppDrawer() {
-        swipeY.animateTo(
-            targetValue = screenHeight.toFloat(),
-            animationSpec = tween(
-                easing = FastOutSlowInEasing,
-            ),
-        )
+    fun closeAppDrawer() {
+        scope.launch {
+            swipeY.animateTo(
+                targetValue = screenHeight.toFloat(),
+                animationSpec = tween(
+                    easing = FastOutSlowInEasing,
+                ),
+            )
 
-        if (isPressHome) {
-            isPressHome = false
+            if (isPressHome) {
+                isPressHome = false
+            }
         }
     }
 
@@ -1041,8 +1064,10 @@ internal class PagerScreenState(
         isDragging = true
     }
 
-    suspend fun verticalDragApplicationScreen(dragAmount: Float) {
-        swipeY.snapTo(swipeY.value + dragAmount)
+    fun verticalDragApplicationScreen(dragAmount: Float) {
+        scope.launch {
+            swipeY.snapTo(swipeY.value + dragAmount)
+        }
     }
 
     fun dismissWidgetScreen() {
@@ -1070,17 +1095,17 @@ internal class PagerScreenState(
             screenWidth: Int,
             screenHeight: Int,
             fileManager: FileManager,
-            imageSerializer: AndroidImageSerializer,
+            androidImageSerializer: AndroidImageSerializer,
             androidLauncherAppsWrapper: AndroidLauncherAppsWrapper,
             scope: CoroutineScope,
             context: Context,
-            userManager: AndroidUserManagerWrapper,
+            androidUserManagerWrapper: AndroidUserManagerWrapper,
             pinItemRequestWrapper: PinItemRequestWrapper,
             gestureSettings: GestureSettings,
             homeSettings: HomeSettings,
             androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
-            appWidgetManager: AndroidAppWidgetManagerWrapper,
-            wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
+            androidAppWidgetManagerWrapper: AndroidAppWidgetManagerWrapper,
+            androidWallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
             density: Density,
             onGetPinGridItem: (PinItemRequestType) -> Unit,
             onResetPinGridItem: () -> Unit,
@@ -1117,17 +1142,17 @@ internal class PagerScreenState(
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     fileManager = fileManager,
-                    imageSerializer = imageSerializer,
+                    androidImageSerializer = androidImageSerializer,
                     androidLauncherAppsWrapper = androidLauncherAppsWrapper,
                     scope = scope,
                     context = context,
-                    userManager = userManager,
+                    androidUserManagerWrapper = androidUserManagerWrapper,
                     pinItemRequestWrapper = pinItemRequestWrapper,
                     gestureSettings = gestureSettings,
                     homeSettings = homeSettings,
                     androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
-                    androidAppWidgetManagerWrapper = appWidgetManager,
-                    wallpaperManagerWrapper = wallpaperManagerWrapper,
+                    androidAppWidgetManagerWrapper = androidAppWidgetManagerWrapper,
+                    androidWallpaperManagerWrapper = androidWallpaperManagerWrapper,
                     density = density,
                     onGetPinGridItem = onGetPinGridItem,
                     onResetPinGridItem = onResetPinGridItem,
@@ -1152,19 +1177,8 @@ internal class PagerScreenState(
 internal fun rememberPagerScreenState(
     screenWidth: Int,
     screenHeight: Int,
-    fileManager: FileManager,
-    imageSerializer: AndroidImageSerializer,
-    androidLauncherAppsWrapper: AndroidLauncherAppsWrapper,
-    scope: CoroutineScope,
-    context: Context,
-    userManager: AndroidUserManagerWrapper,
-    pinItemRequestWrapper: PinItemRequestWrapper,
     gestureSettings: GestureSettings,
     homeSettings: HomeSettings,
-    androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
-    appWidgetManager: AndroidAppWidgetManagerWrapper,
-    wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
-    density: Density,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
     onResetPinGridItem: () -> Unit,
     onMoveFolderGridItem: (GridItem, List<ApplicationInfoGridItem>, ApplicationInfoGridItem, Int, Int, Int, Int, Int, Int, Int) -> Unit,
@@ -1178,72 +1192,96 @@ internal fun rememberPagerScreenState(
     onShowFolderWhenDragging: (String, GridItem) -> Unit,
     onUpdateFolderGridItemId: (String?) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
-): PagerScreenState = rememberSaveable(
-    saver = PagerScreenState.Saver(
-        screenWidth = screenWidth,
-        screenHeight = screenHeight,
-        fileManager = fileManager,
-        imageSerializer = imageSerializer,
-        androidLauncherAppsWrapper = androidLauncherAppsWrapper,
-        scope = scope,
-        context = context,
-        userManager = userManager,
-        pinItemRequestWrapper = pinItemRequestWrapper,
-        gestureSettings = gestureSettings,
-        homeSettings = homeSettings,
-        androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
-        appWidgetManager = appWidgetManager,
-        wallpaperManagerWrapper = wallpaperManagerWrapper,
-        density = density,
-        onGetPinGridItem = onGetPinGridItem,
-        onResetPinGridItem = onResetPinGridItem,
-        onMoveFolderGridItem = onMoveFolderGridItem,
-        onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
-        onMoveGridItem = onMoveGridItem,
-        onDeleteGridItemCache = onDeleteGridItemCache,
-        onDragCancelAfterMove = onDragCancelAfterMove,
-        onDragEndAfterMove = onDragEndAfterMove,
-        onDragEndAfterMoveFolder = onDragEndAfterMoveFolder,
-        onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-        onShowFolderWhenDragging = onShowFolderWhenDragging,
-        onUpdateFolderGridItemId = onUpdateFolderGridItemId,
-        onDraggingGridItem = onDraggingGridItem,
-    ),
-) {
-    PagerScreenState(
-        initialSwipeUpY = screenHeight.toFloat(),
-        initialSwipeDownY = screenHeight.toFloat(),
-        initialFolderX = 0,
-        initialFolderY = 0,
-        initialFolderWidth = 0,
-        initialFolderHeight = 0,
-        screenWidth = screenWidth,
-        screenHeight = screenHeight,
-        fileManager = fileManager,
-        imageSerializer = imageSerializer,
-        androidLauncherAppsWrapper = androidLauncherAppsWrapper,
-        scope = scope,
-        context = context,
-        userManager = userManager,
-        pinItemRequestWrapper = pinItemRequestWrapper,
-        gestureSettings = gestureSettings,
-        homeSettings = homeSettings,
-        androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
-        androidAppWidgetManagerWrapper = appWidgetManager,
-        wallpaperManagerWrapper = wallpaperManagerWrapper,
-        density = density,
-        onGetPinGridItem = onGetPinGridItem,
-        onResetPinGridItem = onResetPinGridItem,
-        onMoveFolderGridItem = onMoveFolderGridItem,
-        onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
-        onMoveGridItem = onMoveGridItem,
-        onDeleteGridItemCache = onDeleteGridItemCache,
-        onDragCancelAfterMove = onDragCancelAfterMove,
-        onDragEndAfterMove = onDragEndAfterMove,
-        onDragEndAfterMoveFolder = onDragEndAfterMoveFolder,
-        onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-        onShowFolderWhenDragging = onShowFolderWhenDragging,
-        onUpdateFolderGridItemId = onUpdateFolderGridItemId,
-        onDraggingGridItem = onDraggingGridItem,
-    )
+): PagerScreenState {
+    val scope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+
+    val androidLauncherAppsWrapper = LocalLauncherApps.current
+
+    val androidWallpaperManagerWrapper = LocalWallpaperManager.current
+
+    val density = LocalDensity.current
+
+    val androidAppWidgetManagerWrapper = LocalAppWidgetManager.current
+
+    val androidUserManagerWrapper = LocalUserManager.current
+
+    val androidImageSerializer = LocalImageSerializer.current
+
+    val fileManager = LocalFileManager.current
+
+    val androidAppWidgetHostWrapper = LocalAppWidgetHost.current
+
+    val pinItemRequestWrapper = LocalPinItemRequest.current
+
+    return rememberSaveable(
+        saver = PagerScreenState.Saver(
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            fileManager = fileManager,
+            androidImageSerializer = androidImageSerializer,
+            androidLauncherAppsWrapper = androidLauncherAppsWrapper,
+            scope = scope,
+            context = context,
+            androidUserManagerWrapper = androidUserManagerWrapper,
+            pinItemRequestWrapper = pinItemRequestWrapper,
+            gestureSettings = gestureSettings,
+            homeSettings = homeSettings,
+            androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
+            androidAppWidgetManagerWrapper = androidAppWidgetManagerWrapper,
+            androidWallpaperManagerWrapper = androidWallpaperManagerWrapper,
+            density = density,
+            onGetPinGridItem = onGetPinGridItem,
+            onResetPinGridItem = onResetPinGridItem,
+            onMoveFolderGridItem = onMoveFolderGridItem,
+            onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
+            onMoveGridItem = onMoveGridItem,
+            onDeleteGridItemCache = onDeleteGridItemCache,
+            onDragCancelAfterMove = onDragCancelAfterMove,
+            onDragEndAfterMove = onDragEndAfterMove,
+            onDragEndAfterMoveFolder = onDragEndAfterMoveFolder,
+            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+            onShowFolderWhenDragging = onShowFolderWhenDragging,
+            onUpdateFolderGridItemId = onUpdateFolderGridItemId,
+            onDraggingGridItem = onDraggingGridItem,
+        ),
+    ) {
+        PagerScreenState(
+            initialSwipeUpY = screenHeight.toFloat(),
+            initialSwipeDownY = screenHeight.toFloat(),
+            initialFolderX = 0,
+            initialFolderY = 0,
+            initialFolderWidth = 0,
+            initialFolderHeight = 0,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            fileManager = fileManager,
+            androidImageSerializer = androidImageSerializer,
+            androidLauncherAppsWrapper = androidLauncherAppsWrapper,
+            scope = scope,
+            context = context,
+            androidUserManagerWrapper = androidUserManagerWrapper,
+            pinItemRequestWrapper = pinItemRequestWrapper,
+            gestureSettings = gestureSettings,
+            homeSettings = homeSettings,
+            androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
+            androidAppWidgetManagerWrapper = androidAppWidgetManagerWrapper,
+            androidWallpaperManagerWrapper = androidWallpaperManagerWrapper,
+            density = density,
+            onGetPinGridItem = onGetPinGridItem,
+            onResetPinGridItem = onResetPinGridItem,
+            onMoveFolderGridItem = onMoveFolderGridItem,
+            onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
+            onMoveGridItem = onMoveGridItem,
+            onDeleteGridItemCache = onDeleteGridItemCache,
+            onDragCancelAfterMove = onDragCancelAfterMove,
+            onDragEndAfterMove = onDragEndAfterMove,
+            onDragEndAfterMoveFolder = onDragEndAfterMoveFolder,
+            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+            onShowFolderWhenDragging = onShowFolderWhenDragging,
+            onUpdateFolderGridItemId = onUpdateFolderGridItemId,
+            onDraggingGridItem = onDraggingGridItem,
+        )
+    }
 }

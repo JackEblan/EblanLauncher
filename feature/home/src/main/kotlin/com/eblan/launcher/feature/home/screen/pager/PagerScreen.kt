@@ -103,11 +103,9 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleApplyFling
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
-import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalImageSerializer
 import com.eblan.launcher.ui.local.LocalLauncherApps
-import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalUserManager
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 import kotlinx.coroutines.flow.collect
@@ -239,8 +237,6 @@ internal fun PagerScreen(
 
     val density = LocalDensity.current
 
-    val androidAppWidgetManagerWrapper = LocalAppWidgetManager.current
-
     val androidUserManagerWrapper = LocalUserManager.current
 
     val androidImageSerializer = LocalImageSerializer.current
@@ -249,26 +245,13 @@ internal fun PagerScreen(
 
     val androidAppWidgetHostWrapper = LocalAppWidgetHost.current
 
-    val pinItemRequestWrapper = LocalPinItemRequest.current
-
     val scope = rememberCoroutineScope()
 
     val pagerScreenState = rememberPagerScreenState(
         screenWidth = screenWidth,
         screenHeight = screenHeight,
-        fileManager = fileManager,
-        imageSerializer = androidImageSerializer,
-        androidLauncherAppsWrapper = androidLauncherAppsWrapper,
-        scope = scope,
-        context = context,
-        userManager = androidUserManagerWrapper,
-        pinItemRequestWrapper = pinItemRequestWrapper,
         gestureSettings = gestureSettings,
         homeSettings = homeSettings,
-        androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
-        appWidgetManager = androidAppWidgetManagerWrapper,
-        wallpaperManagerWrapper = androidWallpaperManagerWrapper,
-        density = density,
         onGetPinGridItem = onGetPinGridItem,
         onResetPinGridItem = onResetPinGridItem,
         onMoveFolderGridItem = onMoveFolderGridItem,
@@ -334,7 +317,7 @@ internal fun PagerScreen(
         scope.launch {
             handleShortcutConfigLauncherResult(
                 gridItemSource = pagerScreenState.gridItemSource,
-                imageSerializer = androidImageSerializer,
+                androidImageSerializer = androidImageSerializer,
                 moveGridItemResult = moveGridItemResult,
                 result = result,
                 onDeleteGridItemCache = onDeleteGridItemCache,
@@ -350,11 +333,11 @@ internal fun PagerScreen(
             handleShortcutConfigIntentSenderLauncherResult(
                 fileManager = fileManager,
                 gridItemSource = pagerScreenState.gridItemSource,
-                imageSerializer = androidImageSerializer,
-                launcherAppsWrapper = androidLauncherAppsWrapper,
+                androidImageSerializer = androidImageSerializer,
+                androidLauncherAppsWrapper = androidLauncherAppsWrapper,
                 moveGridItemResult = moveGridItemResult,
                 result = result,
-                userManagerWrapper = androidUserManagerWrapper,
+                androidUserManagerWrapper = androidUserManagerWrapper,
                 onDeleteGridItemCache = onDeleteGridItemCache,
                 onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
             )
@@ -634,33 +617,27 @@ internal fun PagerScreen(
                 .pointerInput(Unit) {
                     detectVerticalDragGestures(
                         onVerticalDrag = { _, dragAmount ->
-                            scope.launch {
-                                pagerScreenState.verticalDrag(dragAmount = dragAmount)
-                            }
+                            pagerScreenState.verticalDrag(dragAmount = dragAmount)
                         },
                         onDragEnd = {
-                            scope.launch {
-                                pagerScreenState.swipeEblanAction(
-                                    context = context,
-                                    gestureSettings = gestureSettings,
-                                    launcherApps = androidLauncherAppsWrapper,
-                                    screenHeight = screenHeight,
-                                    swipeDownY = pagerScreenState.swipeDownY.value,
-                                    swipeUpY = pagerScreenState.swipeUpY.value,
-                                )
+                            pagerScreenState.swipeEblanAction(
+                                context = context,
+                                gestureSettings = gestureSettings,
+                                launcherApps = androidLauncherAppsWrapper,
+                                screenHeight = screenHeight,
+                                swipeDownY = pagerScreenState.swipeDownY.value,
+                                swipeUpY = pagerScreenState.swipeUpY.value,
+                            )
 
-                                pagerScreenState.resetSwipeOffset(
-                                    gestureSettings = gestureSettings,
-                                    screenHeight = screenHeight,
-                                    swipeDownY = pagerScreenState.swipeDownY,
-                                    swipeUpY = pagerScreenState.swipeUpY,
-                                )
-                            }
+                            pagerScreenState.resetSwipeOffset(
+                                gestureSettings = gestureSettings,
+                                screenHeight = screenHeight,
+                                swipeDownY = pagerScreenState.swipeDownY,
+                                swipeUpY = pagerScreenState.swipeUpY,
+                            )
                         },
                         onDragCancel = {
-                            scope.launch {
-                                pagerScreenState.verticalDragEnd()
-                            }
+                            pagerScreenState.verticalDragEnd()
                         },
                     )
                 }
@@ -730,11 +707,7 @@ internal fun PagerScreen(
                             onDraggingGridItem = {
                                 onDraggingGridItem(gridItems)
                             },
-                            onOpenAppDrawer = {
-                                scope.launch {
-                                    pagerScreenState.openAppDrawer()
-                                }
-                            },
+                            onOpenAppDrawer = pagerScreenState::openAppDrawer,
                             onTapApplicationInfo = { serialNumber, componentName ->
                                 val sourceBoundsX = x + leftPadding
 
@@ -868,11 +841,7 @@ internal fun PagerScreen(
                             onDraggingGridItem = {
                                 onDraggingGridItem(gridItems)
                             },
-                            onOpenAppDrawer = {
-                                scope.launch {
-                                    pagerScreenState.openAppDrawer()
-                                }
-                            },
+                            onOpenAppDrawer = pagerScreenState::openAppDrawer,
                             onTapApplicationInfo = { serialNumber, componentName ->
                                 val sourceBoundsX = x + leftPadding
 
@@ -1063,11 +1032,7 @@ internal fun PagerScreen(
                 onDraggingGridItem = {
                     onDraggingGridItem(gridItems)
                 },
-                onOpenAppDrawer = {
-                    scope.launch {
-                        pagerScreenState.openAppDrawer()
-                    }
-                },
+                onOpenAppDrawer = pagerScreenState::openAppDrawer,
                 onUpdateGridItemBounds = { intOffset, intSize ->
                     pagerScreenState.updatePopupBounds(
                         intOffset = intOffset,
@@ -1125,11 +1090,7 @@ internal fun PagerScreen(
                 screenHeight = screenHeight,
                 screenWidth = screenWidth,
                 swipeY = pagerScreenState.swipeY.value,
-                onDismiss = {
-                    scope.launch {
-                        pagerScreenState.closeAppDrawer()
-                    }
-                },
+                onDismiss = pagerScreenState::closeAppDrawer,
                 onDragEnd = { remaining ->
                     scope.launch {
                         handleApplyFling(
@@ -1147,11 +1108,7 @@ internal fun PagerScreen(
                 onUpdateEblanApplicationInfos = onUpdateEblanApplicationInfos,
                 onUpdateGridItemBounds = pagerScreenState::updateOverlayBounds,
                 onUpdateSharedElementKey = pagerScreenState::updateSharedElementKey,
-                onVerticalDrag = { dragAmount ->
-                    scope.launch {
-                        pagerScreenState.verticalDragApplicationScreen(dragAmount = dragAmount)
-                    }
-                },
+                onVerticalDrag = pagerScreenState::verticalDragApplicationScreen,
                 onUpdateImageBitmap = pagerScreenState::updateOverlayImageBitmap,
                 onUpdateGridItemSource = pagerScreenState::updateGridItemSource,
                 onUpdateIsLongPressAndIsDragging = pagerScreenState::updateIsLongPressAndIsDragging,

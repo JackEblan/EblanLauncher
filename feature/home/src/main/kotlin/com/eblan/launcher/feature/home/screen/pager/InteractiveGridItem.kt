@@ -338,10 +338,6 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
             onUpdateShowGridItemPopup(false)
 
             onDraggingGridItem()
-        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected && isLongPress) {
-            onUpdateIsLongPress(false)
-
-            onUpdateIsDragging(false)
         }
     }
 
@@ -523,10 +519,6 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
             onUpdateShowGridItemPopup(false)
 
             onDraggingGridItem()
-        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected && isLongPress) {
-            onUpdateIsLongPress(false)
-
-            onUpdateIsDragging(false)
         }
     }
 
@@ -674,10 +666,6 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
             onUpdateShowGridItemPopup(false)
 
             onDraggingGridItem()
-        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected && isLongPress) {
-            onUpdateIsLongPress(false)
-
-            onUpdateIsDragging(false)
         }
     }
 
@@ -856,10 +844,6 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
             onUpdateShowGridItemPopup(false)
 
             onDraggingGridItem()
-        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected && isLongPress) {
-            onUpdateIsLongPress(false)
-
-            onUpdateIsDragging(false)
         }
     }
 
@@ -1097,10 +1081,6 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
             onUpdateShowGridItemPopup(false)
 
             onDraggingGridItem()
-        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected && isLongPress) {
-            onUpdateIsLongPress(false)
-
-            onUpdateIsDragging(false)
         }
     }
 

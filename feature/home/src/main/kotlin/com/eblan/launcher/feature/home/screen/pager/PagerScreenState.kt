@@ -458,6 +458,7 @@ internal class PagerScreenState(
             moveGridItemResult = moveGridItemResult,
             androidUserManagerWrapper = androidUserManagerWrapper,
             isDragging = isDragging,
+            isLongPress = isLongPress,
             drag = drag,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDragCancelAfterMove = onDragCancelAfterMove,
@@ -478,6 +479,12 @@ internal class PagerScreenState(
             },
             onUpdateWidgetGridItem = { gridItem ->
                 updatedWidgetGridItem = gridItem
+            },
+            onUpdateIsDragging = { newIsDragging ->
+                isDragging = newIsDragging
+            },
+            onUpdateIsLongPress = { newIsLongPress ->
+                isLongPress = newIsLongPress
             },
         )
     }

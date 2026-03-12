@@ -52,6 +52,7 @@ internal suspend fun handleDropGridItem(
     moveGridItemResult: MoveGridItemResult?,
     androidUserManagerWrapper: AndroidUserManagerWrapper,
     isDragging: Boolean,
+    isLongPress: Boolean,
     drag: Drag,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragCancelAfterMove: () -> Unit,
@@ -63,12 +64,15 @@ internal suspend fun handleDropGridItem(
     onToast: () -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
     onUpdateWidgetGridItem: (GridItem) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
+    onUpdateIsDragging: (Boolean) -> Unit,
 ) {
     if (drag == Drag.None ||
         drag == Drag.Start ||
         drag == Drag.Dragging ||
         gridItemSource == null ||
-        !isDragging
+        !isDragging ||
+        !isLongPress
     ) {
         return
     }
@@ -118,7 +122,7 @@ internal suspend fun handleDropGridItem(
                     is GridItemData.ApplicationInfo,
                     is GridItemData.Folder,
                     is GridItemData.ShortcutInfo,
-                        -> {
+                    -> {
                         onDragEndAfterMove(moveGridItemResult)
                     }
                 }
@@ -163,6 +167,10 @@ internal suspend fun handleDropGridItem(
             onDragEndAfterMoveFolder()
         }
     }
+
+    onUpdateIsDragging(false)
+
+    onUpdateIsLongPress(false)
 }
 
 internal fun handleAppWidgetLauncherResult(

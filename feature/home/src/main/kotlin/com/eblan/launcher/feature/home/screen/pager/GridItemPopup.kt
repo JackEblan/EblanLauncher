@@ -73,7 +73,7 @@ internal fun GridItemPopup(
     popupIntSize: IntSize,
     onDeleteGridItem: (GridItem) -> Unit,
     onDismissRequest: () -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingShortcutInfoGridItem: () -> Unit,
     onEdit: (String) -> Unit,
     onInfo: (Long, String) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
@@ -127,7 +127,7 @@ internal fun GridItemPopup(
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 onDeleteGridItem = onDeleteGridItem,
                 onDismissRequest = onDismissRequest,
-                onDraggingGridItem = onDraggingGridItem,
+                onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
                 onEdit = onEdit,
                 onInfo = onInfo,
                 onResize = onResize,
@@ -258,7 +258,7 @@ private fun GridItemPopupContent(
     hasShortcutHostPermission: Boolean,
     onDeleteGridItem: (GridItem) -> Unit,
     onDismissRequest: () -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingShortcutInfoGridItem: () -> Unit,
     onEdit: (String) -> Unit,
     onInfo: (
         serialNumber: Long,
@@ -305,8 +305,8 @@ private fun GridItemPopupContent(
 
                             onDismissRequest()
                         },
-                        onDraggingGridItem = {
-                            onDraggingGridItem()
+                        onDraggingShortcutInfoGridItem = {
+                            onDraggingShortcutInfoGridItem()
 
                             onDismissRequest()
                         },
@@ -439,7 +439,7 @@ private fun ApplicationInfoGridItemMenu(
     hasShortcutHostPermission: Boolean,
     icon: String?,
     onDelete: () -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingShortcutInfoGridItem: () -> Unit,
     onEdit: () -> Unit,
     onInfo: () -> Unit,
     onResize: () -> Unit,
@@ -473,7 +473,7 @@ private fun ApplicationInfoGridItemMenu(
                 gridItemSettings = gridItemSettings,
                 onTapShortcutInfo = onTapShortcutInfo,
                 onUpdateGridItemBounds = onUpdateGridItemBounds,
-                onDraggingGridItem = onDraggingGridItem,
+                onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateGridItemSource = onUpdateGridItemSource,

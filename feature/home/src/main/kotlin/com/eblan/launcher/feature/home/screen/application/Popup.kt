@@ -65,13 +65,12 @@ internal fun PopupApplicationInfoMenu(
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     gridItem: GridItem?,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
     hasShortcutHostPermission: Boolean,
     paddingValues: PaddingValues,
     popupIntOffset: IntOffset,
     popupIntSize: IntSize,
     onDismissRequest: () -> Unit,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingShortcutInfoGridItem: () -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -133,7 +132,6 @@ internal fun PopupApplicationInfoMenu(
                     ),
                 ],
                 gridItemSettings = gridItemSettings,
-                gridItems = gridItems,
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 icon = applicationInfo.icon,
                 onApplicationInfo = {
@@ -150,7 +148,7 @@ internal fun PopupApplicationInfoMenu(
 
                     onDismissRequest()
                 },
-                onDraggingGridItem = onDraggingGridItem,
+                onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
                 onEdit = {
                     onDismissRequest()
 
@@ -220,11 +218,10 @@ private fun ApplicationInfoMenu(
     eblanAppWidgetProviderInfosByPackageName: List<EblanAppWidgetProviderInfo>?,
     eblanShortcutInfosGroup: List<EblanShortcutInfo>?,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
     hasShortcutHostPermission: Boolean,
     icon: String?,
     onApplicationInfo: () -> Unit,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingShortcutInfoGridItem: () -> Unit,
     onEdit: () -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
@@ -260,9 +257,7 @@ private fun ApplicationInfoMenu(
                         gridItemSettings = gridItemSettings,
                         onTapShortcutInfo = onTapShortcutInfo,
                         onUpdateGridItemBounds = onUpdateGridItemBounds,
-                        onDraggingGridItem = {
-                            onDraggingGridItem(gridItems)
-                        },
+                        onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                         onUpdateImageBitmap = onUpdateImageBitmap,
                         onUpdateGridItemSource = onUpdateGridItemSource,

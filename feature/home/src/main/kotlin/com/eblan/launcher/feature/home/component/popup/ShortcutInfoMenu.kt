@@ -79,7 +79,7 @@ internal fun ShortcutInfoMenu(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingShortcutInfoGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
@@ -101,7 +101,7 @@ internal fun ShortcutInfoMenu(
                 onTapShortcutInfo = onTapShortcutInfo,
                 eblanShortcutInfo = eblanShortcutInfo,
                 onUpdateGridItemBounds = onUpdateGridItemBounds,
-                onDraggingGridItem = onDraggingGridItem,
+                onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateGridItemSource = onUpdateGridItemSource,
@@ -124,7 +124,7 @@ private fun ShortcutInfoMenuItem(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingShortcutInfoGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
@@ -232,7 +232,7 @@ private fun ShortcutInfoMenuItem(
                                         ),
                                     )
 
-                                    onDraggingGridItem()
+                                    onDraggingShortcutInfoGridItem()
 
                                     isLongPress = true
                                 }

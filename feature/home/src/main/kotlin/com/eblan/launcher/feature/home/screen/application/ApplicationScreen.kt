@@ -530,7 +530,6 @@ private fun SharedTransitionScope.Success(
             eblanShortcutInfosGroup = eblanShortcutInfosGroup,
             gridItem = gridItemSource.gridItem,
             gridItemSettings = appDrawerSettings.gridItemSettings,
-            gridItems = gridItems,
             hasShortcutHostPermission = hasShortcutHostPermission,
             paddingValues = paddingValues,
             popupIntOffset = popupIntOffset,
@@ -538,7 +537,9 @@ private fun SharedTransitionScope.Success(
             onDismissRequest = {
                 showPopupApplicationMenu = false
             },
-            onDraggingGridItem = onDraggingGridItem,
+            onDraggingShortcutInfoGridItem = {
+                onDraggingGridItem(gridItems)
+            },
             onEditApplicationInfo = onEditApplicationInfo,
             onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
                 val sourceBoundsX = popupIntOffset.x + leftPadding

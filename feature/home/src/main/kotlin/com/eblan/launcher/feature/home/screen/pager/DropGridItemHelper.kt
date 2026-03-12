@@ -70,20 +70,28 @@ internal suspend fun handleDropGridItem(
     if (drag == Drag.None ||
         drag == Drag.Start ||
         drag == Drag.Dragging ||
-        gridItemSource == null ||
-        !isDragging ||
-        !isLongPress
+        gridItemSource == null
     ) {
         return
     }
 
     when (gridItemSource) {
         is GridItemSource.Existing -> {
-            if (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess) {
+            if (isLongPress && !isDragging) {
+                onUpdateIsLongPress(false)
+            } else if (isLongPress && (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess)) {
+                onUpdateIsLongPress(false)
+
+                onUpdateIsDragging(false)
+
                 onDragCancelAfterMove()
 
                 onToast()
-            } else {
+            } else if (isLongPress && moveGridItemResult != null) {
+                onUpdateIsLongPress(false)
+
+                onUpdateIsDragging(false)
+
                 onDragEndAfterMove(moveGridItemResult)
             }
         }
@@ -122,7 +130,7 @@ internal suspend fun handleDropGridItem(
                     is GridItemData.ApplicationInfo,
                     is GridItemData.Folder,
                     is GridItemData.ShortcutInfo,
-                    -> {
+                        -> {
                         onDragEndAfterMove(moveGridItemResult)
                     }
                 }
@@ -164,19 +172,25 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.Folder -> {
-            if (drag == Drag.Cancel) {
+            if (isLongPress && !isDragging) {
+                onUpdateIsLongPress(false)
+            } else if (isLongPress && drag == Drag.Cancel) {
+                onUpdateIsLongPress(false)
+
+                onUpdateIsDragging(false)
+
                 onDragCancelAfterMove()
 
                 onToast()
-            } else {
+            } else if (isLongPress) {
+                onUpdateIsLongPress(false)
+
+                onUpdateIsDragging(false)
+
                 onDragEndAfterMoveFolder()
             }
         }
     }
-
-    onUpdateIsDragging(false)
-
-    onUpdateIsLongPress(false)
 }
 
 internal fun handleAppWidgetLauncherResult(

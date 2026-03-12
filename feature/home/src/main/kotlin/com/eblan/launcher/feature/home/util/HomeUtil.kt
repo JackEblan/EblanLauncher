@@ -26,11 +26,20 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.GlobalAction
+import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 internal fun handleActionMainIntent(
     intent: Intent,
@@ -140,6 +149,77 @@ internal suspend fun handleApplyFling(
                 stiffness = Spring.StiffnessLow,
             ),
         )
+    }
+}
+
+internal fun onDoubleTap(
+    context: Context,
+    doubleTap: EblanAction,
+    launcherApps: AndroidLauncherAppsWrapper,
+    scope: CoroutineScope,
+    onOpenAppDrawer: () -> Unit,
+) {
+    if (doubleTap.eblanActionType == EblanActionType.None) return
+
+    scope.launch {
+        handleEblanAction(
+            context = context,
+            eblanAction = doubleTap,
+            launcherApps = launcherApps,
+            onOpenAppDrawer = onOpenAppDrawer,
+        )
+    }
+}
+
+internal fun onLongPress(
+    scope: CoroutineScope,
+    graphicsLayer: GraphicsLayer,
+    intOffset: IntOffset,
+    intSize: IntSize,
+    gridItemSource: GridItemSource,
+    sharedElementKey: SharedElementKey,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onUpdateIsLongPress: (Boolean) -> Unit,
+    onUpdateOverlayBounds: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateShowGridItemPopup: (Boolean) -> Unit,
+) {
+    scope.launch {
+        onUpdateGridItemSource(gridItemSource)
+
+        onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+
+        onUpdateOverlayBounds(
+            intOffset,
+            intSize,
+        )
+
+        onUpdateSharedElementKey(sharedElementKey)
+
+        onUpdateIsLongPress(true)
+
+        onUpdateShowGridItemPopup(true)
+    }
+}
+
+internal fun handleDrag(
+    drag: Drag,
+    isSelected: Boolean,
+    isLongPress: Boolean,
+    onUpdateIsDragging: (Boolean) -> Unit,
+    onUpdateShowGridItemPopup: (Boolean) -> Unit,
+    onDraggingGridItem: () -> Unit,
+) {
+    if (drag == Drag.Dragging && isSelected && isLongPress) {
+        onUpdateIsDragging(true)
+
+        onUpdateShowGridItemPopup(false)
+
+        onDraggingGridItem()
     }
 }
 

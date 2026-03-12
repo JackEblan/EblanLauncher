@@ -79,8 +79,6 @@ import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.FolderGridLayout
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
-import com.eblan.launcher.feature.home.component.modifier.onDoubleTap
-import com.eblan.launcher.feature.home.component.modifier.onLongPress
 import com.eblan.launcher.feature.home.component.modifier.swipeGestures
 import com.eblan.launcher.feature.home.component.modifier.whiteBox
 import com.eblan.launcher.feature.home.model.Drag
@@ -92,6 +90,9 @@ import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.getVerticalArrangement
+import com.eblan.launcher.feature.home.util.handleDrag
+import com.eblan.launcher.feature.home.util.onDoubleTap
+import com.eblan.launcher.feature.home.util.onLongPress
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalSettings
 
@@ -323,7 +324,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
     val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder
 
     val isSelected = gridItemSourceFolder != null &&
-        gridItem.id == gridItemSourceFolder.applicationInfoGridItem.id
+            gridItem.id == gridItemSourceFolder.applicationInfoGridItem.id
 
     val currentGridItemSettings = if (gridItem.override) {
         gridItem.gridItemSettings
@@ -344,6 +345,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
             systemTextColor = textColor,
         )
     }
+
     val horizontalAlignment =
         getHorizontalAlignment(horizontalAlignment = currentGridItemSettings.horizontalAlignment)
 
@@ -364,22 +366,23 @@ private fun SharedTransitionScope.FolderGridItemContent(
 
     val hasNotifications =
         statusBarNotifications[gridItem.packageName] != null && (
-            statusBarNotifications[gridItem.packageName]
-                ?: 0
-            ) > 0
+                statusBarNotifications[gridItem.packageName]
+                    ?: 0
+                ) > 0
+
+    val hasInteraction = isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+
+    val isVisibleWhiteBox = isSelected && drag == Drag.Dragging
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isSelected && isLongPress) {
-            onUpdateIsDragging(true)
-
-            onUpdateShowFolderGridItemPopup(false)
-
-            onDraggingGridItem()
-        } else if ((drag == Drag.Cancel || drag == Drag.End) && isSelected && isLongPress) {
-            onUpdateIsLongPress(false)
-
-            onUpdateIsDragging(false)
-        }
+        handleDrag(
+            drag = drag,
+            isSelected = isSelected,
+            isLongPress = isLongPress,
+            onUpdateIsDragging = onUpdateIsDragging,
+            onUpdateShowGridItemPopup = onUpdateShowFolderGridItemPopup,
+            onDraggingGridItem = onDraggingGridItem,
+        )
     }
 
     Column(
@@ -454,11 +457,11 @@ private fun SharedTransitionScope.FolderGridItemContent(
                 color = Color(currentGridItemSettings.customBackgroundColor),
                 shape = RoundedCornerShape(size = currentGridItemSettings.cornerRadius.dp),
             )
-            .whiteBox(textColor = currentTextColor, visible = isSelected && drag == Drag.Dragging),
+            .whiteBox(textColor = currentTextColor, visible = isVisibleWhiteBox),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!(isSelected && (drag == Drag.Start || drag == Drag.Dragging))) {
+        if (!hasInteraction) {
             Box(modifier = Modifier.size(currentGridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = Builder(LocalContext.current).data(gridItem.customIcon ?: icon)

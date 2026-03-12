@@ -595,7 +595,7 @@ private fun SharedTransitionScope.Success(
             onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
 
-        )
+            )
     }
 
     if (showEblanApplicationInfoOrderDialog) {
@@ -1030,6 +1030,12 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
     val id = remember { Uuid.random().toHexString() }
 
+    val hasInteraction by remember(key1 = drag) {
+        derivedStateOf {
+            isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+        }
+    }
+
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isLongPress) {
             onUpdatePopupMenu(false)
@@ -1147,7 +1153,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!(isLongPress && (drag == Drag.Start || drag == Drag.Dragging))) {
+        if (!hasInteraction) {
             Box(modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)

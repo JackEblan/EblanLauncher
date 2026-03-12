@@ -70,8 +70,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.modifier.onDoubleTap
-import com.eblan.launcher.feature.home.component.modifier.onLongPress
 import com.eblan.launcher.feature.home.component.modifier.swipeGestures
 import com.eblan.launcher.feature.home.component.modifier.whiteBox
 import com.eblan.launcher.feature.home.model.Drag
@@ -81,6 +79,9 @@ import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getHorizontalAlignment
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.getVerticalArrangement
+import com.eblan.launcher.feature.home.util.handleDrag
+import com.eblan.launcher.feature.home.util.onDoubleTap
+import com.eblan.launcher.feature.home.util.onLongPress
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalLauncherApps
@@ -328,9 +329,13 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
 
     val hasNotifications =
         statusBarNotifications[data.packageName] != null && (
-            statusBarNotifications[data.packageName]
-                ?: 0
-            ) > 0
+                statusBarNotifications[data.packageName]
+                    ?: 0
+                ) > 0
+
+    val hasInteraction = isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+
+    val isVisibleWhiteBox = isSelected && drag == Drag.Dragging
 
     LaunchedEffect(key1 = drag) {
         handleDrag(
@@ -408,11 +413,11 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                 color = Color(gridItemSettings.customBackgroundColor),
                 shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
             )
-            .whiteBox(textColor = textColor, visible = isSelected && drag == Drag.Dragging),
+            .whiteBox(textColor = textColor, visible = isVisibleWhiteBox),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!(isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging))) {
+        if (!hasInteraction) {
             Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = Builder(LocalContext.current).data(data.customIcon ?: icon)
@@ -521,6 +526,10 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
 
     val scope = rememberCoroutineScope()
 
+    val hasInteraction = isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+
+    val isVisibleWhiteBox = isSelected && drag == Drag.Dragging
+
     LaunchedEffect(key1 = drag) {
         handleDrag(
             drag = drag,
@@ -535,9 +544,9 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .whiteBox(textColor = textColor, visible = isSelected && drag == Drag.Dragging),
+            .whiteBox(textColor = textColor, visible = isVisibleWhiteBox),
     ) {
-        if (!(isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging))) {
+        if (!hasInteraction) {
             val commonModifier = Modifier
                 .matchParentSize()
                 .drawWithContent {
@@ -664,6 +673,10 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 
     val alpha = if (hasShortcutHostPermission && data.isEnabled) 1f else 0.3f
 
+    val hasInteraction = isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+
+    val isVisibleWhiteBox = isSelected && drag == Drag.Dragging
+
     LaunchedEffect(key1 = drag) {
         handleDrag(
             drag = drag,
@@ -743,11 +756,11 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                 color = Color(gridItemSettings.customBackgroundColor),
                 shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
             )
-            .whiteBox(textColor = textColor, visible = isSelected && drag == Drag.Dragging),
+            .whiteBox(textColor = textColor, visible = isVisibleWhiteBox),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!(isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging))) {
+        if (!hasInteraction) {
             Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = customIcon,
@@ -850,6 +863,10 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
+    val hasInteraction = isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+
+    val isVisibleWhiteBox = isSelected && drag == Drag.Dragging
+
     LaunchedEffect(key1 = drag) {
         handleDrag(
             drag = drag,
@@ -921,11 +938,11 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                 color = Color(gridItemSettings.customBackgroundColor),
                 shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
             )
-            .whiteBox(textColor = textColor, visible = isSelected && drag == Drag.Dragging),
+            .whiteBox(textColor = textColor, visible = isVisibleWhiteBox),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!(isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging))) {
+        if (!hasInteraction) {
             val commonModifier = Modifier
                 .size(gridItemSettings.iconSize.dp)
                 .drawWithContent {
@@ -1095,6 +1112,10 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
         }
     }
 
+    val hasInteraction = isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+
+    val isVisibleWhiteBox = isSelected && drag == Drag.Dragging
+
     LaunchedEffect(key1 = drag) {
         handleDrag(
             drag = drag,
@@ -1166,11 +1187,11 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                 color = Color(gridItemSettings.customBackgroundColor),
                 shape = RoundedCornerShape(size = gridItemSettings.cornerRadius.dp),
             )
-            .whiteBox(textColor = textColor, visible = isSelected && drag == Drag.Dragging),
+            .whiteBox(textColor = textColor, visible = isVisibleWhiteBox),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!(isSelected && isLongPress && (drag == Drag.Start || drag == Drag.Dragging))) {
+        if (!hasInteraction) {
             Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
                 AsyncImage(
                     model = Builder(LocalContext.current).data(icon)
@@ -1227,22 +1248,5 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                 )
             }
         }
-    }
-}
-
-private fun handleDrag(
-    drag: Drag,
-    isSelected: Boolean,
-    isLongPress: Boolean,
-    onUpdateIsDragging: (Boolean) -> Unit,
-    onUpdateShowGridItemPopup: (Boolean) -> Unit,
-    onDraggingGridItem: () -> Unit,
-) {
-    if (drag == Drag.Dragging && isSelected && isLongPress) {
-        onUpdateIsDragging(true)
-
-        onUpdateShowGridItemPopup(false)
-
-        onDraggingGridItem()
     }
 }

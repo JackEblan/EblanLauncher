@@ -117,13 +117,12 @@ internal fun GestureSettings.toGestureSettingsProto(): GestureSettingsProto = Ge
     .setSwipeDownProto(swipeDown.toEblanActionProto()).build()
 
 internal fun ExperimentalSettings.toExperimentalSettingsProto(): ExperimentalSettingsProto = ExperimentalSettingsProto.newBuilder().setSyncData(syncData).setFirstLaunch(firstLaunch)
-    .setLockMovement(lockMovement).setKlwpIntegration(klwpIntegration).build()
+    .setLockMovement(lockMovement).build()
 
 internal fun ExperimentalSettingsProto.toExperimentalSettings(): ExperimentalSettings = ExperimentalSettings(
     syncData = syncData,
     firstLaunch = firstLaunch,
     lockMovement = lockMovement,
-    klwpIntegration = klwpIntegration,
 )
 
 internal fun EblanAction.toEblanActionProto(): EblanActionProto = EblanActionProto.newBuilder().setEblanActionTypeProto(eblanActionType.toEblanActionTypeProto())

@@ -53,7 +53,6 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.popup.ShortcutInfoMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.ui.local.LocalLauncherApps
 
@@ -66,16 +65,12 @@ internal fun PopupApplicationInfoMenu(
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     gridItem: GridItem?,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
     hasShortcutHostPermission: Boolean,
     paddingValues: PaddingValues,
     popupIntOffset: IntOffset,
     popupIntSize: IntSize,
     onDismissRequest: () -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingShortcutInfoGridItem: () -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -85,7 +80,7 @@ internal fun PopupApplicationInfoMenu(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onUpdateGridItemOffset: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -137,7 +132,6 @@ internal fun PopupApplicationInfoMenu(
                     ),
                 ],
                 gridItemSettings = gridItemSettings,
-                gridItems = gridItems,
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 icon = applicationInfo.icon,
                 onApplicationInfo = {
@@ -154,7 +148,7 @@ internal fun PopupApplicationInfoMenu(
 
                     onDismissRequest()
                 },
-                onDraggingGridItem = onDraggingGridItem,
+                onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
                 onEdit = {
                     onDismissRequest()
 
@@ -172,7 +166,7 @@ internal fun PopupApplicationInfoMenu(
 
                     onDismissRequest()
                 },
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onWidgets = {
                     onWidgets(
@@ -224,21 +218,17 @@ private fun ApplicationInfoMenu(
     eblanAppWidgetProviderInfosByPackageName: List<EblanAppWidgetProviderInfo>?,
     eblanShortcutInfosGroup: List<EblanShortcutInfo>?,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
     hasShortcutHostPermission: Boolean,
     icon: String?,
     onApplicationInfo: () -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
+    onDraggingShortcutInfoGridItem: () -> Unit,
     onEdit: () -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onUpdateGridItemOffset: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -266,13 +256,8 @@ private fun ApplicationInfoMenu(
                         eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                         gridItemSettings = gridItemSettings,
                         onTapShortcutInfo = onTapShortcutInfo,
-                        onUpdateGridItemOffset = onUpdateGridItemOffset,
-                        onDraggingGridItem = {
-                            onDraggingGridItem(
-                                Screen.Drag,
-                                gridItems,
-                            )
-                        },
+                        onUpdateOverlayBounds = onUpdateOverlayBounds,
+                        onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
                         onUpdateImageBitmap = onUpdateImageBitmap,
                         onUpdateGridItemSource = onUpdateGridItemSource,

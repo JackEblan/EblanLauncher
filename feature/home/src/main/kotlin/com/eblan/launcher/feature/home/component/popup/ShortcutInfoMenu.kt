@@ -56,7 +56,6 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
@@ -75,11 +74,11 @@ internal fun ShortcutInfoMenu(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onUpdateGridItemOffset: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingShortcutInfoGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
@@ -100,8 +99,8 @@ internal fun ShortcutInfoMenu(
                 gridItemSettings = gridItemSettings,
                 onTapShortcutInfo = onTapShortcutInfo,
                 eblanShortcutInfo = eblanShortcutInfo,
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
-                onDraggingGridItem = onDraggingGridItem,
+                onUpdateOverlayBounds = onUpdateOverlayBounds,
+                onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateGridItemSource = onUpdateGridItemSource,
@@ -120,11 +119,11 @@ private fun ShortcutInfoMenuItem(
     gridItemSettings: GridItemSettings,
     onTapShortcutInfo: (Long, String, String) -> Unit,
     eblanShortcutInfo: EblanShortcutInfo,
-    onUpdateGridItemOffset: (
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onDraggingGridItem: () -> Unit,
+    onDraggingShortcutInfoGridItem: () -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
@@ -220,7 +219,7 @@ private fun ShortcutInfoMenuItem(
 
                                     onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                                    onUpdateGridItemOffset(
+                                    onUpdateOverlayBounds(
                                         intOffset,
                                         intSize,
                                     )
@@ -228,11 +227,11 @@ private fun ShortcutInfoMenuItem(
                                     onUpdateSharedElementKey(
                                         SharedElementKey(
                                             id = id,
-                                            screen = Screen.Drag,
+                                            parent = SharedElementKey.Parent.Grid,
                                         ),
                                     )
 
-                                    onDraggingGridItem()
+                                    onDraggingShortcutInfoGridItem()
 
                                     isLongPress = true
                                 }

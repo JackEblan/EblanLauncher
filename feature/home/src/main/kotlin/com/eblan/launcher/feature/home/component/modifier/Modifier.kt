@@ -15,9 +15,10 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.component.gesture
+package com.eblan.launcher.feature.home.component.modifier
 
 import android.content.Context
+import android.graphics.Paint
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.offset
@@ -25,7 +26,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -36,6 +41,7 @@ import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.feature.home.util.handleEblanAction
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.ui.local.LocalLauncherApps
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -122,16 +128,54 @@ internal fun onDoubleTap(
     doubleTap: EblanAction,
     launcherApps: AndroidLauncherAppsWrapper,
     context: Context,
+    scope: CoroutineScope,
     onOpenAppDrawer: () -> Unit,
 ): ((Offset) -> Unit)? = if (doubleTap.eblanActionType != EblanActionType.None) {
     {
-        handleEblanAction(
-            context = context,
-            eblanAction = doubleTap,
-            launcherApps = launcherApps,
-            onOpenAppDrawer = onOpenAppDrawer,
-        )
+        scope.launch {
+            handleEblanAction(
+                context = context,
+                eblanAction = doubleTap,
+                launcherApps = launcherApps,
+                onOpenAppDrawer = onOpenAppDrawer,
+            )
+        }
     }
 } else {
     null
+}
+
+internal fun Modifier.whiteBox(
+    visible: Boolean,
+    textColor: Color,
+): Modifier = if (visible) {
+    drawWithCache {
+        val strokeWidth = 1.5.dp.toPx()
+
+        val cornerRadius = 5.dp.toPx()
+
+        val inset = strokeWidth / 2f
+
+        val paint = Paint().apply {
+            isAntiAlias = true
+            style = Paint.Style.STROKE
+            this.strokeWidth = strokeWidth
+            color = textColor.copy(alpha = 0.3f).toArgb()
+            setShadowLayer(12.dp.toPx(), 0f, 0f, textColor.toArgb())
+        }
+
+        onDrawBehind {
+            drawContext.canvas.nativeCanvas.drawRoundRect(
+                inset,
+                inset,
+                size.width - inset,
+                size.height - inset,
+                cornerRadius,
+                cornerRadius,
+                paint,
+            )
+        }
+    }
+} else {
+    this
 }

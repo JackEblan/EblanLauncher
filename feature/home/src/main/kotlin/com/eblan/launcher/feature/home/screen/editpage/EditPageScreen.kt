@@ -23,7 +23,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -61,28 +60,24 @@ import androidx.compose.ui.unit.dp
 import androidx.core.util.Consumer
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EditPageData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.handleActionMainIntent
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun SharedTransitionScope.EditPageScreen(
+internal fun EditPageScreen(
     modifier: Modifier = Modifier,
-    associate: Associate?,
     hasShortcutHostPermission: Boolean,
     homeSettings: HomeSettings,
     iconPackFilePaths: Map<String, String>,
     paddingValues: PaddingValues,
-    pageItems: List<PageItem>,
-    screen: Screen,
+    editPageData: EditPageData?,
     screenHeight: Int,
     textColor: TextColor,
     onSaveEditPage: (
@@ -93,7 +88,7 @@ internal fun SharedTransitionScope.EditPageScreen(
     ) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
 ) {
-    requireNotNull(associate)
+    requireNotNull(editPageData)
 
     val density = LocalDensity.current
 
@@ -109,13 +104,13 @@ internal fun SharedTransitionScope.EditPageScreen(
 
     val gridHeight = screenHeight - verticalPadding
 
-    var currentPageItems by remember { mutableStateOf(pageItems) }
+    var currentPageItems by remember { mutableStateOf(editPageData.pageItems) }
 
     val pageItemsToDelete = remember { mutableStateListOf<PageItem>() }
 
     var selectedId by remember {
         mutableIntStateOf(
-            when (associate) {
+            when (editPageData.associate) {
                 Associate.Grid -> homeSettings.initialPage
                 Associate.Dock -> homeSettings.dockInitialPage
             },
@@ -144,17 +139,17 @@ internal fun SharedTransitionScope.EditPageScreen(
 
     val scope = rememberCoroutineScope()
 
-    val columns = when (associate) {
+    val columns = when (editPageData.associate) {
         Associate.Grid -> homeSettings.columns
         Associate.Dock -> homeSettings.dockColumns
     }
 
-    val rows = when (associate) {
+    val rows = when (editPageData.associate) {
         Associate.Grid -> homeSettings.rows
         Associate.Dock -> homeSettings.dockRows
     }
 
-    val cardHeight = when (associate) {
+    val cardHeight = when (editPageData.associate) {
         Associate.Grid -> with(density) {
             gridHeight.toDp() - homeSettings.dockHeight.dp
         }
@@ -227,10 +222,6 @@ internal fun SharedTransitionScope.EditPageScreen(
                                     statusBarNotifications = emptyMap(),
                                     hasShortcutHostPermission = hasShortcutHostPermission,
                                     iconPackFilePaths = iconPackFilePaths,
-                                    drag = Drag.None,
-                                    screen = screen,
-                                    isScrollInProgress = false,
-                                    gridItemSource = GridItemSource.Existing(gridItem = gridItem),
                                 )
                             },
                         )
@@ -281,7 +272,7 @@ internal fun SharedTransitionScope.EditPageScreen(
                         selectedId,
                         currentPageItems,
                         pageItemsToDelete,
-                        associate,
+                        editPageData.associate,
                     )
                 },
             )

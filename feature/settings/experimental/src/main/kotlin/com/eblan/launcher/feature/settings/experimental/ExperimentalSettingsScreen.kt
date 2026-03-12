@@ -145,17 +145,6 @@ private fun Success(
                     onUpdateExperimentalSettings(experimentalSettings.copy(lockMovement = lockMovement))
                 },
             )
-
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-            SettingsSwitch(
-                checked = experimentalSettings.klwpIntegration,
-                title = "KLWP Integration",
-                subtitle = "Send broadcasts to KLWP Live Wallpaper",
-                onCheckedChange = { klwpIntegration ->
-                    onUpdateExperimentalSettings(experimentalSettings.copy(klwpIntegration = klwpIntegration))
-                },
-            )
         }
     }
 

@@ -18,17 +18,10 @@
 package com.eblan.launcher.feature.home
 
 import android.content.Context
-import android.content.Intent
 import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.PinItemRequestType
-import com.eblan.launcher.feature.home.model.Klwp
-import com.eblan.launcher.feature.home.model.Screen
-import com.eblan.launcher.feature.home.util.KUSTOM_ACTION
-import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_EXT_NAME
-import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_NAME
-import com.eblan.launcher.feature.home.util.KUSTOM_ACTION_VAR_VALUE
 import com.eblan.launcher.framework.imageserializer.AndroidImageSerializer
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
@@ -145,34 +138,5 @@ internal suspend fun handlePinItemRequest(
                 }
             }
         }
-    }
-}
-
-internal fun handleKlwpBroadcasts(context: Context, klwpIntegration: Boolean, screen: Screen) {
-    if (!klwpIntegration) return
-
-    val intent = Intent(KUSTOM_ACTION).apply {
-        putExtra(KUSTOM_ACTION_EXT_NAME, "yagni-launcher")
-        putExtra(KUSTOM_ACTION_VAR_NAME, "screen")
-    }
-
-    when (screen) {
-        Screen.EditPage -> {
-            context.sendBroadcast(
-                intent.apply {
-                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.EditPage.ordinal)
-                },
-            )
-        }
-
-        Screen.Pager -> {
-            context.sendBroadcast(
-                intent.apply {
-                    putExtra(KUSTOM_ACTION_VAR_VALUE, Klwp.Pager.ordinal)
-                },
-            )
-        }
-
-        else -> Unit
     }
 }

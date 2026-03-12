@@ -17,7 +17,7 @@
  */
 package com.eblan.launcher.domain.model
 
-data class GridItemCache(
-    val gridItemsCacheByPage: Map<Int, List<GridItem>>,
-    val dockGridItemsCache: Map<Int, List<GridItem>>,
+data class EditPageData(
+    val associate: Associate,
+    val pageItems: List<PageItem>,
 )

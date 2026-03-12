@@ -72,8 +72,8 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
-import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
+import com.eblan.launcher.feature.home.model.SharedElementKey
+import com.eblan.launcher.feature.home.util.handleApplyFling
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -96,16 +96,15 @@ internal fun AppWidgetScreen(
     screenHeight: Int,
     screenWidth: Int,
     onDismiss: () -> Unit,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
-    onUpdateGridItemOffset: (
+    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -219,14 +218,29 @@ internal fun AppWidgetScreen(
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosGroup[eblanApplicationInfoGroup.packageName].orEmpty(),
                     eblanApplicationInfoGroup = eblanApplicationInfoGroup,
                     gridItemSettings = gridItemSettings,
-                    gridItems = gridItems,
                     rows = rows,
                     screenHeight = screenHeight,
                     screenWidth = screenWidth,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onDraggingGridItem = {
+                        scope.launch {
+                            offsetY.animateTo(
+                                targetValue = screenHeight.toFloat(),
+                                animationSpec = tween(
+                                    easing = FastOutSlowInEasing,
+                                ),
+                            )
+
+                            onUpdateIsLongPressAndIsDragging()
+
+                            onDraggingGridItem(gridItems)
+
+                            onDismiss()
+                        }
+                    },
+                    onUpdateOverlayBounds = onUpdateOverlayBounds,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
@@ -243,17 +257,14 @@ private fun Success(
     eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
-    onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
+    onDraggingGridItem: () -> Unit,
+    onUpdateOverlayBounds: (IntOffset, IntSize) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -285,14 +296,14 @@ private fun Success(
                     drag = drag,
                     eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
                     gridItemSettings = gridItemSettings,
-                    gridItems = gridItems,
                     rows = rows,
                     screenHeight = screenHeight,
                     screenWidth = screenWidth,
                     onDraggingGridItem = onDraggingGridItem,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onUpdateOverlayBounds = onUpdateOverlayBounds,
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
@@ -308,20 +319,17 @@ private fun EblanAppWidgetProviderInfoItem(
     drag: Drag,
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
-    onDraggingGridItem: (
-        screen: Screen,
-        gridItems: List<GridItem>,
-    ) -> Unit,
-    onUpdateGridItemOffset: (
+    onDraggingGridItem: () -> Unit,
+    onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -369,15 +377,19 @@ private fun EblanAppWidgetProviderInfoItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onUpdateGridItemOffset(
+                            onUpdateOverlayBounds(
                                 intOffset,
                                 intSize,
                             )
 
-                            onDraggingGridItem(
-                                Screen.Drag,
-                                gridItems,
+                            onUpdateSharedElementKey(
+                                SharedElementKey(
+                                    id = id,
+                                    parent = SharedElementKey.Parent.Grid,
+                                ),
                             )
+
+                            onDraggingGridItem()
                         }
                     },
                 )

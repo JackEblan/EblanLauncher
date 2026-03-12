@@ -21,6 +21,7 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EditPageData
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.UserDataRepository
@@ -36,7 +37,7 @@ class CachePageItemsUseCase @Inject constructor(
     suspend operator fun invoke(
         gridItems: List<GridItem>,
         associate: Associate,
-    ): List<PageItem> = withContext(defaultDispatcher) {
+    ): EditPageData = withContext(defaultDispatcher) {
         val userData = userDataRepository.userData.first()
 
         val columns = when (associate) {
@@ -62,11 +63,16 @@ class CachePageItemsUseCase @Inject constructor(
             ) && gridItem.associate == associate
         }.groupBy { gridItem -> gridItem.page }
 
-        (0 until pageCount).map { page ->
+        val pageItems = (0 until pageCount).map { page ->
             PageItem(
                 id = page,
                 gridItems = gridItemsByPage[page] ?: emptyList(),
             )
         }
+
+        EditPageData(
+            associate = associate,
+            pageItems = pageItems,
+        )
     }
 }

@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.screen.drag
+package com.eblan.launcher.feature.home.screen.pager
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -38,6 +38,7 @@ import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.FOLDER_GRID_PADDING
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import kotlinx.coroutines.delay
@@ -51,13 +52,16 @@ internal fun handleAnimateScrollToPage(
     folderGridItem: GridItem?,
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
-    gridItemSource: GridItemSource,
+    gridItemSource: GridItemSource?,
     paddingValues: PaddingValues,
     screenWidth: Int,
+    isDragging: Boolean,
     onUpdateDockPageDirection: (PageDirection?) -> Unit,
     onUpdateFolderPageDirection: (PageDirection?) -> Unit,
     onUpdateGridPageDirection: (PageDirection?) -> Unit,
 ) {
+    if (gridItemSource == null || !isDragging) return
+
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
@@ -153,13 +157,14 @@ internal suspend fun handleDragGridItem(
     folderPopupIntOffset: IntOffset,
     folderPopupIntSize: IntSize,
     folderTitleHeightPx: Int,
-    gridItemSource: GridItemSource,
+    gridItemSource: GridItemSource?,
     isScrollInProgress: Boolean,
     lockMovement: Boolean,
     paddingValues: PaddingValues,
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
+    isDragging: Boolean,
     onMoveFolderGridItem: (
         folderGridItem: GridItem,
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
@@ -189,11 +194,12 @@ internal suspend fun handleDragGridItem(
     ) -> Unit,
     onUpdateAssociate: (Associate) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
-    if (drag == Drag.None ||
-        drag == Drag.End ||
-        drag == Drag.Cancel ||
-        isScrollInProgress
+    if (drag != Drag.Dragging ||
+        isScrollInProgress ||
+        gridItemSource == null ||
+        !isDragging
     ) {
         return
     }
@@ -291,6 +297,7 @@ internal suspend fun handleDragGridItem(
                 onMoveFolderGridItem = onMoveFolderGridItem,
                 onMoveFolderGridItemOutsideFolder = onMoveFolderGridItemOutsideFolder,
                 onUpdateGridItemSource = onUpdateGridItemSource,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         }
     }
@@ -329,12 +336,14 @@ private suspend fun handleDragFolderGridItem(
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
     ) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     requireNotNull(folderGridItem)
 
     val data = folderGridItem.data as? GridItemData.Folder ?: error("Expected GridItemData.Folder")
 
-    val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemData.Folder")
+    val gridItemSourceFolder =
+        gridItemSource as? GridItemSource.Folder ?: error("Expected GridItemData.Folder")
 
     if (lockMovement) return
 
@@ -372,7 +381,7 @@ private suspend fun handleDragFolderGridItem(
 
     if (isInsideFolder) {
         onMoveFolderGridItem(
-            gridItemSource.gridItem,
+            folderGridItem,
             data.gridItems,
             gridItemSourceFolder.applicationInfoGridItem,
             folderDragX,
@@ -390,33 +399,38 @@ private suspend fun handleDragFolderGridItem(
             data.gridItems,
         )
 
-        onUpdateGridItemSource(
-            GridItemSource.New(
-                gridItem = GridItem(
-                    id = gridItemSourceFolder.applicationInfoGridItem.id,
-                    page = gridItemSourceFolder.applicationInfoGridItem.page,
-                    startColumn = gridItemSourceFolder.applicationInfoGridItem.startColumn,
-                    startRow = gridItemSourceFolder.applicationInfoGridItem.startRow,
-                    columnSpan = gridItemSourceFolder.applicationInfoGridItem.columnSpan,
-                    rowSpan = gridItemSourceFolder.applicationInfoGridItem.rowSpan,
-                    data = GridItemData.ApplicationInfo(
-                        serialNumber = gridItemSourceFolder.applicationInfoGridItem.serialNumber,
-                        componentName = gridItemSourceFolder.applicationInfoGridItem.componentName,
-                        packageName = gridItemSourceFolder.applicationInfoGridItem.packageName,
-                        icon = gridItemSourceFolder.applicationInfoGridItem.icon,
-                        label = gridItemSourceFolder.applicationInfoGridItem.label,
-                        customIcon = gridItemSourceFolder.applicationInfoGridItem.customIcon,
-                        customLabel = gridItemSourceFolder.applicationInfoGridItem.customLabel,
-                        index = -1,
-                        folderId = null,
-                    ),
-                    associate = gridItemSourceFolder.applicationInfoGridItem.associate,
-                    override = gridItemSourceFolder.applicationInfoGridItem.override,
-                    gridItemSettings = gridItemSourceFolder.applicationInfoGridItem.gridItemSettings,
-                    doubleTap = gridItemSourceFolder.applicationInfoGridItem.doubleTap,
-                    swipeUp = gridItemSourceFolder.applicationInfoGridItem.swipeUp,
-                    swipeDown = gridItemSourceFolder.applicationInfoGridItem.swipeDown,
-                ),
+        val gridItem = GridItem(
+            id = gridItemSourceFolder.applicationInfoGridItem.id,
+            page = gridItemSourceFolder.applicationInfoGridItem.page,
+            startColumn = gridItemSourceFolder.applicationInfoGridItem.startColumn,
+            startRow = gridItemSourceFolder.applicationInfoGridItem.startRow,
+            columnSpan = gridItemSourceFolder.applicationInfoGridItem.columnSpan,
+            rowSpan = gridItemSourceFolder.applicationInfoGridItem.rowSpan,
+            data = GridItemData.ApplicationInfo(
+                serialNumber = gridItemSourceFolder.applicationInfoGridItem.serialNumber,
+                componentName = gridItemSourceFolder.applicationInfoGridItem.componentName,
+                packageName = gridItemSourceFolder.applicationInfoGridItem.packageName,
+                icon = gridItemSourceFolder.applicationInfoGridItem.icon,
+                label = gridItemSourceFolder.applicationInfoGridItem.label,
+                customIcon = gridItemSourceFolder.applicationInfoGridItem.customIcon,
+                customLabel = gridItemSourceFolder.applicationInfoGridItem.customLabel,
+                index = -1,
+                folderId = null,
+            ),
+            associate = gridItemSourceFolder.applicationInfoGridItem.associate,
+            override = gridItemSourceFolder.applicationInfoGridItem.override,
+            gridItemSettings = gridItemSourceFolder.applicationInfoGridItem.gridItemSettings,
+            doubleTap = gridItemSourceFolder.applicationInfoGridItem.doubleTap,
+            swipeUp = gridItemSourceFolder.applicationInfoGridItem.swipeUp,
+            swipeDown = gridItemSourceFolder.applicationInfoGridItem.swipeDown,
+        )
+
+        onUpdateGridItemSource(GridItemSource.New(gridItem = gridItem))
+
+        onUpdateSharedElementKey(
+            SharedElementKey(
+                id = gridItem.id,
+                parent = SharedElementKey.Parent.Grid,
             ),
         )
     }
@@ -470,7 +484,7 @@ private suspend fun handleDragGridItem(
         gridX = dragX,
         gridY = dragY,
         rows = rows,
-        targetPage = currentPage,
+        currentPage = currentPage,
     )
 
     val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
@@ -540,7 +554,7 @@ private suspend fun handleDragDockGridItem(
         gridX = dragX,
         gridY = dockY,
         rows = dockRows,
-        targetPage = currentPage,
+        currentPage = currentPage,
     )
 
     val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
@@ -568,16 +582,20 @@ internal suspend fun handleConflictingGridItem(
     density: Density,
     dockHeight: Dp,
     drag: Drag,
-    gridItemSource: GridItemSource,
+    gridItemSource: GridItemSource?,
     moveGridItemResult: MoveGridItemResult?,
     paddingValues: PaddingValues,
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
+    isDragging: Boolean,
     onShowFolderWhenDragging: (
         id: String,
         movingGridItem: GridItem,
-        gridItemSource: GridItemSource,
+    ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateFolderPopupBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
@@ -585,7 +603,9 @@ internal suspend fun handleConflictingGridItem(
     delay(1000L)
 
     if (drag != Drag.Dragging ||
-        moveGridItemResult == null
+        gridItemSource == null ||
+        moveGridItemResult == null ||
+        !isDragging
     ) {
         return
     }
@@ -664,11 +684,21 @@ internal suspend fun handleConflictingGridItem(
         height = height,
     )
 
+    onUpdateSharedElementKey(
+        SharedElementKey(
+            id = moveGridItemResult.movingGridItem.id,
+            parent = SharedElementKey.Parent.Folder,
+        ),
+    )
+
     onShowFolderWhenDragging(
         conflictingData.id,
         moveGridItemResult.movingGridItem,
+    )
+
+    onUpdateGridItemSource(
         GridItemSource.Folder(
-            gridItem = conflictingGridItem,
+            gridItem = moveGridItemResult.movingGridItem,
             applicationInfoGridItem = ApplicationInfoGridItem(
                 id = moveGridItemResult.movingGridItem.id,
                 page = moveGridItemResult.movingGridItem.page,
@@ -693,6 +723,9 @@ internal suspend fun handleConflictingGridItem(
                 folderId = conflictingData.id,
             ),
         ),
+    )
+
+    onUpdateFolderPopupBounds(
         intOffset,
         intSize,
     )
@@ -726,11 +759,11 @@ private fun getMoveGridItem(
     gridX: Int,
     gridY: Int,
     rows: Int,
-    targetPage: Int,
+    currentPage: Int,
 ): GridItem = when (gridItemSource) {
     is GridItemSource.Existing, is GridItemSource.Folder -> {
         gridItem.copy(
-            page = targetPage,
+            page = currentPage,
             startColumn = gridX / cellWidth,
             startRow = gridY / cellHeight,
             associate = associate,
@@ -749,7 +782,7 @@ private fun getMoveGridItem(
             gridX = gridX,
             gridY = gridY,
             rows = rows,
-            targetPage = targetPage,
+            currentPage = currentPage,
         )
     }
 }
@@ -765,7 +798,7 @@ private fun getMoveNewGridItem(
     gridX: Int,
     gridY: Int,
     rows: Int,
-    targetPage: Int,
+    currentPage: Int,
 ): GridItem = when (val data = gridItem.data) {
     is GridItemData.Widget -> {
         val (checkedColumnSpan, checkedRowSpan) = getWidgetGridItemSpan(
@@ -794,7 +827,7 @@ private fun getMoveNewGridItem(
         )
 
         gridItem.copy(
-            page = targetPage,
+            page = currentPage,
             startColumn = gridX / cellWidth,
             startRow = gridY / cellHeight,
             columnSpan = checkedColumnSpan.coerceIn(1, columns),
@@ -806,7 +839,7 @@ private fun getMoveNewGridItem(
 
     else -> {
         gridItem.copy(
-            page = targetPage,
+            page = currentPage,
             startColumn = gridX / cellWidth,
             startRow = gridY / cellHeight,
             associate = associate,

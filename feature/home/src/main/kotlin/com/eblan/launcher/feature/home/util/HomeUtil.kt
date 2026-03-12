@@ -20,6 +20,12 @@ package com.eblan.launcher.feature.home.util
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanActionType
@@ -41,11 +47,11 @@ internal fun handleActionMainIntent(
     onActionMainIntent()
 }
 
-internal fun handleEblanAction(
+internal suspend fun handleEblanAction(
     context: Context,
     eblanAction: EblanAction,
     launcherApps: AndroidLauncherAppsWrapper,
-    onOpenAppDrawer: () -> Unit,
+    onOpenAppDrawer: suspend () -> Unit,
 ) {
     when (eblanAction.eblanActionType) {
         EblanActionType.OpenApp -> {
@@ -100,10 +106,42 @@ internal fun handleEblanAction(
     }
 }
 
-internal const val KUSTOM_ACTION = "org.kustom.action.SEND_VAR"
-internal const val KUSTOM_ACTION_EXT_NAME = "org.kustom.action.EXT_NAME"
-internal const val KUSTOM_ACTION_VAR_NAME = "org.kustom.action.VAR_NAME"
-internal const val KUSTOM_ACTION_VAR_VALUE = "org.kustom.action.VAR_VALUE"
+internal suspend fun handleApplyFling(
+    offsetY: Animatable<Float, AnimationVector1D>,
+    remaining: Float,
+    screenHeight: Int,
+    onDismiss: () -> Unit = {},
+) {
+    if (offsetY.value <= 0f && remaining > 10000f) {
+        offsetY.animateTo(
+            targetValue = screenHeight.toFloat(),
+            initialVelocity = remaining,
+            animationSpec = tween(
+                easing = FastOutSlowInEasing,
+            ),
+        )
+
+        onDismiss()
+    } else if (offsetY.value > 200f) {
+        offsetY.animateTo(
+            targetValue = screenHeight.toFloat(),
+            animationSpec = tween(
+                easing = FastOutSlowInEasing,
+            ),
+        )
+
+        onDismiss()
+    } else {
+        offsetY.animateTo(
+            targetValue = 0f,
+            initialVelocity = remaining,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
+        )
+    }
+}
 
 internal val PAGE_INDICATOR_HEIGHT = 30.dp
 internal val DRAG_HANDLE_SIZE = 30.dp

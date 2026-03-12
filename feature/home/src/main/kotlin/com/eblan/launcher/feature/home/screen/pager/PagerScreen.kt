@@ -960,7 +960,7 @@ internal fun PagerScreen(
                 popupIntSize = pagerScreenState.popupIntSize,
                 onDeleteGridItem = onDeleteGridItem,
                 onDismissRequest = {
-                    pagerScreenState.updateShowGridItemPopup(value = true)
+                    pagerScreenState.updateShowGridItemPopup(value = false)
                 },
                 onDraggingShortcutInfoGridItem = {
                     pagerScreenState.draggingShortcutInfoGridItem(gridItems = gridItems)
@@ -1014,7 +1014,7 @@ internal fun PagerScreen(
                 hasSystemFeatureAppWidgets = hasSystemFeatureAppWidgets,
                 popupSettingsIntOffset = pagerScreenState.settingsPopupIntOffset,
                 onDismissRequest = {
-                    pagerScreenState.updateShowSettingsPopup(value = true)
+                    pagerScreenState.updateShowSettingsPopup(value = false)
                 },
                 onEditPage = onEditPage,
                 onSettings = onSettings,

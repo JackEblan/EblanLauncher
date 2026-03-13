@@ -375,6 +375,8 @@ internal class PagerScreenState(
         (20 * progress).dp
     }
 
+    val appWidgetScreenOffsetY = Animatable(screenHeight.toFloat())
+
     private val touchSlop = with(density) {
         50.dp.toPx()
     }
@@ -951,10 +953,6 @@ internal class PagerScreenState(
         hasDoubleTap = value
     }
 
-    fun updateEblanApplicationInfoGroup(value: EblanApplicationInfoGroup?) {
-        eblanApplicationInfoGroup = value
-    }
-
     fun updateShowGridItemPopup(value: Boolean) {
         showGridItemPopup = value
     }
@@ -1120,6 +1118,12 @@ internal class PagerScreenState(
         }
     }
 
+    fun verticalDragShortcutConfigScreen(dragAmount: Float) {
+        scope.launch {
+            shortcutConfigScreenOffsetY.snapTo(shortcutConfigScreenOffsetY.value + dragAmount)
+        }
+    }
+
     fun openShortcutConfigScreen() {
         scope.launch {
             shortcutConfigScreenOffsetY.animateTo(
@@ -1151,6 +1155,25 @@ internal class PagerScreenState(
 
         if (isPressHome) {
             isPressHome = false
+        }
+    }
+
+    fun openAppWidgetScreen(value: EblanApplicationInfoGroup?) {
+        scope.launch {
+            eblanApplicationInfoGroup = value
+
+            appWidgetScreenOffsetY.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(
+                    easing = FastOutSlowInEasing,
+                ),
+            )
+        }
+    }
+
+    fun verticalDragAppWidgetScreen(dragAmount: Float) {
+        scope.launch {
+            appWidgetScreenOffsetY.snapTo(appWidgetScreenOffsetY.value + dragAmount)
         }
     }
 

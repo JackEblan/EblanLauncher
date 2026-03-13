@@ -20,9 +20,6 @@ package com.eblan.launcher.feature.home.screen.widget
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -72,7 +69,6 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.util.handleApplyFling
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -93,6 +89,7 @@ internal fun AppWidgetScreen(
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
+    offsetY: Float,
     onDismiss: () -> Unit,
     onDismissApplicationScreen: () -> Unit,
     onDraggingGridItem: () -> Unit,
@@ -104,66 +101,30 @@ internal fun AppWidgetScreen(
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateIsLongPressAndIsDragging: () -> Unit,
+    onVerticalDrag: (Float) -> Unit,
+    onDragEnd: () -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
-    val offsetY = remember { Animatable(screenHeight.toFloat()) }
-
-    LaunchedEffect(key1 = Unit) {
-        offsetY.animateTo(
-            targetValue = 0f,
-            animationSpec = tween(
-                easing = FastOutSlowInEasing,
-            ),
-        )
-    }
+    if (eblanApplicationInfoGroup == null) return
 
     LaunchedEffect(key1 = isPressHome) {
-        if (isPressHome) {
-            scope.launch {
-                offsetY.animateTo(
-                    targetValue = screenHeight.toFloat(),
-                    animationSpec = tween(
-                        easing = FastOutSlowInEasing,
-                    ),
-                )
-
-                onDismiss()
-            }
+        if (isPressHome && offsetY < screenHeight.toFloat()) {
+            onDismiss()
         }
     }
 
-    BackHandler {
-        scope.launch {
-            offsetY.animateTo(
-                targetValue = screenHeight.toFloat(),
-                animationSpec = tween(
-                    easing = FastOutSlowInEasing,
-                ),
-            )
-
-            onDismiss()
-        }
+    BackHandler(enabled = offsetY < screenHeight.toFloat()) {
+        onDismiss()
     }
 
     Box(
         modifier = modifier
             .offset {
-                IntOffset(x = 0, y = offsetY.value.roundToInt())
+                IntOffset(x = 0, y = offsetY.roundToInt())
             }
             .pointerInput(key1 = Unit) {
                 detectTapGestures(
                     onTap = {
-                        scope.launch {
-                            offsetY.animateTo(
-                                targetValue = screenHeight.toFloat(),
-                                animationSpec = tween(
-                                    easing = FastOutSlowInEasing,
-                                ),
-                            )
-
-                            onDismiss()
-                        }
+                        onDismiss()
                     },
                 )
             }
@@ -175,75 +136,41 @@ internal fun AppWidgetScreen(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(20.dp)),
         ) {
-            if (eblanApplicationInfoGroup != null) {
-                Success(
-                    modifier = Modifier
-                        .pointerInput(key1 = Unit) {
-                            detectVerticalDragGestures(
-                                onVerticalDrag = { _, dragAmount ->
-                                    scope.launch {
-                                        offsetY.snapTo(
-                                            (offsetY.value + dragAmount).coerceAtLeast(0f),
-                                        )
-                                    }
-                                },
-                                onDragEnd = {
-                                    scope.launch {
-                                        handleApplyFling(
-                                            offsetY = offsetY,
-                                            remaining = 0f,
-                                            screenHeight = screenHeight,
-                                            onDismiss = onDismiss,
-                                        )
-                                    }
-                                },
-                                onDragCancel = {
-                                    scope.launch {
-                                        handleApplyFling(
-                                            offsetY = offsetY,
-                                            remaining = 0f,
-                                            screenHeight = screenHeight,
-                                            onDismiss = onDismiss,
-                                        )
-                                    }
-                                },
-                            )
-                        }
-                        .fillMaxWidth()
-                        .padding(paddingValues),
-                    columns = columns,
-                    currentPage = currentPage,
-                    drag = drag,
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosGroup[eblanApplicationInfoGroup.packageName].orEmpty(),
-                    eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-                    gridItemSettings = gridItemSettings,
-                    rows = rows,
-                    screenHeight = screenHeight,
-                    screenWidth = screenWidth,
-                    onDraggingGridItem = {
-                        scope.launch {
-                            offsetY.animateTo(
-                                targetValue = screenHeight.toFloat(),
-                                animationSpec = tween(
-                                    easing = FastOutSlowInEasing,
-                                ),
-                            )
-
-                            onDismiss()
-
-                            onDismissApplicationScreen()
-
-                            onUpdateIsLongPressAndIsDragging()
-
-                            onDraggingGridItem()
-                        }
-                    },
-                    onUpdateOverlayBounds = onUpdateOverlayBounds,
-                    onUpdateImageBitmap = onUpdateImageBitmap,
-                    onUpdateGridItemSource = onUpdateGridItemSource,
-                    onUpdateSharedElementKey = onUpdateSharedElementKey,
-                )
-            }
+            Success(
+                modifier = Modifier
+                    .pointerInput(key1 = Unit) {
+                        detectVerticalDragGestures(
+                            onVerticalDrag = { _, dragAmount ->
+                                onVerticalDrag(dragAmount)
+                            },
+                            onDragEnd = {
+                                onDragEnd()
+                            },
+                            onDragCancel = {
+                                onDragEnd()
+                            },
+                        )
+                    }
+                    .fillMaxWidth()
+                    .padding(paddingValues),
+                columns = columns,
+                currentPage = currentPage,
+                drag = drag,
+                eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosGroup[eblanApplicationInfoGroup.packageName].orEmpty(),
+                eblanApplicationInfoGroup = eblanApplicationInfoGroup,
+                gridItemSettings = gridItemSettings,
+                rows = rows,
+                screenHeight = screenHeight,
+                screenWidth = screenWidth,
+                onDraggingGridItem = onDraggingGridItem,
+                onUpdateOverlayBounds = onUpdateOverlayBounds,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onUpdateGridItemSource = onUpdateGridItemSource,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
+                onDismiss = onDismiss,
+                onDismissApplicationScreen = onDismissApplicationScreen,
+                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
+            )
         }
     }
 }
@@ -266,6 +193,9 @@ private fun Success(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onDismiss: () -> Unit,
+    onDismissApplicationScreen: () -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -305,6 +235,9 @@ private fun Success(
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onDismiss = onDismiss,
+                    onDismissApplicationScreen = onDismissApplicationScreen,
+                    onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                 )
             }
         }
@@ -331,6 +264,9 @@ private fun EblanAppWidgetProviderInfoItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onDismiss: () -> Unit,
+    onDismissApplicationScreen: () -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -389,6 +325,12 @@ private fun EblanAppWidgetProviderInfoItem(
                                     parent = SharedElementKey.Parent.Grid,
                                 ),
                             )
+
+                            onDismiss()
+
+                            onDismissApplicationScreen()
+
+                            onUpdateIsLongPressAndIsDragging()
 
                             onDraggingGridItem()
                         }

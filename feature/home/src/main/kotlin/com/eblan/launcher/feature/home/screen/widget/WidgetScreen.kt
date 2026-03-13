@@ -130,10 +130,6 @@ internal fun WidgetScreen(
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
 ) {
-    BackHandler(enabled = offsetY < screenHeight.toFloat()) {
-        onDismiss()
-    }
-
     Surface(
         modifier = modifier
             .offset {
@@ -154,6 +150,7 @@ internal fun WidgetScreen(
             rows = rows,
             screenHeight = screenHeight,
             screenWidth = screenWidth,
+            offsetY = offsetY,
             onDismiss = onDismiss,
             onDragEnd = onDragEnd,
             onDraggingGridItem = onDraggingGridItem,
@@ -182,6 +179,7 @@ private fun Success(
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
+    offsetY: Float,
     onDismiss: () -> Unit,
     onDragEnd: (Float) -> Unit,
     onDraggingGridItem: () -> Unit,
@@ -232,11 +230,11 @@ private fun Success(
     val textFieldState = rememberTextFieldState()
 
     LaunchedEffect(key1 = isPressHome) {
-        if (isPressHome) {
+        if (isPressHome && offsetY < screenHeight.toFloat()) {
             onDismiss()
         }
 
-        if (isPressHome && searchBarState.currentValue == SearchBarValue.Expanded) {
+        if (isPressHome && offsetY < screenHeight.toFloat() && searchBarState.currentValue == SearchBarValue.Expanded) {
             searchBarState.animateToCollapsed()
         }
     }
@@ -251,6 +249,10 @@ private fun Success(
         snapshotFlow { textFieldState.text }.debounce(500L).onEach { text ->
             onGetEblanAppWidgetProviderInfosByLabel(text.toString())
         }.collect()
+    }
+
+    BackHandler(enabled = offsetY < screenHeight.toFloat()) {
+        onDismiss()
     }
 
     Column(

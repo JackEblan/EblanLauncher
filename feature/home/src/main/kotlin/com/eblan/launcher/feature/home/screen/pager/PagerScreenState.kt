@@ -1151,10 +1151,19 @@ internal class PagerScreenState(
     }
 
     fun dismissAppWidgetScreen() {
-        eblanApplicationInfoGroup = null
+        scope.launch {
+            appWidgetScreenOffsetY.animateTo(
+                targetValue = screenHeight.toFloat(),
+                animationSpec = tween(
+                    easing = FastOutSlowInEasing,
+                ),
+            )
 
-        if (isPressHome) {
-            isPressHome = false
+            eblanApplicationInfoGroup = null
+
+            if (isPressHome) {
+                isPressHome = false
+            }
         }
     }
 

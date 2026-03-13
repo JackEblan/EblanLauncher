@@ -191,7 +191,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onVerticalDrag: (Float) -> Unit,
-    onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
     onDraggingShortcutInfoGridItem: () -> Unit,
 ) {
     Surface(
@@ -232,7 +232,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             onUpdateOverlayBounds = onUpdateOverlayBounds,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onVerticalDrag = onVerticalDrag,
-            onUpdateEblanApplicationInfoGroup = onUpdateEblanApplicationInfoGroup,
+            onWidgets = onWidgets,
             onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
         )
     }
@@ -276,7 +276,7 @@ private fun SharedTransitionScope.Success(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onVerticalDrag: (Float) -> Unit,
-    onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
     onDraggingShortcutInfoGridItem: () -> Unit,
 ) {
     val density = LocalDensity.current
@@ -561,7 +561,7 @@ private fun SharedTransitionScope.Success(
             onUpdateImageBitmap = onUpdateImageBitmap,
             onUpdateOverlayBounds = onUpdateOverlayBounds,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
-            onWidgets = onUpdateEblanApplicationInfoGroup,
+            onWidgets = onWidgets,
         )
     }
 

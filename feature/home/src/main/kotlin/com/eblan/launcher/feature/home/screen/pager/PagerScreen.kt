@@ -1150,7 +1150,7 @@ internal fun PagerScreen(
                 onUpdateOverlayBounds = pagerScreenState::updateOverlayBounds,
                 onUpdateSharedElementKey = pagerScreenState::updateSharedElementKey,
                 onVerticalDrag = pagerScreenState::verticalDragApplicationScreen,
-                onUpdateEblanApplicationInfoGroup = pagerScreenState::openAppWidgetScreen,
+                onWidgets = pagerScreenState::openAppWidgetScreen,
                 onDraggingShortcutInfoGridItem = {
                     pagerScreenState.draggingShortcutInfoGridItem(gridItems = gridItems)
                 },

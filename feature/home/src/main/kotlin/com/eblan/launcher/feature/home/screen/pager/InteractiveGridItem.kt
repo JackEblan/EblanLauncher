@@ -451,7 +451,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                 if (settings.isNotificationAccessGranted() && hasNotifications) {
                     Box(
                         modifier = Modifier
-                            .size((gridItemSettings.iconSize * 0.4).dp)
+                            .size((gridItemSettings.iconSize * 0.3).dp)
                             .align(Alignment.TopEnd)
                             .background(
                                 color = MaterialTheme.colorScheme.primary,

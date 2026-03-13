@@ -121,7 +121,7 @@ class SyncDataUseCase @Inject constructor(
 
         val newFastLauncherAppsActivityInfos = launcherAppsWrapper.getFastActivityList()
 
-        if (oldFastEblanLauncherAppsActivityInfo == newFastLauncherAppsActivityInfos) return
+        if (oldFastEblanLauncherAppsActivityInfo.toSet() == newFastLauncherAppsActivityInfos.toSet()) return
 
         val newEblanShortcutConfigs = mutableSetOf<EblanShortcutConfig>()
 
@@ -269,7 +269,7 @@ class SyncDataUseCase @Inject constructor(
         val newFastAppWidgetManagerAppWidgetProviderInfos =
             appWidgetManagerWrapper.getFastInstalledProviders()
 
-        if (oldFastAppWidgetManagerAppWidgetProviderInfos == newFastAppWidgetManagerAppWidgetProviderInfos) return
+        if (oldFastAppWidgetManagerAppWidgetProviderInfos.toSet() == newFastAppWidgetManagerAppWidgetProviderInfos.toSet()) return
 
         val appWidgetManagerAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProviders()
 
@@ -414,7 +414,7 @@ class SyncDataUseCase @Inject constructor(
 
         val newFastLauncherAppsShortcutInfos = launcherAppsWrapper.getFastShortcuts()
 
-        if (oldFastLauncherAppsShortcutInfos == newFastLauncherAppsShortcutInfos) return
+        if (oldFastLauncherAppsShortcutInfos.toSet() == newFastLauncherAppsShortcutInfos?.toSet()) return
 
         val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcuts() ?: return
 
@@ -500,7 +500,7 @@ class SyncDataUseCase @Inject constructor(
     ) {
         val oldEblanShortcutConfigs = eblanShortcutConfigRepository.getEblanShortcutConfigs()
 
-        if (oldEblanShortcutConfigs != newEblanShortcutConfigs) {
+        if (oldEblanShortcutConfigs.toSet() != newEblanShortcutConfigs) {
             val newDeleteEblanShortcutConfigs = newEblanShortcutConfigs.map { eblanShortcutConfig ->
                 DeleteEblanShortcutConfig(
                     serialNumber = eblanShortcutConfig.serialNumber,

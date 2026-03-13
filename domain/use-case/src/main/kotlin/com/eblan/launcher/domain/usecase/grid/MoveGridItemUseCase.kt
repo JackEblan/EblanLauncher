@@ -161,7 +161,12 @@ class MoveGridItemUseCase @Inject constructor(
             }
 
             ResolveDirection.Center -> {
-                if (movingGridItem.data !is GridItemData.ApplicationInfo) {
+                if (movingGridItem.data !is GridItemData.ApplicationInfo ||
+                    (
+                        conflictingGridItem.data !is GridItemData.ApplicationInfo &&
+                            conflictingGridItem.data !is GridItemData.Folder
+                        )
+                ) {
                     return MoveGridItemResult(
                         isSuccess = false,
                         movingGridItem = movingGridItem,

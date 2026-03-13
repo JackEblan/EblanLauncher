@@ -96,6 +96,7 @@ internal fun AppWidgetScreen(
     screenHeight: Int,
     screenWidth: Int,
     onDismiss: () -> Unit,
+    onDismissApplicationScreen: () -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
@@ -230,11 +231,13 @@ internal fun AppWidgetScreen(
                                 ),
                             )
 
+                            onDismiss()
+
+                            onDismissApplicationScreen()
+
                             onUpdateIsLongPressAndIsDragging()
 
                             onDraggingGridItem(gridItems)
-
-                            onDismiss()
                         }
                     },
                     onUpdateOverlayBounds = onUpdateOverlayBounds,

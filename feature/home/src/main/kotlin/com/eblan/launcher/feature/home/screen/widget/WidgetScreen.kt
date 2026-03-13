@@ -221,11 +221,11 @@ internal fun WidgetScreen(
                         ),
                     )
 
+                    onDismiss()
+
                     onUpdateIsLongPressAndIsDragging()
 
                     onDraggingGridItem(gridItems)
-
-                    onDismiss()
                 }
             },
             onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,

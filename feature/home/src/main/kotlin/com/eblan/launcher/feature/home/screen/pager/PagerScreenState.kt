@@ -367,7 +367,7 @@ internal class PagerScreenState(
 
     private var lastAppWidgetId by mutableIntStateOf(AppWidgetManager.INVALID_APPWIDGET_ID)
 
-    internal suspend fun handlePinGridItem(
+    suspend fun handlePinGridItem(
         gridItems: List<GridItem>,
         pinGridItem: GridItem?,
         onDraggingGridItem: (List<GridItem>) -> Unit,
@@ -391,7 +391,7 @@ internal class PagerScreenState(
         )
     }
 
-    internal suspend fun handleDragGridItem(
+    suspend fun handleDragGridItem(
         currentPage: Int,
         density: Density,
         dockHeight: Dp,
@@ -417,6 +417,7 @@ internal class PagerScreenState(
             folderTitleHeightPx = folderTitleHeightPx,
             gridItemSource = gridItemSource,
             isDragging = isDragging,
+            isLongPress = isLongPress,
             isScrollInProgress = isScrollInProgress,
             lockMovement = lockMovement,
             paddingValues = paddingValues,
@@ -440,7 +441,7 @@ internal class PagerScreenState(
         )
     }
 
-    internal suspend fun handleDropGridItem(
+    suspend fun handleDropGridItem(
         moveGridItemResult: MoveGridItemResult?,
         onLaunchShortcutConfigIntent: (Intent) -> Unit,
         onLaunchShortcutConfigIntentSenderRequest: (IntentSenderRequest) -> Unit,
@@ -485,7 +486,7 @@ internal class PagerScreenState(
         )
     }
 
-    internal fun handleDeleteAppWidgetId() {
+    fun handleDeleteAppWidgetId() {
         handleDeleteAppWidgetId(
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
@@ -499,7 +500,7 @@ internal class PagerScreenState(
         )
     }
 
-    internal suspend fun handleConflictingGridItem(
+    suspend fun handleConflictingGridItem(
         density: Density,
         dockHeight: Dp,
         moveGridItemResult: MoveGridItemResult?,
@@ -538,7 +539,7 @@ internal class PagerScreenState(
         )
     }
 
-    internal fun handleAnimateScrollToPage(
+    fun handleAnimateScrollToPage(
         density: Density,
         folderGridItem: GridItem?,
         paddingValues: PaddingValues,
@@ -567,7 +568,7 @@ internal class PagerScreenState(
         )
     }
 
-    internal suspend fun handleHasDoubleTap() {
+    suspend fun handleHasDoubleTap() {
         handleHasDoubleTap(
             androidLauncherAppsWrapper = androidLauncherAppsWrapper,
             context = context,
@@ -587,7 +588,7 @@ internal class PagerScreenState(
         hasDoubleTap = false
     }
 
-    internal suspend fun handleNewIntent(
+    suspend fun handleNewIntent(
         gridHorizontalPagerState: PagerState,
         intent: Intent,
         windowToken: IBinder,
@@ -627,7 +628,7 @@ internal class PagerScreenState(
         )
     }
 
-    internal fun handleAppWidgetLauncherResult(result: ActivityResult) {
+    fun handleAppWidgetLauncherResult(result: ActivityResult) {
         handleAppWidgetLauncherResult(
             androidAppWidgetManagerWrapper = androidAppWidgetManagerWrapper,
             gridItemSource = gridItemSource,
@@ -641,7 +642,7 @@ internal class PagerScreenState(
         )
     }
 
-    internal fun swipeEblanAction(
+    fun swipeEblanAction(
         context: Context,
         gestureSettings: GestureSettings,
         launcherApps: AndroidLauncherAppsWrapper,
@@ -672,7 +673,7 @@ internal class PagerScreenState(
         }
     }
 
-    internal fun resetSwipeOffset(
+    fun resetSwipeOffset(
         gestureSettings: GestureSettings,
         screenHeight: Int,
         swipeDownY: Animatable<Float, AnimationVector1D>,
@@ -713,7 +714,7 @@ internal class PagerScreenState(
         }
     }
 
-    internal suspend fun handleActionMainIntent(
+    suspend fun handleActionMainIntent(
         eblanApplicationInfoGroup: EblanApplicationInfoGroup?,
         gridHorizontalPagerState: PagerState,
         infiniteScroll: Boolean,
@@ -771,7 +772,7 @@ internal class PagerScreenState(
         }
     }
 
-    internal suspend fun handleEblanActionIntent(
+    suspend fun handleEblanActionIntent(
         context: Context,
         intent: Intent,
         launcherApps: AndroidLauncherAppsWrapper,
@@ -791,7 +792,7 @@ internal class PagerScreenState(
         )
     }
 
-    internal suspend fun handleHasDoubleTap(
+    suspend fun handleHasDoubleTap(
         androidLauncherAppsWrapper: AndroidLauncherAppsWrapper,
         context: Context,
         gestureSettings: GestureSettings,
@@ -808,7 +809,7 @@ internal class PagerScreenState(
         )
     }
 
-    internal suspend fun handlePinGridItem(
+    suspend fun handlePinGridItem(
         isApplicationScreenVisible: Boolean,
         pinGridItem: GridItem?,
         pinItemRequestWrapper: PinItemRequestWrapper,
@@ -840,7 +841,7 @@ internal class PagerScreenState(
         onDraggingGridItem()
     }
 
-    internal fun dragStart(offset: Offset) {
+    fun dragStart(offset: Offset) {
         drag = Drag.Start
 
         dragIntOffset = offset.round()
@@ -848,7 +849,7 @@ internal class PagerScreenState(
         accumulatedDragOffset = Offset.Zero
     }
 
-    internal fun drag(dragAmount: Offset) {
+    fun drag(dragAmount: Offset) {
         accumulatedDragOffset += dragAmount
 
         if (accumulatedDragOffset.getDistance() >= touchSlop) {
@@ -860,7 +861,7 @@ internal class PagerScreenState(
         overlayIntOffset += dragAmount.round()
     }
 
-    internal fun tapFolderGridItem(
+    fun tapFolderGridItem(
         height: Int,
         id: String?,
         width: Int,
@@ -886,7 +887,7 @@ internal class PagerScreenState(
         )
     }
 
-    internal fun updateOverlayBounds(
+    fun updateOverlayBounds(
         intOffset: IntOffset,
         intSize: IntSize,
     ) {
@@ -895,7 +896,7 @@ internal class PagerScreenState(
         overlayIntSize = intSize
     }
 
-    internal fun updatePopupBounds(
+    fun updatePopupBounds(
         intOffset: IntOffset,
         intSize: IntSize,
     ) {
@@ -904,7 +905,7 @@ internal class PagerScreenState(
         popupIntSize = intSize
     }
 
-    internal fun resetOverlay() {
+    fun resetOverlay() {
         overlayImageBitmap = null
 
         sharedElementKey = null
@@ -1048,12 +1049,14 @@ internal class PagerScreenState(
 
     fun dismissApplicationScreen() {
         scope.launch {
-            swipeY.animateTo(
-                targetValue = screenHeight.toFloat(),
-                animationSpec = tween(
-                    easing = FastOutSlowInEasing,
-                ),
-            )
+            if (swipeY.value < screenHeight.toFloat()) {
+                swipeY.animateTo(
+                    targetValue = screenHeight.toFloat(),
+                    animationSpec = tween(
+                        easing = FastOutSlowInEasing,
+                    ),
+                )
+            }
 
             if (isPressHome) {
                 isPressHome = false
@@ -1084,16 +1087,20 @@ internal class PagerScreenState(
     fun dismissShortcutConfigScreen() {
         showShortcutConfigActivities = false
 
-        isPressHome = false
+        if (isPressHome) {
+            isPressHome = false
+        }
     }
 
     fun dismissAppWidgetScreen() {
         eblanApplicationInfoGroup = null
 
-        isPressHome = false
+        if (isPressHome) {
+            isPressHome = false
+        }
     }
 
-    internal suspend fun handlePinItemRequest(pinItemRequest: PinItemRequest?) {
+    suspend fun handlePinItemRequest(pinItemRequest: PinItemRequest?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
             when (pinItemRequest.requestType) {
                 PinItemRequest.REQUEST_TYPE_APPWIDGET -> {

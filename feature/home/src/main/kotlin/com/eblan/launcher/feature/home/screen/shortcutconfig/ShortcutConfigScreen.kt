@@ -227,11 +227,11 @@ internal fun ShortcutConfigScreen(
                         ),
                     )
 
+                    onDismiss()
+
                     onUpdateIsLongPressAndIsDragging()
 
                     onDraggingGridItem(gridItems)
-
-                    onDismiss()
                 }
             },
             onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,

@@ -56,7 +56,7 @@ import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.ui.local.LocalLauncherApps
 
 @Composable
-internal fun PopupApplicationInfoMenu(
+internal fun ApplicationInfoPopup(
     modifier: Modifier = Modifier,
     currentPage: Int,
     drag: Drag,

@@ -93,7 +93,7 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.New -> {
-            if (isDragging && isLongPress && (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess)) {
+            if (isLongPress && isDragging && (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess)) {
                 onUpdateIsLongPress(false)
 
                 onUpdateIsDragging(false)
@@ -101,7 +101,7 @@ internal suspend fun handleDropGridItem(
                 onDragCancelAfterMove()
 
                 onToast()
-            } else if (isDragging && isLongPress && moveGridItemResult != null) {
+            } else if (isLongPress && isDragging && moveGridItemResult != null) {
                 onUpdateIsLongPress(false)
 
                 onUpdateIsDragging(false)

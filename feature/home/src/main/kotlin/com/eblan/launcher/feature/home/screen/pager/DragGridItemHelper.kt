@@ -157,6 +157,7 @@ internal suspend fun handleDragGridItem(
     folderTitleHeightPx: Int,
     gridItemSource: GridItemSource?,
     isDragging: Boolean,
+    isLongPress: Boolean,
     isScrollInProgress: Boolean,
     lockMovement: Boolean,
     paddingValues: PaddingValues,
@@ -197,7 +198,7 @@ internal suspend fun handleDragGridItem(
     if (drag != Drag.Dragging ||
         isScrollInProgress ||
         gridItemSource == null ||
-        !isDragging
+        !(isLongPress && isDragging)
     ) {
         return
     }

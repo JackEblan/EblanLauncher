@@ -230,11 +230,11 @@ internal fun AppWidgetScreen(
                                 ),
                             )
 
+                            onDismiss()
+
                             onUpdateIsLongPressAndIsDragging()
 
                             onDraggingGridItem(gridItems)
-
-                            onDismiss()
                         }
                     },
                     onUpdateOverlayBounds = onUpdateOverlayBounds,

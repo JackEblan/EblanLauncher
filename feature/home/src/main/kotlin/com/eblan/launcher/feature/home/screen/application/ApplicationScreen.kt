@@ -361,7 +361,7 @@ private fun SharedTransitionScope.Success(
         }
     }
 
-    BackHandler {
+    BackHandler(enabled = swipeY < screenHeight.toFloat()) {
         showPopupApplicationMenu = false
 
         onDismiss()

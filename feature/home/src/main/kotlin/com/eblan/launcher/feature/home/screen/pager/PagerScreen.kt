@@ -709,7 +709,7 @@ internal fun PagerScreen(
                             onDraggingGridItem = {
                                 onDraggingGridItem(gridItems)
                             },
-                            onOpenAppDrawer = pagerScreenState::openAppDrawer,
+                            onOpenAppDrawer = pagerScreenState::openApplicationScreen,
                             onTapApplicationInfo = { serialNumber, componentName ->
                                 val sourceBoundsX = x + leftPadding
 
@@ -843,7 +843,7 @@ internal fun PagerScreen(
                             onDraggingGridItem = {
                                 onDraggingGridItem(gridItems)
                             },
-                            onOpenAppDrawer = pagerScreenState::openAppDrawer,
+                            onOpenAppDrawer = pagerScreenState::openApplicationScreen,
                             onTapApplicationInfo = { serialNumber, componentName ->
                                 val sourceBoundsX = x + leftPadding
 
@@ -989,9 +989,7 @@ internal fun PagerScreen(
                 },
                 onEditPage = onEditPage,
                 onSettings = onSettings,
-                onShortcutConfigActivities = {
-                    pagerScreenState.updateShowShortcutConfigActivities(value = true)
-                },
+                onShortcutConfigActivities = pagerScreenState::openShortcutConfigScreen,
                 onWallpaper = {
                     val intent = Intent(ACTION_SET_WALLPAPER)
 
@@ -999,9 +997,7 @@ internal fun PagerScreen(
 
                     context.startActivity(chooser)
                 },
-                onWidgets = {
-                    pagerScreenState.updateShowWidgets(value = true)
-                },
+                onWidgets = pagerScreenState::openWidgetScreen,
             )
         }
 
@@ -1034,7 +1030,7 @@ internal fun PagerScreen(
                 onDraggingGridItem = {
                     onDraggingGridItem(gridItems)
                 },
-                onOpenAppDrawer = pagerScreenState::openAppDrawer,
+                onOpenAppDrawer = pagerScreenState::openApplicationScreen,
                 onUpdateGridItemSource = pagerScreenState::updateGridItemSource,
                 onUpdateImageBitmap = pagerScreenState::updateOverlayImageBitmap,
                 onUpdateIsDragging = pagerScreenState::updateIsDragging,
@@ -1116,7 +1112,7 @@ internal fun PagerScreen(
             ApplicationScreen(
                 alpha = pagerScreenState.applicationScreenAlpha,
                 appDrawerSettings = appDrawerSettings,
-                cornerSize = pagerScreenState.cornerSize,
+                cornerSize = pagerScreenState.applicationScreenCornerSize,
                 currentPage = currentPage,
                 drag = pagerScreenState.drag,
                 eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
@@ -1161,52 +1157,74 @@ internal fun PagerScreen(
             )
         }
 
-        if (pagerScreenState.showWidgets) {
-            WidgetScreen(
-                columns = homeSettings.columns,
-                currentPage = currentPage,
-                drag = pagerScreenState.drag,
-                eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-                gridItemSettings = homeSettings.gridItemSettings,
-                isPressHome = pagerScreenState.isPressHome,
-                paddingValues = paddingValues,
-                rows = homeSettings.rows,
-                screenHeight = screenHeight,
-                screenWidth = screenWidth,
-                onDismiss = pagerScreenState::dismissWidgetScreen,
-                onDraggingGridItem = {
-                    onDraggingGridItem(gridItems)
-                },
-                onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-                onUpdateOverlayBounds = pagerScreenState::updateOverlayBounds,
-                onUpdateImageBitmap = pagerScreenState::updateOverlayImageBitmap,
-                onUpdateGridItemSource = pagerScreenState::updateGridItemSource,
-                onUpdateSharedElementKey = pagerScreenState::updateSharedElementKey,
-                onUpdateIsLongPressAndIsDragging = pagerScreenState::updateIsLongPressAndIsDragging,
-            )
-        }
+        WidgetScreen(
+            columns = homeSettings.columns,
+            currentPage = currentPage,
+            drag = pagerScreenState.drag,
+            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+            gridItemSettings = homeSettings.gridItemSettings,
+            isPressHome = pagerScreenState.isPressHome,
+            paddingValues = paddingValues,
+            rows = homeSettings.rows,
+            screenHeight = screenHeight,
+            screenWidth = screenWidth,
+            offsetY = pagerScreenState.widgetScreenOffsetY.value,
+            alpha = pagerScreenState.widgetScreenAlpha,
+            cornerSize = pagerScreenState.widgetScreenCornerSize,
+            onDismiss = pagerScreenState::dismissWidgetScreen,
+            onDraggingGridItem = {
+                onDraggingGridItem(gridItems)
+            },
+            onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+            onUpdateOverlayBounds = pagerScreenState::updateOverlayBounds,
+            onUpdateImageBitmap = pagerScreenState::updateOverlayImageBitmap,
+            onUpdateGridItemSource = pagerScreenState::updateGridItemSource,
+            onUpdateSharedElementKey = pagerScreenState::updateSharedElementKey,
+            onUpdateIsLongPressAndIsDragging = pagerScreenState::updateIsLongPressAndIsDragging,
+            onVerticalDrag = pagerScreenState::verticalDragWidgetScreen,
+            onDragEnd = { remaining ->
+                scope.launch {
+                    handleApplyFling(
+                        offsetY = pagerScreenState.widgetScreenOffsetY,
+                        remaining = remaining,
+                        screenHeight = screenHeight,
+                    )
+                }
+            },
+        )
 
-        if (pagerScreenState.showShortcutConfigActivities) {
-            ShortcutConfigScreen(
-                currentPage = currentPage,
-                drag = pagerScreenState.drag,
-                eblanShortcutConfigs = eblanShortcutConfigs,
-                gridItemSettings = homeSettings.gridItemSettings,
-                isPressHome = pagerScreenState.isPressHome,
-                paddingValues = paddingValues,
-                screenHeight = screenHeight,
-                onDismiss = pagerScreenState::dismissShortcutConfigScreen,
-                onDraggingGridItem = {
-                    onDraggingGridItem(gridItems)
-                },
-                onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-                onUpdateOverlayBounds = pagerScreenState::updateOverlayBounds,
-                onUpdateImageBitmap = pagerScreenState::updateOverlayImageBitmap,
-                onUpdateGridItemSource = pagerScreenState::updateGridItemSource,
-                onUpdateSharedElementKey = pagerScreenState::updateSharedElementKey,
-                onUpdateIsLongPressAndIsDragging = pagerScreenState::updateIsLongPressAndIsDragging,
-            )
-        }
+        ShortcutConfigScreen(
+            currentPage = currentPage,
+            drag = pagerScreenState.drag,
+            eblanShortcutConfigs = eblanShortcutConfigs,
+            gridItemSettings = homeSettings.gridItemSettings,
+            isPressHome = pagerScreenState.isPressHome,
+            paddingValues = paddingValues,
+            screenHeight = screenHeight,
+            offsetY = pagerScreenState.shortcutConfigScreenOffsetY.value,
+            alpha = pagerScreenState.shortcutConfigScreenAlpha,
+            cornerSize = pagerScreenState.shortcutConfigScreenCornerSize,
+            onDismiss = pagerScreenState::dismissShortcutConfigScreen,
+            onDraggingGridItem = {
+                onDraggingGridItem(gridItems)
+            },
+            onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
+            onUpdateOverlayBounds = pagerScreenState::updateOverlayBounds,
+            onUpdateImageBitmap = pagerScreenState::updateOverlayImageBitmap,
+            onUpdateGridItemSource = pagerScreenState::updateGridItemSource,
+            onUpdateSharedElementKey = pagerScreenState::updateSharedElementKey,
+            onUpdateIsLongPressAndIsDragging = pagerScreenState::updateIsLongPressAndIsDragging,
+            onVerticalDrag = pagerScreenState::verticalDragWidgetScreen,
+            onDragEnd = { remaining ->
+                scope.launch {
+                    handleApplyFling(
+                        offsetY = pagerScreenState.shortcutConfigScreenOffsetY,
+                        remaining = remaining,
+                        screenHeight = screenHeight,
+                    )
+                }
+            },
+        )
 
         if (pagerScreenState.eblanApplicationInfoGroup != null) {
             AppWidgetScreen(

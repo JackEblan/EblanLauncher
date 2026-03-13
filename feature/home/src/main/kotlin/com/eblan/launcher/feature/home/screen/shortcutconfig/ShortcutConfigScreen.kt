@@ -20,9 +20,6 @@ package com.eblan.launcher.feature.home.screen.shortcutconfig
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -84,6 +81,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -105,7 +103,6 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.util.handleApplyFling
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
@@ -126,6 +123,9 @@ internal fun ShortcutConfigScreen(
     isPressHome: Boolean,
     paddingValues: PaddingValues,
     screenHeight: Int,
+    offsetY: Float,
+    alpha: Float,
+    cornerSize: Dp,
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
@@ -137,51 +137,17 @@ internal fun ShortcutConfigScreen(
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onUpdateIsLongPressAndIsDragging: () -> Unit,
+    onVerticalDrag: (Float) -> Unit,
+    onDragEnd: (Float) -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
-    val offsetY = remember { Animatable(screenHeight.toFloat()) }
-
-    val alpha by remember {
-        derivedStateOf {
-            ((screenHeight - offsetY.value) / (screenHeight / 2)).coerceIn(0f, 1f)
-        }
-    }
-
-    val cornerSize by remember {
-        derivedStateOf {
-            val progress = offsetY.value.coerceAtLeast(0f) / screenHeight
-
-            (20 * progress).dp
-        }
-    }
-
-    LaunchedEffect(key1 = Unit) {
-        offsetY.animateTo(
-            targetValue = 0f,
-            animationSpec = tween(
-                easing = FastOutSlowInEasing,
-            ),
-        )
-    }
-
-    BackHandler {
-        scope.launch {
-            offsetY.animateTo(
-                targetValue = screenHeight.toFloat(),
-                animationSpec = tween(
-                    easing = FastOutSlowInEasing,
-                ),
-            )
-
-            onDismiss()
-        }
+    BackHandler(enabled = offsetY < screenHeight.toFloat()) {
+        onDismiss()
     }
 
     Surface(
         modifier = modifier
             .offset {
-                IntOffset(x = 0, y = offsetY.value.roundToInt())
+                IntOffset(x = 0, y = offsetY.roundToInt())
             }
             .fillMaxSize()
             .clip(RoundedCornerShape(cornerSize))
@@ -195,54 +161,16 @@ internal fun ShortcutConfigScreen(
             gridItemSettings = gridItemSettings,
             isPressHome = isPressHome,
             paddingValues = paddingValues,
-            onDismiss = {
-                scope.launch {
-                    offsetY.animateTo(
-                        targetValue = screenHeight.toFloat(),
-                        animationSpec = tween(
-                            easing = FastOutSlowInEasing,
-                        ),
-                    )
-
-                    onDismiss()
-                }
-            },
-            onDragEnd = { remaining ->
-                scope.launch {
-                    handleApplyFling(
-                        offsetY = offsetY,
-                        remaining = remaining,
-                        screenHeight = screenHeight,
-                        onDismiss = onDismiss,
-                    )
-                }
-            },
-            onDraggingGridItem = {
-                scope.launch {
-                    offsetY.animateTo(
-                        targetValue = screenHeight.toFloat(),
-                        animationSpec = tween(
-                            easing = FastOutSlowInEasing,
-                        ),
-                    )
-
-                    onDismiss()
-
-                    onUpdateIsLongPressAndIsDragging()
-
-                    onDraggingGridItem()
-                }
-            },
+            onDismiss = onDismiss,
+            onDragEnd = onDragEnd,
+            onDraggingGridItem = onDraggingGridItem,
             onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
             onUpdateOverlayBounds = onUpdateOverlayBounds,
-            onVerticalDrag = { dragAmount ->
-                scope.launch {
-                    offsetY.snapTo(offsetY.value + dragAmount)
-                }
-            },
+            onVerticalDrag = onVerticalDrag,
             onUpdateImageBitmap = onUpdateImageBitmap,
             onUpdateGridItemSource = onUpdateGridItemSource,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
+            onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
         )
     }
 }
@@ -269,6 +197,7 @@ private fun Success(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val horizontalPagerState = rememberPagerState(
         pageCount = {
@@ -359,6 +288,8 @@ private fun Success(
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onDismiss = onDismiss,
+                    onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                 )
             }
         } else {
@@ -376,6 +307,8 @@ private fun Success(
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onUpdateGridItemSource = onUpdateGridItemSource,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
+                onDismiss = onDismiss,
+                onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
             )
         }
     }
@@ -427,6 +360,8 @@ private fun EblanShortcutConfigsPage(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onDismiss: () -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -503,6 +438,8 @@ private fun EblanShortcutConfigsPage(
                         onUpdateImageBitmap = onUpdateImageBitmap,
                         onUpdateGridItemSource = onUpdateGridItemSource,
                         onUpdateSharedElementKey = onUpdateSharedElementKey,
+                        onDismiss = onDismiss,
+                        onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                     )
                 }
             }
@@ -527,6 +464,8 @@ private fun EblanApplicationInfoItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onDismiss: () -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -582,6 +521,8 @@ private fun EblanApplicationInfoItem(
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onUpdateGridItemSource = onUpdateGridItemSource,
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
+                    onDismiss = onDismiss,
+                    onUpdateIsLongPressAndIsDragging = onUpdateIsLongPressAndIsDragging,
                 )
             }
         }
@@ -604,6 +545,8 @@ private fun EblanShortcutConfigItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
+    onDismiss: () -> Unit,
+    onUpdateIsLongPressAndIsDragging: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -681,6 +624,10 @@ private fun EblanShortcutConfigItem(
                                     parent = SharedElementKey.Parent.Grid,
                                 ),
                             )
+
+                            onDismiss()
+
+                            onUpdateIsLongPressAndIsDragging()
 
                             onDraggingGridItem()
                         }

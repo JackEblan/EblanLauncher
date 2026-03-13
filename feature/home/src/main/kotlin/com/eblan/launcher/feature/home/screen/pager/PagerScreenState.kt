@@ -185,12 +185,6 @@ internal class PagerScreenState(
     var hasDoubleTap by mutableStateOf(false)
         private set
 
-    var showWidgets by mutableStateOf(false)
-        private set
-
-    var showShortcutConfigActivities by mutableStateOf(false)
-        private set
-
     var isPressHome by mutableStateOf(false)
         private set
 
@@ -331,7 +325,7 @@ internal class PagerScreenState(
         ((screenHeight - swipeY.value) / (screenHeight / 2)).coerceIn(0f, 1f)
     }
 
-    val cornerSize by derivedStateOf {
+    val applicationScreenCornerSize by derivedStateOf {
         val progress = swipeY.value.coerceAtLeast(0f) / screenHeight
 
         (20 * progress).dp
@@ -356,6 +350,30 @@ internal class PagerScreenState(
             height = lastFolderPopupHeight,
         ),
     )
+
+    val widgetScreenOffsetY = Animatable(screenHeight.toFloat())
+
+    val widgetScreenAlpha by derivedStateOf {
+        ((screenHeight - widgetScreenOffsetY.value) / (screenHeight / 2)).coerceIn(0f, 1f)
+    }
+
+    val widgetScreenCornerSize by derivedStateOf {
+        val progress = widgetScreenOffsetY.value.coerceAtLeast(0f) / screenHeight
+
+        (20 * progress).dp
+    }
+
+    val shortcutConfigScreenOffsetY = Animatable(screenHeight.toFloat())
+
+    val shortcutConfigScreenAlpha by derivedStateOf {
+        ((screenHeight - shortcutConfigScreenOffsetY.value) / (screenHeight / 2)).coerceIn(0f, 1f)
+    }
+
+    val shortcutConfigScreenCornerSize by derivedStateOf {
+        val progress = shortcutConfigScreenOffsetY.value.coerceAtLeast(0f) / screenHeight
+
+        (20 * progress).dp
+    }
 
     private val touchSlop = with(density) {
         50.dp.toPx()
@@ -601,9 +619,9 @@ internal class PagerScreenState(
             intent = intent,
             pageCount = homeSettings.pageCount,
             screenHeight = screenHeight,
-            showShortcutConfigActivities = showShortcutConfigActivities,
-            showWidgets = showWidgets,
-            swipeY = swipeY,
+            swipeY = swipeY.value,
+            widgetScreenOffsetY = widgetScreenOffsetY.value,
+            shortcutConfigScreenOffsetY = shortcutConfigScreenOffsetY.value,
             wallpaperManagerWrapper = androidWallpaperManagerWrapper,
             wallpaperScroll = homeSettings.wallpaperScroll,
             windowToken = windowToken,
@@ -722,9 +740,9 @@ internal class PagerScreenState(
         intent: Intent,
         pageCount: Int,
         screenHeight: Int,
-        showShortcutConfigActivities: Boolean,
-        showWidgets: Boolean,
-        swipeY: Animatable<Float, AnimationVector1D>,
+        swipeY: Float,
+        widgetScreenOffsetY: Float,
+        shortcutConfigScreenOffsetY: Float,
         wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
         wallpaperScroll: Boolean,
         windowToken: IBinder,
@@ -740,7 +758,11 @@ internal class PagerScreenState(
 
         onHome()
 
-        if (swipeY.value < screenHeight.toFloat() || showWidgets || showShortcutConfigActivities || eblanApplicationInfoGroup != null) {
+        if (swipeY < screenHeight.toFloat() ||
+            widgetScreenOffsetY < screenHeight.toFloat() ||
+            shortcutConfigScreenOffsetY < screenHeight.toFloat() ||
+            eblanApplicationInfoGroup != null
+        ) {
             return
         }
 
@@ -929,14 +951,6 @@ internal class PagerScreenState(
         hasDoubleTap = value
     }
 
-    fun updateShowWidgets(value: Boolean) {
-        showWidgets = value
-    }
-
-    fun updateShowShortcutConfigActivities(value: Boolean) {
-        showShortcutConfigActivities = value
-    }
-
     fun updateEblanApplicationInfoGroup(value: EblanApplicationInfoGroup?) {
         eblanApplicationInfoGroup = value
     }
@@ -1021,7 +1035,7 @@ internal class PagerScreenState(
         showSettingsPopup = true
     }
 
-    fun openAppDrawer() {
+    fun openApplicationScreen() {
         scope.launch {
             swipeY.animateTo(
                 targetValue = 0f,
@@ -1049,14 +1063,12 @@ internal class PagerScreenState(
 
     fun dismissApplicationScreen() {
         scope.launch {
-            if (swipeY.value < screenHeight.toFloat()) {
-                swipeY.animateTo(
-                    targetValue = screenHeight.toFloat(),
-                    animationSpec = tween(
-                        easing = FastOutSlowInEasing,
-                    ),
-                )
-            }
+            swipeY.animateTo(
+                targetValue = screenHeight.toFloat(),
+                animationSpec = tween(
+                    easing = FastOutSlowInEasing,
+                ),
+            )
 
             if (isPressHome) {
                 isPressHome = false
@@ -1076,19 +1088,61 @@ internal class PagerScreenState(
         }
     }
 
-    fun dismissWidgetScreen() {
-        showWidgets = false
+    fun openWidgetScreen() {
+        scope.launch {
+            widgetScreenOffsetY.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(
+                    easing = FastOutSlowInEasing,
+                ),
+            )
+        }
+    }
 
-        if (isPressHome) {
-            isPressHome = false
+    fun dismissWidgetScreen() {
+        scope.launch {
+            widgetScreenOffsetY.animateTo(
+                targetValue = screenHeight.toFloat(),
+                animationSpec = tween(
+                    easing = FastOutSlowInEasing,
+                ),
+            )
+
+            if (isPressHome) {
+                isPressHome = false
+            }
+        }
+    }
+
+    fun verticalDragWidgetScreen(dragAmount: Float) {
+        scope.launch {
+            widgetScreenOffsetY.snapTo(widgetScreenOffsetY.value + dragAmount)
+        }
+    }
+
+    fun openShortcutConfigScreen() {
+        scope.launch {
+            shortcutConfigScreenOffsetY.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(
+                    easing = FastOutSlowInEasing,
+                ),
+            )
         }
     }
 
     fun dismissShortcutConfigScreen() {
-        showShortcutConfigActivities = false
+        scope.launch {
+            shortcutConfigScreenOffsetY.animateTo(
+                targetValue = screenHeight.toFloat(),
+                animationSpec = tween(
+                    easing = FastOutSlowInEasing,
+                ),
+            )
 
-        if (isPressHome) {
-            isPressHome = false
+            if (isPressHome) {
+                isPressHome = false
+            }
         }
     }
 

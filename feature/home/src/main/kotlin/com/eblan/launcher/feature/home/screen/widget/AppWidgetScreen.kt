@@ -68,7 +68,6 @@ import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
-import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -89,7 +88,6 @@ internal fun AppWidgetScreen(
     eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup?,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
     isPressHome: Boolean,
     paddingValues: PaddingValues,
     rows: Int,
@@ -97,7 +95,7 @@ internal fun AppWidgetScreen(
     screenWidth: Int,
     onDismiss: () -> Unit,
     onDismissApplicationScreen: () -> Unit,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -237,7 +235,7 @@ internal fun AppWidgetScreen(
 
                             onUpdateIsLongPressAndIsDragging()
 
-                            onDraggingGridItem(gridItems)
+                            onDraggingGridItem()
                         }
                     },
                     onUpdateOverlayBounds = onUpdateOverlayBounds,

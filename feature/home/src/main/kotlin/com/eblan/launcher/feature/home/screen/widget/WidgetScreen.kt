@@ -86,7 +86,6 @@ import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
-import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
@@ -112,14 +111,13 @@ internal fun WidgetScreen(
     drag: Drag,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
     isPressHome: Boolean,
     paddingValues: PaddingValues,
     rows: Int,
     screenHeight: Int,
     screenWidth: Int,
     onDismiss: () -> Unit,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
@@ -225,7 +223,7 @@ internal fun WidgetScreen(
 
                     onUpdateIsLongPressAndIsDragging()
 
-                    onDraggingGridItem(gridItems)
+                    onDraggingGridItem()
                 }
             },
             onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,

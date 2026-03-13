@@ -123,12 +123,11 @@ internal fun ShortcutConfigScreen(
     drag: Drag,
     eblanShortcutConfigs: Map<EblanUser, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     gridItemSettings: GridItemSettings,
-    gridItems: List<GridItem>,
     isPressHome: Boolean,
     paddingValues: PaddingValues,
     screenHeight: Int,
     onDismiss: () -> Unit,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onUpdateOverlayBounds: (
         intOffset: IntOffset,
@@ -231,7 +230,7 @@ internal fun ShortcutConfigScreen(
 
                     onUpdateIsLongPressAndIsDragging()
 
-                    onDraggingGridItem(gridItems)
+                    onDraggingGridItem()
                 }
             },
             onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,

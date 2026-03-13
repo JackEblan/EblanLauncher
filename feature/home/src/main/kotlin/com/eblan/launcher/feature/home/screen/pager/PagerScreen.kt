@@ -1123,7 +1123,6 @@ internal fun PagerScreen(
                 eblanApplicationInfoTags = eblanApplicationInfoTags,
                 eblanShortcutInfosGroup = eblanShortcutInfosGroup,
                 getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
-                gridItems = gridItems,
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 iconPackFilePaths = iconPackFilePaths,
                 isPressHome = pagerScreenState.isPressHome,
@@ -1141,7 +1140,9 @@ internal fun PagerScreen(
                         )
                     }
                 },
-                onDraggingGridItem = onDraggingGridItem,
+                onDraggingGridItem = {
+                    onDraggingGridItem(gridItems)
+                },
                 onEditApplicationInfo = onEditApplicationInfo,
                 onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                 onGetEblanApplicationInfosByTagIds = onGetEblanApplicationInfosByTagIds,
@@ -1154,7 +1155,9 @@ internal fun PagerScreen(
                 onUpdateSharedElementKey = pagerScreenState::updateSharedElementKey,
                 onVerticalDrag = pagerScreenState::verticalDragApplicationScreen,
                 onUpdateEblanApplicationInfoGroup = pagerScreenState::updateEblanApplicationInfoGroup,
-                onDraggingShortcutInfoGridItem = pagerScreenState::draggingShortcutInfoGridItem,
+                onDraggingShortcutInfoGridItem = {
+                    pagerScreenState.draggingShortcutInfoGridItem(gridItems = gridItems)
+                },
             )
         }
 
@@ -1165,14 +1168,15 @@ internal fun PagerScreen(
                 drag = pagerScreenState.drag,
                 eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                 gridItemSettings = homeSettings.gridItemSettings,
-                gridItems = gridItems,
                 isPressHome = pagerScreenState.isPressHome,
                 paddingValues = paddingValues,
                 rows = homeSettings.rows,
                 screenHeight = screenHeight,
                 screenWidth = screenWidth,
                 onDismiss = pagerScreenState::dismissWidgetScreen,
-                onDraggingGridItem = onDraggingGridItem,
+                onDraggingGridItem = {
+                    onDraggingGridItem(gridItems)
+                },
                 onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                 onUpdateOverlayBounds = pagerScreenState::updateOverlayBounds,
                 onUpdateImageBitmap = pagerScreenState::updateOverlayImageBitmap,
@@ -1188,12 +1192,13 @@ internal fun PagerScreen(
                 drag = pagerScreenState.drag,
                 eblanShortcutConfigs = eblanShortcutConfigs,
                 gridItemSettings = homeSettings.gridItemSettings,
-                gridItems = gridItems,
                 isPressHome = pagerScreenState.isPressHome,
                 paddingValues = paddingValues,
                 screenHeight = screenHeight,
                 onDismiss = pagerScreenState::dismissShortcutConfigScreen,
-                onDraggingGridItem = onDraggingGridItem,
+                onDraggingGridItem = {
+                    onDraggingGridItem(gridItems)
+                },
                 onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
                 onUpdateOverlayBounds = pagerScreenState::updateOverlayBounds,
                 onUpdateImageBitmap = pagerScreenState::updateOverlayImageBitmap,
@@ -1211,7 +1216,6 @@ internal fun PagerScreen(
                 eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
                 eblanApplicationInfoGroup = pagerScreenState.eblanApplicationInfoGroup,
                 gridItemSettings = homeSettings.gridItemSettings,
-                gridItems = gridItems,
                 isPressHome = pagerScreenState.isPressHome,
                 paddingValues = paddingValues,
                 rows = homeSettings.rows,
@@ -1219,7 +1223,9 @@ internal fun PagerScreen(
                 screenWidth = screenWidth,
                 onDismiss = pagerScreenState::dismissAppWidgetScreen,
                 onDismissApplicationScreen = pagerScreenState::dismissApplicationScreen,
-                onDraggingGridItem = onDraggingGridItem,
+                onDraggingGridItem = {
+                    onDraggingGridItem(gridItems)
+                },
                 onUpdateOverlayBounds = pagerScreenState::updateOverlayBounds,
                 onUpdateImageBitmap = pagerScreenState::updateOverlayImageBitmap,
                 onUpdateGridItemSource = pagerScreenState::updateGridItemSource,

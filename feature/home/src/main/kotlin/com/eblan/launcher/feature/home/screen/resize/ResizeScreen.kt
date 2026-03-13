@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
-import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 
@@ -48,9 +47,9 @@ internal fun ResizeScreen(
     gridItem: GridItem?,
     homeSettings: HomeSettings,
     lockMovement: Boolean,
-    moveGridItemResult: MoveGridItemResult?,
     paddingValues: PaddingValues,
     textColor: TextColor,
+    resizeGridItem: GridItem?,
     onResizeCancel: () -> Unit,
     onResizeEnd: (GridItem) -> Unit,
     onResizeGridItem: (
@@ -79,9 +78,9 @@ internal fun ResizeScreen(
         mutableStateOf(gridItem)
     }
 
-    LaunchedEffect(key1 = moveGridItemResult) {
-        moveGridItemResult?.movingGridItem?.let { movingGridItem ->
-            currentGridItem = movingGridItem
+    LaunchedEffect(key1 = resizeGridItem) {
+        resizeGridItem?.let { newGridItem ->
+            currentGridItem = newGridItem
         }
     }
 

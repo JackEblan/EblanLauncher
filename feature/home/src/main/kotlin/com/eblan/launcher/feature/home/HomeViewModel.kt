@@ -226,6 +226,10 @@ internal class HomeViewModel @Inject constructor(
         initialValue = null,
     )
 
+    private val _resizeGridItem = MutableStateFlow<GridItem?>(null)
+
+    val resizeGridItem = _resizeGridItem.asStateFlow()
+
     fun moveGridItem(
         movingGridItem: GridItem,
         x: Int,
@@ -263,7 +267,7 @@ internal class HomeViewModel @Inject constructor(
         moveGridItemJob?.cancel()
 
         moveGridItemJob = viewModelScope.launch {
-            _moveGridItemResult.update {
+            _resizeGridItem.update {
                 resizeGridItemUseCase(
                     resizingGridItem = resizingGridItem,
                     columns = columns,
@@ -344,14 +348,14 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
+            _resizeGridItem.update {
+                null
+            }
+
             updateGridItemsAfterResizeUseCase(resizingGridItem = resizingGridItem)
 
             _isCache.update {
                 false
-            }
-
-            _moveGridItemResult.update {
-                null
             }
         }
     }
@@ -360,14 +364,14 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
+            _moveGridItemResult.update {
+                null
+            }
+
             updateGridItemsAfterMoveUseCase(moveGridItemResult = moveGridItemResult)
 
             _isCache.update {
                 false
-            }
-
-            _moveGridItemResult.update {
-                null
             }
         }
     }
@@ -375,6 +379,10 @@ internal class HomeViewModel @Inject constructor(
     fun resetGridCacheAfterMoveWidgetGridItem(moveGridItemResult: MoveGridItemResult) {
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
+
+            _moveGridItemResult.update {
+                null
+            }
 
             gridCacheRepository.updateGridItemData(
                 id = moveGridItemResult.movingGridItem.id,
@@ -386,10 +394,6 @@ internal class HomeViewModel @Inject constructor(
             _isCache.update {
                 false
             }
-
-            _moveGridItemResult.update {
-                null
-            }
         }
     }
 
@@ -397,12 +401,12 @@ internal class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
-            _isCache.update {
-                false
-            }
-
             _moveGridItemResult.update {
                 null
+            }
+
+            _isCache.update {
+                false
             }
         }
     }
@@ -680,6 +684,12 @@ internal class HomeViewModel @Inject constructor(
         movingGridItem: GridItem,
     ) {
         viewModelScope.launch {
+            moveGridItemJob?.cancel()
+
+            _moveGridItemResult.update {
+                null
+            }
+
             showFolderWhenDraggingUseCase(
                 conflictingGridItem = conflictingGridItem,
                 movingGridItem = movingGridItem,
@@ -687,10 +697,6 @@ internal class HomeViewModel @Inject constructor(
 
             _folderGridItemId.update {
                 id
-            }
-
-            _moveGridItemResult.update {
-                null
             }
         }
     }

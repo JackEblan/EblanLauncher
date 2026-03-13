@@ -169,17 +169,6 @@ class MoveGridItemUseCase @Inject constructor(
                     )
                 }
 
-                if (conflictingGridItem.data is GridItemData.Widget ||
-                    conflictingGridItem.data is GridItemData.ShortcutInfo ||
-                    conflictingGridItem.data is GridItemData.ShortcutConfig
-                ) {
-                    return MoveGridItemResult(
-                        isSuccess = false,
-                        movingGridItem = movingGridItem,
-                        conflictingGridItem = null,
-                    )
-                }
-
                 if (!lockMovement) {
                     gridCacheRepository.upsertGridItems(gridItems = gridItems)
                 }
@@ -225,7 +214,7 @@ class MoveGridItemUseCase @Inject constructor(
         return MoveGridItemResult(
             isSuccess = resolvedConflicts,
             movingGridItem = movingGridItem,
-            conflictingGridItem = conflictingGridItem,
+            conflictingGridItem = null,
         )
     }
 }

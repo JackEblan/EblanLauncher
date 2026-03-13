@@ -24,7 +24,6 @@ import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.rectanglesOverlap
 import com.eblan.launcher.domain.grid.resolveConflicts
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -40,7 +39,7 @@ class ResizeGridItemUseCase @Inject constructor(
         columns: Int,
         rows: Int,
         lockMovement: Boolean,
-    ): MoveGridItemResult = withContext(defaultDispatcher) {
+    ): GridItem = withContext(defaultDispatcher) {
         val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
             isGridItemSpanWithinBounds(
                 gridItem = gridItem,
@@ -67,7 +66,7 @@ class ResizeGridItemUseCase @Inject constructor(
         if (gridItemBySpan != null) {
             handleConflictsOfGridItemSpan(
                 oldGridItem = oldGridItem,
-                gridItemBySpan = gridItemBySpan,
+                conflictingGridItem = gridItemBySpan,
                 gridItems = gridItems,
                 resizingGridItem = resizingGridItem,
                 columns = columns,
@@ -76,28 +75,24 @@ class ResizeGridItemUseCase @Inject constructor(
             )
         } else {
             gridCacheRepository.upsertGridItems(gridItems = gridItems)
-        }
 
-        MoveGridItemResult(
-            isSuccess = false,
-            movingGridItem = resizingGridItem,
-            conflictingGridItem = null,
-        )
+            resizingGridItem
+        }
     }
 
     private suspend fun handleConflictsOfGridItemSpan(
         oldGridItem: GridItem,
-        gridItemBySpan: GridItem,
+        conflictingGridItem: GridItem,
         gridItems: MutableList<GridItem>,
         resizingGridItem: GridItem,
         columns: Int,
         rows: Int,
         lockMovement: Boolean,
-    ) {
+    ): GridItem {
         val resolveDirection = getRelativeResolveDirection(
             moving = oldGridItem,
-            other = gridItemBySpan,
-        ) ?: return
+            other = conflictingGridItem,
+        ) ?: return oldGridItem
 
         val resolvedConflicts = resolveConflicts(
             gridItems = gridItems,
@@ -107,8 +102,12 @@ class ResizeGridItemUseCase @Inject constructor(
             rows = rows,
         )
 
-        if (resolvedConflicts && !lockMovement) {
+        return if (resolvedConflicts && !lockMovement) {
             gridCacheRepository.upsertGridItems(gridItems = gridItems)
+
+            resizingGridItem
+        } else {
+            oldGridItem
         }
     }
 }

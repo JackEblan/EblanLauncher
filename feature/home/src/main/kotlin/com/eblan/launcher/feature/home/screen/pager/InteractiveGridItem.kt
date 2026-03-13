@@ -577,33 +577,34 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                         appWidgetHost.createView(
                             appWidgetId = data.appWidgetId,
                             appWidgetProviderInfo = appWidgetInfo,
-                        ).apply {
-                            if (!isLongPress) {
-                                setOnLongClickListener {
-                                    onLongPress(
-                                        scope = scope,
-                                        graphicsLayer = graphicsLayer,
-                                        intOffset = intOffset,
-                                        intSize = intSize,
-                                        gridItemSource = GridItemSource.Existing(gridItem = gridItem),
-                                        sharedElementKey = SharedElementKey(
-                                            id = gridItem.id,
-                                            parent = SharedElementKey.Parent.Grid,
-                                        ),
-                                        onUpdateGridItemSource = onUpdateGridItemSource,
-                                        onUpdateImageBitmap = onUpdateImageBitmap,
-                                        onUpdateIsLongPress = onUpdateIsLongPress,
-                                        onUpdateOverlayBounds = onUpdateOverlayBounds,
-                                        onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                        onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
-                                    )
+                        )
+                    },
+                    modifier = commonModifier,
+                    update = { view ->
+                        if (!isLongPress) {
+                            view.setOnLongClickListener {
+                                onLongPress(
+                                    scope = scope,
+                                    graphicsLayer = graphicsLayer,
+                                    intOffset = intOffset,
+                                    intSize = intSize,
+                                    gridItemSource = GridItemSource.Existing(gridItem = gridItem),
+                                    sharedElementKey = SharedElementKey(
+                                        id = gridItem.id,
+                                        parent = SharedElementKey.Parent.Grid,
+                                    ),
+                                    onUpdateGridItemSource = onUpdateGridItemSource,
+                                    onUpdateImageBitmap = onUpdateImageBitmap,
+                                    onUpdateIsLongPress = onUpdateIsLongPress,
+                                    onUpdateOverlayBounds = onUpdateOverlayBounds,
+                                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                                    onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+                                )
 
-                                    true
-                                }
+                                true
                             }
                         }
                     },
-                    modifier = commonModifier,
                 )
             } else {
                 AsyncImage(

@@ -1167,7 +1167,7 @@ internal class PagerScreenState(
         }
     }
 
-    fun openAppWidgetScreen(value: EblanApplicationInfoGroup?) {
+    fun openAppWidgetScreen(value: EblanApplicationInfoGroup) {
         scope.launch {
             eblanApplicationInfoGroup = value
 

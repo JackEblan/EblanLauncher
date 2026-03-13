@@ -193,6 +193,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
+    onDraggingShortcutInfoGridItem: (List<GridItem>) -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -234,6 +235,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onVerticalDrag = onVerticalDrag,
             onUpdateEblanApplicationInfoGroup = onUpdateEblanApplicationInfoGroup,
+            onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
         )
     }
 }
@@ -278,6 +280,7 @@ private fun SharedTransitionScope.Success(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
+    onDraggingShortcutInfoGridItem: (List<GridItem>) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -518,7 +521,7 @@ private fun SharedTransitionScope.Success(
     }
 
     if (showPopupApplicationMenu && selectedEblanApplicationInfo != null) {
-        PopupApplicationInfoMenu(
+        ApplicationInfoPopup(
             currentPage = currentPage,
             drag = drag,
             eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosGroup,
@@ -533,7 +536,11 @@ private fun SharedTransitionScope.Success(
                 showPopupApplicationMenu = false
             },
             onDraggingShortcutInfoGridItem = {
-                onDraggingGridItem(gridItems)
+                showPopupApplicationMenu = false
+
+                onDismiss()
+
+                onDraggingShortcutInfoGridItem(gridItems)
             },
             onEditApplicationInfo = onEditApplicationInfo,
             onTapShortcutInfo = { serialNumber, packageName, shortcutId ->

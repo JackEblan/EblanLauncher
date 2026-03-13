@@ -1154,6 +1154,7 @@ internal fun PagerScreen(
                 onUpdateSharedElementKey = pagerScreenState::updateSharedElementKey,
                 onVerticalDrag = pagerScreenState::verticalDragApplicationScreen,
                 onUpdateEblanApplicationInfoGroup = pagerScreenState::updateEblanApplicationInfoGroup,
+                onDraggingShortcutInfoGridItem = pagerScreenState::draggingShortcutInfoGridItem,
             )
         }
 
@@ -1217,6 +1218,7 @@ internal fun PagerScreen(
                 screenHeight = screenHeight,
                 screenWidth = screenWidth,
                 onDismiss = pagerScreenState::dismissAppWidgetScreen,
+                onDismissApplicationScreen = pagerScreenState::dismissApplicationScreen,
                 onDraggingGridItem = onDraggingGridItem,
                 onUpdateOverlayBounds = pagerScreenState::updateOverlayBounds,
                 onUpdateImageBitmap = pagerScreenState::updateOverlayImageBitmap,

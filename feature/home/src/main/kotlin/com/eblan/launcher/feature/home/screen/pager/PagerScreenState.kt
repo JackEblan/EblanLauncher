@@ -1049,12 +1049,14 @@ internal class PagerScreenState(
 
     fun dismissApplicationScreen() {
         scope.launch {
-            swipeY.animateTo(
-                targetValue = screenHeight.toFloat(),
-                animationSpec = tween(
-                    easing = FastOutSlowInEasing,
-                ),
-            )
+            if (swipeY.value < screenHeight.toFloat()) {
+                swipeY.animateTo(
+                    targetValue = screenHeight.toFloat(),
+                    animationSpec = tween(
+                        easing = FastOutSlowInEasing,
+                    ),
+                )
+            }
 
             if (isPressHome) {
                 isPressHome = false
@@ -1095,10 +1097,6 @@ internal class PagerScreenState(
 
         if (isPressHome) {
             isPressHome = false
-        }
-
-        if (isApplicationScreenVisible) {
-            dismissApplicationScreen()
         }
     }
 

@@ -365,6 +365,11 @@ class SyncDataUseCase @Inject constructor(
             val applicationIcon = deleteEblanAppWidgetProviderInfo.applicationIcon
 
             val hasNoIconReference = applicationIcon != null &&
+                eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfos()
+                    .none { eblanAppWidgetProviderInfo ->
+                        currentCoroutineContext().ensureActive()
+                        eblanAppWidgetProviderInfo.applicationIcon == applicationIcon
+                    } &&
                 eblanApplicationInfoRepository.getEblanApplicationInfos()
                     .none { eblanApplicationInfo ->
                         currentCoroutineContext().ensureActive()

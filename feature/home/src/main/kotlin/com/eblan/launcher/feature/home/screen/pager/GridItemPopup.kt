@@ -117,7 +117,6 @@ internal fun GridItemPopup(
             .padding(paddingValues),
         content = {
             GridItemPopupContent(
-                modifier = Modifier.padding(5.dp),
                 currentPage = currentPage,
                 drag = drag,
                 eblanAppWidgetProviderInfosGroup = eblanAppWidgetProviderInfosGroup,
@@ -149,18 +148,16 @@ internal fun GridItemPopup(
 
         val parentCenterX = x + popupIntSize.width / 2
 
-        val childX = (parentCenterX - placeable.width / 2)
-            .coerceIn(0, constraints.maxWidth - placeable.width)
-
         val topY = y - placeable.height
         val bottomY = y + popupIntSize.height
 
+        val childX = parentCenterX - placeable.width / 2
         val childY = if (topY < 0) bottomY else topY
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             placeable.place(
-                x = childX,
-                y = childY,
+                x = childX.coerceIn(0, constraints.maxWidth - placeable.width),
+                y = childY.coerceIn(0, constraints.maxHeight - placeable.height),
             )
         }
     }
@@ -297,18 +294,16 @@ internal fun FolderGridItemPopup(
 
         val parentCenterX = x + popupIntSize.width / 2
 
-        val childX = (parentCenterX - placeable.width / 2)
-            .coerceIn(0, constraints.maxWidth - placeable.width)
-
         val topY = y - placeable.height
         val bottomY = y + popupIntSize.height
 
+        val childX = parentCenterX - placeable.width / 2
         val childY = if (topY < 0) bottomY else topY
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             placeable.place(
-                x = childX,
-                y = childY,
+                x = childX.coerceIn(0, constraints.maxWidth - placeable.width),
+                y = childY.coerceIn(0, constraints.maxHeight - placeable.height),
             )
         }
     }
@@ -348,14 +343,13 @@ private fun GridItemPopupContent(
     onWidgets: (EblanApplicationInfoGroup) -> Unit,
 ) {
     Surface(
-        modifier = modifier,
+        modifier = modifier.padding(5.dp),
         shape = RoundedCornerShape(30.dp),
         shadowElevation = 2.dp,
         content = {
             when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     ApplicationInfoGridItemMenu(
-                        modifier = modifier,
                         currentPage = currentPage,
                         drag = drag,
                         eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfosGroup[data.packageName],
@@ -426,7 +420,6 @@ private fun GridItemPopupContent(
 
                 is GridItemData.Folder, is GridItemData.ShortcutInfo, is GridItemData.ShortcutConfig -> {
                     GridItemMenu(
-                        modifier = modifier,
                         onDelete = {
                             onDeleteGridItem(gridItem)
 
@@ -449,7 +442,6 @@ private fun GridItemPopupContent(
                     val showResize = data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
 
                     WidgetGridItemMenu(
-                        modifier = modifier,
                         showResize = showResize,
                         onDelete = {
                             onDeleteGridItem(gridItem)

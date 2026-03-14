@@ -586,6 +586,8 @@ internal class HomeViewModel @Inject constructor(
 
                     is LauncherAppsEvent.ShortcutsChanged -> {
                         changeShortcutsUseCase(
+                            serialNumber = launcherAppsEvent.serialNumber,
+                            packageName = launcherAppsEvent.packageName,
                             launcherAppsShortcutInfos = launcherAppsEvent.launcherAppsShortcutInfos,
                         )
                     }
@@ -688,12 +690,6 @@ internal class HomeViewModel @Inject constructor(
         movingGridItem: GridItem,
     ) {
         viewModelScope.launch {
-            moveGridItemJob?.cancel()
-
-            _moveGridItemResult.update {
-                null
-            }
-
             showFolderWhenDraggingUseCase(
                 conflictingGridItem = conflictingGridItem,
                 movingGridItem = movingGridItem,
@@ -701,6 +697,12 @@ internal class HomeViewModel @Inject constructor(
 
             _folderGridItemId.update {
                 id
+            }
+
+            moveGridItemJob?.cancel()
+
+            _moveGridItemResult.update {
+                null
             }
         }
     }

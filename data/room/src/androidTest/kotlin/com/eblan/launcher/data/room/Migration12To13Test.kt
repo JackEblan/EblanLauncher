@@ -17,20 +17,18 @@
  */
 package com.eblan.launcher.data.room
 
-import androidx.room.Room
 import androidx.room.testing.MigrationTestHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.eblan.launcher.data.room.migration.Migration12To13
-import com.eblan.launcher.data.room.migration.Migration3To4
-import com.eblan.launcher.data.room.migration.Migration7To8
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
-class MigrationAllTest {
+class Migration12To13Test {
+
     private val testDatabase = "migration-test"
 
     @get:Rule
@@ -41,26 +39,53 @@ class MigrationAllTest {
 
     @Test
     @Throws(IOException::class)
-    fun migrateAll() {
-        helper.createDatabase(testDatabase, 1).apply {
+    fun migrate12To13() {
+        // Create database at version 12
+        helper.createDatabase(testDatabase, 12).apply {
+            execSQL(
+                """
+        INSERT INTO EblanShortcutInfoEntity (
+            shortcutId, 
+            serialNumber, 
+            packageName, 
+            shortLabel, 
+            longLabel, 
+            icon, 
+            shortcutQueryFlag, 
+            isEnabled, 
+            lastUpdateTime
+        ) VALUES (
+            'id_1', 
+            101, 
+            'com.example.app', 
+            'Label', 
+            'Long Label', 
+            null, 
+            'Pinned', 
+            1, 
+            123456789
+        )
+                """.trimIndent(),
+            )
+
             close()
         }
 
-        Room.databaseBuilder(
-            InstrumentationRegistry.getInstrumentation().targetContext,
-            EblanDatabase::class.java,
+        // Run migration → validate version 13
+        helper.runMigrationsAndValidate(
             testDatabase,
-        ).addMigrations(
-            Migration3To4(),
-            Migration7To8(),
+            13,
+            true,
             Migration12To13(),
-        ).fallbackToDestructiveMigrationFrom(
-            dropAllTables = true,
-            1,
-            2,
-            11,
-        ).build().apply {
-            openHelper.writableDatabase.close()
+        ).use { db ->
+            val cursor = db.query("SELECT * FROM EblanShortcutInfoEntity")
+
+            assert(cursor.moveToFirst())
+
+            assert(cursor.getString(cursor.getColumnIndex("shortcutId")) == "id_1")
+            assert(cursor.getString(cursor.getColumnIndex("packageName")) == "com.example.app")
+            assert(cursor.getLong(cursor.getColumnIndex("serialNumber")) == 101L)
+            assert(cursor.getLong(cursor.getColumnIndex("lastChangedTimestamp")) == 123456789L)
         }
     }
 }

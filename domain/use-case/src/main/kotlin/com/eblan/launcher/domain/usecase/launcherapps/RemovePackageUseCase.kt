@@ -123,20 +123,21 @@ class RemovePackageUseCase @Inject constructor(
         ).forEach { eblanApplicationInfoByPackageName ->
             currentCoroutineContext().ensureActive()
 
-            val isUniquePackageName = eblanApplicationInfoRepository.getEblanApplicationInfos()
-                .none { eblanApplicationInfo ->
-                    currentCoroutineContext().ensureActive()
+            val icon = eblanApplicationInfoByPackageName.icon
 
-                    eblanApplicationInfo.serialNumber != eblanApplicationInfoByPackageName.serialNumber && eblanApplicationInfo.packageName == eblanApplicationInfoByPackageName.packageName
-                }
+            val hasNoIconReference = icon != null &&
+                eblanApplicationInfoRepository.getEblanApplicationInfos()
+                    .none { eblanApplicationInfo ->
+                        currentCoroutineContext().ensureActive()
 
-            if (isUniquePackageName) {
-                eblanApplicationInfoByPackageName.icon?.let { icon ->
-                    val iconFile = File(icon)
-
-                    if (iconFile.exists()) {
-                        iconFile.delete()
+                        eblanApplicationInfo.icon == icon
                     }
+
+            if (hasNoIconReference) {
+                val iconFile = File(icon)
+
+                if (iconFile.exists()) {
+                    iconFile.delete()
                 }
 
                 val iconPacksDirectory = File(
@@ -202,20 +203,20 @@ class RemovePackageUseCase @Inject constructor(
         ).forEach { eblanShortcutInfoByPackageName ->
             currentCoroutineContext().ensureActive()
 
-            val isUniquePackageName =
+            val icon = eblanShortcutInfoByPackageName.icon
+
+            val hasNoIconReference = icon != null &&
                 eblanShortcutInfoRepository.getEblanShortcutInfos().none { eblanShortcutInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    eblanShortcutInfo.serialNumber != eblanShortcutInfoByPackageName.serialNumber && eblanShortcutInfo.packageName == eblanShortcutInfoByPackageName.packageName
+                    eblanShortcutInfo.icon == icon
                 }
 
-            if (isUniquePackageName) {
-                eblanShortcutInfoByPackageName.icon?.let { icon ->
-                    val iconFile = File(icon)
+            if (hasNoIconReference) {
+                val iconFile = File(icon)
 
-                    if (iconFile.exists()) {
-                        iconFile.delete()
-                    }
+                if (iconFile.exists()) {
+                    iconFile.delete()
                 }
             }
         }
@@ -246,20 +247,21 @@ class RemovePackageUseCase @Inject constructor(
         ).forEach { eblanShortcutConfigByPackageName ->
             currentCoroutineContext().ensureActive()
 
-            val isUniquePackageName = eblanShortcutConfigRepository.getEblanShortcutConfigs()
-                .none { eblanShortcutConfig ->
-                    currentCoroutineContext().ensureActive()
+            val activityIcon = eblanShortcutConfigByPackageName.activityIcon
 
-                    eblanShortcutConfig.serialNumber != eblanShortcutConfigByPackageName.serialNumber && eblanShortcutConfig.packageName == eblanShortcutConfigByPackageName.packageName
-                }
+            val hasNoIconReference = activityIcon != null &&
+                eblanShortcutConfigRepository.getEblanShortcutConfigs()
+                    .none { eblanShortcutConfig ->
+                        currentCoroutineContext().ensureActive()
 
-            if (isUniquePackageName) {
-                eblanShortcutConfigByPackageName.activityIcon?.let { activityIcon ->
-                    val activityIconFile = File(activityIcon)
-
-                    if (activityIconFile.exists()) {
-                        activityIconFile.delete()
+                        eblanShortcutConfig.activityIcon == activityIcon
                     }
+
+            if (hasNoIconReference) {
+                val activityIconFile = File(activityIcon)
+
+                if (activityIconFile.exists()) {
+                    activityIconFile.delete()
                 }
 
                 eblanShortcutConfigByPackageName.applicationIcon?.let { applicationIcon ->

@@ -138,19 +138,19 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
                 shortcuts: MutableList<ShortcutInfo>,
                 user: UserHandle,
             ) {
-                if (hasShortcutHostPermission) {
-                    launch {
-                        val launcherAppsShortcutInfo = shortcuts.map { shortcutInfo ->
-                            shortcutInfo.toLauncherAppsShortcutInfo()
-                        }
-
-                        trySend(
-                            LauncherAppsEvent.ShortcutsChanged(
+                launch {
+                    trySend(
+                        LauncherAppsEvent.ShortcutsChanged(
+                            serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
+                            packageName = packageName,
+                            launcherAppsShortcutInfos = getShortcutsByPackageName(
+                                serialNumber = userManagerWrapper.getSerialNumberForUser(
+                                    userHandle = user,
+                                ),
                                 packageName = packageName,
-                                launcherAppsShortcutInfos = launcherAppsShortcutInfo,
                             ),
-                        )
-                    }
+                        ),
+                    )
                 }
             }
         }
@@ -459,12 +459,11 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             )
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            val launcherUserInfo =
-                launcherApps.getLauncherUserInfo(userHandle) ?: return EblanUser(
-                    serialNumber = serialNumber,
-                    eblanUserType = EblanUserType.Personal,
-                    isPrivateSpaceEntryPointHidden = isPrivateSpaceEntryPointHidden(userHandle = userHandle),
-                )
+            val launcherUserInfo = launcherApps.getLauncherUserInfo(userHandle) ?: return EblanUser(
+                serialNumber = serialNumber,
+                eblanUserType = EblanUserType.Personal,
+                isPrivateSpaceEntryPointHidden = isPrivateSpaceEntryPointHidden(userHandle = userHandle),
+            )
 
             val eblanUserType = when (launcherUserInfo.userType) {
                 UserManager.USER_TYPE_PROFILE_CLONE -> EblanUserType.Clone
@@ -589,7 +588,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             isEnabled = isEnabled,
             icon = icon,
             shortcutQueryFlag = shortcutQueryFlag,
-            lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = `package`),
+            lastChangedTimestamp = lastChangedTimestamp,
         )
     }
 
@@ -597,6 +596,6 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     private fun ShortcutInfo.toFastLauncherAppsShortcutInfo(): FastLauncherAppsShortcutInfo = FastLauncherAppsShortcutInfo(
         packageName = `package`,
         serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = userHandle),
-        lastUpdateTime = packageManagerWrapper.getLastUpdateTime(packageName = `package`),
+        lastChangedTimestamp = packageManagerWrapper.getLastUpdateTime(packageName = `package`),
     )
 }

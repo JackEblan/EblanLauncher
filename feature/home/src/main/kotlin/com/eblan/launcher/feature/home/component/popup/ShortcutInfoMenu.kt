@@ -87,7 +87,7 @@ internal fun ShortcutInfoMenu(
         modifier = modifier
             .sizeIn(
                 maxWidth = 300.dp,
-                maxHeight = 300.dp,
+                maxHeight = 150.dp,
             )
             .verticalScroll(rememberScrollState()),
     ) {

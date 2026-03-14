@@ -34,7 +34,8 @@ sealed interface LauncherAppsEvent {
     ) : LauncherAppsEvent
 
     data class ShortcutsChanged(
+        val serialNumber: Long,
         val packageName: String,
-        val launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
+        val launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>?,
     ) : LauncherAppsEvent
 }

@@ -326,7 +326,7 @@ internal class PagerScreenState(
     }
 
     val applicationScreenCornerSize by derivedStateOf {
-        val progress = swipeY.value.coerceAtLeast(0f) / screenHeight
+        val progress = (swipeY.value / screenHeight).coerceIn(0f, 1f)
 
         (20 * progress).dp
     }
@@ -358,7 +358,7 @@ internal class PagerScreenState(
     }
 
     val widgetScreenCornerSize by derivedStateOf {
-        val progress = widgetScreenOffsetY.value.coerceAtLeast(0f) / screenHeight
+        val progress = (widgetScreenOffsetY.value / screenHeight).coerceIn(0f, 1f)
 
         (20 * progress).dp
     }
@@ -370,7 +370,7 @@ internal class PagerScreenState(
     }
 
     val shortcutConfigScreenCornerSize by derivedStateOf {
-        val progress = shortcutConfigScreenOffsetY.value.coerceAtLeast(0f) / screenHeight
+        val progress = (shortcutConfigScreenOffsetY.value / screenHeight).coerceIn(0f, 1f)
 
         (20 * progress).dp
     }

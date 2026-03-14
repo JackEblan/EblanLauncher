@@ -21,6 +21,7 @@ import androidx.room.Room
 import androidx.room.testing.MigrationTestHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.eblan.launcher.data.room.migration.Migration12To13
 import com.eblan.launcher.data.room.migration.Migration3To4
 import com.eblan.launcher.data.room.migration.Migration7To8
 import org.junit.Rule
@@ -52,10 +53,12 @@ class MigrationAllTest {
         ).addMigrations(
             Migration3To4(),
             Migration7To8(),
+            Migration12To13(),
         ).fallbackToDestructiveMigrationFrom(
             dropAllTables = true,
             1,
             2,
+            11,
         ).build().apply {
             openHelper.writableDatabase.close()
         }

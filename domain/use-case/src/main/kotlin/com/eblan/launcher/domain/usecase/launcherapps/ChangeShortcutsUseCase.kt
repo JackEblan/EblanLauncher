@@ -110,15 +110,14 @@ class ChangeShortcutsUseCase @Inject constructor(
                 oldDeleteEblanShortcutInfos.forEach { deleteEblanShortcutInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    val isUniqueShortcutId =
-                        eblanShortcutInfoRepository.getEblanShortcutInfos()
-                            .none { eblanShortcutInfo ->
-                                currentCoroutineContext().ensureActive()
+                    val hasNoIconReference = eblanShortcutInfoRepository.getEblanShortcutInfos()
+                        .none { eblanShortcutInfo ->
+                            currentCoroutineContext().ensureActive()
 
-                                eblanShortcutInfo.serialNumber != deleteEblanShortcutInfo.serialNumber && eblanShortcutInfo.shortcutId == deleteEblanShortcutInfo.shortcutId
-                            }
+                            eblanShortcutInfo.icon == deleteEblanShortcutInfo.icon
+                        }
 
-                    if (isUniqueShortcutId) {
+                    if (hasNoIconReference) {
                         deleteEblanShortcutInfo.icon?.let { icon ->
                             val iconFile = File(icon)
 

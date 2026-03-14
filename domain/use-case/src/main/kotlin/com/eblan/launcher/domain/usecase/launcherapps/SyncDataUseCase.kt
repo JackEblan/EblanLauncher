@@ -205,14 +205,14 @@ class SyncDataUseCase @Inject constructor(
         oldDeleteEblanApplicationInfos.forEach { oldDeleteEblanApplicationInfo ->
             currentCoroutineContext().ensureActive()
 
-            val isUniqueComponentName = eblanApplicationInfoRepository.getEblanApplicationInfos()
+            val hasNoIconReference = eblanApplicationInfoRepository.getEblanApplicationInfos()
                 .none { eblanApplicationInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    eblanApplicationInfo.serialNumber != oldDeleteEblanApplicationInfo.serialNumber && eblanApplicationInfo.componentName == oldDeleteEblanApplicationInfo.componentName
+                    eblanApplicationInfo.icon == oldDeleteEblanApplicationInfo.icon
                 }
 
-            if (isUniqueComponentName) {
+            if (hasNoIconReference) {
                 oldDeleteEblanApplicationInfo.icon?.let { icon ->
                     val iconFile = File(icon)
 
@@ -361,14 +361,14 @@ class SyncDataUseCase @Inject constructor(
         oldDeleteEblanAppWidgetProviderInfos.forEach { deleteEblanAppWidgetProviderInfo ->
             currentCoroutineContext().ensureActive()
 
-            val isUniquePackageName = eblanApplicationInfoRepository.getEblanApplicationInfos()
+            val hasNoIconReference = eblanApplicationInfoRepository.getEblanApplicationInfos()
                 .none { eblanApplicationInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    eblanApplicationInfo.packageName == deleteEblanAppWidgetProviderInfo.packageName
+                    eblanApplicationInfo.icon == deleteEblanAppWidgetProviderInfo.applicationIcon
                 }
 
-            if (isUniquePackageName) {
+            if (hasNoIconReference) {
                 deleteEblanAppWidgetProviderInfo.applicationIcon?.let { icon ->
                     val iconFile = File(icon)
 
@@ -462,20 +462,20 @@ class SyncDataUseCase @Inject constructor(
         oldDeleteEblanShortcutInfos.forEach { deleteEblanShortcutInfo ->
             currentCoroutineContext().ensureActive()
 
-            val isUniqueShortcutId =
-                eblanShortcutInfoRepository.getEblanShortcutInfos().none { eblanShortcutInfo ->
-                    currentCoroutineContext().ensureActive()
+            val hasNoIconReference =
+                deleteEblanShortcutInfo.icon != null &&
+                    eblanShortcutInfoRepository.getEblanShortcutInfos()
+                        .none { eblanShortcutInfo ->
+                            currentCoroutineContext().ensureActive()
 
-                    eblanShortcutInfo.serialNumber != deleteEblanShortcutInfo.serialNumber && eblanShortcutInfo.shortcutId == deleteEblanShortcutInfo.shortcutId
-                }
+                            eblanShortcutInfo.icon == deleteEblanShortcutInfo.icon
+                        }
 
-            if (isUniqueShortcutId) {
+            if (hasNoIconReference) {
                 deleteEblanShortcutInfo.icon?.let { icon ->
                     val iconFile = File(icon)
 
-                    if (iconFile.exists()) {
-                        iconFile.delete()
-                    }
+                    if (iconFile.exists()) iconFile.delete()
                 }
             }
         }
@@ -525,14 +525,14 @@ class SyncDataUseCase @Inject constructor(
             oldDeleteEblanShortcutConfigs.forEach { deleteEblanShortcutConfig ->
                 currentCoroutineContext().ensureActive()
 
-                val isUniqueComponentName = eblanShortcutConfigRepository.getEblanShortcutConfigs()
+                val hasNoIconReference = eblanShortcutConfigRepository.getEblanShortcutConfigs()
                     .none { eblanShortcutConfig ->
                         currentCoroutineContext().ensureActive()
 
-                        eblanShortcutConfig.serialNumber != deleteEblanShortcutConfig.serialNumber && eblanShortcutConfig.componentName == deleteEblanShortcutConfig.componentName
+                        eblanShortcutConfig.activityIcon == deleteEblanShortcutConfig.activityIcon
                     }
 
-                if (isUniqueComponentName) {
+                if (hasNoIconReference) {
                     deleteEblanShortcutConfig.activityIcon?.let { activityIcon ->
                         val activityIconFile = File(activityIcon)
 

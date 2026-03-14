@@ -123,14 +123,14 @@ class RemovePackageUseCase @Inject constructor(
         ).forEach { eblanApplicationInfoByPackageName ->
             currentCoroutineContext().ensureActive()
 
-            val isUniquePackageName = eblanApplicationInfoRepository.getEblanApplicationInfos()
+            val hasNoIconReference = eblanApplicationInfoRepository.getEblanApplicationInfos()
                 .none { eblanApplicationInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    eblanApplicationInfo.serialNumber != eblanApplicationInfoByPackageName.serialNumber && eblanApplicationInfo.packageName == eblanApplicationInfoByPackageName.packageName
+                    eblanApplicationInfo.icon == eblanApplicationInfoByPackageName.icon
                 }
 
-            if (isUniquePackageName) {
+            if (hasNoIconReference) {
                 eblanApplicationInfoByPackageName.icon?.let { icon ->
                     val iconFile = File(icon)
 
@@ -202,14 +202,14 @@ class RemovePackageUseCase @Inject constructor(
         ).forEach { eblanShortcutInfoByPackageName ->
             currentCoroutineContext().ensureActive()
 
-            val isUniquePackageName =
+            val hasNoIconReference =
                 eblanShortcutInfoRepository.getEblanShortcutInfos().none { eblanShortcutInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    eblanShortcutInfo.serialNumber != eblanShortcutInfoByPackageName.serialNumber && eblanShortcutInfo.packageName == eblanShortcutInfoByPackageName.packageName
+                    eblanShortcutInfo.icon == eblanShortcutInfoByPackageName.icon
                 }
 
-            if (isUniquePackageName) {
+            if (hasNoIconReference) {
                 eblanShortcutInfoByPackageName.icon?.let { icon ->
                     val iconFile = File(icon)
 
@@ -246,14 +246,14 @@ class RemovePackageUseCase @Inject constructor(
         ).forEach { eblanShortcutConfigByPackageName ->
             currentCoroutineContext().ensureActive()
 
-            val isUniquePackageName = eblanShortcutConfigRepository.getEblanShortcutConfigs()
+            val hasNoIconReference = eblanShortcutConfigRepository.getEblanShortcutConfigs()
                 .none { eblanShortcutConfig ->
                     currentCoroutineContext().ensureActive()
 
-                    eblanShortcutConfig.serialNumber != eblanShortcutConfigByPackageName.serialNumber && eblanShortcutConfig.packageName == eblanShortcutConfigByPackageName.packageName
+                    eblanShortcutConfig.activityIcon == eblanShortcutConfigByPackageName.activityIcon
                 }
 
-            if (isUniquePackageName) {
+            if (hasNoIconReference) {
                 eblanShortcutConfigByPackageName.activityIcon?.let { activityIcon ->
                     val activityIconFile = File(activityIcon)
 

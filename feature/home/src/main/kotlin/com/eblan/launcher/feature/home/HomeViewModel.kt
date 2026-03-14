@@ -458,6 +458,10 @@ internal class HomeViewModel @Inject constructor(
 
             gridRepository.updateGridItems(gridItems = gridCacheRepository.gridItemsCache.first())
 
+            _moveGridItemResult.update {
+                null
+            }
+
             _isCache.update {
                 false
             }

@@ -164,7 +164,6 @@ internal fun SharedTransitionScope.ApplicationScreen(
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
-    gridItems: List<GridItem>,
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
@@ -174,7 +173,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
     swipeY: Float,
     onDismiss: () -> Unit,
     onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -192,8 +191,8 @@ internal fun SharedTransitionScope.ApplicationScreen(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onVerticalDrag: (Float) -> Unit,
-    onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
-    onDraggingShortcutInfoGridItem: (List<GridItem>) -> Unit,
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
+    onDraggingShortcutInfoGridItem: () -> Unit,
 ) {
     Surface(
         modifier = modifier
@@ -212,7 +211,6 @@ internal fun SharedTransitionScope.ApplicationScreen(
             eblanApplicationInfoTags = eblanApplicationInfoTags,
             eblanShortcutInfosGroup = eblanShortcutInfosGroup,
             getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
-            gridItems = gridItems,
             hasShortcutHostPermission = hasShortcutHostPermission,
             iconPackFilePaths = iconPackFilePaths,
             isPressHome = isPressHome,
@@ -234,7 +232,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
             onUpdateOverlayBounds = onUpdateOverlayBounds,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
             onVerticalDrag = onVerticalDrag,
-            onUpdateEblanApplicationInfoGroup = onUpdateEblanApplicationInfoGroup,
+            onWidgets = onWidgets,
             onDraggingShortcutInfoGridItem = onDraggingShortcutInfoGridItem,
         )
     }
@@ -251,7 +249,6 @@ private fun SharedTransitionScope.Success(
     eblanApplicationInfoTags: List<EblanApplicationInfoTag>,
     eblanShortcutInfosGroup: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
-    gridItems: List<GridItem>,
     hasShortcutHostPermission: Boolean,
     iconPackFilePaths: Map<String, String>,
     isPressHome: Boolean,
@@ -261,7 +258,7 @@ private fun SharedTransitionScope.Success(
     swipeY: Float,
     onDismiss: () -> Unit,
     onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -279,8 +276,8 @@ private fun SharedTransitionScope.Success(
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onVerticalDrag: (Float) -> Unit,
-    onUpdateEblanApplicationInfoGroup: (EblanApplicationInfoGroup) -> Unit,
-    onDraggingShortcutInfoGridItem: (List<GridItem>) -> Unit,
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
+    onDraggingShortcutInfoGridItem: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -364,7 +361,7 @@ private fun SharedTransitionScope.Success(
         }
     }
 
-    BackHandler {
+    BackHandler(enabled = swipeY < screenHeight.toFloat()) {
         showPopupApplicationMenu = false
 
         onDismiss()
@@ -442,7 +439,6 @@ private fun SharedTransitionScope.Success(
                     drag = drag,
                     eblanApplicationInfoOrder = appDrawerSettings.eblanApplicationInfoOrder,
                     getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
-                    gridItems = gridItems,
                     iconPackFilePaths = iconPackFilePaths,
                     index = index,
                     isRearrangeEblanApplicationInfo = isRearrangeEblanApplicationInfo,
@@ -482,7 +478,6 @@ private fun SharedTransitionScope.Success(
                 drag = drag,
                 eblanApplicationInfoOrder = appDrawerSettings.eblanApplicationInfoOrder,
                 getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
-                gridItems = gridItems,
                 iconPackFilePaths = iconPackFilePaths,
                 index = 0,
                 isRearrangeEblanApplicationInfo = isRearrangeEblanApplicationInfo,
@@ -540,7 +535,7 @@ private fun SharedTransitionScope.Success(
 
                 onDismiss()
 
-                onDraggingShortcutInfoGridItem(gridItems)
+                onDraggingShortcutInfoGridItem()
             },
             onEditApplicationInfo = onEditApplicationInfo,
             onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
@@ -566,7 +561,7 @@ private fun SharedTransitionScope.Success(
             onUpdateImageBitmap = onUpdateImageBitmap,
             onUpdateOverlayBounds = onUpdateOverlayBounds,
             onUpdateSharedElementKey = onUpdateSharedElementKey,
-            onWidgets = onUpdateEblanApplicationInfoGroup,
+            onWidgets = onWidgets,
         )
     }
 
@@ -596,7 +591,6 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     drag: Drag,
     eblanApplicationInfoOrder: EblanApplicationInfoOrder,
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
-    gridItems: List<GridItem>,
     iconPackFilePaths: Map<String, String>,
     index: Int,
     isRearrangeEblanApplicationInfo: Boolean,
@@ -605,7 +599,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     onDismiss: () -> Unit,
     onDismissDragAndDrop: () -> Unit,
     onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onUpdateEblanApplicationInfos: (List<EblanApplicationInfo>) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
@@ -679,7 +673,6 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
                 drag = drag,
                 eblanUser = eblanUser,
                 getEblanApplicationInfosByLabel = getEblanApplicationInfosByLabel,
-                gridItems = gridItems,
                 iconPackFilePaths = iconPackFilePaths,
                 managedProfileResult = managedProfileResult,
                 paddingValues = paddingValues,
@@ -786,13 +779,12 @@ private fun SharedTransitionScope.EblanApplicationInfos(
     drag: Drag,
     eblanUser: EblanUser,
     getEblanApplicationInfosByLabel: GetEblanApplicationInfosByLabel,
-    gridItems: List<GridItem>,
     iconPackFilePaths: Map<String, String>,
     managedProfileResult: ManagedProfileResult?,
     paddingValues: PaddingValues,
     onDismiss: () -> Unit,
     onDragEnd: (Float) -> Unit,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateIsLongPressAndIsDragging: () -> Unit,
@@ -868,7 +860,6 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 currentPage = currentPage,
                                 drag = drag,
                                 eblanApplicationInfo = eblanApplicationInfo,
-                                gridItems = gridItems,
                                 iconPackFilePaths = iconPackFilePaths,
                                 paddingValues = paddingValues,
                                 onDismiss = onDismiss,
@@ -910,7 +901,6 @@ private fun SharedTransitionScope.EblanApplicationInfos(
                                 currentPage = currentPage,
                                 drag = drag,
                                 eblanApplicationInfo = eblanApplicationInfo,
-                                gridItems = gridItems,
                                 iconPackFilePaths = iconPackFilePaths,
                                 paddingValues = paddingValues,
                                 onDismiss = onDismiss,
@@ -951,11 +941,10 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     currentPage: Int,
     drag: Drag,
     eblanApplicationInfo: EblanApplicationInfo,
-    gridItems: List<GridItem>,
     iconPackFilePaths: Map<String, String>,
     paddingValues: PaddingValues,
     onDismiss: () -> Unit,
-    onDraggingGridItem: (List<GridItem>) -> Unit,
+    onDraggingGridItem: () -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onUpdateIsLongPressAndIsDragging: () -> Unit,
@@ -1071,7 +1060,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
             onUpdateIsLongPressAndIsDragging()
 
-            onDraggingGridItem(gridItems)
+            onDraggingGridItem()
         } else if ((drag == Drag.End || drag == Drag.Cancel) && isLongPress) {
             isLongPress = false
         }

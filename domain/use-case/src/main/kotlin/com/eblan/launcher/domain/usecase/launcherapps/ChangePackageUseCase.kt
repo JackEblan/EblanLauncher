@@ -161,7 +161,7 @@ class ChangePackageUseCase @Inject constructor(
             }
         }
 
-        if (oldSyncEblanApplicationInfosByPackageName != newSyncEblanApplicationInfosByPackageName) {
+        if (oldSyncEblanApplicationInfosByPackageName.toSet() != newSyncEblanApplicationInfosByPackageName.toSet()) {
             val newDeleteEblanApplicationInfos =
                 newSyncEblanApplicationInfosByPackageName.map { syncEblanApplicationInfo ->
                     DeleteEblanApplicationInfo(
@@ -299,7 +299,7 @@ class ChangePackageUseCase @Inject constructor(
                 )
             }
 
-        if (oldEblanAppWidgetProviderInfosByPackageName != newEblanAppWidgetProviderInfosByPackageName) {
+        if (oldEblanAppWidgetProviderInfosByPackageName.toSet() != newEblanAppWidgetProviderInfosByPackageName.toSet()) {
             val newDeleteEblanAppWidgetProviderInfos =
                 newEblanAppWidgetProviderInfosByPackageName.map { eblanAppWidgetProviderInfo ->
                     DeleteEblanAppWidgetProviderInfo(
@@ -404,7 +404,7 @@ class ChangePackageUseCase @Inject constructor(
                 )
             }
 
-        if (oldEblanShortcutInfosByPackageName != newEblanShortcutInfosByPackageName) {
+        if (oldEblanShortcutInfosByPackageName.toSet() != newEblanShortcutInfosByPackageName.toSet()) {
             val newDeleteEblanShortcutInfos =
                 newEblanShortcutInfosByPackageName.map { eblanShortcutInfo ->
                     DeleteEblanShortcutInfo(
@@ -476,7 +476,7 @@ class ChangePackageUseCase @Inject constructor(
                 packageName = packageName,
             )
 
-        if (oldEblanShortcutConfigsByPackageName != newEblanShortcutConfigs) {
+        if (oldEblanShortcutConfigsByPackageName.toSet() != newEblanShortcutConfigs.toSet()) {
             val newDeleteEblanShortcutConfigs = newEblanShortcutConfigs.map { eblanShortcutConfig ->
                 DeleteEblanShortcutConfig(
                     serialNumber = eblanShortcutConfig.serialNumber,

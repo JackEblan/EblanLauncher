@@ -71,7 +71,7 @@ class ChangeShortcutsUseCase @Inject constructor(
                 )
             }
 
-            if (oldEblanShortcutInfos != newEblanShortcutInfos) {
+            if (oldEblanShortcutInfos.toSet() != newEblanShortcutInfos.toSet()) {
                 val newDeleteEblanShortcutInfos = newEblanShortcutInfos.map { eblanShortcutInfo ->
                     DeleteEblanShortcutInfo(
                         serialNumber = eblanShortcutInfo.serialNumber,

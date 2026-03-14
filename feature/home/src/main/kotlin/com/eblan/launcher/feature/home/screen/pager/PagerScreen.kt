@@ -454,7 +454,7 @@ internal fun PagerScreen(
         onStopSyncData = onStopSyncData,
     )
 
-    LaunchedEffect(key1 = pagerScreenState.drag, key2 = pagerScreenState.dragIntOffset) {
+    LaunchedEffect(key1 = pagerScreenState.dragIntOffset) {
         pagerScreenState.handleDragGridItem(
             currentPage = currentPage,
             density = density,
@@ -505,7 +505,7 @@ internal fun PagerScreen(
         )
     }
 
-    LaunchedEffect(key1 = moveGridItemResult, key2 = pagerScreenState.drag) {
+    LaunchedEffect(key1 = moveGridItemResult) {
         pagerScreenState.handleConflictingGridItem(
             density = density,
             dockHeight = dockHeight,

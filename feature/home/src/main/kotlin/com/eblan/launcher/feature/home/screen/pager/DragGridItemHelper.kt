@@ -391,12 +391,6 @@ private suspend fun handleDragFolderGridItem(
             folderCurrentPage,
         )
     } else {
-        onMoveFolderGridItemOutsideFolder(
-            folderGridItem,
-            gridItemSourceFolder.applicationInfoGridItem,
-            data.gridItems,
-        )
-
         val gridItem = GridItem(
             id = gridItemSourceFolder.applicationInfoGridItem.id,
             page = gridItemSourceFolder.applicationInfoGridItem.page,
@@ -430,6 +424,12 @@ private suspend fun handleDragFolderGridItem(
                 id = gridItem.id,
                 parent = SharedElementKey.Parent.Grid,
             ),
+        )
+
+        onMoveFolderGridItemOutsideFolder(
+            folderGridItem,
+            gridItemSourceFolder.applicationInfoGridItem,
+            data.gridItems,
         )
     }
 }
@@ -683,19 +683,6 @@ internal suspend fun handleConflictingGridItem(
         height = height,
     )
 
-    onUpdateSharedElementKey(
-        SharedElementKey(
-            id = moveGridItemResult.movingGridItem.id,
-            parent = SharedElementKey.Parent.Folder,
-        ),
-    )
-
-    onShowFolderWhenDragging(
-        conflictingData.id,
-        conflictingGridItem,
-        moveGridItemResult.movingGridItem,
-    )
-
     onUpdateGridItemSource(
         GridItemSource.Folder(
             gridItem = moveGridItemResult.movingGridItem,
@@ -725,9 +712,22 @@ internal suspend fun handleConflictingGridItem(
         ),
     )
 
+    onUpdateSharedElementKey(
+        SharedElementKey(
+            id = moveGridItemResult.movingGridItem.id,
+            parent = SharedElementKey.Parent.Folder,
+        ),
+    )
+
     onUpdateFolderPopupBounds(
         intOffset,
         intSize,
+    )
+
+    onShowFolderWhenDragging(
+        conflictingData.id,
+        conflictingGridItem,
+        moveGridItemResult.movingGridItem,
     )
 }
 

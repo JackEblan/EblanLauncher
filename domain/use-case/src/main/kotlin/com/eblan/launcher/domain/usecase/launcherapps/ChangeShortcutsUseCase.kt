@@ -53,7 +53,7 @@ class ChangeShortcutsUseCase @Inject constructor(
         withContext(ioDispatcher) {
             if (!userDataRepository.userData.first().experimentalSettings.syncData) return@withContext
 
-            val oldEblanShortcutInfos = eblanShortcutInfoRepository.eblanShortcutInfos.first()
+            val oldEblanShortcutInfos = eblanShortcutInfoRepository.getEblanShortcutInfos()
 
             val newEblanShortcutInfos = launcherAppsShortcutInfos.map { launcherAppsShortcutInfo ->
                 ensureActive()

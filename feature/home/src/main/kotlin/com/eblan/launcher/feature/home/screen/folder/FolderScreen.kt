@@ -126,7 +126,11 @@ internal fun SharedTransitionScope.FolderScreen(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateShowFolderGridItemPopup: (Boolean) -> Unit,
+    onShowGridItemPopup: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onDismissGridItemPopup: () -> Unit,
 ) {
     val data = folderGridItem.data as? GridItemData.Folder ?: return
 
@@ -218,7 +222,8 @@ internal fun SharedTransitionScope.FolderScreen(
                                     onUpdateIsLongPress = onUpdateIsLongPress,
                                     onUpdateOverlayBounds = onUpdateOverlayBounds,
                                     onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                    onUpdateShowFolderGridItemPopup = onUpdateShowFolderGridItemPopup,
+                                    onShowGridItemPopup = onShowGridItemPopup,
+                                    onDismissGridItemPopup = onDismissGridItemPopup,
                                 )
                             },
                         )
@@ -313,7 +318,11 @@ private fun SharedTransitionScope.FolderGridItemContent(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateShowFolderGridItemPopup: (Boolean) -> Unit,
+    onShowGridItemPopup: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onDismissGridItemPopup: () -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -380,7 +389,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
             isSelected = isSelected,
             isLongPress = isLongPress,
             onUpdateIsDragging = onUpdateIsDragging,
-            onUpdateShowGridItemPopup = onUpdateShowFolderGridItemPopup,
+            onDismissGridItemPopup = onDismissGridItemPopup,
             onDraggingGridItem = onDraggingGridItem,
         )
     }
@@ -422,7 +431,7 @@ private fun SharedTransitionScope.FolderGridItemContent(
                                 onUpdateIsLongPress = onUpdateIsLongPress,
                                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                onUpdateShowGridItemPopup = onUpdateShowFolderGridItemPopup,
+                                onShowGridItemPopup = onShowGridItemPopup,
                             )
                         }
                     } else {

@@ -44,7 +44,13 @@ internal fun SharedTransitionScope.OverlayImage(
     sharedElementKey: SharedElementKey?,
     onResetOverlay: () -> Unit,
 ) {
-    if (overlayImageBitmap == null || sharedElementKey == null) return
+    if (overlayImageBitmap == null ||
+        sharedElementKey == null ||
+        overlayIntOffset == IntOffset.Zero ||
+        overlayIntSize == IntSize.Zero
+    ) {
+        return
+    }
 
     val density = LocalDensity.current
 

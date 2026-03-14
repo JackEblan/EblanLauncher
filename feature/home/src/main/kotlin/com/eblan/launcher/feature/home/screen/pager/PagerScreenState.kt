@@ -920,15 +920,6 @@ internal class PagerScreenState(
         overlayIntSize = intSize
     }
 
-    fun updatePopupBounds(
-        intOffset: IntOffset,
-        intSize: IntSize,
-    ) {
-        popupIntOffset = intOffset
-
-        popupIntSize = intSize
-    }
-
     fun resetOverlay() {
         overlayImageBitmap = null
 
@@ -953,16 +944,42 @@ internal class PagerScreenState(
         hasDoubleTap = value
     }
 
-    fun updateShowGridItemPopup(value: Boolean) {
-        showGridItemPopup = value
+    fun showGridItemPopup(
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) {
+        popupIntOffset = intOffset
+
+        popupIntSize = intSize
+
+        showGridItemPopup = true
     }
 
-    fun updateShowSettingsPopup(value: Boolean) {
-        showSettingsPopup = value
+    fun dismissGridItemPopup() {
+        popupIntOffset = IntOffset.Zero
+
+        popupIntSize = IntSize.Zero
+
+        showGridItemPopup = false
     }
 
-    fun updateShowFolderGridItemPopup(value: Boolean) {
-        showFolderGridItemPopup = value
+    fun showFolderGridItemPopup(
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) {
+        popupIntOffset = intOffset
+
+        popupIntSize = intSize
+
+        showFolderGridItemPopup = true
+    }
+
+    fun dismissFolderGridItemPopup() {
+        popupIntOffset = IntOffset.Zero
+
+        popupIntSize = IntSize.Zero
+
+        showFolderGridItemPopup = false
     }
 
     fun updateIsLongPress(value: Boolean) {
@@ -1027,10 +1044,16 @@ internal class PagerScreenState(
         }
     }
 
-    fun longPress(offset: Offset) {
+    fun showSettingsPopup(offset: Offset) {
         settingsPopupIntOffset = offset.round()
 
         showSettingsPopup = true
+    }
+
+    fun dismissSettingsPopup() {
+        settingsPopupIntOffset = IntOffset.Zero
+
+        showSettingsPopup = false
     }
 
     fun openApplicationScreen() {

@@ -124,7 +124,11 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateShowGridItemPopup: (Boolean) -> Unit,
+    onShowGridItemPopup: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onDismissGridItemPopup: () -> Unit,
 ) {
     val isSelected = gridItemSource != null && gridItem.id == gridItemSource.gridItem.id
 
@@ -171,7 +175,8 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateIsLongPress = onUpdateIsLongPress,
                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+                onShowGridItemPopup = onShowGridItemPopup,
+                onDismissGridItemPopup = onDismissGridItemPopup,
             )
         }
 
@@ -192,7 +197,8 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateIsLongPress = onUpdateIsLongPress,
                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+                onShowGridItemPopup = onShowGridItemPopup,
+                onDismissGridItemPopup = onDismissGridItemPopup,
             )
         }
 
@@ -217,7 +223,8 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateIsLongPress = onUpdateIsLongPress,
                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+                onShowGridItemPopup = onShowGridItemPopup,
+                onDismissGridItemPopup = onDismissGridItemPopup,
             )
         }
 
@@ -242,7 +249,8 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateIsLongPress = onUpdateIsLongPress,
                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+                onShowGridItemPopup = onShowGridItemPopup,
+                onDismissGridItemPopup = onDismissGridItemPopup,
             )
         }
 
@@ -266,7 +274,8 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 onUpdateIsLongPress = onUpdateIsLongPress,
                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+                onShowGridItemPopup = onShowGridItemPopup,
+                onDismissGridItemPopup = onDismissGridItemPopup,
             )
         }
     }
@@ -301,7 +310,11 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateShowGridItemPopup: (Boolean) -> Unit,
+    onShowGridItemPopup: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onDismissGridItemPopup: () -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -343,7 +356,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
             isSelected = isSelected,
             isLongPress = isLongPress,
             onUpdateIsDragging = onUpdateIsDragging,
-            onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+            onDismissGridItemPopup = onDismissGridItemPopup,
             onDraggingGridItem = onDraggingGridItem,
         )
     }
@@ -382,7 +395,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                                 onUpdateIsLongPress = onUpdateIsLongPress,
                                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+                                onShowGridItemPopup = onShowGridItemPopup,
                             )
                         }
                     } else {
@@ -510,7 +523,11 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateShowGridItemPopup: (Boolean) -> Unit,
+    onShowGridItemPopup: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onDismissGridItemPopup: () -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -536,7 +553,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
             isSelected = isSelected,
             isLongPress = isLongPress,
             onUpdateIsDragging = onUpdateIsDragging,
-            onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+            onDismissGridItemPopup = onDismissGridItemPopup,
             onDraggingGridItem = onDraggingGridItem,
         )
     }
@@ -598,7 +615,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                                     onUpdateIsLongPress = onUpdateIsLongPress,
                                     onUpdateOverlayBounds = onUpdateOverlayBounds,
                                     onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                    onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+                                    onShowGridItemPopup = onShowGridItemPopup,
                                 )
 
                                 true
@@ -646,7 +663,11 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateShowGridItemPopup: (Boolean) -> Unit,
+    onShowGridItemPopup: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onDismissGridItemPopup: () -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -684,7 +705,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
             isSelected = isSelected,
             isLongPress = isLongPress,
             onUpdateIsDragging = onUpdateIsDragging,
-            onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+            onDismissGridItemPopup = onDismissGridItemPopup,
             onDraggingGridItem = onDraggingGridItem,
         )
     }
@@ -723,7 +744,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                                 onUpdateIsLongPress = onUpdateIsLongPress,
                                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+                                onShowGridItemPopup = onShowGridItemPopup,
                             )
                         }
                     } else {
@@ -842,7 +863,11 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateShowGridItemPopup: (Boolean) -> Unit,
+    onShowGridItemPopup: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onDismissGridItemPopup: () -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -874,7 +899,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
             isSelected = isSelected,
             isLongPress = isLongPress,
             onUpdateIsDragging = onUpdateIsDragging,
-            onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+            onDismissGridItemPopup = onDismissGridItemPopup,
             onDraggingGridItem = onDraggingGridItem,
         )
     }
@@ -913,7 +938,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                                 onUpdateIsLongPress = onUpdateIsLongPress,
                                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+                                onShowGridItemPopup = onShowGridItemPopup,
                             )
                         }
                     } else {
@@ -1055,7 +1080,11 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateShowGridItemPopup: (Boolean) -> Unit,
+    onShowGridItemPopup: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onDismissGridItemPopup: () -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -1123,7 +1152,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
             isSelected = isSelected,
             isLongPress = isLongPress,
             onUpdateIsDragging = onUpdateIsDragging,
-            onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+            onDismissGridItemPopup = onDismissGridItemPopup,
             onDraggingGridItem = onDraggingGridItem,
         )
     }
@@ -1162,7 +1191,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                                 onUpdateIsLongPress = onUpdateIsLongPress,
                                 onUpdateOverlayBounds = onUpdateOverlayBounds,
                                 onUpdateSharedElementKey = onUpdateSharedElementKey,
-                                onUpdateShowGridItemPopup = onUpdateShowGridItemPopup,
+                                onShowGridItemPopup = onShowGridItemPopup,
                             )
                         }
                     } else {

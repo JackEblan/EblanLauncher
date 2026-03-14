@@ -186,7 +186,10 @@ internal fun onLongPress(
         intSize: IntSize,
     ) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-    onUpdateShowGridItemPopup: (Boolean) -> Unit,
+    onShowGridItemPopup: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
 ) {
     scope.launch {
         onUpdateGridItemSource(gridItemSource)
@@ -202,7 +205,10 @@ internal fun onLongPress(
 
         onUpdateIsLongPress(true)
 
-        onUpdateShowGridItemPopup(true)
+        onShowGridItemPopup(
+            intOffset,
+            intSize,
+        )
     }
 }
 
@@ -211,13 +217,13 @@ internal fun handleDrag(
     isSelected: Boolean,
     isLongPress: Boolean,
     onUpdateIsDragging: (Boolean) -> Unit,
-    onUpdateShowGridItemPopup: (Boolean) -> Unit,
+    onDismissGridItemPopup: () -> Unit,
     onDraggingGridItem: () -> Unit,
 ) {
     if (drag == Drag.Dragging && isSelected && isLongPress) {
         onUpdateIsDragging(true)
 
-        onUpdateShowGridItemPopup(false)
+        onDismissGridItemPopup()
 
         onDraggingGridItem()
     }

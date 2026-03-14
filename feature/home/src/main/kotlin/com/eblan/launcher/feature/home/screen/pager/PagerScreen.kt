@@ -63,6 +63,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -649,7 +650,7 @@ internal fun PagerScreen(
                             pagerScreenState.updateHasDoubleTap(value = true)
                         },
                         onLongPress = { offset ->
-                            pagerScreenState.longPress(offset = offset)
+                            pagerScreenState.showSettingsPopup(offset = offset)
                         },
                     )
                 }
@@ -761,22 +762,10 @@ internal fun PagerScreen(
                             onUpdateImageBitmap = pagerScreenState::updateOverlayImageBitmap,
                             onUpdateIsDragging = pagerScreenState::updateIsDragging,
                             onUpdateIsLongPress = pagerScreenState::updateIsLongPress,
-                            onUpdateOverlayBounds = { intOffset, intSize ->
-                                pagerScreenState.updatePopupBounds(
-                                    intOffset = intOffset,
-                                    intSize = IntSize(
-                                        width = width,
-                                        height = height,
-                                    ),
-                                )
-
-                                pagerScreenState.updateOverlayBounds(
-                                    intOffset = intOffset,
-                                    intSize = intSize,
-                                )
-                            },
+                            onUpdateOverlayBounds = pagerScreenState::updateOverlayBounds,
                             onUpdateSharedElementKey = pagerScreenState::updateSharedElementKey,
-                            onUpdateShowGridItemPopup = pagerScreenState::updateShowGridItemPopup,
+                            onShowGridItemPopup = pagerScreenState::showGridItemPopup,
+                            onDismissGridItemPopup = pagerScreenState::dismissGridItemPopup,
                         )
                     },
                 )
@@ -895,29 +884,20 @@ internal fun PagerScreen(
                             onUpdateImageBitmap = pagerScreenState::updateOverlayImageBitmap,
                             onUpdateIsDragging = pagerScreenState::updateIsDragging,
                             onUpdateIsLongPress = pagerScreenState::updateIsLongPress,
-                            onUpdateOverlayBounds = { intOffset, intSize ->
-                                pagerScreenState.updatePopupBounds(
-                                    intOffset = intOffset,
-                                    intSize = IntSize(
-                                        width = width,
-                                        height = height,
-                                    ),
-                                )
-
-                                pagerScreenState.updateOverlayBounds(
-                                    intOffset = intOffset,
-                                    intSize = intSize,
-                                )
-                            },
+                            onUpdateOverlayBounds = pagerScreenState::updateOverlayBounds,
                             onUpdateSharedElementKey = pagerScreenState::updateSharedElementKey,
-                            onUpdateShowGridItemPopup = pagerScreenState::updateShowGridItemPopup,
+                            onShowGridItemPopup = pagerScreenState::showGridItemPopup,
+                            onDismissGridItemPopup = pagerScreenState::dismissGridItemPopup,
                         )
                     },
                 )
             }
         }
 
-        if (pagerScreenState.showGridItemPopup) {
+        if (pagerScreenState.showGridItemPopup &&
+            pagerScreenState.popupIntOffset != IntOffset.Zero &&
+            pagerScreenState.popupIntSize != IntSize.Zero
+        ) {
             GridItemPopup(
                 currentPage = currentPage,
                 drag = pagerScreenState.drag,
@@ -930,9 +910,7 @@ internal fun PagerScreen(
                 popupIntOffset = pagerScreenState.popupIntOffset,
                 popupIntSize = pagerScreenState.popupIntSize,
                 onDeleteGridItem = onDeleteGridItem,
-                onDismissRequest = {
-                    pagerScreenState.updateShowGridItemPopup(value = false)
-                },
+                onDismissRequest = pagerScreenState::dismissGridItemPopup,
                 onDraggingShortcutInfoGridItem = {
                     pagerScreenState.draggingShortcutInfoGridItem(gridItems = gridItems)
                 },
@@ -979,14 +957,14 @@ internal fun PagerScreen(
             )
         }
 
-        if (pagerScreenState.showSettingsPopup) {
+        if (pagerScreenState.showSettingsPopup &&
+            pagerScreenState.settingsPopupIntOffset != IntOffset.Zero
+        ) {
             SettingsPopup(
                 gridItems = gridItems,
                 hasSystemFeatureAppWidgets = hasSystemFeatureAppWidgets,
                 popupSettingsIntOffset = pagerScreenState.settingsPopupIntOffset,
-                onDismissRequest = {
-                    pagerScreenState.updateShowSettingsPopup(value = false)
-                },
+                onDismissRequest = pagerScreenState::dismissSettingsPopup,
                 onEditPage = onEditPage,
                 onSettings = onSettings,
                 onShortcutConfigActivities = pagerScreenState::openShortcutConfigScreen,
@@ -1001,7 +979,10 @@ internal fun PagerScreen(
             )
         }
 
-        if (folderGridItem != null) {
+        if (folderGridItem != null &&
+            pagerScreenState.folderPopupIntOffset != IntOffset.Zero &&
+            pagerScreenState.folderPopupIntSize != IntSize.Zero
+        ) {
             FolderScreen(
                 drag = pagerScreenState.drag,
                 folderGridHorizontalPagerState = folderGridHorizontalPagerState,
@@ -1035,32 +1016,24 @@ internal fun PagerScreen(
                 onUpdateImageBitmap = pagerScreenState::updateOverlayImageBitmap,
                 onUpdateIsDragging = pagerScreenState::updateIsDragging,
                 onUpdateIsLongPress = pagerScreenState::updateIsLongPress,
-                onUpdateOverlayBounds = { intOffset, intSize ->
-                    pagerScreenState.updatePopupBounds(
-                        intOffset = intOffset,
-                        intSize = intSize,
-                    )
-
-                    pagerScreenState.updateOverlayBounds(
-                        intOffset = intOffset,
-                        intSize = intSize,
-                    )
-                },
+                onUpdateOverlayBounds = pagerScreenState::updateOverlayBounds,
                 onUpdateSharedElementKey = pagerScreenState::updateSharedElementKey,
-                onUpdateShowFolderGridItemPopup = pagerScreenState::updateShowFolderGridItemPopup,
+                onShowGridItemPopup = pagerScreenState::showFolderGridItemPopup,
+                onDismissGridItemPopup = pagerScreenState::dismissFolderGridItemPopup,
             )
         }
 
-        if (pagerScreenState.showFolderGridItemPopup) {
+        if (pagerScreenState.showFolderGridItemPopup &&
+            pagerScreenState.popupIntOffset != IntOffset.Zero &&
+            pagerScreenState.popupIntSize != IntSize.Zero
+        ) {
             FolderGridItemPopup(
                 gridItemSource = pagerScreenState.gridItemSource,
                 paddingValues = paddingValues,
                 popupIntOffset = pagerScreenState.popupIntOffset,
                 popupIntSize = pagerScreenState.popupIntSize,
                 onDeleteApplicationInfoGridItem = onDeleteApplicationInfoGridItem,
-                onDismissRequest = {
-                    pagerScreenState.updateShowFolderGridItemPopup(value = false)
-                },
+                onDismissRequest = pagerScreenState::dismissFolderGridItemPopup,
                 onEdit = onEditGridItem,
                 modifier = modifier,
                 currentPage = currentPage,

@@ -146,6 +146,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
                         trySend(
                             LauncherAppsEvent.ShortcutsChanged(
+                                serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
                                 packageName = packageName,
                                 launcherAppsShortcutInfos = launcherAppsShortcutInfo,
                             ),

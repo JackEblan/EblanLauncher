@@ -37,7 +37,7 @@ class Migration12To13 : Migration(12, 13) {
                 lastUpdateTime INTEGER NOT NULL DEFAULT 0,
                 PRIMARY KEY(shortcutId, serialNumber, packageName)
             )
-        """.trimIndent(),
+            """.trimIndent(),
         )
 
         // 2. Copy the data from the old table
@@ -51,7 +51,7 @@ class Migration12To13 : Migration(12, 13) {
             SELECT shortcutId, serialNumber, packageName, shortLabel, 
                    longLabel, icon, shortcutQueryFlag, isEnabled, lastUpdateTime 
             FROM EblanShortcutInfoEntity
-        """.trimIndent(),
+            """.trimIndent(),
         )
 
         // 3. Drop the old table

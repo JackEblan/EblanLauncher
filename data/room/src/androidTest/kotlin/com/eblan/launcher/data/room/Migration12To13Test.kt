@@ -67,7 +67,7 @@ class Migration12To13Test {
             1, 
             123456789
         )
-        """.trimIndent(),
+                """.trimIndent(),
             )
 
             close()

@@ -586,6 +586,8 @@ internal class HomeViewModel @Inject constructor(
 
                     is LauncherAppsEvent.ShortcutsChanged -> {
                         changeShortcutsUseCase(
+                            serialNumber = launcherAppsEvent.serialNumber,
+                            packageName = launcherAppsEvent.packageName,
                             launcherAppsShortcutInfos = launcherAppsEvent.launcherAppsShortcutInfos,
                         )
                     }

@@ -45,7 +45,11 @@ class ChangeShortcutsUseCase @Inject constructor(
     private val packageManagerWrapper: PackageManagerWrapper,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>) {
+    suspend operator fun invoke(
+        serialNumber: Long,
+        packageName: String,
+        launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
+    ) {
         if (!launcherAppsWrapper.hasShortcutHostPermission) {
             return
         }
@@ -53,7 +57,10 @@ class ChangeShortcutsUseCase @Inject constructor(
         withContext(ioDispatcher) {
             if (!userDataRepository.userData.first().experimentalSettings.syncData) return@withContext
 
-            val oldEblanShortcutInfos = eblanShortcutInfoRepository.getEblanShortcutInfos()
+            val oldEblanShortcutInfos = eblanShortcutInfoRepository.getEblanShortcutInfos(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
 
             val newEblanShortcutInfos = launcherAppsShortcutInfos.map { launcherAppsShortcutInfo ->
                 ensureActive()

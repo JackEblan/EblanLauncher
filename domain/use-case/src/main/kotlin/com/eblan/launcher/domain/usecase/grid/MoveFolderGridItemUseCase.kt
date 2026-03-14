@@ -24,6 +24,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -57,7 +58,10 @@ class MoveFolderGridItemUseCase @Inject constructor(
             val currentApplicationInfoGridItems = applicationInfoGridItems.toMutableList()
 
             val movingIndex =
-                currentApplicationInfoGridItems.indexOfFirst { it.id == movingApplicationInfoGridItem.id }
+                currentApplicationInfoGridItems.indexOfFirst {
+                    ensureActive()
+
+                    it.id == movingApplicationInfoGridItem.id }
 
             val applicationInfoGridItem = if (movingIndex != -1) {
                 currentApplicationInfoGridItems.removeAt(movingIndex)
@@ -74,6 +78,8 @@ class MoveFolderGridItemUseCase @Inject constructor(
             )
 
             val gridItems = currentApplicationInfoGridItems.mapIndexed { index, gridItem ->
+                ensureActive()
+
                 gridItem.copy(index = index)
             }
 

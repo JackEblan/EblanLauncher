@@ -21,6 +21,8 @@ import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.FolderGridItemWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData.Folder
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlin.math.ceil
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -29,7 +31,7 @@ private const val MAX_COLUMNS = 5
 
 private const val MAX_ROWS = 4
 
-internal fun FolderGridItemWrapper.asGridItem(): GridItem {
+internal suspend fun FolderGridItemWrapper.asGridItem(): GridItem {
     val sortedApplicationInfoGridItems = applicationInfoGridItems.sortedBy { it.index }
 
     val gridItemsByPage = sortedApplicationInfoGridItems.getGridItemsByPage()
@@ -66,9 +68,14 @@ internal fun FolderGridItemWrapper.asGridItem(): GridItem {
     )
 }
 
-internal fun List<ApplicationInfoGridItem>.getGridItemsByPage(): Map<Int, List<ApplicationInfoGridItem>> = chunked(MAX_COLUMNS * MAX_ROWS)
-    .mapIndexed { pageIndex, pageItems -> pageIndex to pageItems }
-    .toMap()
+internal suspend fun List<ApplicationInfoGridItem>.getGridItemsByPage(): Map<Int, List<ApplicationInfoGridItem>> =
+    chunked(MAX_COLUMNS * MAX_ROWS)
+        .mapIndexed { pageIndex, pageItems ->
+            currentCoroutineContext().ensureActive()
+
+            pageIndex to pageItems
+        }
+        .toMap()
 
 internal fun getGridDimension(count: Int): Pair<Int, Int> {
     if (count <= 0) return 0 to 0

@@ -47,9 +47,8 @@ class ShowFolderWhenDraggingUseCase @Inject constructor(
 
             val currentApplicationInfoGridItems = conflictingData.gridItems.toMutableList()
 
-            val index = currentApplicationInfoGridItems.indexOfFirst { gridItem ->
-                gridItem.id == movingGridItem.id
-            }
+            val index =
+                currentApplicationInfoGridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
 
             val applicationInfoGridItem = ApplicationInfoGridItem(
                 id = movingGridItem.id,

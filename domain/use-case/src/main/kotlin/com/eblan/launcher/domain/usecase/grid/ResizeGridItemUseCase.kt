@@ -26,6 +26,7 @@ import com.eblan.launcher.domain.grid.resolveConflicts
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -41,22 +42,30 @@ class ResizeGridItemUseCase @Inject constructor(
         lockMovement: Boolean,
     ): GridItem = withContext(defaultDispatcher) {
         val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
+            ensureActive()
+
             isGridItemSpanWithinBounds(
                 gridItem = gridItem,
                 columns = columns,
                 rows = rows,
             ) && gridItem.page == resizingGridItem.page &&
-                gridItem.associate == resizingGridItem.associate
+                    gridItem.associate == resizingGridItem.associate
         }.toMutableList()
 
         val index =
-            gridItems.indexOfFirst { gridItem -> gridItem.id == resizingGridItem.id }
+            gridItems.indexOfFirst { gridItem ->
+                ensureActive()
+
+                gridItem.id == resizingGridItem.id
+            }
 
         val oldGridItem = gridItems[index]
 
         gridItems[index] = resizingGridItem
 
         val gridItemBySpan = gridItems.find { gridItem ->
+            ensureActive()
+
             gridItem.id != resizingGridItem.id && rectanglesOverlap(
                 moving = resizingGridItem,
                 other = gridItem,

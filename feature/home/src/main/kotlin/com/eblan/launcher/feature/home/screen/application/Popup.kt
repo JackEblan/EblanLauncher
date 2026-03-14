@@ -192,18 +192,17 @@ internal fun ApplicationInfoPopup(
         )
 
         val parentCenterX = x + popupIntSize.width / 2
-        val childX = (parentCenterX - placeable.width / 2)
-            .coerceIn(0, constraints.maxWidth - placeable.width)
 
         val topY = y - placeable.height
         val bottomY = y + popupIntSize.height
 
+        val childX = parentCenterX - placeable.width / 2
         val childY = if (topY < 0) bottomY else topY
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             placeable.place(
-                x = childX,
-                y = childY,
+                x = childX.coerceIn(0, constraints.maxWidth - placeable.width),
+                y = childY.coerceIn(0, constraints.maxHeight - placeable.height),
             )
         }
     }

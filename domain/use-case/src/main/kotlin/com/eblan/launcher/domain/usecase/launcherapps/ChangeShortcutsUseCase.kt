@@ -48,14 +48,18 @@ class ChangeShortcutsUseCase @Inject constructor(
     suspend operator fun invoke(
         serialNumber: Long,
         packageName: String,
-        launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
+        launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>?,
     ) {
         if (!launcherAppsWrapper.hasShortcutHostPermission) {
             return
         }
 
         withContext(ioDispatcher) {
-            if (!userDataRepository.userData.first().experimentalSettings.syncData) return@withContext
+            if (!userDataRepository.userData.first().experimentalSettings.syncData ||
+                launcherAppsShortcutInfos === null
+            ) {
+                return@withContext
+            }
 
             val oldEblanShortcutInfos = eblanShortcutInfoRepository.getEblanShortcutInfos(
                 serialNumber = serialNumber,
@@ -74,7 +78,7 @@ class ChangeShortcutsUseCase @Inject constructor(
                     icon = launcherAppsShortcutInfo.icon,
                     shortcutQueryFlag = launcherAppsShortcutInfo.shortcutQueryFlag,
                     isEnabled = launcherAppsShortcutInfo.isEnabled,
-                    lastUpdateTime = launcherAppsShortcutInfo.lastUpdateTime,
+                    lastChangedTimestamp = launcherAppsShortcutInfo.lastChangedTimestamp,
                 )
             }
 

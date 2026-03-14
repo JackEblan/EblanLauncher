@@ -403,7 +403,7 @@ class SyncDataUseCase @Inject constructor(
                 FastLauncherAppsShortcutInfo(
                     packageName = eblanShortcutInfo.packageName,
                     serialNumber = eblanShortcutInfo.serialNumber,
-                    lastUpdateTime = eblanShortcutInfo.lastUpdateTime,
+                    lastChangedTimestamp = eblanShortcutInfo.lastChangedTimestamp,
                 )
             }
 
@@ -427,7 +427,7 @@ class SyncDataUseCase @Inject constructor(
                 icon = launcherAppsShortcutInfo.icon,
                 shortcutQueryFlag = launcherAppsShortcutInfo.shortcutQueryFlag,
                 isEnabled = launcherAppsShortcutInfo.isEnabled,
-                lastUpdateTime = launcherAppsShortcutInfo.lastUpdateTime,
+                lastChangedTimestamp = launcherAppsShortcutInfo.lastChangedTimestamp,
             )
         }
 

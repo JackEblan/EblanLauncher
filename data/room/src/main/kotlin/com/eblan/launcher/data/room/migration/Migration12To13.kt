@@ -34,7 +34,7 @@ class Migration12To13 : Migration(12, 13) {
                 icon TEXT,
                 shortcutQueryFlag TEXT NOT NULL,
                 isEnabled INTEGER NOT NULL,
-                lastUpdateTime INTEGER NOT NULL DEFAULT 0,
+                lastChangedTimestamp INTEGER NOT NULL DEFAULT 0,
                 PRIMARY KEY(shortcutId, serialNumber, packageName)
             )
             """.trimIndent(),
@@ -46,7 +46,7 @@ class Migration12To13 : Migration(12, 13) {
             """
             INSERT INTO EblanShortcutInfoEntity_new (
                 shortcutId, serialNumber, packageName, shortLabel, 
-                longLabel, icon, shortcutQueryFlag, isEnabled, lastUpdateTime
+                longLabel, icon, shortcutQueryFlag, isEnabled, lastChangedTimestamp
             )
             SELECT shortcutId, serialNumber, packageName, shortLabel, 
                    longLabel, icon, shortcutQueryFlag, isEnabled, lastUpdateTime 

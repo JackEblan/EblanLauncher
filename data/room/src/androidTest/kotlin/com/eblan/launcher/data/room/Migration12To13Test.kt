@@ -25,8 +25,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class Migration12To13Test {
@@ -42,7 +40,7 @@ class Migration12To13Test {
     @Test
     @Throws(IOException::class)
     fun migrate12To13() {
-        // Create database at version 6
+        // Create database at version 12
         helper.createDatabase(testDatabase, 12).apply {
             execSQL(
                 """
@@ -81,15 +79,13 @@ class Migration12To13Test {
             Migration12To13(),
         ).use { db ->
             val cursor = db.query("SELECT * FROM EblanShortcutInfoEntity")
+
             assert(cursor.moveToFirst())
 
-            val idIndex = cursor.getColumnIndex("shortcutId")
-            val pkgIndex = cursor.getColumnIndex("packageName")
-            val serialIndex = cursor.getColumnIndex("serialNumber")
-
-            assert(cursor.getString(idIndex) == "id_1")
-            assert(cursor.getString(pkgIndex) == "com.example.app")
-            assert(cursor.getLong(serialIndex) == 101L)
+            assert(cursor.getString(cursor.getColumnIndex("shortcutId")) == "id_1")
+            assert(cursor.getString(cursor.getColumnIndex("packageName")) == "com.example.app")
+            assert(cursor.getLong(cursor.getColumnIndex("serialNumber")) == 101L)
+            assert(cursor.getLong(cursor.getColumnIndex("lastChangedTimestamp")) == 123456789L)
         }
     }
 }

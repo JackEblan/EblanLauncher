@@ -20,5 +20,5 @@ package com.eblan.launcher.domain.model
 data class FastLauncherAppsShortcutInfo(
     val packageName: String,
     val serialNumber: Long,
-    val lastUpdateTime: Long,
+    val lastChangedTimestamp: Long,
 )

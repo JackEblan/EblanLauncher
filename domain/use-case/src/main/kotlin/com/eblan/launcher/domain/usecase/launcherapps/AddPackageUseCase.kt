@@ -212,7 +212,7 @@ class AddPackageUseCase @Inject constructor(
                     icon = launcherAppsShortcutInfo.icon,
                     shortcutQueryFlag = launcherAppsShortcutInfo.shortcutQueryFlag,
                     isEnabled = launcherAppsShortcutInfo.isEnabled,
-                    lastUpdateTime = launcherAppsShortcutInfo.lastUpdateTime,
+                    lastChangedTimestamp = launcherAppsShortcutInfo.lastChangedTimestamp,
                 )
             }
 

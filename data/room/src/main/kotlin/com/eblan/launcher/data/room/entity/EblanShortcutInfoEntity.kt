@@ -38,5 +38,5 @@ data class EblanShortcutInfoEntity(
     val shortcutQueryFlag: ShortcutQueryFlag,
     val isEnabled: Boolean,
     @ColumnInfo(defaultValue = "0")
-    val lastUpdateTime: Long,
+    val lastChangedTimestamp: Long,
 )

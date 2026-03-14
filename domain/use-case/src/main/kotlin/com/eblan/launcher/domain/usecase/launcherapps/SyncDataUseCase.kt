@@ -213,7 +213,12 @@ class SyncDataUseCase @Inject constructor(
                         currentCoroutineContext().ensureActive()
 
                         eblanApplicationInfo.icon == icon
-                    }
+                    } &&
+                    eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfos()
+                        .none { eblanAppWidgetProviderInfo ->
+                            currentCoroutineContext().ensureActive()
+                            eblanAppWidgetProviderInfo.applicationIcon == icon
+                        }
 
             if (hasNoIconReference) {
                 val iconFile = File(icon)

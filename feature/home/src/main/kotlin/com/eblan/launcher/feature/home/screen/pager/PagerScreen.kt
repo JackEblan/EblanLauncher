@@ -461,7 +461,8 @@ internal fun PagerScreen(
             dockHeight = dockHeight,
             folderCurrentPage = folderGridHorizontalPagerState.currentPage,
             folderGridItem = folderGridItem,
-            isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+            isGridScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
+            isDockScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
             lockMovement = lockMovement,
             paddingValues = paddingValues,
         )

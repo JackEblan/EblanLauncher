@@ -158,7 +158,8 @@ internal suspend fun handleDragGridItem(
     gridItemSource: GridItemSource?,
     isDragging: Boolean,
     isLongPress: Boolean,
-    isScrollInProgress: Boolean,
+    isGridScrollInProgress: Boolean,
+    isDockScrollInProgress: Boolean,
     lockMovement: Boolean,
     paddingValues: PaddingValues,
     rows: Int,
@@ -196,7 +197,8 @@ internal suspend fun handleDragGridItem(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     if (drag != Drag.Dragging ||
-        isScrollInProgress ||
+        isGridScrollInProgress ||
+        isDockScrollInProgress ||
         gridItemSource == null ||
         !(isLongPress && isDragging)
     ) {

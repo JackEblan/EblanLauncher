@@ -24,7 +24,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -37,48 +36,39 @@ class ShowFolderWhenDraggingUseCase @Inject constructor(
         movingGridItem: GridItem,
     ) {
         withContext(defaultDispatcher) {
-            val conflictingData =
-                conflictingGridItem.data as? GridItemData.Folder
-                    ?: error("Expected GridItemData.Folder")
+            val conflictingData = conflictingGridItem.data as? GridItemData.Folder
+                ?: error("Expected GridItemData.Folder")
 
-            val movingData =
-                movingGridItem.data as? GridItemData.ApplicationInfo
-                    ?: error("Expected GridItemData.Application")
+            val movingData = movingGridItem.data as? GridItemData.ApplicationInfo
+                ?: error("Expected GridItemData.Application")
 
             val currentApplicationInfoGridItems = conflictingData.gridItems.toMutableList()
 
-            val index =
-                currentApplicationInfoGridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
-
-            val applicationInfoGridItem = ApplicationInfoGridItem(
-                id = movingGridItem.id,
-                page = movingGridItem.page,
-                startColumn = movingGridItem.startColumn,
-                startRow = movingGridItem.startRow,
-                columnSpan = movingGridItem.columnSpan,
-                rowSpan = movingGridItem.rowSpan,
-                associate = movingGridItem.associate,
-                componentName = movingData.componentName,
-                packageName = movingData.packageName,
-                icon = movingData.icon,
-                label = movingData.label,
-                override = movingGridItem.override,
-                serialNumber = movingData.serialNumber,
-                customIcon = movingData.customIcon,
-                customLabel = movingData.customLabel,
-                gridItemSettings = movingGridItem.gridItemSettings,
-                doubleTap = movingGridItem.doubleTap,
-                swipeUp = movingGridItem.swipeUp,
-                swipeDown = movingGridItem.swipeDown,
-                index = conflictingData.gridItems.lastIndex + 1,
-                folderId = conflictingData.id,
+            currentApplicationInfoGridItems.add(
+                ApplicationInfoGridItem(
+                    id = movingGridItem.id,
+                    page = movingGridItem.page,
+                    startColumn = movingGridItem.startColumn,
+                    startRow = movingGridItem.startRow,
+                    columnSpan = movingGridItem.columnSpan,
+                    rowSpan = movingGridItem.rowSpan,
+                    associate = movingGridItem.associate,
+                    componentName = movingData.componentName,
+                    packageName = movingData.packageName,
+                    icon = movingData.icon,
+                    label = movingData.label,
+                    override = movingGridItem.override,
+                    serialNumber = movingData.serialNumber,
+                    customIcon = movingData.customIcon,
+                    customLabel = movingData.customLabel,
+                    gridItemSettings = movingGridItem.gridItemSettings,
+                    doubleTap = movingGridItem.doubleTap,
+                    swipeUp = movingGridItem.swipeUp,
+                    swipeDown = movingGridItem.swipeDown,
+                    index = conflictingData.gridItems.lastIndex + 1,
+                    folderId = conflictingData.id,
+                ),
             )
-
-            if (index != -1) {
-                currentApplicationInfoGridItems[index] = applicationInfoGridItem
-            } else {
-                currentApplicationInfoGridItems.add(applicationInfoGridItem)
-            }
 
             val gridItems = currentApplicationInfoGridItems.mapIndexed { index, gridItem ->
                 gridItem.copy(index = index)

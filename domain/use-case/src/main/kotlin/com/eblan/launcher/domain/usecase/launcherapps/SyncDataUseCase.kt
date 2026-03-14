@@ -205,13 +205,12 @@ class SyncDataUseCase @Inject constructor(
         oldDeleteEblanApplicationInfos.forEach { oldDeleteEblanApplicationInfo ->
             currentCoroutineContext().ensureActive()
 
-            val isUniqueComponentName =
-                eblanApplicationInfoRepository.getEblanApplicationInfos()
-                    .none { eblanApplicationInfo ->
-                        currentCoroutineContext().ensureActive()
+            val isUniqueComponentName = eblanApplicationInfoRepository.getEblanApplicationInfos()
+                .none { eblanApplicationInfo ->
+                    currentCoroutineContext().ensureActive()
 
-                        eblanApplicationInfo.serialNumber != oldDeleteEblanApplicationInfo.serialNumber && eblanApplicationInfo.componentName == oldDeleteEblanApplicationInfo.componentName
-                    }
+                    eblanApplicationInfo.serialNumber != oldDeleteEblanApplicationInfo.serialNumber && eblanApplicationInfo.componentName == oldDeleteEblanApplicationInfo.componentName
+                }
 
             if (isUniqueComponentName) {
                 oldDeleteEblanApplicationInfo.icon?.let { icon ->

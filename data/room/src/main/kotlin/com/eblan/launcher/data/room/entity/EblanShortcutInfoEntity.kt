@@ -21,7 +21,13 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import com.eblan.launcher.domain.model.ShortcutQueryFlag
 
-@Entity(primaryKeys = ["shortcutId", "serialNumber"])
+@Entity(
+    primaryKeys = [
+        "shortcutId",
+        "serialNumber",
+        "packageName",
+    ],
+)
 data class EblanShortcutInfoEntity(
     val shortcutId: String,
     val serialNumber: Long,

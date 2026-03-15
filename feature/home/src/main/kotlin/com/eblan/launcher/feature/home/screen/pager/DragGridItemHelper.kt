@@ -559,6 +559,7 @@ private fun handleDragDockGridItem(
 
 internal fun handleConflictingGridItem(
     columns: Int,
+    dockColumns: Int,
     density: Density,
     dockHeight: Dp,
     drag: Drag,
@@ -567,6 +568,7 @@ internal fun handleConflictingGridItem(
     moveGridItemResult: MoveGridItemResult?,
     paddingValues: PaddingValues,
     rows: Int,
+    dockRows: Int,
     screenHeight: Int,
     screenWidth: Int,
     onShowFolderWhenDragging: (
@@ -631,34 +633,47 @@ internal fun handleConflictingGridItem(
 
     val gridHeight = safeDrawingHeight - pageIndicatorHeightPx - dockHeightPx
 
-    val cellWidth = safeDrawingWidth / columns
+    val gridCellWidth = safeDrawingWidth / columns
 
-    val cellHeight = gridHeight / rows
+    val gridCellHeight = gridHeight / rows
 
-    val x = conflictingGridItem.startColumn * cellWidth
+    val dockCellWidth = safeDrawingWidth / dockColumns
 
-    val y = conflictingGridItem.startRow * cellHeight
+    val dockCellHeight = dockHeightPx / dockRows
 
-    val width = conflictingGridItem.columnSpan * cellWidth
-
-    val height = conflictingGridItem.rowSpan * cellHeight
-
-    val dockTopLeft = gridHeight - dockHeightPx
+    val dockTopLeft = gridHeight + pageIndicatorHeightPx
 
     val intOffset = when (conflictingGridItem.associate) {
         Associate.Grid -> {
-            IntOffset(x = x, y = y)
+            IntOffset(
+                x = conflictingGridItem.startColumn * gridCellWidth,
+                y = conflictingGridItem.startRow * gridCellHeight,
+            )
         }
 
         Associate.Dock -> {
-            IntOffset(x = x, y = y + dockTopLeft)
+            IntOffset(
+                x = conflictingGridItem.startColumn * dockCellWidth,
+                y = conflictingGridItem.startRow * dockCellHeight + dockTopLeft,
+            )
         }
     }
 
-    val intSize = IntSize(
-        width = width,
-        height = height,
-    )
+    val intSize = when (conflictingGridItem.associate) {
+        Associate.Grid -> {
+            IntSize(
+                width = conflictingGridItem.columnSpan * gridCellWidth,
+                height = conflictingGridItem.rowSpan * gridCellHeight,
+            )
+        }
+
+        Associate.Dock -> {
+            IntSize(
+                width = conflictingGridItem.columnSpan * dockCellWidth,
+                height = conflictingGridItem.rowSpan * dockCellHeight,
+            )
+        }
+    }
 
     onUpdateGridItemSource(
         GridItemSource.Folder(
@@ -708,7 +723,10 @@ internal fun handleConflictingGridItem(
     )
 }
 
-internal suspend fun handlePageDirectionEffect(pageDirection: PageDirection?, pagerState: PagerState) {
+internal suspend fun handlePageDirectionEffect(
+    pageDirection: PageDirection?,
+    pagerState: PagerState,
+) {
     if (pageDirection == null) return
 
     delay(500L)

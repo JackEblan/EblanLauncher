@@ -410,7 +410,7 @@ internal class PagerScreenState(
         )
     }
 
-    suspend fun handleDragGridItemEffect(
+    fun handleDragGridItemEffect(
         currentPage: Int,
         density: Density,
         dockHeight: Dp,
@@ -521,7 +521,7 @@ internal class PagerScreenState(
         )
     }
 
-    suspend fun handleConflictingGridItemEffect(
+    fun handleConflictingGridItemEffect(
         density: Density,
         dockHeight: Dp,
         moveGridItemResult: MoveGridItemResult?,
@@ -529,6 +529,7 @@ internal class PagerScreenState(
     ) {
         handleConflictingGridItem(
             columns = homeSettings.columns,
+            dockColumns = homeSettings.dockColumns,
             density = density,
             dockHeight = dockHeight,
             drag = drag,
@@ -537,6 +538,7 @@ internal class PagerScreenState(
             moveGridItemResult = moveGridItemResult,
             paddingValues = paddingValues,
             rows = homeSettings.rows,
+            dockRows = homeSettings.dockRows,
             screenHeight = screenHeight,
             screenWidth = screenWidth,
             onShowFolderWhenDragging = onShowFolderWhenDragging,

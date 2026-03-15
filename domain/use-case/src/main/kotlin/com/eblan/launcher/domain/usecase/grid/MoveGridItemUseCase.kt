@@ -31,6 +31,7 @@ import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.ResolveDirection
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -50,6 +51,8 @@ class MoveGridItemUseCase @Inject constructor(
     ): MoveGridItemResult {
         return withContext(defaultDispatcher) {
             val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
+                ensureActive()
+
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     columns = columns,
@@ -59,7 +62,11 @@ class MoveGridItemUseCase @Inject constructor(
             }.toMutableList()
 
             val index =
-                gridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
+                gridItems.indexOfFirst { gridItem ->
+                    ensureActive()
+
+                    gridItem.id == movingGridItem.id
+                }
 
             if (index != -1) {
                 gridItems[index] = movingGridItem
@@ -91,6 +98,8 @@ class MoveGridItemUseCase @Inject constructor(
             }
 
             val gridItemBySpan = gridItems.find { gridItem ->
+                ensureActive()
+
                 gridItem.id != movingGridItem.id && rectanglesOverlap(
                     moving = movingGridItem,
                     other = gridItem,

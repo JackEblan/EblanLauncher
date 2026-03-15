@@ -78,7 +78,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
                 applicationInfoGridItem,
             )
 
-            val sortedApplicationInfoGridItems = currentApplicationInfoGridItems.mapIndexed { index, gridItem ->
+            val indexedApplicationInfoGridItems = currentApplicationInfoGridItems.mapIndexed { index, gridItem ->
                 ensureActive()
 
                 gridItem.copy(index = index)
@@ -87,14 +87,14 @@ class MoveFolderGridItemUseCase @Inject constructor(
             val folderData = folderGridItem.data as? GridItemData.Folder
                 ?: error("Expected GridItemData.Folder")
 
-            val gridItemsByPage = sortedApplicationInfoGridItems.getGridItemsByPage()
+            val gridItemsByPage = indexedApplicationInfoGridItems.getGridItemsByPage()
 
             val firstPageGridItems = gridItemsByPage[0] ?: emptyList()
 
             val (columns, rows) = getGridDimension(count = firstPageGridItems.size)
 
             val newData = folderData.copy(
-                gridItems = sortedApplicationInfoGridItems,
+                gridItems = indexedApplicationInfoGridItems,
                 gridItemsByPage = gridItemsByPage,
                 columns = columns,
                 rows = rows,

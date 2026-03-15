@@ -141,7 +141,7 @@ internal fun handleAnimateScrollToPage(
     }
 }
 
-internal suspend fun handleDragGridItem(
+internal fun handleDragGridItem(
     columns: Int,
     currentPage: Int,
     density: Density,
@@ -204,8 +204,6 @@ internal suspend fun handleDragGridItem(
     ) {
         return
     }
-
-    delay(50L)
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -559,7 +557,7 @@ private fun handleDragDockGridItem(
     }
 }
 
-internal suspend fun handleConflictingGridItem(
+internal fun handleConflictingGridItem(
     columns: Int,
     density: Density,
     dockHeight: Dp,
@@ -591,8 +589,6 @@ internal suspend fun handleConflictingGridItem(
     ) {
         return
     }
-
-    delay(1000L)
 
     val conflictingGridItem = moveGridItemResult.conflictingGridItem ?: return
 

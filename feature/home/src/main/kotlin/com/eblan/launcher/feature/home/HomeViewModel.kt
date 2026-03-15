@@ -136,6 +136,8 @@ internal class HomeViewModel @Inject constructor(
 
     private val defaultDelay = 500L
 
+    private val moveDelay = 100L
+
     private val _editPageData = MutableStateFlow<EditPageData?>(null)
 
     val editPageData = _editPageData.asStateFlow()
@@ -242,6 +244,8 @@ internal class HomeViewModel @Inject constructor(
         moveGridItemJob?.cancel()
 
         moveGridItemJob = viewModelScope.launch {
+            delay(moveDelay)
+
             _moveGridItemResult.update {
                 moveGridItemUseCase(
                     movingGridItem = movingGridItem,
@@ -265,6 +269,8 @@ internal class HomeViewModel @Inject constructor(
         moveGridItemJob?.cancel()
 
         moveGridItemJob = viewModelScope.launch {
+            delay(moveDelay)
+
             _resizeGridItem.update {
                 resizeGridItemUseCase(
                     resizingGridItem = resizingGridItem,
@@ -637,6 +643,8 @@ internal class HomeViewModel @Inject constructor(
         moveGridItemJob?.cancel()
 
         moveGridItemJob = viewModelScope.launch {
+            delay(moveDelay)
+
             moveFolderGridItemUseCase(
                 folderGridItem = folderGridItem,
                 applicationInfoGridItems = applicationInfoGridItems,
@@ -670,15 +678,19 @@ internal class HomeViewModel @Inject constructor(
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
     ) {
         viewModelScope.launch {
+            moveGridItemJob?.cancel()
+
             _folderGridItemId.update {
                 null
             }
 
-            moveFolderGridItemOutsideFolderUseCase(
-                folderGridItem = folderGridItem,
-                movingApplicationInfoGridItem = movingApplicationInfoGridItem,
-                applicationInfoGridItems = applicationInfoGridItems,
-            )
+            moveGridItemJob = viewModelScope.launch {
+                moveFolderGridItemOutsideFolderUseCase(
+                    folderGridItem = folderGridItem,
+                    movingApplicationInfoGridItem = movingApplicationInfoGridItem,
+                    applicationInfoGridItems = applicationInfoGridItems,
+                )
+            }
         }
     }
 
@@ -694,13 +706,17 @@ internal class HomeViewModel @Inject constructor(
                 null
             }
 
-            showFolderWhenDraggingUseCase(
-                conflictingGridItem = conflictingGridItem,
-                movingGridItem = movingGridItem,
-            )
+            moveGridItemJob = viewModelScope.launch {
+                delay(1000L)
 
-            _folderGridItemId.update {
-                id
+                showFolderWhenDraggingUseCase(
+                    conflictingGridItem = conflictingGridItem,
+                    movingGridItem = movingGridItem,
+                )
+
+                _folderGridItemId.update {
+                    id
+                }
             }
         }
     }

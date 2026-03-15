@@ -61,7 +61,8 @@ class MoveFolderGridItemUseCase @Inject constructor(
                 currentApplicationInfoGridItems.indexOfFirst {
                     ensureActive()
 
-                    it.id == movingApplicationInfoGridItem.id }
+                    it.id == movingApplicationInfoGridItem.id
+                }
 
             val applicationInfoGridItem = if (movingIndex != -1) {
                 currentApplicationInfoGridItems.removeAt(movingIndex)

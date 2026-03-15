@@ -68,14 +68,13 @@ internal suspend fun FolderGridItemWrapper.asGridItem(): GridItem {
     )
 }
 
-internal suspend fun List<ApplicationInfoGridItem>.getGridItemsByPage(): Map<Int, List<ApplicationInfoGridItem>> =
-    chunked(MAX_COLUMNS * MAX_ROWS)
-        .mapIndexed { pageIndex, pageItems ->
-            currentCoroutineContext().ensureActive()
+internal suspend fun List<ApplicationInfoGridItem>.getGridItemsByPage(): Map<Int, List<ApplicationInfoGridItem>> = chunked(MAX_COLUMNS * MAX_ROWS)
+    .mapIndexed { pageIndex, pageItems ->
+        currentCoroutineContext().ensureActive()
 
-            pageIndex to pageItems
-        }
-        .toMap()
+        pageIndex to pageItems
+    }
+    .toMap()
 
 internal fun getGridDimension(count: Int): Pair<Int, Int> {
     if (count <= 0) return 0 to 0

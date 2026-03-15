@@ -49,7 +49,7 @@ class ResizeGridItemUseCase @Inject constructor(
                 columns = columns,
                 rows = rows,
             ) && gridItem.page == resizingGridItem.page &&
-                    gridItem.associate == resizingGridItem.associate
+                gridItem.associate == resizingGridItem.associate
         }.toMutableList()
 
         val index =

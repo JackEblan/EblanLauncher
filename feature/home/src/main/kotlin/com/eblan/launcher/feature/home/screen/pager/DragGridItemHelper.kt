@@ -593,8 +593,9 @@ internal suspend fun handleConflictingGridItem(
 ) {
     if (drag != Drag.Dragging ||
         gridItemSource == null ||
-        gridItemSource.gridItem.data !is GridItemData.ApplicationInfo ||
+        gridItemSource is GridItemSource.Folder ||
         moveGridItemResult == null ||
+        !moveGridItemResult.isSuccess ||
         !(isLongPress && isDragging) ||
         lockMovement
     ) {

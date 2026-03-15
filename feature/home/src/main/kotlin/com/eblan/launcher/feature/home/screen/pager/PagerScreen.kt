@@ -706,7 +706,6 @@ internal fun PagerScreen(
                             isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                             statusBarNotifications = pagerScreenState.statusBarNotifications,
                             textColor = textColor,
-                            folderGridItem = folderGridItem,
                             onDraggingGridItem = {
                                 onDraggingGridItem(gridItems)
                             },
@@ -829,7 +828,6 @@ internal fun PagerScreen(
                             isScrollInProgress = dockGridHorizontalPagerState.isScrollInProgress,
                             statusBarNotifications = pagerScreenState.statusBarNotifications,
                             textColor = textColor,
-                            folderGridItem = folderGridItem,
                             onDraggingGridItem = {
                                 onDraggingGridItem(gridItems)
                             },

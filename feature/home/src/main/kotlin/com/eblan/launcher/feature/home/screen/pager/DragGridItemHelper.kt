@@ -205,6 +205,8 @@ internal suspend fun handleDragGridItem(
         return
     }
 
+    delay(100L)
+
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
@@ -434,7 +436,7 @@ private suspend fun handleDragFolderGridItem(
     }
 }
 
-private suspend fun handleDragGridItem(
+private fun handleDragGridItem(
     columns: Int,
     currentPage: Int,
     dockHeightPx: Int,
@@ -459,8 +461,6 @@ private suspend fun handleDragGridItem(
     onUpdateAssociate: (Associate) -> Unit,
 ) {
     val gridItem = requireNotNull(gridItemSource.gridItem)
-
-    delay(100L)
 
     onUpdateAssociate(Associate.Grid)
 
@@ -505,7 +505,7 @@ private suspend fun handleDragGridItem(
     }
 }
 
-private suspend fun handleDragDockGridItem(
+private fun handleDragDockGridItem(
     currentPage: Int,
     dockColumns: Int,
     dockHeightPx: Int,
@@ -529,8 +529,6 @@ private suspend fun handleDragDockGridItem(
     onUpdateAssociate: (Associate) -> Unit,
 ) {
     val gridItem = requireNotNull(gridItemSource.gridItem)
-
-    delay(100L)
 
     onUpdateAssociate(Associate.Dock)
 

@@ -638,10 +638,6 @@ internal class HomeViewModel @Inject constructor(
     ) {
         moveGridItemJob?.cancel()
 
-        _moveGridItemResult.update {
-            null
-        }
-
         moveGridItemJob = viewModelScope.launch {
             moveFolderGridItemUseCase(
                 folderGridItem = folderGridItem,
@@ -694,6 +690,12 @@ internal class HomeViewModel @Inject constructor(
         movingGridItem: GridItem,
     ) {
         viewModelScope.launch {
+            moveGridItemJob?.cancel()
+
+            _moveGridItemResult.update {
+                null
+            }
+
             showFolderWhenDraggingUseCase(
                 conflictingGridItem = conflictingGridItem,
                 movingGridItem = movingGridItem,

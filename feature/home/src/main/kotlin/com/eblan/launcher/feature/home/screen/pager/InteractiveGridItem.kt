@@ -102,7 +102,6 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
     isScrollInProgress: Boolean,
     statusBarNotifications: Map<String, Int>,
     textColor: TextColor,
-    folderGridItem: GridItem?,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
     onTapApplicationInfo: (
@@ -241,7 +240,6 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                 isScrollInProgress = isScrollInProgress,
                 isSelected = isSelected,
                 textColor = currentTextColor,
-                folderGridItem = folderGridItem,
                 onDraggingGridItem = onDraggingGridItem,
                 onOpenAppDrawer = onOpenAppDrawer,
                 onTap = onTapFolderGridItem,
@@ -853,7 +851,6 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     isScrollInProgress: Boolean,
     isSelected: Boolean,
     textColor: Color,
-    folderGridItem: GridItem?,
     onDraggingGridItem: () -> Unit,
     onOpenAppDrawer: () -> Unit,
     onTap: () -> Unit,
@@ -971,7 +968,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        if (!hasInteraction && folderGridItem?.id != data.id) {
+        if (!hasInteraction) {
             val commonModifier = Modifier
                 .size(gridItemSettings.iconSize.dp)
                 .drawWithContent {

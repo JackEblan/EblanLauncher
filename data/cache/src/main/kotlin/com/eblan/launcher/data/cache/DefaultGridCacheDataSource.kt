@@ -51,10 +51,10 @@ internal class DefaultGridCacheDataSource @Inject constructor(@param:Dispatcher(
         }
     }
 
-    override fun deleteGridItem(gridItem: GridItem) {
+    override fun deleteGridItemById(id: String) {
         _gridItemsCache.update { currentGridCacheItems ->
             currentGridCacheItems.toMutableList().apply {
-                removeIf { it.id == gridItem.id }
+                removeIf { it.id == id }
             }
         }
     }

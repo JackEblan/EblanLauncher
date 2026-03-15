@@ -100,7 +100,7 @@ import com.eblan.launcher.feature.home.util.PAGE_INDICATOR_HEIGHT
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleApplyFling
-import com.eblan.launcher.feature.home.util.handleWallpaperScroll
+import com.eblan.launcher.feature.home.util.handleWallpaperScrollEffect
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalImageSerializer
@@ -192,7 +192,6 @@ internal fun PagerScreen(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
-        lockMovement: Boolean,
     ) -> Unit,
     onResetConfigureResultCode: () -> Unit,
     onResetPinGridItem: () -> Unit,
@@ -436,7 +435,7 @@ internal fun PagerScreen(
     )
 
     LaunchedEffect(key1 = pinGridItem) {
-        pagerScreenState.handlePinGridItem(
+        pagerScreenState.handlePinGridItemEffect(
             gridItems = gridItems,
             pinGridItem = pinGridItem,
             onDraggingGridItem = onDraggingGridItem,
@@ -453,7 +452,7 @@ internal fun PagerScreen(
     )
 
     LaunchedEffect(key1 = pagerScreenState.dragIntOffset) {
-        pagerScreenState.handleDragGridItem(
+        pagerScreenState.handleDragGridItemEffect(
             currentPage = currentPage,
             density = density,
             dockHeight = dockHeight,
@@ -467,7 +466,7 @@ internal fun PagerScreen(
     }
 
     LaunchedEffect(key1 = pagerScreenState.drag) {
-        pagerScreenState.handleDropGridItem(
+        pagerScreenState.handleDropGridItemEffect(
             moveGridItemResult = moveGridItemResult,
             onLaunchShortcutConfigIntent = shortcutConfigLauncher::launch,
             onLaunchShortcutConfigIntentSenderRequest = shortcutConfigIntentSenderLauncher::launch,
@@ -476,11 +475,11 @@ internal fun PagerScreen(
     }
 
     LaunchedEffect(key1 = pagerScreenState.deleteAppWidgetId) {
-        pagerScreenState.handleDeleteAppWidgetId()
+        pagerScreenState.handleDeleteAppWidgetIdEffect()
     }
 
     LaunchedEffect(key1 = pagerScreenState.updatedWidgetGridItem) {
-        handleBoundWidget(
+        handleBoundWidgetEffect(
             activity = activity,
             androidAppWidgetHostWrapper = androidAppWidgetHostWrapper,
             gridItemSource = pagerScreenState.gridItemSource,
@@ -493,7 +492,7 @@ internal fun PagerScreen(
     }
 
     LaunchedEffect(key1 = gridHorizontalPagerState) {
-        handleWallpaperScroll(
+        handleWallpaperScrollEffect(
             horizontalPagerState = gridHorizontalPagerState,
             infiniteScroll = homeSettings.infiniteScroll,
             pageCount = homeSettings.pageCount,
@@ -504,7 +503,7 @@ internal fun PagerScreen(
     }
 
     LaunchedEffect(key1 = moveGridItemResult) {
-        pagerScreenState.handleConflictingGridItem(
+        pagerScreenState.handleConflictingGridItemEffect(
             density = density,
             dockHeight = dockHeight,
             moveGridItemResult = moveGridItemResult,
@@ -513,7 +512,7 @@ internal fun PagerScreen(
     }
 
     LaunchedEffect(key1 = pagerScreenState.dragIntOffset) {
-        pagerScreenState.handleAnimateScrollToPage(
+        pagerScreenState.handleAnimateScrollToPageEffect(
             density = density,
             folderGridItem = folderGridItem,
             paddingValues = paddingValues,
@@ -521,7 +520,7 @@ internal fun PagerScreen(
     }
 
     LaunchedEffect(key1 = configureResultCode) {
-        handleConfigureLauncherResult(
+        handleConfigureLauncherResultEffect(
             moveGridItemResult = moveGridItemResult,
             resultCode = configureResultCode,
             updatedGridItem = pagerScreenState.updatedWidgetGridItem,
@@ -532,34 +531,34 @@ internal fun PagerScreen(
     }
 
     LaunchedEffect(key1 = pagerScreenState.gridPageDirection) {
-        handlePageDirection(
+        handlePageDirectionEffect(
             pageDirection = pagerScreenState.gridPageDirection,
             pagerState = gridHorizontalPagerState,
         )
     }
 
     LaunchedEffect(key1 = pagerScreenState.dockPageDirection) {
-        handlePageDirection(
+        handlePageDirectionEffect(
             pageDirection = pagerScreenState.dockPageDirection,
             pagerState = dockGridHorizontalPagerState,
         )
     }
 
     LaunchedEffect(key1 = pagerScreenState.folderPageDirection) {
-        handlePageDirection(
+        handlePageDirectionEffect(
             pageDirection = pagerScreenState.folderPageDirection,
             pagerState = folderGridHorizontalPagerState,
         )
     }
 
     LaunchedEffect(key1 = pagerScreenState.hasDoubleTap) {
-        pagerScreenState.handleHasDoubleTap()
+        pagerScreenState.handleHasDoubleTapEffect()
     }
 
     DisposableEffect(key1 = activity) {
         val listener = Consumer<Intent> { intent ->
             scope.launch {
-                pagerScreenState.handleNewIntent(
+                pagerScreenState.handleNewIntentEffect(
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     intent = intent,
                     windowToken = view.windowToken,

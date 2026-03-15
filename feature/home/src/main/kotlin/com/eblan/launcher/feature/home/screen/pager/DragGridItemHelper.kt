@@ -190,7 +190,6 @@ internal suspend fun handleDragGridItem(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
-        lockMovement: Boolean,
     ) -> Unit,
     onUpdateAssociate: (Associate) -> Unit,
     onUpdateGridItemSource: (GridItemSource) -> Unit,
@@ -200,12 +199,13 @@ internal suspend fun handleDragGridItem(
         isGridScrollInProgress ||
         isDockScrollInProgress ||
         gridItemSource == null ||
-        !(isLongPress && isDragging)
+        !(isLongPress && isDragging) ||
+        lockMovement
     ) {
         return
     }
 
-    delay(100L)
+    delay(50L)
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -256,7 +256,6 @@ internal suspend fun handleDragGridItem(
                     dragX = dragX,
                     dragY = dragY,
                     gridItemSource = gridItemSource,
-                    lockMovement = lockMovement,
                     safeDrawingHeight = safeDrawingHeight,
                     safeDrawingWidth = safeDrawingWidth,
                     onMoveGridItem = onMoveGridItem,
@@ -270,7 +269,6 @@ internal suspend fun handleDragGridItem(
                     dragX = dragX,
                     dragY = dragY,
                     gridItemSource = gridItemSource,
-                    lockMovement = lockMovement,
                     pageIndicatorHeightPx = pageIndicatorHeightPx,
                     rows = rows,
                     safeDrawingHeight = safeDrawingHeight,
@@ -293,7 +291,6 @@ internal suspend fun handleDragGridItem(
                 folderPopupIntSize = folderPopupIntSize,
                 folderTitleHeightPx = folderTitleHeightPx,
                 gridItemSource = gridItemSource,
-                lockMovement = lockMovement,
                 rows = rows,
                 safeDrawingHeight = safeDrawingHeight,
                 safeDrawingWidth = safeDrawingWidth,
@@ -306,7 +303,7 @@ internal suspend fun handleDragGridItem(
     }
 }
 
-private suspend fun handleDragFolderGridItem(
+private fun handleDragFolderGridItem(
     columns: Int,
     density: Density,
     dragX: Int,
@@ -317,7 +314,6 @@ private suspend fun handleDragFolderGridItem(
     folderPopupIntSize: IntSize,
     folderTitleHeightPx: Int,
     gridItemSource: GridItemSource,
-    lockMovement: Boolean,
     rows: Int,
     safeDrawingHeight: Int,
     safeDrawingWidth: Int,
@@ -344,10 +340,6 @@ private suspend fun handleDragFolderGridItem(
     val data = folderGridItem?.data as? GridItemData.Folder ?: return
 
     val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder ?: return
-
-    if (lockMovement) return
-
-    delay(100L)
 
     val folderCellWidth = safeDrawingWidth / columns
 
@@ -443,7 +435,6 @@ private fun handleDragGridItem(
     dragX: Int,
     dragY: Int,
     gridItemSource: GridItemSource,
-    lockMovement: Boolean,
     pageIndicatorHeightPx: Int,
     rows: Int,
     safeDrawingHeight: Int,
@@ -456,7 +447,6 @@ private fun handleDragGridItem(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
-        lockMovement: Boolean,
     ) -> Unit,
     onUpdateAssociate: (Associate) -> Unit,
 ) {
@@ -500,7 +490,6 @@ private fun handleDragGridItem(
             rows,
             safeDrawingWidth,
             gridHeightWithPadding,
-            lockMovement,
         )
     }
 }
@@ -513,7 +502,6 @@ private fun handleDragDockGridItem(
     dragX: Int,
     dragY: Int,
     gridItemSource: GridItemSource,
-    lockMovement: Boolean,
     safeDrawingHeight: Int,
     safeDrawingWidth: Int,
     onMoveGridItem: (
@@ -524,7 +512,6 @@ private fun handleDragDockGridItem(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
-        lockMovement: Boolean,
     ) -> Unit,
     onUpdateAssociate: (Associate) -> Unit,
 ) {
@@ -568,7 +555,6 @@ private fun handleDragDockGridItem(
             dockRows,
             safeDrawingWidth,
             dockHeightPx,
-            lockMovement,
         )
     }
 }
@@ -726,7 +712,7 @@ internal suspend fun handleConflictingGridItem(
     )
 }
 
-internal suspend fun handlePageDirection(pageDirection: PageDirection?, pagerState: PagerState) {
+internal suspend fun handlePageDirectionEffect(pageDirection: PageDirection?, pagerState: PagerState) {
     if (pageDirection == null) return
 
     delay(500L)

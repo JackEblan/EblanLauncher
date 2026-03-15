@@ -30,7 +30,7 @@ internal fun calculatePage(index: Int, infiniteScroll: Boolean, pageCount: Int):
     index
 }
 
-internal suspend fun handleWallpaperScroll(
+internal suspend fun handleWallpaperScrollEffect(
     horizontalPagerState: PagerState,
     infiniteScroll: Boolean,
     pageCount: Int,

@@ -240,7 +240,7 @@ internal fun handleAppWidgetLauncherResult(
     }
 }
 
-internal fun handleConfigureLauncherResult(
+internal fun handleConfigureLauncherResultEffect(
     moveGridItemResult: MoveGridItemResult?,
     resultCode: Int?,
     updatedGridItem: GridItem?,
@@ -288,7 +288,7 @@ internal fun handleDeleteAppWidgetId(
     onResetAppWidgetId()
 }
 
-internal fun handleBoundWidget(
+internal fun handleBoundWidgetEffect(
     activity: Activity?,
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     gridItemSource: GridItemSource?,

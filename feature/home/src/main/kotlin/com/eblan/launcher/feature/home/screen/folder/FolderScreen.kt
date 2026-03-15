@@ -102,8 +102,8 @@ internal fun SharedTransitionScope.FolderScreen(
     drag: Drag,
     folderGridHorizontalPagerState: PagerState,
     folderGridItem: GridItem,
-    folderPopupIntOffset: IntOffset,
-    folderPopupIntSize: IntSize,
+    folderPopupIntOffset: IntOffset?,
+    folderPopupIntSize: IntSize?,
     gridItemSettings: GridItemSettings,
     gridItemSource: GridItemSource?,
     homeSettings: HomeSettings,
@@ -132,6 +132,8 @@ internal fun SharedTransitionScope.FolderScreen(
     ) -> Unit,
     onDismissGridItemPopup: () -> Unit,
 ) {
+    if (folderPopupIntOffset == null || folderPopupIntSize == null) return
+
     val data = folderGridItem.data as? GridItemData.Folder ?: return
 
     val density = LocalDensity.current

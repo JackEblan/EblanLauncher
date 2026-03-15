@@ -49,8 +49,8 @@ internal fun handleAnimateScrollToPage(
     density: Density,
     dragIntOffset: IntOffset,
     folderGridItem: GridItem?,
-    folderPopupIntOffset: IntOffset,
-    folderPopupIntSize: IntSize,
+    folderPopupIntOffset: IntOffset?,
+    folderPopupIntSize: IntSize?,
     gridItemSource: GridItemSource?,
     isDragging: Boolean,
     paddingValues: PaddingValues,
@@ -109,6 +109,8 @@ internal fun handleAnimateScrollToPage(
         }
 
         is GridItemSource.Folder -> {
+            if (folderPopupIntOffset == null || folderPopupIntSize == null) return
+
             val data = folderGridItem?.data as? GridItemData.Folder ?: return
 
             val folderCellWidth = safeDrawingWidth / columns
@@ -152,8 +154,8 @@ internal suspend fun handleDragGridItem(
     dragIntOffset: IntOffset,
     folderCurrentPage: Int,
     folderGridItem: GridItem?,
-    folderPopupIntOffset: IntOffset,
-    folderPopupIntSize: IntSize,
+    folderPopupIntOffset: IntOffset?,
+    folderPopupIntSize: IntSize?,
     folderTitleHeightPx: Int,
     gridItemSource: GridItemSource?,
     isDragging: Boolean,
@@ -310,8 +312,8 @@ private fun handleDragFolderGridItem(
     dragY: Int,
     folderCurrentPage: Int,
     folderGridItem: GridItem?,
-    folderPopupIntOffset: IntOffset,
-    folderPopupIntSize: IntSize,
+    folderPopupIntOffset: IntOffset?,
+    folderPopupIntSize: IntSize?,
     folderTitleHeightPx: Int,
     gridItemSource: GridItemSource,
     rows: Int,
@@ -337,6 +339,8 @@ private fun handleDragFolderGridItem(
     onUpdateGridItemSource: (GridItemSource) -> Unit,
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    if (folderPopupIntOffset == null || folderPopupIntSize == null) return
+
     val data = folderGridItem?.data as? GridItemData.Folder ?: return
 
     val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder ?: return

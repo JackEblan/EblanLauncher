@@ -45,7 +45,7 @@ import com.eblan.launcher.domain.model.GridItem
 internal fun SettingsPopup(
     gridItems: List<GridItem>,
     hasSystemFeatureAppWidgets: Boolean,
-    popupSettingsIntOffset: IntOffset,
+    popupSettingsIntOffset: IntOffset?,
     onDismissRequest: () -> Unit,
     onEditPage: (
         gridItems: List<GridItem>,
@@ -56,6 +56,8 @@ internal fun SettingsPopup(
     onWallpaper: () -> Unit,
     onWidgets: () -> Unit,
 ) {
+    if (popupSettingsIntOffset == null) return
+
     Popup(
         popupPositionProvider = SettingsPopupPositionProvider(
             x = popupSettingsIntOffset.x,

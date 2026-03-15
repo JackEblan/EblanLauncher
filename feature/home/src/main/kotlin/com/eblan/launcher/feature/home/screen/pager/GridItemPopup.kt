@@ -69,8 +69,8 @@ internal fun GridItemPopup(
     gridItemSettings: GridItemSettings,
     hasShortcutHostPermission: Boolean,
     paddingValues: PaddingValues,
-    popupIntOffset: IntOffset,
-    popupIntSize: IntSize,
+    popupIntOffset: IntOffset?,
+    popupIntSize: IntSize?,
     onDeleteGridItem: (GridItem) -> Unit,
     onDismissRequest: () -> Unit,
     onDraggingShortcutInfoGridItem: () -> Unit,
@@ -87,7 +87,7 @@ internal fun GridItemPopup(
     onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
     onWidgets: (EblanApplicationInfoGroup) -> Unit,
 ) {
-    if (gridItem == null) return
+    if (gridItem == null || popupIntOffset == null || popupIntSize == null) return
 
     val density = LocalDensity.current
 
@@ -168,8 +168,8 @@ internal fun FolderGridItemPopup(
     modifier: Modifier = Modifier,
     gridItemSource: GridItemSource?,
     paddingValues: PaddingValues,
-    popupIntOffset: IntOffset,
-    popupIntSize: IntSize,
+    popupIntOffset: IntOffset?,
+    popupIntSize: IntSize?,
     currentPage: Int,
     drag: Drag,
     eblanAppWidgetProviderInfosGroup: Map<String, List<EblanAppWidgetProviderInfo>>,
@@ -195,6 +195,8 @@ internal fun FolderGridItemPopup(
     onEdit: (String) -> Unit,
     onDismissFolder: () -> Unit,
 ) {
+    if (popupIntOffset == null || popupIntSize == null) return
+
     val gridItemSourceFolder = gridItemSource as? GridItemSource.Folder ?: return
 
     val density = LocalDensity.current

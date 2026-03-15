@@ -39,15 +39,15 @@ internal fun SharedTransitionScope.OverlayImage(
     modifier: Modifier = Modifier,
     drag: Drag,
     overlayImageBitmap: ImageBitmap?,
-    overlayIntOffset: IntOffset,
-    overlayIntSize: IntSize,
+    overlayIntOffset: IntOffset?,
+    overlayIntSize: IntSize?,
     sharedElementKey: SharedElementKey?,
     onResetOverlay: () -> Unit,
 ) {
     if (overlayImageBitmap == null ||
         sharedElementKey == null ||
-        overlayIntOffset == IntOffset.Zero ||
-        overlayIntSize == IntSize.Zero
+        overlayIntOffset == null ||
+        overlayIntSize == null
     ) {
         return
     }

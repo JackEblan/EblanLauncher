@@ -210,13 +210,13 @@ internal class PagerScreenState(
     var isResizing by mutableStateOf(false)
         private set
 
-    var settingsPopupIntOffset by mutableStateOf(IntOffset.Zero)
+    var settingsPopupIntOffset by mutableStateOf<IntOffset?>(null)
         private set
 
-    var popupIntOffset by mutableStateOf(IntOffset.Zero)
+    var popupIntOffset by mutableStateOf<IntOffset?>(null)
         private set
 
-    var popupIntSize by mutableStateOf(IntSize.Zero)
+    var popupIntSize by mutableStateOf<IntSize?>(null)
         private set
 
     var deleteAppWidgetId by mutableStateOf(false)
@@ -240,10 +240,10 @@ internal class PagerScreenState(
     var dragIntOffset by mutableStateOf(IntOffset.Zero)
         private set
 
-    var overlayIntOffset by mutableStateOf(IntOffset.Zero)
+    var overlayIntOffset by mutableStateOf<IntOffset?>(null)
         private set
 
-    var overlayIntSize by mutableStateOf(IntSize.Zero)
+    var overlayIntSize by mutableStateOf<IntSize?>(null)
         private set
 
     var overlayImageBitmap by mutableStateOf<ImageBitmap?>(null)
@@ -338,14 +338,14 @@ internal class PagerScreenState(
         ((swipeY.value - threshold) / threshold).coerceIn(0f, 1f)
     }
 
-    var folderPopupIntOffset by mutableStateOf(
+    var folderPopupIntOffset by mutableStateOf<IntOffset?>(
         IntOffset(
             x = lastFolderPopupX,
             y = lastFolderPopupY,
         ),
     )
 
-    var folderPopupIntSize by mutableStateOf(
+    var folderPopupIntSize by mutableStateOf<IntSize?>(
         IntSize(
             width = lastFolderPopupWidth,
             height = lastFolderPopupHeight,
@@ -905,18 +905,16 @@ internal class PagerScreenState(
 
         dragIntOffset += dragAmount.round()
 
-        overlayIntOffset += dragAmount.round()
+        overlayIntOffset = overlayIntOffset?.plus(dragAmount.round())
     }
 
-    fun tapFolderGridItem(
+    fun showFolder(
         height: Int,
         id: String?,
         width: Int,
         x: Int,
         y: Int,
     ) {
-        onUpdateFolderGridItemId(id)
-
         lastFolderPopupX = x
         lastFolderPopupY = y
 
@@ -932,6 +930,16 @@ internal class PagerScreenState(
             width = width,
             height = height,
         )
+
+        onUpdateFolderGridItemId(id)
+    }
+
+    fun dismissFolder() {
+        folderPopupIntOffset = null
+
+        folderPopupIntSize = null
+
+        onUpdateFolderGridItemId(null)
     }
 
     fun updateOverlayBounds(
@@ -948,9 +956,9 @@ internal class PagerScreenState(
 
         sharedElementKey = null
 
-        overlayIntOffset = IntOffset.Zero
+        overlayIntOffset = null
 
-        overlayIntSize = IntSize.Zero
+        overlayIntSize = null
 
         drag = Drag.None
     }
@@ -979,9 +987,9 @@ internal class PagerScreenState(
     }
 
     fun dismissGridItemPopup() {
-        popupIntOffset = IntOffset.Zero
+        popupIntOffset = null
 
-        popupIntSize = IntSize.Zero
+        popupIntSize = null
 
         showGridItemPopup = false
     }
@@ -998,9 +1006,9 @@ internal class PagerScreenState(
     }
 
     fun dismissFolderGridItemPopup() {
-        popupIntOffset = IntOffset.Zero
+        popupIntOffset = null
 
-        popupIntSize = IntSize.Zero
+        popupIntSize = null
 
         showFolderGridItemPopup = false
     }
@@ -1074,7 +1082,7 @@ internal class PagerScreenState(
     }
 
     fun dismissSettingsPopup() {
-        settingsPopupIntOffset = IntOffset.Zero
+        settingsPopupIntOffset = null
 
         showSettingsPopup = false
     }

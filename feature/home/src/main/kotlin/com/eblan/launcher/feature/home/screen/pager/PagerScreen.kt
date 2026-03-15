@@ -63,8 +63,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.util.Consumer
@@ -729,7 +727,7 @@ internal fun PagerScreen(
                                 )
                             },
                             onTapFolderGridItem = {
-                                pagerScreenState.tapFolderGridItem(
+                                pagerScreenState.showFolder(
                                     height = height,
                                     id = gridItem.id,
                                     width = width,
@@ -851,7 +849,7 @@ internal fun PagerScreen(
                                 )
                             },
                             onTapFolderGridItem = {
-                                pagerScreenState.tapFolderGridItem(
+                                pagerScreenState.showFolder(
                                     height = height,
                                     id = gridItem.id,
                                     width = width,
@@ -896,8 +894,8 @@ internal fun PagerScreen(
         }
 
         if (pagerScreenState.showGridItemPopup &&
-            pagerScreenState.popupIntOffset != IntOffset.Zero &&
-            pagerScreenState.popupIntSize != IntSize.Zero
+            pagerScreenState.popupIntOffset != null &&
+            pagerScreenState.popupIntSize != null
         ) {
             GridItemPopup(
                 currentPage = currentPage,
@@ -917,37 +915,61 @@ internal fun PagerScreen(
                 },
                 onEdit = onEditGridItem,
                 onInfo = { serialNumber, componentName ->
-                    androidLauncherAppsWrapper.startAppDetailsActivity(
-                        serialNumber = serialNumber,
-                        componentName = componentName,
-                        sourceBounds = Rect(
-                            pagerScreenState.popupIntOffset.x,
-                            pagerScreenState.popupIntOffset.y,
-                            pagerScreenState.popupIntOffset.x + pagerScreenState.popupIntSize.width,
-                            pagerScreenState.popupIntOffset.y + pagerScreenState.popupIntSize.height,
-                        ),
-                    )
+                    val left = pagerScreenState.popupIntOffset?.x
+
+                    val top = pagerScreenState.popupIntOffset?.y
+
+                    val width = pagerScreenState.popupIntSize?.width
+
+                    val height = pagerScreenState.popupIntSize?.height
+
+                    if (left != null && top != null &&
+                        width != null && height != null
+                    ) {
+                        androidLauncherAppsWrapper.startAppDetailsActivity(
+                            serialNumber = serialNumber,
+                            componentName = componentName,
+                            sourceBounds = Rect(
+                                left,
+                                top,
+                                left + width,
+                                top + height,
+                            ),
+                        )
+                    }
                 },
                 onResize = {
                     pagerScreenState.resize(gridItems = gridItems)
                 },
                 onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
-                    val sourceBoundsX = pagerScreenState.popupIntOffset.x + leftPadding
+                    val popupIntOffsetX = pagerScreenState.popupIntOffset?.x
 
-                    val sourceBoundsY = pagerScreenState.popupIntOffset.y + topPadding
+                    val popupIntOffsetY = pagerScreenState.popupIntOffset?.y
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                        androidLauncherAppsWrapper.startShortcut(
-                            serialNumber = serialNumber,
-                            packageName = packageName,
-                            id = shortcutId,
-                            sourceBounds = Rect(
-                                sourceBoundsX,
-                                sourceBoundsY,
-                                sourceBoundsX + pagerScreenState.popupIntSize.width,
-                                sourceBoundsY + pagerScreenState.popupIntSize.height,
-                            ),
-                        )
+                    val popupIntSizeWidth = pagerScreenState.popupIntSize?.width
+
+                    val popupIntSizeHeight = pagerScreenState.popupIntSize?.height
+
+                    if (popupIntOffsetX != null && popupIntOffsetY != null &&
+                        popupIntSizeWidth != null && popupIntSizeHeight != null
+                    ) {
+                        val sourceBoundsX = popupIntOffsetX + leftPadding
+
+                        val sourceBoundsY = popupIntOffsetY + topPadding
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                            androidLauncherAppsWrapper.startShortcut(
+                                serialNumber = serialNumber,
+                                packageName = packageName,
+                                id = shortcutId,
+                                sourceBounds = Rect(
+                                    sourceBoundsX,
+                                    sourceBoundsY,
+                                    sourceBoundsX + popupIntSizeWidth,
+                                    sourceBoundsY + popupIntSizeHeight,
+                                ),
+                            )
+                        }
                     }
                 },
                 onUpdateGridItemSource = pagerScreenState::updateGridItemSource,
@@ -959,7 +981,7 @@ internal fun PagerScreen(
         }
 
         if (pagerScreenState.showSettingsPopup &&
-            pagerScreenState.settingsPopupIntOffset != IntOffset.Zero
+            pagerScreenState.settingsPopupIntOffset != null
         ) {
             SettingsPopup(
                 gridItems = gridItems,
@@ -981,8 +1003,8 @@ internal fun PagerScreen(
         }
 
         if (folderGridItem != null &&
-            pagerScreenState.folderPopupIntOffset != IntOffset.Zero &&
-            pagerScreenState.folderPopupIntSize != IntSize.Zero
+            pagerScreenState.folderPopupIntOffset != null &&
+            pagerScreenState.folderPopupIntSize != null
         ) {
             FolderScreen(
                 drag = pagerScreenState.drag,
@@ -1000,15 +1022,7 @@ internal fun PagerScreen(
                 safeDrawingWidth = safeDrawingWidth,
                 statusBarNotifications = pagerScreenState.statusBarNotifications,
                 textColor = textColor,
-                onDismissRequest = {
-                    pagerScreenState.tapFolderGridItem(
-                        height = 0,
-                        id = null,
-                        width = 0,
-                        x = 0,
-                        y = 0,
-                    )
-                },
+                onDismissRequest = pagerScreenState::dismissFolder,
                 onDraggingGridItem = {
                     onDraggingGridItem(gridItems)
                 },
@@ -1025,8 +1039,8 @@ internal fun PagerScreen(
         }
 
         if (pagerScreenState.showFolderGridItemPopup &&
-            pagerScreenState.popupIntOffset != IntOffset.Zero &&
-            pagerScreenState.popupIntSize != IntSize.Zero
+            pagerScreenState.popupIntOffset != null &&
+            pagerScreenState.popupIntSize != null
         ) {
             FolderGridItemPopup(
                 gridItemSource = pagerScreenState.gridItemSource,
@@ -1047,22 +1061,34 @@ internal fun PagerScreen(
                     pagerScreenState.draggingShortcutInfoGridItem(gridItems = gridItems)
                 },
                 onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
-                    val sourceBoundsX = pagerScreenState.popupIntOffset.x + leftPadding
+                    val popupIntOffsetX = pagerScreenState.popupIntOffset?.x
 
-                    val sourceBoundsY = pagerScreenState.popupIntOffset.y + topPadding
+                    val popupIntOffsetY = pagerScreenState.popupIntOffset?.y
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                        androidLauncherAppsWrapper.startShortcut(
-                            serialNumber = serialNumber,
-                            packageName = packageName,
-                            id = shortcutId,
-                            sourceBounds = Rect(
-                                sourceBoundsX,
-                                sourceBoundsY,
-                                sourceBoundsX + pagerScreenState.popupIntSize.width,
-                                sourceBoundsY + pagerScreenState.popupIntSize.height,
-                            ),
-                        )
+                    val popupIntSizeWidth = pagerScreenState.popupIntSize?.width
+
+                    val popupIntSizeHeight = pagerScreenState.popupIntSize?.height
+
+                    if (popupIntOffsetX != null && popupIntOffsetY != null &&
+                        popupIntSizeWidth != null && popupIntSizeHeight != null
+                    ) {
+                        val sourceBoundsX = popupIntOffsetX + leftPadding
+
+                        val sourceBoundsY = popupIntOffsetY + topPadding
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                            androidLauncherAppsWrapper.startShortcut(
+                                serialNumber = serialNumber,
+                                packageName = packageName,
+                                id = shortcutId,
+                                sourceBounds = Rect(
+                                    sourceBoundsX,
+                                    sourceBoundsY,
+                                    sourceBoundsX + popupIntSizeWidth,
+                                    sourceBoundsY + popupIntSizeHeight,
+                                ),
+                            )
+                        }
                     }
                 },
                 onUpdateGridItemSource = pagerScreenState::updateGridItemSource,
@@ -1071,7 +1097,7 @@ internal fun PagerScreen(
                 onUpdateSharedElementKey = pagerScreenState::updateSharedElementKey,
                 onWidgets = pagerScreenState::openAppWidgetScreen,
                 onDismissFolder = {
-                    pagerScreenState.tapFolderGridItem(
+                    pagerScreenState.showFolder(
                         height = 0,
                         id = null,
                         width = 0,

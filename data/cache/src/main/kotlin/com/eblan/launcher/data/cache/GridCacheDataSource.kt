@@ -28,7 +28,7 @@ interface GridCacheDataSource {
 
     fun insertGridItem(gridItem: GridItem)
 
-    suspend fun deleteGridItems(gridItems: List<GridItem>)
+    fun deleteGridItems(gridItems: List<GridItem>)
 
     fun deleteGridItem(gridItem: GridItem)
 

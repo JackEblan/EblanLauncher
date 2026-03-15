@@ -668,19 +668,17 @@ internal class HomeViewModel @Inject constructor(
         applicationInfoGridItems: List<ApplicationInfoGridItem>,
     ) {
         viewModelScope.launch {
-            moveGridItemJob?.cancel()
+            moveGridItemJob?.cancelAndJoin()
 
             _folderGridItemId.update {
                 null
             }
 
-            moveGridItemJob = viewModelScope.launch {
-                moveFolderGridItemOutsideFolderUseCase(
-                    folderGridItem = folderGridItem,
-                    movingApplicationInfoGridItem = movingApplicationInfoGridItem,
-                    applicationInfoGridItems = applicationInfoGridItems,
-                )
-            }
+            moveFolderGridItemOutsideFolderUseCase(
+                folderGridItem = folderGridItem,
+                movingApplicationInfoGridItem = movingApplicationInfoGridItem,
+                applicationInfoGridItems = applicationInfoGridItems,
+            )
         }
     }
 
@@ -690,21 +688,19 @@ internal class HomeViewModel @Inject constructor(
         movingGridItem: GridItem,
     ) {
         viewModelScope.launch {
-            moveGridItemJob?.cancel()
+            moveGridItemJob?.cancelAndJoin()
 
             _moveGridItemResult.update {
                 null
             }
 
-            viewModelScope.launch {
-                showFolderWhenDraggingUseCase(
-                    conflictingGridItem = conflictingGridItem,
-                    movingGridItem = movingGridItem,
-                )
+            showFolderWhenDraggingUseCase(
+                conflictingGridItem = conflictingGridItem,
+                movingGridItem = movingGridItem,
+            )
 
-                _folderGridItemId.update {
-                    id
-                }
+            _folderGridItemId.update {
+                id
             }
         }
     }

@@ -56,7 +56,6 @@ internal fun ResizeScreen(
         gridItem: GridItem,
         columns: Int,
         rows: Int,
-        lockMovement: Boolean,
     ) -> Unit,
     onUpdateIsResizing: (Boolean) -> Unit,
 ) {

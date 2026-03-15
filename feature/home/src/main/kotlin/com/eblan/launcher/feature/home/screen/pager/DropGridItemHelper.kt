@@ -54,6 +54,7 @@ internal suspend fun handleDropGridItem(
     isDragging: Boolean,
     isLongPress: Boolean,
     moveGridItemResult: MoveGridItemResult?,
+    lockMovement: Boolean,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragCancelAfterMove: () -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
@@ -73,7 +74,15 @@ internal suspend fun handleDropGridItem(
 
     when (gridItemSource) {
         is GridItemSource.Existing -> {
-            if (isLongPress && !isDragging) {
+            if (lockMovement) {
+                onUpdateIsLongPress(false)
+
+                onUpdateIsDragging(false)
+
+                onDragCancelAfterMove()
+
+                onToast()
+            } else if (isLongPress && !isDragging) {
                 onUpdateIsLongPress(false)
             } else if (isLongPress && (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess)) {
                 onUpdateIsLongPress(false)
@@ -93,7 +102,15 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.New -> {
-            if (isLongPress && isDragging && (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess)) {
+            if (lockMovement) {
+                onUpdateIsLongPress(false)
+
+                onUpdateIsDragging(false)
+
+                onDragCancelAfterMove()
+
+                onToast()
+            } else if (isLongPress && isDragging && (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess)) {
                 onUpdateIsLongPress(false)
 
                 onUpdateIsDragging(false)
@@ -142,7 +159,15 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.Pin -> {
-            if (isDragging && isLongPress && (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess)) {
+            if (lockMovement) {
+                onUpdateIsLongPress(false)
+
+                onUpdateIsDragging(false)
+
+                onDragCancelAfterMove()
+
+                onToast()
+            } else if (isDragging && isLongPress && (drag == Drag.Cancel || moveGridItemResult == null || !moveGridItemResult.isSuccess)) {
                 onUpdateIsLongPress(false)
 
                 onUpdateIsDragging(false)
@@ -184,7 +209,15 @@ internal suspend fun handleDropGridItem(
         }
 
         is GridItemSource.Folder -> {
-            if (isLongPress && !isDragging) {
+            if (lockMovement) {
+                onUpdateIsLongPress(false)
+
+                onUpdateIsDragging(false)
+
+                onDragCancelAfterMove()
+
+                onToast()
+            } else if (isLongPress && !isDragging) {
                 onUpdateIsLongPress(false)
             } else if (isLongPress && drag == Drag.Cancel) {
                 onUpdateIsLongPress(false)
@@ -240,7 +273,7 @@ internal fun handleAppWidgetLauncherResult(
     }
 }
 
-internal fun handleConfigureLauncherResult(
+internal fun handleConfigureLauncherResultEffect(
     moveGridItemResult: MoveGridItemResult?,
     resultCode: Int?,
     updatedGridItem: GridItem?,
@@ -288,7 +321,7 @@ internal fun handleDeleteAppWidgetId(
     onResetAppWidgetId()
 }
 
-internal fun handleBoundWidget(
+internal fun handleBoundWidgetEffect(
     activity: Activity?,
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     gridItemSource: GridItemSource?,

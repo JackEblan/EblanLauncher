@@ -65,6 +65,7 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanActionType
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
@@ -125,6 +126,7 @@ internal class PagerScreenState(
     private val androidAppWidgetManagerWrapper: AndroidAppWidgetManagerWrapper,
     private val androidWallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
     private val density: Density,
+    private val experimentalSettings: ExperimentalSettings,
     private val onGetPinGridItem: (PinItemRequestType) -> Unit,
     private val onResetPinGridItem: () -> Unit,
     private val onMoveFolderGridItem: (
@@ -152,7 +154,6 @@ internal class PagerScreenState(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
-        lockMovement: Boolean,
     ) -> Unit,
     private val onDeleteGridItemCache: (GridItem) -> Unit,
     private val onDragCancelAfterMove: () -> Unit,
@@ -387,7 +388,7 @@ internal class PagerScreenState(
 
     private var lastAppWidgetId by mutableIntStateOf(AppWidgetManager.INVALID_APPWIDGET_ID)
 
-    suspend fun handlePinGridItem(
+    suspend fun handlePinGridItemEffect(
         gridItems: List<GridItem>,
         pinGridItem: GridItem?,
         onDraggingGridItem: (List<GridItem>) -> Unit,
@@ -411,7 +412,7 @@ internal class PagerScreenState(
         )
     }
 
-    suspend fun handleDragGridItem(
+    suspend fun handleDragGridItemEffect(
         currentPage: Int,
         density: Density,
         dockHeight: Dp,
@@ -463,7 +464,7 @@ internal class PagerScreenState(
         )
     }
 
-    suspend fun handleDropGridItem(
+    suspend fun handleDropGridItemEffect(
         moveGridItemResult: MoveGridItemResult?,
         onLaunchShortcutConfigIntent: (Intent) -> Unit,
         onLaunchShortcutConfigIntentSenderRequest: (IntentSenderRequest) -> Unit,
@@ -479,6 +480,7 @@ internal class PagerScreenState(
             isDragging = isDragging,
             isLongPress = isLongPress,
             moveGridItemResult = moveGridItemResult,
+            lockMovement = experimentalSettings.lockMovement,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDragCancelAfterMove = onDragCancelAfterMove,
             onDragEndAfterMove = onDragEndAfterMove,
@@ -508,7 +510,7 @@ internal class PagerScreenState(
         )
     }
 
-    fun handleDeleteAppWidgetId() {
+    fun handleDeleteAppWidgetIdEffect() {
         handleDeleteAppWidgetId(
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
@@ -522,7 +524,7 @@ internal class PagerScreenState(
         )
     }
 
-    suspend fun handleConflictingGridItem(
+    suspend fun handleConflictingGridItemEffect(
         density: Density,
         dockHeight: Dp,
         moveGridItemResult: MoveGridItemResult?,
@@ -530,16 +532,20 @@ internal class PagerScreenState(
     ) {
         handleConflictingGridItem(
             columns = homeSettings.columns,
+            dockRows = homeSettings.dockRows,
+            dockColumns = homeSettings.dockColumns,
             density = density,
             dockHeight = dockHeight,
             drag = drag,
             gridItemSource = gridItemSource,
             isDragging = isDragging,
+            isLongPress = isLongPress,
             moveGridItemResult = moveGridItemResult,
             paddingValues = paddingValues,
             rows = homeSettings.rows,
             screenHeight = screenHeight,
             screenWidth = screenWidth,
+            lockMovement = experimentalSettings.lockMovement,
             onShowFolderWhenDragging = onShowFolderWhenDragging,
             onUpdateFolderPopupBounds = { intOffset, intSize ->
                 lastFolderPopupX = intOffset.x
@@ -561,7 +567,7 @@ internal class PagerScreenState(
         )
     }
 
-    fun handleAnimateScrollToPage(
+    fun handleAnimateScrollToPageEffect(
         density: Density,
         folderGridItem: GridItem?,
         paddingValues: PaddingValues,
@@ -1346,11 +1352,12 @@ internal class PagerScreenState(
             androidAppWidgetManagerWrapper: AndroidAppWidgetManagerWrapper,
             androidWallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
             density: Density,
+            experimentalSettings: ExperimentalSettings,
             onGetPinGridItem: (PinItemRequestType) -> Unit,
             onResetPinGridItem: () -> Unit,
             onMoveFolderGridItem: (folderGridItem: GridItem, applicationInfoGridItems: List<ApplicationInfoGridItem>, movingApplicationInfoGridItem: ApplicationInfoGridItem, dragX: Int, dragY: Int, columns: Int, rows: Int, gridWidth: Int, gridHeight: Int, currentPage: Int) -> Unit,
             onMoveFolderGridItemOutsideFolder: (folderGridItem: GridItem, movingApplicationInfoGridItem: ApplicationInfoGridItem, applicationInfoGridItems: List<ApplicationInfoGridItem>) -> Unit,
-            onMoveGridItem: (movingGridItem: GridItem, x: Int, y: Int, columns: Int, rows: Int, gridWidth: Int, gridHeight: Int, lockMovement: Boolean) -> Unit,
+            onMoveGridItem: (movingGridItem: GridItem, x: Int, y: Int, columns: Int, rows: Int, gridWidth: Int, gridHeight: Int) -> Unit,
             onDeleteGridItemCache: (GridItem) -> Unit,
             onDragCancelAfterMove: () -> Unit,
             onDragEndAfterMove: (MoveGridItemResult) -> Unit,
@@ -1397,6 +1404,7 @@ internal class PagerScreenState(
                     androidAppWidgetManagerWrapper = androidAppWidgetManagerWrapper,
                     androidWallpaperManagerWrapper = androidWallpaperManagerWrapper,
                     density = density,
+                    experimentalSettings = experimentalSettings,
                     onGetPinGridItem = onGetPinGridItem,
                     onResetPinGridItem = onResetPinGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
@@ -1422,6 +1430,7 @@ internal fun rememberPagerScreenState(
     homeSettings: HomeSettings,
     screenHeight: Int,
     screenWidth: Int,
+    experimentalSettings: ExperimentalSettings,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDeleteWidgetGridItemCache: (
         gridItem: GridItem,
@@ -1457,7 +1466,6 @@ internal fun rememberPagerScreenState(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
-        lockMovement: Boolean,
     ) -> Unit,
     onResetPinGridItem: () -> Unit,
     onShowFolderWhenDragging: (
@@ -1506,6 +1514,7 @@ internal fun rememberPagerScreenState(
             androidAppWidgetManagerWrapper = androidAppWidgetManagerWrapper,
             androidWallpaperManagerWrapper = androidWallpaperManagerWrapper,
             density = density,
+            experimentalSettings = experimentalSettings,
             onGetPinGridItem = onGetPinGridItem,
             onResetPinGridItem = onResetPinGridItem,
             onMoveFolderGridItem = onMoveFolderGridItem,
@@ -1543,6 +1552,7 @@ internal fun rememberPagerScreenState(
             androidAppWidgetManagerWrapper = androidAppWidgetManagerWrapper,
             androidWallpaperManagerWrapper = androidWallpaperManagerWrapper,
             density = density,
+            experimentalSettings = experimentalSettings,
             onGetPinGridItem = onGetPinGridItem,
             onResetPinGridItem = onResetPinGridItem,
             onMoveFolderGridItem = onMoveFolderGridItem,

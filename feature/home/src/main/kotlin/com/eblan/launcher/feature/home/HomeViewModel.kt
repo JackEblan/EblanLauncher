@@ -136,8 +136,6 @@ internal class HomeViewModel @Inject constructor(
 
     private val defaultDelay = 500L
 
-    private val moveDelay = 100L
-
     private val _editPageData = MutableStateFlow<EditPageData?>(null)
 
     val editPageData = _editPageData.asStateFlow()
@@ -240,13 +238,10 @@ internal class HomeViewModel @Inject constructor(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
-        lockMovement: Boolean,
     ) {
         moveGridItemJob?.cancel()
 
         moveGridItemJob = viewModelScope.launch {
-            delay(moveDelay)
-
             _moveGridItemResult.update {
                 moveGridItemUseCase(
                     movingGridItem = movingGridItem,
@@ -256,7 +251,6 @@ internal class HomeViewModel @Inject constructor(
                     rows = rows,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
-                    lockMovement = lockMovement,
                 )
             }
         }
@@ -266,19 +260,15 @@ internal class HomeViewModel @Inject constructor(
         resizingGridItem: GridItem,
         columns: Int,
         rows: Int,
-        lockMovement: Boolean,
     ) {
         moveGridItemJob?.cancel()
 
         moveGridItemJob = viewModelScope.launch {
-            delay(moveDelay)
-
             _resizeGridItem.update {
                 resizeGridItemUseCase(
                     resizingGridItem = resizingGridItem,
                     columns = columns,
                     rows = rows,
-                    lockMovement = lockMovement,
                 )
             }
         }
@@ -645,8 +635,6 @@ internal class HomeViewModel @Inject constructor(
         moveGridItemJob?.cancel()
 
         moveGridItemJob = viewModelScope.launch {
-            delay(moveDelay)
-
             moveFolderGridItemUseCase(
                 folderGridItem = folderGridItem,
                 applicationInfoGridItems = applicationInfoGridItems,
@@ -708,9 +696,7 @@ internal class HomeViewModel @Inject constructor(
                 null
             }
 
-            moveGridItemJob = viewModelScope.launch {
-                delay(1000L)
-
+            viewModelScope.launch {
                 showFolderWhenDraggingUseCase(
                     conflictingGridItem = conflictingGridItem,
                     movingGridItem = movingGridItem,

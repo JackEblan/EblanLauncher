@@ -38,7 +38,6 @@ class ResizeGridItemUseCase @Inject constructor(
         resizingGridItem: GridItem,
         columns: Int,
         rows: Int,
-        lockMovement: Boolean,
     ): GridItem = withContext(defaultDispatcher) {
         val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
             isGridItemSpanWithinBounds(
@@ -71,7 +70,6 @@ class ResizeGridItemUseCase @Inject constructor(
                 resizingGridItem = resizingGridItem,
                 columns = columns,
                 rows = rows,
-                lockMovement = lockMovement,
             )
         } else {
             gridCacheRepository.upsertGridItems(gridItems = gridItems)
@@ -87,7 +85,6 @@ class ResizeGridItemUseCase @Inject constructor(
         resizingGridItem: GridItem,
         columns: Int,
         rows: Int,
-        lockMovement: Boolean,
     ): GridItem {
         val resolveDirection = getRelativeResolveDirection(
             moving = oldGridItem,
@@ -102,7 +99,7 @@ class ResizeGridItemUseCase @Inject constructor(
             rows = rows,
         )
 
-        return if (resolvedConflicts && !lockMovement) {
+        return if (resolvedConflicts) {
             gridCacheRepository.upsertGridItems(gridItems = gridItems)
 
             resizingGridItem

@@ -232,7 +232,6 @@ internal fun HomeScreen(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
-        lockMovement: Boolean,
     ) -> Unit,
     onResetConfigureResultCode: () -> Unit,
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
@@ -244,7 +243,6 @@ internal fun HomeScreen(
         gridItem: GridItem,
         columns: Int,
         rows: Int,
-        lockMovement: Boolean,
     ) -> Unit,
     onSaveEditPage: (
         id: Int,
@@ -416,7 +414,6 @@ private fun Success(
         rows: Int,
         gridWidth: Int,
         gridHeight: Int,
-        lockMovement: Boolean,
     ) -> Unit,
     onResetConfigureResultCode: () -> Unit,
     onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
@@ -428,7 +425,6 @@ private fun Success(
         gridItem: GridItem,
         columns: Int,
         rows: Int,
-        lockMovement: Boolean,
     ) -> Unit,
     onSaveEditPage: (
         id: Int,

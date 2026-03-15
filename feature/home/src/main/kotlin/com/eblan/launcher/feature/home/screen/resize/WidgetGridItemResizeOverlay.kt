@@ -73,7 +73,6 @@ internal fun WidgetGridItemResizeOverlay(
         gridItem: GridItem,
         columns: Int,
         rows: Int,
-        lockMovement: Boolean,
     ) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -231,7 +230,7 @@ internal fun WidgetGridItemResizeOverlay(
                 gridItem = resizingGridItem,
                 columns = columns,
                 rows = rows,
-            )
+            ) && !lockMovement
         ) {
             delay(100L)
 
@@ -251,7 +250,6 @@ internal fun WidgetGridItemResizeOverlay(
                 resizingGridItem,
                 columns,
                 rows,
-                lockMovement,
             )
         }
     }

@@ -45,7 +45,6 @@ internal fun ResizeOverlay(
         gridItem: GridItem,
         columns: Int,
         rows: Int,
-        lockMovement: Boolean,
     ) -> Unit,
 ) {
     val currentTextColor = if (gridItem.override) {

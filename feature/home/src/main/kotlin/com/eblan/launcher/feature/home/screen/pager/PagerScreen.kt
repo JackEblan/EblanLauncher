@@ -63,8 +63,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.util.Consumer
@@ -897,10 +895,7 @@ internal fun PagerScreen(
             }
         }
 
-        if (pagerScreenState.showGridItemPopup &&
-            pagerScreenState.popupIntOffset != IntOffset.Zero &&
-            pagerScreenState.popupIntSize != IntSize.Zero
-        ) {
+        if (pagerScreenState.showGridItemPopup) {
             GridItemPopup(
                 currentPage = currentPage,
                 drag = pagerScreenState.drag,
@@ -960,9 +955,7 @@ internal fun PagerScreen(
             )
         }
 
-        if (pagerScreenState.showSettingsPopup &&
-            pagerScreenState.settingsPopupIntOffset != IntOffset.Zero
-        ) {
+        if (pagerScreenState.showSettingsPopup) {
             SettingsPopup(
                 gridItems = gridItems,
                 hasSystemFeatureAppWidgets = hasSystemFeatureAppWidgets,
@@ -982,10 +975,7 @@ internal fun PagerScreen(
             )
         }
 
-        if (folderGridItem != null &&
-            pagerScreenState.folderPopupIntOffset != IntOffset.Zero &&
-            pagerScreenState.folderPopupIntSize != IntSize.Zero
-        ) {
+        if (folderGridItem != null) {
             FolderScreen(
                 drag = pagerScreenState.drag,
                 folderGridHorizontalPagerState = folderGridHorizontalPagerState,
@@ -1026,10 +1016,7 @@ internal fun PagerScreen(
             )
         }
 
-        if (pagerScreenState.showFolderGridItemPopup &&
-            pagerScreenState.popupIntOffset != IntOffset.Zero &&
-            pagerScreenState.popupIntSize != IntSize.Zero
-        ) {
+        if (pagerScreenState.showFolderGridItemPopup) {
             FolderGridItemPopup(
                 gridItemSource = pagerScreenState.gridItemSource,
                 paddingValues = paddingValues,

@@ -894,8 +894,6 @@ internal class PagerScreenState(
         x: Int,
         y: Int,
     ) {
-        onUpdateFolderGridItemId(id)
-
         lastFolderPopupX = x
         lastFolderPopupY = y
 
@@ -911,6 +909,8 @@ internal class PagerScreenState(
             width = width,
             height = height,
         )
+
+        onUpdateFolderGridItemId(id)
     }
 
     fun updateOverlayBounds(
@@ -958,11 +958,11 @@ internal class PagerScreenState(
     }
 
     fun dismissGridItemPopup() {
+        showGridItemPopup = false
+
         popupIntOffset = IntOffset.Zero
 
         popupIntSize = IntSize.Zero
-
-        showGridItemPopup = false
     }
 
     fun showFolderGridItemPopup(
@@ -977,11 +977,11 @@ internal class PagerScreenState(
     }
 
     fun dismissFolderGridItemPopup() {
+        showFolderGridItemPopup = false
+
         popupIntOffset = IntOffset.Zero
 
         popupIntSize = IntSize.Zero
-
-        showFolderGridItemPopup = false
     }
 
     fun updateIsLongPress(value: Boolean) {
@@ -1053,9 +1053,9 @@ internal class PagerScreenState(
     }
 
     fun dismissSettingsPopup() {
-        settingsPopupIntOffset = IntOffset.Zero
-
         showSettingsPopup = false
+
+        settingsPopupIntOffset = IntOffset.Zero
     }
 
     fun openApplicationScreen() {

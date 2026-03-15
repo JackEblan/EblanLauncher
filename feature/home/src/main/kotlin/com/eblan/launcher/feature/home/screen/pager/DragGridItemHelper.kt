@@ -682,7 +682,7 @@ internal suspend fun handleConflictingGridItem(
 
     onUpdateGridItemSource(
         GridItemSource.Folder(
-            gridItem = conflictingGridItem,
+            gridItem = moveGridItemResult.movingGridItem,
             applicationInfoGridItem = ApplicationInfoGridItem(
                 id = moveGridItemResult.movingGridItem.id,
                 page = moveGridItemResult.movingGridItem.page,

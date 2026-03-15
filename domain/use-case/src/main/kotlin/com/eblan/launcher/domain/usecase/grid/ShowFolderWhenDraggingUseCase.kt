@@ -44,31 +44,39 @@ class ShowFolderWhenDraggingUseCase @Inject constructor(
 
             val currentApplicationInfoGridItems = conflictingData.gridItems.toMutableList()
 
-            currentApplicationInfoGridItems.add(
-                ApplicationInfoGridItem(
-                    id = movingGridItem.id,
-                    page = movingGridItem.page,
-                    startColumn = movingGridItem.startColumn,
-                    startRow = movingGridItem.startRow,
-                    columnSpan = movingGridItem.columnSpan,
-                    rowSpan = movingGridItem.rowSpan,
-                    associate = movingGridItem.associate,
-                    componentName = movingData.componentName,
-                    packageName = movingData.packageName,
-                    icon = movingData.icon,
-                    label = movingData.label,
-                    override = movingGridItem.override,
-                    serialNumber = movingData.serialNumber,
-                    customIcon = movingData.customIcon,
-                    customLabel = movingData.customLabel,
-                    gridItemSettings = movingGridItem.gridItemSettings,
-                    doubleTap = movingGridItem.doubleTap,
-                    swipeUp = movingGridItem.swipeUp,
-                    swipeDown = movingGridItem.swipeDown,
-                    index = conflictingData.gridItems.lastIndex + 1,
-                    folderId = conflictingData.id,
-                ),
+            val index = currentApplicationInfoGridItems.indexOfFirst { gridItem ->
+                gridItem.id == movingGridItem.id
+            }
+
+            val applicationInfoGridItem = ApplicationInfoGridItem(
+                id = movingGridItem.id,
+                page = movingGridItem.page,
+                startColumn = movingGridItem.startColumn,
+                startRow = movingGridItem.startRow,
+                columnSpan = movingGridItem.columnSpan,
+                rowSpan = movingGridItem.rowSpan,
+                associate = movingGridItem.associate,
+                componentName = movingData.componentName,
+                packageName = movingData.packageName,
+                icon = movingData.icon,
+                label = movingData.label,
+                override = movingGridItem.override,
+                serialNumber = movingData.serialNumber,
+                customIcon = movingData.customIcon,
+                customLabel = movingData.customLabel,
+                gridItemSettings = movingGridItem.gridItemSettings,
+                doubleTap = movingGridItem.doubleTap,
+                swipeUp = movingGridItem.swipeUp,
+                swipeDown = movingGridItem.swipeDown,
+                index = conflictingData.gridItems.lastIndex + 1,
+                folderId = conflictingData.id,
             )
+
+            if (index != -1) {
+                currentApplicationInfoGridItems[index] = applicationInfoGridItem
+            } else {
+                currentApplicationInfoGridItems.add(applicationInfoGridItem)
+            }
 
             val gridItems = currentApplicationInfoGridItems.mapIndexed { index, gridItem ->
                 gridItem.copy(index = index)
@@ -86,6 +94,8 @@ class ShowFolderWhenDraggingUseCase @Inject constructor(
                 columns = columns,
                 rows = rows,
             )
+
+            gridCacheRepository.deleteGridItem(gridItem = movingGridItem)
 
             gridCacheRepository.updateGridItemData(
                 id = conflictingGridItem.id,

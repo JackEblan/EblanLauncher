@@ -95,8 +95,6 @@ class ShowFolderWhenDraggingUseCase @Inject constructor(
                 rows = rows,
             )
 
-            gridCacheRepository.deleteGridItemById(id = movingGridItem.id)
-
             gridCacheRepository.updateGridItemData(
                 id = conflictingGridItem.id,
                 data = newData,

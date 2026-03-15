@@ -150,7 +150,7 @@ internal fun PagerScreen(
     ) -> Unit,
     onDragCancelAfterMove: () -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
-    onDragEndAfterMoveFolder: () -> Unit,
+    onDragEndAfterMoveFolder: (GridItem) -> Unit,
     onDragEndAfterMoveWidgetGridItem: (MoveGridItemResult) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
     onEditApplicationInfo: (

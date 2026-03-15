@@ -618,14 +618,15 @@ internal class PagerScreenState(
 
     suspend fun handleNewIntent(
         gridHorizontalPagerState: PagerState,
+        dockGridHorizontalPagerState: PagerState,
         intent: Intent,
         windowToken: IBinder,
     ) {
         handleActionMainIntent(
             eblanApplicationInfoGroup = eblanApplicationInfoGroup,
             gridHorizontalPagerState = gridHorizontalPagerState,
-            infiniteScroll = homeSettings.infiniteScroll,
-            initialPage = homeSettings.initialPage,
+            gridInfiniteScroll = homeSettings.infiniteScroll,
+            gridInitialPage = homeSettings.initialPage,
             intent = intent,
             pageCount = homeSettings.pageCount,
             screenHeight = screenHeight,
@@ -638,6 +639,9 @@ internal class PagerScreenState(
             onHome = {
                 isPressHome = true
             },
+            dockGridHorizontalPagerState = dockGridHorizontalPagerState,
+            dockInfiniteScroll = homeSettings.dockInfiniteScroll,
+            dockInitialPage = homeSettings.dockInitialPage,
         )
 
         handleEblanActionIntent(
@@ -745,8 +749,11 @@ internal class PagerScreenState(
     suspend fun handleActionMainIntent(
         eblanApplicationInfoGroup: EblanApplicationInfoGroup?,
         gridHorizontalPagerState: PagerState,
-        infiniteScroll: Boolean,
-        initialPage: Int,
+        dockGridHorizontalPagerState: PagerState,
+        gridInfiniteScroll: Boolean,
+        dockInfiniteScroll: Boolean,
+        gridInitialPage: Int,
+        dockInitialPage: Int,
         intent: Intent,
         pageCount: Int,
         screenHeight: Int,
@@ -777,17 +784,25 @@ internal class PagerScreenState(
         }
 
         gridHorizontalPagerState.scrollToPage(
-            if (infiniteScroll) {
-                (Int.MAX_VALUE / 2) + initialPage
+            if (gridInfiniteScroll) {
+                (Int.MAX_VALUE / 2) + gridInitialPage
             } else {
-                initialPage
+                gridInitialPage
+            },
+        )
+
+        dockGridHorizontalPagerState.scrollToPage(
+            if (dockInfiniteScroll) {
+                (Int.MAX_VALUE / 2) + dockInitialPage
+            } else {
+                dockInitialPage
             },
         )
 
         if (wallpaperScroll) {
             val page = calculatePage(
                 index = gridHorizontalPagerState.currentPage,
-                infiniteScroll = infiniteScroll,
+                infiniteScroll = gridInfiniteScroll,
                 pageCount = pageCount,
             )
 

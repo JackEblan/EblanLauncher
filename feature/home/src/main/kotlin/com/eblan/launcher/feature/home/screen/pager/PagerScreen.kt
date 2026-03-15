@@ -562,6 +562,7 @@ internal fun PagerScreen(
             scope.launch {
                 pagerScreenState.handleNewIntent(
                     gridHorizontalPagerState = gridHorizontalPagerState,
+                    dockGridHorizontalPagerState = dockGridHorizontalPagerState,
                     intent = intent,
                     windowToken = view.windowToken,
                 )
